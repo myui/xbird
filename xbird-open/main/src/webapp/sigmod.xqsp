@@ -1,0 +1,80 @@
+(: Copyright (c) 2005. Makoto YUI. All rights reserved. :)
+
+(: A program to extract articles related to declared keywords from SigmodRecord :)
+
+declare variable $baseuri := "http://www.sigmod.org/record/xml/";
+declare variable $target := fn:concat($baseuri, "index.xml");
+declare variable $sigmod := fn:doc($target);
+declare variable $this_year := fn:year-from-date(fn:current-date());
+declare variable $year_after := $this_year - 10;
+declare variable $every_keys := ("xml");
+declare variable $some_keys := ("integration", "view");
+declare variable $except_keys := ();
+
+<html>
+  <body>
+    <p>
+      Extract reserch paper infomations from <a href="{ $target }">SigmodRecord</a>.<br/><br/>
+      <small>
+        <font color="gray">
+          Published { $year_after } - { $this_year } .<br/>
+          Choosing keywords: <br/>
+			Every - {{{ $every_keys }}}, Some - {{{ $some_keys }}}, Expept - {{{ $except_keys }}}
+        </font>
+      </small>
+    </p>
+    <table border="1">
+      <tr bgcolor="lightgreen">
+        <td><b>title</b></td>
+        <td><b>year</b></td>
+        <td><b>authors</b></td>
+        <td><b>sources</b></td>
+      </tr>
+      {
+        for $issue in $sigmod/HomePage/volumes/issuesByYear/issues/issue
+        let $ref := fn:doc(fn:concat($baseuri, "/", $issue/toIssue/@href/text()))/OrdinaryIssuePage
+        where $issue/toIssue/year > $year_after
+        return
+          for $article in $ref/sections/section/articles/article
+          let $title := $article/title,
+              $t := fn:lower-case($title)
+          where
+		  	(every $e in $every_keys satisfies fn:contains($t, $e)) and 
+		  	(some  $s in $some_keys satisfies fn:contains($t, $s)) and 
+			(every $n in $except_keys satisfies fn:not(fn:contains($t, $n)))
+          return
+            <tr>
+              <td>{ $article/title/text() } </td>
+              <td>{ $ref/year/text() }</td>
+              <td>
+                {
+                  for $a at $pos in $article/authors/author/text()
+                  return
+                    if($pos = 1) then $a
+                    else (", ", $a)
+                }
+              </td>
+              <td>
+                {
+                  for $src at $pos in $article/availableSources/toAvailableSource
+                  return
+                    if($pos = 1) then
+                      <a href="{ $src/@href/text() }">
+                        { $src/format/text() }
+                      </a>
+                    else
+                      (", ", 
+                      <a href="{ $src/@href/text() }">
+                        { $src/format/text() }
+                      </a>)
+                }
+              </td>
+            </tr>
+      }
+    </table>
+  </body>
+</html>(: Stylus Studio meta-information - (c) 2004-2005. Progress Software Corporation. All rights reserved.
+<metaInformation>
+<scenarios ><scenario default="yes" name="Scenario1" userelativepaths="yes" externalpreview="no" useresolver="no" url="" outputurl="" processortype="internal" tcpport="1233864" profilemode="0" profiledepth="" profilelength="" urlprofilexml="" commandline="" additionalpath="" additionalclasspath="" postprocessortype="none" postprocesscommandline="" postprocessadditionalpath="" postprocessgeneratedext="" host="" port="0" user="" password="" validateoutput="no" validator="internal" customvalidator=""/></scenarios><MapperMetaTag><MapperInfo srcSchemaPathIsRelative="yes" srcSchemaInterpretAsXML="no" destSchemaPath="" destSchemaRoot="" destSchemaPathIsRelative="yes" destSchemaInterpretAsXML="no"/><MapperBlockPosition></MapperBlockPosition><TemplateContext></TemplateContext><MapperFilter side="source"></MapperFilter></MapperMetaTag>
+</metaInformation>
+:)

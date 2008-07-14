@@ -1,0 +1,30 @@
+/*
+ * @(#)$Id: XQTSTest.template 946 2006-09-14 03:31:56Z yui $
+ *
+ * Copyright (c) 2005-2006 Makoto YUI <yuin405+xbird@gmail.com>
+ * All rights reserved.
+ * 
+ * This file is part of XBird and is distributed under the terms of
+ * the Common Public License v1.0.
+ * 
+ * Contributors:
+ *     Makoto YUI - initial implementation
+ */
+package $PACKAGE;
+
+import junit.framework.TestCase;
+import xqts.XQTSTestBase;
+
+public class $CLASSNAME extends TestCase {
+
+    private static final String TEST_PATH = "$TEST_PATH";
+    private static final String TARGET_XQTS_VERSION = "$XQTS_VERSION";
+    
+    private final XQTSTestBase xqts;
+
+    public $CLASSNAME() {
+    	super($CLASSNAME.class.getName());
+        this.xqts = new XQTSTestBase($CLASSNAME.class.getName(), TARGET_XQTS_VERSION);
+    }
+
+}
