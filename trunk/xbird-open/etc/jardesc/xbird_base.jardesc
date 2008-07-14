@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="D:/workspace/xbird/target/xbird_base.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/xbird/etc/jardesc/xbird_base.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.decorative"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.comp"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.update"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.type.xs"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{BitOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastByteArrayOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.constructor"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.iterator"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.meta"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.ext"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.var"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{TeeOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{RemoteInputStreamProxy.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{BitInputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.string"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.ser"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.type.schema"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.seq"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.cache.algorithm"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.value.literal"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm.hooked"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.value.sequence"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{AppendingObjectOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.cache.provider"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.qname"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{DocumentTableBuilder.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.accessor"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/resources&lt;xbird.util.resource"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{AbstractDocumentTable.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.opt"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastBufferedInputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.types"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.path"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{IDocumentTable.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.concurrent"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.collections"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{ObjectOutputStreamAdapter.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.lang"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.codec"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastPipedInputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastByteArrayInputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{PagingProfile.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.cache"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.config"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.math"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.value.node"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{NOPWriter.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.coder"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.storage"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.xml{XmlChars.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.operator.math"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.opt"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.labeling"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.compress"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{PipedDeepCopy.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FileUtils.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.time"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.struct"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.concurrent.lock"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.concurrent.collections"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{DocumentTable.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.context"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastMultiByteArrayOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{CsvWriter.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.type.node"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.misc"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.parser"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.xml{XMLUtils.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.xml{NamespaceBinder.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.seq"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.resource"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.value"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.node"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.func"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.math"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.string"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.optim"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.type.ext"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.type"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{RemoteInputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;javax.xml.xquery"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.value.xsi"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastBufferedWriter.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.net"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.doc"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.xml{HTMLSAXParser.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.misc"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.cond"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/resources&lt;xbird.xquery.misc"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.path.axis"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.fulltext"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{DocumentTableLoader.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.ext"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastPipedOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.bool"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.instance"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.dyna"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{IOUtils.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.xml{SAXWriter.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.logical"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.operator"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.flwr"/>
+        <javaElement handleIdentifier="=xbird/main\/conf&lt;xbird.config"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.storage.io"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.constructor"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.func.agg"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{CountingOutputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.dm.dtm{BigDocumentTable.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{FastMultiByteArrayInputStream.java"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.parser.visitor"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.xquery.expr.ext"/>
+        <javaElement handleIdentifier="=xbird/main\/src\/java&lt;xbird.util.io{IRemoteInputStreamProxy.java"/>
+    </selectedElements>
+</jardesc>

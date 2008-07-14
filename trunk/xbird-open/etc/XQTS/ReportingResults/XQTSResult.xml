@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE test-suite-result [
+	<!ENTITY test-reports SYSTEM "test-reports_wf.xml">
+]>
+
+<test-suite-result xmlns="http://www.w3.org/2005/02/query-test-XQTSResult" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2005/02/query-test-XQTSResult XQTSResult.xsd">
+
+   <implementation name="xbird/open" version="1.0 alpha 2" anonymous-result-column="false">
+
+      <organization name="Makoto YUI (NAIST)" website="http://db-www.naist.jp/~makoto-y/proj/xbird/" anonymous="false"/>
+
+      <submittor name="Makoto YUI" email="yuin405+xbird@gmail.com"/>
+
+      <description>
+         <p>XBird is a light-weight XQuery processor and database system. 
+         	The light-weight means reasonably fast and embeddable.</p>
+         <!--
+         	Embedded database mode of XBird runs queries of XMark benchmark suite against even 2GB XML data in interactive time.
+           -->
+      </description>
+
+      <implementation-defined-items>
+         <implementation-defined-item name="expressionUnicode" value="Defined by Java JDK to use."/>
+         <implementation-defined-item name="collations" value="Based on Java collators and locales."/>
+         <implementation-defined-item name="implicitTimezone" value="Can be set through the API. Default is local timezone."/>
+         <implementation-defined-item name="warningsMethod" value="Warn method of Apache Commons Logger is called. Users can specify the custom Logger."/>
+         <implementation-defined-item name="errorsMethod" value="via Java exceptions."/>
+         <implementation-defined-item name="XMLVersion" value="XML 1.0."/>
+         <implementation-defined-item name="overwrittenContextComponents" value="None."/>
+         <implementation-defined-item name="axes" value="all."/>
+         <implementation-defined-item name="defaultOrderEmpty" value="empty greatest."/>
+         <implementation-defined-item name="pragmas" value="Pragmas are not used currently."/>
+         <implementation-defined-item name="optionDeclarations" value="Various options with a prefix 'xbird' and a namespace 'http://metabrick.org/xbird' are provided. (e.g. xbird:view function for virtual view feature.)"/>
+         <implementation-defined-item name="externalFunctionProtocols" value="Supports calls on external static Java methods. Returned value is mapped to XQuery values. Long is turned into xs:integer."/>
+         <implementation-defined-item name="moduleLocationHints" value="If any location hints are provided, use the first one for the importing module location. Otherwise, the target namespace of importing module is used. A module location is expected to be full URIs (e.g. file:// or http://)"/>
+         <implementation-defined-item name="staticTypingExtensions" value="No extensions."/>
+         <implementation-defined-item name="serializationInvocation" value="Provides Java APIs for giving accesses to serialization. Besides default Serialization is provided for Sequence result through toString() method."/>
+         <implementation-defined-item name="serializationDefaults" value="As specified in Appendix C.3 of the XQuery specification. byte-order-mark: no, encoding: utf-8, normalization-form: NFC, omit-xml-declaration: no, standalone: no, version: 1.0."/>
+         <implementation-defined-item name="limits" value="For the xs:decimal type: java.math.BigDecimal is used (unlimited). For the types xs:date, xs:time, xs:dateTime, xs:gYear, and xs:gYearMonth: javax.xml.datatype.XMLGregorianCalendar is used. For the types xs:duration, xs:yearMonthDuration, and dayTimeDuration : javax.xml.datatype.Duration is used. For the types xs:string, xs:hexBinary, xs:base64Binary, xs:QName, xs:anyURI, xs:NOTATION: no limitation on lengths of values."/>
+         <implementation-defined-item name="traceDestination" value="Depends on Logger settings. Default output destination is stdout."/>
+         <!--
+		 <implementation-defined-item
+            name="numericOverflow"
+            value="" />
+		   -->
+         <implementation-defined-item name="integerOperations" value="Raises an error [err:FOAR0002]."/>
+         <implementation-defined-item name="decimalDigits" value="Supports arbitrary-precision decimal representation."/>
+         <implementation-defined-item name="roundOrTruncate" value="The result is rounded by casting."/>
+         <implementation-defined-item name="Unicode" value="Depends on the user's choice of XML parser."/>
+         <!--
+		 <implementation-defined-item
+            name="whitespaceXMLVersion"
+            value="" />
+           --> 
+		<implementation-defined-item name="normalizationForms" value="Supports NFC, NFD, NFKC, and NFKD/FULLY-NORMALIZED."/>
+         <implementation-defined-item name="collationUnits" value="Depends on Java collators. Collation based on Java RuleBasedCollator have this property."/>
+         <implementation-defined-item name="secondsDigits" value="Supports Integer value for the year and fractional seconds on durations. They are defined by javax.xml.datatype.XMLGregorianCalendar and javax.xml.datatype.Duration respectively."/>
+         <implementation-defined-item name="docProcessing" value="Defined by the implementation of java.net.URL class of Java JDK."/>
+         <!--
+		 <implementation-defined-item
+            name="URISchemes"
+            value="" />
+		 <implementation-defined-item
+            name="nonXMLMediaTypes"
+            value="" />
+		 <implementation-defined-item
+            name="DTDValidation"
+            value="" />
+		 <implementation-defined-item
+            name="numericLimits"
+            value="" />
+		 <implementation-defined-item
+            name="integerLimits"
+            value="" />
+           -->
+         <implementation-defined-item name="additionalTypes" value="Allows any Java object to be wrapped as an Item."/>
+         <implementation-defined-item name="undefinedProperties" value=" Access to undefined values is an error."/>
+         <implementation-defined-item name="sequenceNormalization" value="Sequences are returned as Java Iterators, and Serialization is left to the user though a default toString() method is provided."/>
+         <implementation-defined-item name="outputMethods" value="Allows a user-specified serialization class."/>
+         <implementation-defined-item name="normalizationFormBehavior" value="Assumed to be NFC."/>
+         <implementation-defined-item name="additionalParams" value="Additional serialization parameters, such as indent size, pretty printing, and XML version, etc, is supported."/>
+         <implementation-defined-item name="encodingPhase" value="Allows the serialization method defined by java.io.Writer."/>
+         <implementation-defined-item name="CDATASerialization" value="The standard cdata-section-elements mechanism is only provides."/>
+
+      </implementation-defined-items>
+
+      <features>
+         <feature name="Minimal Conformance" supported="true"/>
+         <feature name="Schema Import" supported="false"/>
+         <feature name="Schema Validation" supported="false"/>
+         <feature name="Static Typing" supported="false"/>
+         <feature name="Static Typing Extensions" supported="false"/>
+         <feature name="Full Axis" supported="true"/>
+         <feature name="Module" supported="true"/>
+         <feature name="Serialization" supported="true"/>
+         <feature name="Trivial XML Embedding" supported="false"/>
+      </features>
+
+      <context-properties>
+         <context-property name="Statically known namespaces" context-type="static" value="Prefix java for extension functions."/>
+         <context-property name="Default element/type namespace" context-type="static" value="default"/>
+         <context-property name="Default function namespace" context-type="static" value="default"/>
+         <context-property name="In-scope schema types" context-type="static" value="default"/>
+         <context-property name="In-scope element declarations" context-type="static" value="none"/>
+         <context-property name="In-scope attribute declarations" context-type="static" value="none"/>
+         <context-property name="In-scope variables" context-type="static" value="augmentable via API."/>
+         <context-property name="Context item static type" context-type="static" value="fixed as item()*"/>
+         <context-property name="Function signatures" context-type="static" value="augmentable via API."/>
+         <context-property name="Statically known collations" context-type="static" value="Based on Java collations"/>
+         <context-property name="Default collation" context-type="static" value="Unicode codepoint"/>
+         <context-property name="Construction mode" context-type="static" value="preserve"/>
+         <context-property name="Ordering mode" context-type="static" value="ordered"/>
+         <context-property name="Default order for empty sequences" context-type="static" value="empty greatest"/>
+         <context-property name="Boundary-space policy" context-type="static" value="strip"/>
+         <context-property name="Copy-namespaces mode" context-type="static" value="No preserve"/>
+         <context-property name="Base URI" context-type="static" value="Defined by API. Default is set to Java system property of user.dir."/>
+         <context-property name="Statically known documents" context-type="static" value="none"/>
+         <context-property name="Statically known collections" context-type="static" value="none"/>
+         <context-property name="Statically known default collection type" context-type="static" value="none"/>
+         <!-- 
+         	dynamic context properties
+           -->
+         <context-property name="Context item" context-type="dynamic" value="Undefined"/>
+         <context-property name="Context position" context-type="dynamic" value="0 if not initialized."/>
+         <context-property name="Context size" context-type="dynamic" value="N/A"/>
+         <context-property name="Variable values" context-type="dynamic" value="Settable via API"/>
+         <context-property name="Function implementations" context-type="dynamic" value="Functions are dynamically loaded for call-by need fasion."/>         
+         <context-property name="Current dateTime" context-type="dynamic" value="Default from system clock."/>
+         <context-property name="Implicit timezone" context-type="dynamic" value="Settable via API. Default is local timezone."/>
+         <context-property name="Available documents" context-type="dynamic" value="Defined by environment. Settable via API(DocumentManager)."/>
+         <context-property name="Available collections" context-type="dynamic" value="Defined by environment. Collections of opened databases for XBird embedded mode."/>
+         <context-property name="Default collection" context-type="dynamic" value="Can be set by configuration file setting."/>
+      </context-properties>
+
+   </implementation>
+
+   <syntax>XQuery</syntax>
+
+   <test-run dateRun="2007-03-29">
+      <test-suite version="1.0.2"/>
+      <transformation>
+         <p>Input queries have been run without any transformations.</p>
+      </transformation>
+      <comparison>
+         <p>XML: XML comparison is done by using XMLUnit's assertXMLEqual method.</p>
+         <p>Fragment: Fragment comparisons are performed by preparedly wrapping the reference results with a dummy element node, 
+			and the comparison method is same as XML comparison.</p>
+ 		 <p>Text: Text comparison is done by comparing String equality.</p>
+		 <p>Inspect: Inspect comparison is done by as same as Fragment comparison. 
+		 	But that, only non-failed tests are recorded as "pass", otherwise treated as "not tested". 
+		 	Most Inspect comparation requires human eye checking, so most tests are recorded as "not tested" actually.</p>
+     </comparison>
+      <otherComments>
+	  	<p>
+		XBird/open is yet under the heavy development and XQTS success rate is improving gradually. 
+		The XBird project is sponsored by Information-technology Promotion Agency (IPA), Japan.
+		Test-cases which require inspections are mostly skipped (denoted as "not tested"). 
+		JUnit test cases for each XQuery test cases were generated by own code generator respectively. 
+		The detailed results are put on our project site.
+		</p>
+      </otherComments>     
+   </test-run>
+
+   &test-reports;
+
+</test-suite-result>
