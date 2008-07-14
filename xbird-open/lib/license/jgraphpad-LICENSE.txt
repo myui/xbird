@@ -1,0 +1,39 @@
+JGraphpad Community Edition License
+
+JGraphpad Community Edition is licensed under the terms of the GPL, unless 
+the following exception terms are fully complied with. If the following terms
+are met, the application may be licensed under the terms of the LGPL, but still
+with this exception overriding those of the LGPL where appropriate.
+
+1. Definitions
+  a. Terms used, but not defined, herein shall have the meaning provided in the GPL.
+  b. Derivative Work means a derivative work under copyright law.
+
+2. You are free to distribute a Derivative Work that is formed entirely from 
+the Program and one or more works, each of which must be licensed under the 
+LGPL, as long as:
+  a. You obey the LGPL in all respects for the Program and the Derivative Work.
+  b. All identifiable sections of the Derivative Work which are not derived 
+  from the Program, and which can reasonably be considered independent and 
+  separate works in themselves,
+    i. are distributed subject to the LGPL
+    ii. the object code or executable form of those sections are accompanied 
+    by the complete corresponding machine-readable source code for those 
+    sections on the same medium and under the same license as the 
+    corresponding object code or executable forms of those sections, and
+    iii. the Program and any derivative work is not capable of execution without 
+    the use of the Netbeans Rich Client Platform (RCP). Any use of the 
+    JGraphpad Community Edition source code or binary or derivative work of the
+    source code or binary without the use of the Netbeans RCP is subject to 
+    the terms of the GPL.
+
+If the above conditions are not met, then the Program may only be copied, 
+modified, distributed or used under the terms and conditions of the GPL.
+
+3. Your Program must clearly state that it is licensed using this exception
+if you choose to do so and it meets the above requirements. Your program
+must also state that derivative works must comply with this exception or
+be licensed under the terms of GPL.
+
+4. This license exception may be applied to no other JGraph software products
+other than JGraphpad Community Edition.
