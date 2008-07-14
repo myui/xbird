@@ -1,0 +1,79 @@
+<project name="xbird" default="jar" basedir=".">
+
+	<property file="build.properties" />
+
+	<path id="classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile">
+		<javac srcdir="${src.dir}/java"
+		       destdir="${build.dir}"
+		       source="${javac.source}"
+		       target="${javac.target}"
+		       optimize="${javac.optimize}"
+		       debug="${javac.debug}"
+		       debuglevel="${javac.debuglevel}">
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
+		<copy todir="${build.dir}" verbose="on">
+			<fileset dir="${src.dir}/resources">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<copy todir="${build.dir}" verbose="on">
+			<fileset dir="${conf.dir}">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="rmic" description="RMI stub generation" depends="compile">
+		<rmic base="${build.dir}" includes="${rmic.classes}" />
+	</target>
+
+	<target name="jar" depends="clean,compile,rmic">
+		<jar destfile="${target.dir}/xbird-open-${version}.jar"
+		     basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${jar.mainclass}" />
+				<attribute name="Implementation-Title" value="${jar.title}" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="${jar.vendor}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="war" depends="jar">
+		<war destfile="${target.dir}/xbird-${version}.war"
+		     webxml="${war.webxml}"
+		     update="true">
+			<fileset dir="${war.src}" excludes="**/web.xml" />
+			<lib dir="${lib.dir}" includes="**/*.jar" />
+			<lib file="${target.dir}/xbird-open-${version}.jar" />
+			<classes dir="${build.dir}" includes="**/servlet/**/*.class" />
+		</war>
+	</target>
+
+	<target name="javadoc" depends="compile">
+		<delete failonerror="false" dir="${target.dir}/docs/api" />
+		<mkdir dir="${target.dir}/docs/api" />
+		<javadoc destdir="${target.dir}/docs/api"
+		         sourcepath="${src.dir}/java"
+		         useexternalfile="true"
+		         docencoding="${javadoc.docencoding}"
+		         locale="${javadoc.locale}"
+		         link="${javadoc.link}"
+		         private="${javadoc.private}" />
+	</target>
+
+	<target name="clean">
+		<delete failonerror="false" dir="${build.dir}" />
+		<mkdir dir="${build.dir}" />
+	</target>
+
+</project>
