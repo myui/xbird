@@ -1,0 +1,5 @@
+    @org.junit.Test(timeout=$TIMEOUT)
+    public void test$METHOD_NAME() throws Exception {
+        xqts.invokeTest(TEST_PATH + "[$i]");
+    }
+
