@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="main/src/java">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="xbird/lib/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="main/test/java"/>
+	<classpathentry kind="src" path="main/conf"/>
+	<classpathentry kind="src" path="main/test/resources"/>
+	<classpathentry kind="src" path="main/src/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/stax-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/xbird-db-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/optional/args4j-2.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/optional/high-scale-lib-0.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/optional/icu4j_3_4_2.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jdic-0.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jgraph-5.7.4.5-lgpl.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jgraphpad.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jgrapht-0.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/optional/junit-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/optional/junit-addons-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/optional/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="lib/optional/mina_2.0m1.jar" sourcepath="lib/src/mina-core-2.0.0-M1-20080124.103130-116-sources.jar"/>
+	<classpathentry kind="lib" path="lib/optional/nekohtml.jar"/>
+	<classpathentry kind="lib" path="lib/optional/ognl-2.6.9.jar"/>
+	<classpathentry kind="lib" path="lib/optional/resolver.jar"/>
+	<classpathentry kind="lib" path="lib/optional/saxon8-dom.jar"/>
+	<classpathentry kind="lib" path="lib/optional/saxon8.jar"/>
+	<classpathentry kind="lib" path="lib/optional/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/optional/slf4j-api-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/optional/slf4j-log4j12-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/optional/testng-5.8-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/optional/xercesImpl-2.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/optional/xmlunit-1.0.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>
