@@ -273,7 +273,6 @@ public final class LZFCodec implements CompressionCodec {
     }
 
     private static int hash(final int h) {
-        // or 57321
         return ((h * 184117) >> 9) & (HASH_SIZE - 1);
     }
 
