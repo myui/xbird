@@ -46,13 +46,15 @@ public final class SeqLock {
         this.mfence = 0;
     }
 
+    @SuppressWarnings("unused")
     public long readBegin() {
         long ret = counter;
         long lfence = mfence;   // lfence
         return ret;
     }
 
-    public boolean readRetry(long v) {
+    @SuppressWarnings("unused")
+    public boolean readRetry(long v) {        
         long lfence = mfence;   // lfence
         return (v & 1) == 1 || counter != v; // v is odd or sequence number is changed
     }
