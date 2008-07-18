@@ -10,18 +10,15 @@
 || lib/optional/[http://www.icu-project.org/ icu4j_xx.jar] ||   ||   || ICU4J (BSD like) ||
 || lib/optional/[https://jdic.dev.java.net/ jdic-xx.jar] ||   ||   || LGPL 2.1 || 
 || lib/optional/[http://www.junit.org/ junit-xx.jar] ||   ||   ||  CPL 1.0  ||
-|| lib/optional/[http://sourceforge.net/projects/junit-addons junit-addons-xx.jar] ||   ||   ||  ASL 1.1 ||
 || lib/optional/[http://logging.apache.org/log4j/ log4j-xx.jar] ||   ||   || ASL 2.0 ||
-|| lib/optional/[http://mina.apache.org/ mina_xx.jar] ||   ||   || ASL 2.0 ||
 || lib/optional/[http://sourceforge.net/projects/nekohtml nekohtml.jar] ||   ||   || CyberNeko Software License 1.0 (ASL 1.1) ||
-|| lib/optional/[http://www.ognl.org/ ognl-xx.jar] ||   ||   || MIT ||
-|| lib/optional/[ resolver.jar] ||   ||   || ASL 1.1 ||
+|| lib/optional/[http://tomcat.apache.org/ resolver.jar] ||   ||   || ASL 1.1 ||
 || lib/optional/[http://sourceforge.net/projects/saxon saxon8-dom.jar] ||   ||   || MPL 1.1 ||
 || lib/optional/[http://sourceforge.net/projects/saxon saxon8.jar] ||   ||   || MPL 1.1 ||
-|| lib/optional/[ servlet-api.jar] ||   ||   ||   ||
+|| lib/optional/[http://tomcat.apache.org/ servlet-api.jar] ||   ||   || ASL 2.0 ||
 || lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || StreamReaderAdapter ||  ASF 2.0 ||
-|| lib/optional/[ testng-xx-jdk15.jar] ||   ||   || ASL 2.0 ||
-|| lib/optional/[ xercesImpl-xx.jar] ||   ||   || ASL 2.0  ||
+|| lib/optional/[http://testng.org/ testng-xx-jdk15.jar] ||   ||   || ASL 2.0 ||
+|| lib/optional/[http://xerces.apache.org/xerces2-j/ xercesImpl-xx.jar] ||   ||   || ASL 2.0  ||
 || lib/optional/[http://xmlunit.sourceforge.net/ xmlunit-xx.jar] ||   ||   || newBSD ||
  
 = Details =
