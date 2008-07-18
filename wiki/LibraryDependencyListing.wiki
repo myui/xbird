@@ -4,7 +4,7 @@
 = Libraries included in XBird =
 
 || * file path * ||* role * || * (main) dependent classes * ||  * license ** || 
-|| lib/xbird-db-xx.jar || Futures included in this library consists of unpublished work. Part of the future is to be included in the future release of xbird/open. || a bunch of classes ||  ASF 2.0 ||
+|| lib/xbird-db-xx.jar || Futures included in this library consists of unpublished research work. Part of the future is to be included in the future release of xbird/open. || a bunch of classes ||  ASF 2.0 ||
 || lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || used for parsing command line arguments. This API is required only when you use XBird by command line. ||  InteractiveShell, CommandInvoker || MIT ||
 || lib/optional/[http://sourceforge.net/projects/high-scale-lib high-scale-lib-xx.jar] || used for its efficiency when many CPUs  ( 8 processors or more)  are available. || classes in xbird-db-xx.jar and classes under xbird.util.concurrent.xx. || public domain ||
 || lib/optional/[http://www.icu-project.org/ icu4j_xx.jar] ||   ||   || ICU4J (BSD like) ||
@@ -19,7 +19,8 @@
 || lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || StreamReaderAdapter ||  ASF 2.0 ||
 || lib/optional/[http://testng.org/ testng-xx-jdk15.jar] ||   ||   || ASL 2.0 ||
 || lib/optional/[http://xerces.apache.org/xerces2-j/ xercesImpl-xx.jar] ||   ||   || ASL 2.0  ||
-|| lib/optional/[http://xmlunit.sourceforge.net/ xmlunit-xx.jar] ||   ||   || newBSD ||
+|| lib/optional/[http://xmlunit.sourceforge.net/ xmlunit-xx.jar] ||   ||   || new BSD ||
+
  
 = Details =
 
