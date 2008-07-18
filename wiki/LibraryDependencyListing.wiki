@@ -6,7 +6,7 @@
 || * file path * || * (main) dependent classes * || * role * || * license ** || 
 || lib/xbird-db-xx.jar || a bunch of classes || Futures included in this library consists of unpublished work. Part of the future is to be included in the future release of xbird/open. || ASF 2.0 ||
 || lib/[http://stax.codehaus.org/ stax-api-xx.jar] || StreamReaderAdapter ||  required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || ASF 2.0 ||
-|| lib/optional/args4j-xx.jar || || || ASF 2.0 ||
+|| lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || InteractiveShell, CommandInvoker || used for parsing command line arguments. This API is required only when you use XBird by command line. || ASF 2.0 ||
 
 = Details =
 
