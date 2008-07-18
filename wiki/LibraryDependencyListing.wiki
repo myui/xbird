@@ -3,12 +3,28 @@
 
 = Libraries included in XBird =
 
-|| * file path * || * (main) dependent classes * || * role * || * license ** || 
-|| lib/xbird-db-xx.jar || a bunch of classes || Futures included in this library consists of unpublished work. Part of the future is to be included in the future release of xbird/open. || ASF 2.0 ||
-|| lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || StreamReaderAdapter ||  required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || ASF 2.0 ||
-|| lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || InteractiveShell, CommandInvoker || used for parsing command line arguments. This API is required only when you use XBird by command line. || MIT ||
-|| lib/optional/[http://sourceforge.net/projects/high-scale-lib high-scale-lib-xx.jar] || classes under xbird.util.concurrent.xx. || public domain ||
-
+|| * file path * ||* role * || * (main) dependent classes * ||  * license ** || 
+|| lib/xbird-db-xx.jar || Futures included in this library consists of unpublished work. Part of the future is to be included in the future release of xbird/open. || a bunch of classes ||  ASF 2.0 ||
+|| lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || used for parsing command line arguments. This API is required only when you use XBird by command line. ||  InteractiveShell, CommandInvoker || MIT ||
+|| lib/optional/[http://sourceforge.net/projects/high-scale-lib high-scale-lib-xx.jar] || used for its efficiency when many CPUs  ( 8 processors or more)  are available. || classes in xbird-db-xx.jar and classes under xbird.util.concurrent.xx. || public domain ||
+|| lib/optional/[http://www.icu-project.org/ icu4j_xx.jar] ||   ||   || ICU4J (BSD like) ||
+|| lib/optional/[ jdic-xx.jar] ||   ||   || LGPL 2.1 || 
+|| lib/optional/[ junit-xx.jar] ||   ||   ||  CPL 1.0  ||
+|| lib/optional/[ junit-addons-xx.jar] ||   ||   ||  ASL 1.1 ||
+|| lib/optional/[ log4j-xx.jar] ||   ||   || ASL 2.0 ||
+|| lib/optional/[http://mina.apache.org/ mina_xx.jar] ||   ||   || ASL 2.0 ||
+|| lib/optional/[ nekohtml.jar] ||   ||   || CyberNeko Software License 1.0 (ASL 1.1) ||
+|| lib/optional/[http://www.ognl.org/ ognl-xx.jar] ||   ||   || MIT ||
+|| lib/optional/[ resolver.jar] ||   ||   || ASL 2.0 ||
+|| lib/optional/[ saxon8-dom.jar] ||   ||   || MPL 1.1 ||
+|| lib/optional/[ saxon8.jar] ||   ||   || MPL 1.1 ||
+|| lib/optional/[ servlet-api.jar] ||   ||   ||   ||
+|| lib/optional/[ slf4j-api-xx.jar] ||   ||   || MIT ||
+|| lib/optional/[ slf4j-log4j12-xxx.jar] ||   ||   || MIT ||
+|| lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || StreamReaderAdapter ||  ASF 2.0 ||
+|| lib/optional/[ testng-xx-jdk15.jar] ||   ||   || ASL 2.0 ||
+|| lib/optional/[ xercesImpl-xx.jar] ||   ||   || ASL 2.0  ||
+|| lib/optional/[ xmlunit-xx.jar] ||   ||   || newBSD ||
  
 = Details =
 
