@@ -13,7 +13,11 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/xbird-db-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/optional/args4j-2.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/optional/jdic-0.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jdic-0.9.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="xbird-open/lib/native/jdic"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/optional/junit-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/optional/log4j-1.2.13.jar"/>
 	<classpathentry kind="lib" path="lib/optional/nekohtml.jar"/>

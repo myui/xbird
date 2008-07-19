@@ -37,6 +37,8 @@
 	</target>
 
 	<target name="jar" depends="clean,compile,rmic">
+		<delete failonerror="false"
+		        file="${target.dir}/xbird-open-${version}.jar" />
 		<jar destfile="${target.dir}/xbird-open-${version}.jar"
 		     basedir="${build.dir}">
 			<manifest>
@@ -49,12 +51,19 @@
 	</target>
 
 	<target name="war" depends="jar">
+		<delete failonerror="false" file="${target.dir}/xbird-${version}.war" />
 		<war destfile="${target.dir}/xbird-${version}.war"
 		     webxml="${war.webxml}"
 		     update="true">
 			<fileset dir="${war.src}" excludes="**/web.xml" />
-			<lib dir="${lib.dir}" includes="**/*.jar" />
+			<lib dir="${lib.dir}" includes="*.jar" />
 			<lib file="${target.dir}/xbird-open-${version}.jar" />
+			<lib file="${lib.dir}/optional/servlet-api*.jar" />
+			<lib file="${lib.dir}/optional/high-scale-lib*.jar" />
+			<lib file="${lib.dir}/optional/icu4j*.jar" />
+			<lib file="${lib.dir}/optional/nekohtml*.jar" />
+			<lib file="${lib.dir}/optional/resolver*.jar" />
+			<lib file="${lib.dir}/optional/xercesImpl*.jar" />
 			<classes dir="${build.dir}" includes="**/servlet/**/*.class" />
 		</war>
 	</target>
