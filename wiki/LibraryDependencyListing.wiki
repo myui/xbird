@@ -8,6 +8,9 @@
 
 = Dependency to open source libraries =
 
+The following libraries are required for building  the distribution package. 
+The detail of the dependencies are as follows. 
+
 || * file path * ||* role * || * (main) dependent classes * ||  * license ** || 
 || lib/xbird-db-xx.jar || Futures included in this library consists of unpublished research work. Part of the feature is to be included in the future release of xbird/open. || a bunch of classes ||  ASF 2.0 ||
 || lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || used for parsing command line arguments. This API is required only when you use XBird by command line. ||  InteractiveShell and CommandInvoker class || MIT ||
@@ -25,11 +28,3 @@
 || lib/optional/[http://testng.org/ testng-xx-jdk15.jar] || used in (XQTS) test cases. || classes under `main/test/java` || ASL 2.0 ||
 || lib/optional/[http://xerces.apache.org/xerces2-j/ xercesImpl-xx.jar] || recommended to use this library for parsing XML documents  because certain version of XML parser in Sun's JDK exhibits strange behavior.  Is also required by cyberneko HTML parser. || HTMLSAXParser || ASL 2.0  ||
 || lib/optional/[http://xmlunit.sourceforge.net/ xmlunit-xx.jar] || used in (XQTS) test cases. || classes under `main/test/java`  || new BSD ||
-
- 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
