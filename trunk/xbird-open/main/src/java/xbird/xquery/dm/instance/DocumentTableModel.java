@@ -36,6 +36,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -89,6 +90,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
     private static final Log LOG = LogFactory.getLog(DocumentTableModel.class);
 
     private static final String profileAccessPattern = System.getProperty("xbird.profile_dtm");
+    private static final boolean resolveEntity = Boolean.parseBoolean(Settings.get("xbird.xml.resolve_entity"));
     private static final String HTML_PARSER_CLASS = "xbird.util.xml.HTMLSAXParser";
     private static final String TMP_DATA_DIR = Settings.get("xbird.database.tmpdir");
 
@@ -385,12 +387,12 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
             throw new XQRTException("Configuaring SAX XMLReader failed.", e);
         }
         // setup entity resolver
-        /*
-         final CatalogManager catalog = CatalogManager.getStaticManager();
-         catalog.setIgnoreMissingProperties(true);
-         final EntityResolver resolver = new CatalogResolver(catalog);
-         myReader.setEntityResolver(resolver);
-         */
+        if(resolveEntity) {
+            org.apache.xml.resolver.CatalogManager catalog = org.apache.xml.resolver.CatalogManager.getStaticManager();
+            catalog.setIgnoreMissingProperties(true);
+            EntityResolver resolver = new org.apache.xml.resolver.tools.CatalogResolver(catalog);
+            myReader.setEntityResolver(resolver);
+        }
         return myReader;
     }
 
