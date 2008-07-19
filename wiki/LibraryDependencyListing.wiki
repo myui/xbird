@@ -1,7 +1,12 @@
 #summary Library dependency listing
 #labels Phase-Requirements
 
-= Libraries included in XBird =
+= Minimum requirements =
+
+* java 1.5 or later
+* lib/xbird-db-xx.jar
+
+= Dependency to open source libraries =
 
 || * file path * ||* role * || * (main) dependent classes * ||  * license ** || 
 || lib/xbird-db-xx.jar || Futures included in this library consists of unpublished research work. Part of the feature is to be included in the future release of xbird/open. || a bunch of classes ||  ASF 2.0 ||
