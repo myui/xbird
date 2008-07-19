@@ -11,3 +11,26 @@ Please ensure to prepare Java 5 or later for the runtime environment.
 If not installed yet, please download JDK (or JRE) from [http://java.sun.com/javase here] and install it.
 
 We assume that *JAVA_HOME* environment variable is set in this document.
+
+= Download =
+
+
+= Command Line Execution =
+
+{{{
+ $ java -jar xbird-open-xx_fat.jar -baseuri URI -debug -encoding ENCODING -help -o OUTPUT -perfmon -pp -pull -q FILE -t -timeout TIME(seconds) -tms -wrap
+
+ -baseuri URI           # specify implicit baseURI
+ -debug                 # Run in debug mode (default=false)
+ -encoding ENCODING     # encoding of result XML document (default=UTF-8)
+ -help                  # Show help (default=false)
+ -o OUTPUT              # output to this file
+ -perfmon               # enable performance monitoring (default=false)
+ -pp                    # enable XML pretty printting (default=false)
+ -pull                  # Execute in Pull mode (default=false)
+ -q FILE                # execute query in the specified file
+ -t                     # enable timing (default=false)
+ -timeout TIME(seconds) # specify timeout in seconds
+ -tms                   # enable timing in mill seconds (default=false)
+ -wrap                  # Wrap result with dummy root node (default=false)
+}}}
