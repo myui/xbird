@@ -14,11 +14,19 @@ We assume that *JAVA_HOME* environment variable is set in this document.
 
 = Download =
 
+Get the recent binary from [http://code.google.com/p/xbird/downloads/list download menu]. 
+
+There are three types of binary as follows:
+  * xbird-open-xx_fat.jar -- _Most dependent library are included in one jar package for ease use._
+  * xbird-open-xx.jar -- _The binary of xbird/open itself. It requires dependent libraries as shown in [LibraryDependencyListing  this page]._
+  * xbird-xx.war -- Deployable [http://en.wikipedia.org/wiki/WAR_(file_format) WAR] file. It provides a similar functionality, called *xqsp* (XQuery Servlet Pages), to jsp.
 
 = Command Line Execution =
 
+== execute with fat jar ==
+
 {{{
- $ java -jar xbird-open-xx_fat.jar -baseuri URI -debug -encoding ENCODING -help -o OUTPUT -perfmon -pp -pull -q FILE -t -timeout TIME(seconds) -tms -wrap
+ $ java -jar xbird-open-xx_fat.jar -q FILE
 
  -baseuri URI           # specify implicit baseURI
  -debug                 # Run in debug mode (default=false)
