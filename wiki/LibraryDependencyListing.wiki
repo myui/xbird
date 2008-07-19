@@ -11,7 +11,7 @@
 The following libraries are required for building  the distribution package. 
 The detail of the dependencies are as follows. 
 
-|| * file path * ||* role * || * (main) dependent classes * ||  * license ** || 
+|| * file path * || * role * || * (main) dependent classes * ||  * license ** || 
 || lib/xbird-db-xx.jar || Futures included in this library consists of unpublished research work. Part of the feature is to be included in the future release of xbird/open. || a bunch of classes ||  ASF 2.0 ||
 || lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || used for parsing command line arguments. This API is required only when you use XBird by command line. ||  [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/client/InteractiveShell.java InteractiveShell] and [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/client/command/CommandInvoker.java CommandInvoker] class || MIT ||
 || lib/optional/[http://sourceforge.net/projects/high-scale-lib high-scale-lib-xx.jar] || used for its efficiency when many CPUs  ( 8 processors or more)  are available. || classes in xbird-db-xx.jar and classes under [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/util/concurrent/ xbird.util.concurrent.xx]. || public domain ||
