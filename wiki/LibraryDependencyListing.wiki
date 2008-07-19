@@ -3,8 +3,8 @@
 
 = Minimum requirements =
 
-* java 1.5 or later
-* lib/xbird-db-xx.jar
+  * java 1.5 or later
+  * lib/xbird-db-xx.jar
 
 = Dependency to open source libraries =
 
