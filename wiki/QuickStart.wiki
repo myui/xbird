@@ -14,12 +14,12 @@ We assume that *JAVA_HOME* environment variable is set in this document.
 
 = Download =
 
-Get the recent binary from [http://code.google.com/p/xbird/downloads/list download menu]. 
+Get the recent binary from [http://code.google.com/p/xbird/downloads/list this download menu]. 
 
 There are three types of binary as follows:
-  * xbird-open-xx_fat.jar -- _Most dependent library are included in one jar package for ease use._
+  * xbird-open-xx_fat.jar -- _Most dependent library are included in one [http://fjep.sourceforge.net/ fat jar] package for ease use._
   * xbird-open-xx.jar -- _The binary of xbird/open itself. It requires dependent libraries as shown in [LibraryDependencyListing  this page]._
-  * xbird-xx.war -- Deployable [http://en.wikipedia.org/wiki/WAR_(file_format) WAR] file. It provides a similar functionality, called *xqsp* (XQuery Servlet Pages), to jsp.
+  * xbird-xx.war -- _Deployable [http://en.wikipedia.org/wiki/WAR_(file_format) WAR] file. It provides a similar functionality, called *xqsp* (XQuery Servlet Pages), to jsp._
 
 = Command Line Execution =
 
