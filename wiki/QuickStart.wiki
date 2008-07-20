@@ -24,7 +24,9 @@ There are three types of binary as follows:
 = Command Line Execution =
 
 An exmaple XML file '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is used for the following discussion. 
-We here assume that '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is put on your "C:\". Please assume "C:\" as "/tmp" if you are unix user. 
+We here assume that '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is put on your "C:\". 
+
+Please assume "C:\" as "/tmp" if you are unix user. 
 
 == execute with fat jar ==
 
