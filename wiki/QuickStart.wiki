@@ -25,8 +25,7 @@ An exmaple XML file '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test
 _You can find other XQuery query exmaples in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/examples/ example directory]._
 
 We here assume that '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is put on your "C:\". 
-
-Please assume "C:\" as "/tmp" if you are unix user.
+_Please assume "C:\" as "/tmp" if you are unix user._
 
 == execute with fat jar ==
 
