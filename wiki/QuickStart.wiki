@@ -8,9 +8,7 @@ This document intended to provide information for users to run XBird without hav
 = Preparation =
 
 Please ensure to prepare Java 5 or later for the runtime environment.
-If not installed yet, please download JDK (or JRE) from [http://java.sun.com/javase here] and install it.
-
-We assume that *JAVA_HOME* environment variable is set in this document.
+If not installed yet, please download JDK (or JRE) from [http://java.sun.com/javase here] and install it. 
 
 = Download =
 
@@ -24,9 +22,11 @@ There are three types of binary as follows:
 = Command Line Execution =
 
 An exmaple XML file '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is used for the following discussion. 
+_You can find other XQuery query exmaples in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/examples/ example directory]._
+
 We here assume that '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is put on your "C:\". 
 
-Please assume "C:\" as "/tmp" if you are unix user. 
+Please assume "C:\" as "/tmp" if you are unix user.
 
 == execute with fat jar ==
 
