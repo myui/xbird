@@ -68,6 +68,14 @@
 		</war>
 	</target>
 
+	<target name="makedist" depends="jar">
+		<delete failonerror="false"
+		        file="${target.dir}/xbird-${version}-src.zip" />
+		<zip destfile="${target.dir}/xbird-${version}-src.zip"
+		     basedir="."
+		     excludes="${target.dir}/classes/**,build/**,**/*.log,**/.svn/**" />
+	</target>
+
 	<target name="javadoc" depends="compile">
 		<delete failonerror="false" dir="${javadoc.dstdir}" />
 		<mkdir dir="${javadoc.dstdir}" />
