@@ -22,7 +22,10 @@ package xbird.xquery.misc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Map;
 
 import xbird.util.collections.LRUMap;
@@ -111,21 +114,19 @@ public final class DocumentManager {
                 // TODO REVIEWME workaround code
                 conn.setRequestProperty("User-agent", "Mozilla/5.0");
                 final String contentType = conn.getContentType();
-                assert (unescaped.endsWith(".xml") || (contentType != null && (contentType.contains("xml") || contentType.contains("html")))) : "Invalid ContentType: "
-                        + contentType;
                 if(unescaped.endsWith(".html")
                         || (contentType != null && contentType.contains("html"))) {
                     parseAsHtml = true;
                 }
                 is = conn.getInputStream();
             } catch (IOException e) {
-                throw new DynamicError("Open document failed", e);
+                throw new DynamicError("Openning a document failed: " + unescaped, e);
             }
             final DocumentTableModel dtm = new DocumentTableModel(parseAsHtml);
             try {
                 dtm.loadDocument(is, dynEnv);
             } catch (XQueryException e) {
-                throw new DynamicError("load document failed for " + docurl, e);
+                throw new DynamicError("loading a document failed: " + unescaped, e);
             }
             xqdoc = dtm.documentNode();
             xqdoc.setDocumentUri(unescaped);
