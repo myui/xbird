@@ -11,7 +11,7 @@
 The following libraries are required for building  the distribution package. 
 The detail of the dependencies are as follows. 
 
-|| * file path * || * role * || * (main) dependent classes * ||  * license ** || * included in fat jar? * ||
+|| * file path * || * role * || * (main) dependent classes * ||  * license * || * included in fat jar? * ||
 || lib/xbird-db-xx.jar || Features included in this library consists of unpublished research work. Part of the feature is to be included in the future release of xbird/open. || a bunch of classes ||  ASL 2.0 || yes ||
 || lib/commons-logging-xx.jar || used for logging functionality. || a bunch of classes || ASL 2.0 || yes ||
 || lib/optional/[https://args4j.dev.java.net/ args4j-xx.jar] || used for parsing command line arguments. This API is required only when you use XBird by command line. ||  [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/client/InteractiveShell.java InteractiveShell] and [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/client/command/CommandInvoker.java CommandInvoker] class || MIT || yes || 
