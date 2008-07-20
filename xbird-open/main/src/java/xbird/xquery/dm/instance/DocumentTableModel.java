@@ -91,7 +91,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
 
     private static final String profileAccessPattern = System.getProperty("xbird.profile_dtm");
     private static final boolean resolveEntity = Boolean.parseBoolean(Settings.get("xbird.xml.resolve_entity"));
-    private static final String HTML_PARSER_CLASS = "xbird.util.xml.HTMLSAXParser";
+    private static final String HTML_PARSER_CLASS = Settings.get("xbitd.xml.html_saxparser", "xbird.util.xml.HTMLSAXParser");
     private static final String TMP_DATA_DIR = Settings.get("xbird.database.tmpdir");
 
     private transient final DocumentTableBuilder _handler;
