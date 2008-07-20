@@ -20,7 +20,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/optional/junit-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/optional/log4j-1.2.13.jar"/>
-	<classpathentry kind="lib" path="lib/optional/nekohtml.jar"/>
 	<classpathentry kind="lib" path="lib/optional/saxon8-dom.jar"/>
 	<classpathentry kind="lib" path="lib/optional/saxon8.jar"/>
 	<classpathentry kind="lib" path="lib/optional/servlet-api.jar"/>
@@ -31,5 +30,6 @@
 	<classpathentry kind="lib" path="lib/optional/xmlunit-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/optional/icu4j_3_4_2.jar"/>
 	<classpathentry kind="lib" path="lib/optional/resolver.jar"/>
+	<classpathentry kind="lib" path="lib/optional/nekohtml-1.9.7.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
