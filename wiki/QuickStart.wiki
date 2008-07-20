@@ -55,3 +55,8 @@ for $b in fn:doc("file:///C:/bib.xml")/bib/book,
 where fn:contains(fn:string($t), "TCP/IP")
 return $b
 }}}
+
+It is also allowed to specify XML files on http protocol as follows:
+{{{
+fn:doc("http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml")
+}}}
