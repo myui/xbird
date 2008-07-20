@@ -1,0 +1,209 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id$<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.util.io;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.IOException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.OutputStream;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    import xbird.util.lang.Primitives;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    /**<a name="line.28"></a>
+<FONT color="green">029</FONT>     * <a name="line.29"></a>
+<FONT color="green">030</FONT>     * &lt;DIV lang="en"&gt;&lt;/DIV&gt;<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     * <a name="line.32"></a>
+<FONT color="green">033</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.33"></a>
+<FONT color="green">034</FONT>     */<a name="line.34"></a>
+<FONT color="green">035</FONT>    public final class BitOutputStream extends OutputStream {<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>        private static final byte[] masks = new byte[8];<a name="line.37"></a>
+<FONT color="green">038</FONT>        static {<a name="line.38"></a>
+<FONT color="green">039</FONT>            for(byte i = 0; i &lt; 8; i++) {<a name="line.39"></a>
+<FONT color="green">040</FONT>                masks[i] = (byte) (~(0xFF &gt;&gt;&gt; i));<a name="line.40"></a>
+<FONT color="green">041</FONT>            }<a name="line.41"></a>
+<FONT color="green">042</FONT>        }<a name="line.42"></a>
+<FONT color="green">043</FONT>    <a name="line.43"></a>
+<FONT color="green">044</FONT>        private final OutputStream out;<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>        private int pendingByte = 0;<a name="line.46"></a>
+<FONT color="green">047</FONT>        private int pendingNumberOfBits = 0;<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>        public BitOutputStream(OutputStream delegate) {<a name="line.49"></a>
+<FONT color="green">050</FONT>            this.out = delegate;<a name="line.50"></a>
+<FONT color="green">051</FONT>        }<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>        @Override<a name="line.53"></a>
+<FONT color="green">054</FONT>        public void write(int b) throws IOException {<a name="line.54"></a>
+<FONT color="green">055</FONT>            write(Primitives.toBytes(b));<a name="line.55"></a>
+<FONT color="green">056</FONT>        }<a name="line.56"></a>
+<FONT color="green">057</FONT>        <a name="line.57"></a>
+<FONT color="green">058</FONT>        public void write(int b, int nbits) throws IOException {<a name="line.58"></a>
+<FONT color="green">059</FONT>            if(nbits &lt; 0 || nbits &gt; 32) {<a name="line.59"></a>
+<FONT color="green">060</FONT>                throw new IOException("Cannot write " + nbits + " bits from an int");<a name="line.60"></a>
+<FONT color="green">061</FONT>            }<a name="line.61"></a>
+<FONT color="green">062</FONT>            if(nbits &lt; 8) {<a name="line.62"></a>
+<FONT color="green">063</FONT>                writeBits(b, nbits);<a name="line.63"></a>
+<FONT color="green">064</FONT>            } else {<a name="line.64"></a>
+<FONT color="green">065</FONT>                for(int i = 0;; i += 8) {<a name="line.65"></a>
+<FONT color="green">066</FONT>                    final int v = b &gt;&gt;&gt; (24 - i);<a name="line.66"></a>
+<FONT color="green">067</FONT>                    if(i &lt; nbits) {<a name="line.67"></a>
+<FONT color="green">068</FONT>                        writeBits(v, i % 8);<a name="line.68"></a>
+<FONT color="green">069</FONT>                        break;<a name="line.69"></a>
+<FONT color="green">070</FONT>                    } else {<a name="line.70"></a>
+<FONT color="green">071</FONT>                        writeBits(v, 8);<a name="line.71"></a>
+<FONT color="green">072</FONT>                    }<a name="line.72"></a>
+<FONT color="green">073</FONT>                }<a name="line.73"></a>
+<FONT color="green">074</FONT>            }<a name="line.74"></a>
+<FONT color="green">075</FONT>        }<a name="line.75"></a>
+<FONT color="green">076</FONT>    <a name="line.76"></a>
+<FONT color="green">077</FONT>        public void writeByte(int b) throws IOException {<a name="line.77"></a>
+<FONT color="green">078</FONT>            if(pendingNumberOfBits == 0) {<a name="line.78"></a>
+<FONT color="green">079</FONT>                emitByte(b);<a name="line.79"></a>
+<FONT color="green">080</FONT>            } else {<a name="line.80"></a>
+<FONT color="green">081</FONT>                pendingByte = (b &amp; 0xFF &gt;&gt;&gt; pendingNumberOfBits) | pendingByte;<a name="line.81"></a>
+<FONT color="green">082</FONT>                emitByte(pendingByte);<a name="line.82"></a>
+<FONT color="green">083</FONT>                pendingByte = (b &lt;&lt; (8 - pendingNumberOfBits)) &amp; 0xFF;<a name="line.83"></a>
+<FONT color="green">084</FONT>            }<a name="line.84"></a>
+<FONT color="green">085</FONT>        }    <a name="line.85"></a>
+<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">087</FONT>        public void writeBits(int b, int nbits) throws IOException {<a name="line.87"></a>
+<FONT color="green">088</FONT>            if(nbits &lt; 0 || nbits &gt; 8) {<a name="line.88"></a>
+<FONT color="green">089</FONT>                throw new IOException("Cannot write " + nbits + " bits from a byte");<a name="line.89"></a>
+<FONT color="green">090</FONT>            }<a name="line.90"></a>
+<FONT color="green">091</FONT>            if(nbits == 8) {<a name="line.91"></a>
+<FONT color="green">092</FONT>                writeByte(b);<a name="line.92"></a>
+<FONT color="green">093</FONT>            } else {<a name="line.93"></a>
+<FONT color="green">094</FONT>                if(pendingNumberOfBits == 0) {<a name="line.94"></a>
+<FONT color="green">095</FONT>                    pendingByte = (b &lt;&lt; (8 - nbits)) &amp; 0xFF;<a name="line.95"></a>
+<FONT color="green">096</FONT>                    pendingNumberOfBits = nbits;<a name="line.96"></a>
+<FONT color="green">097</FONT>                } else {<a name="line.97"></a>
+<FONT color="green">098</FONT>                    b = (byte) (b &amp; ~masks[8 - nbits]);<a name="line.98"></a>
+<FONT color="green">099</FONT>                    int pending = 8 - pendingNumberOfBits - nbits;<a name="line.99"></a>
+<FONT color="green">100</FONT>                    if(pending &lt; 0) {<a name="line.100"></a>
+<FONT color="green">101</FONT>                        pending = -pending;<a name="line.101"></a>
+<FONT color="green">102</FONT>                        pendingByte |= (b &gt;&gt;&gt; pending);<a name="line.102"></a>
+<FONT color="green">103</FONT>                        emitByte(pendingByte);<a name="line.103"></a>
+<FONT color="green">104</FONT>                        pendingByte = (b &lt;&lt; (8 - pending)) &amp; 0xFF;<a name="line.104"></a>
+<FONT color="green">105</FONT>                        pendingNumberOfBits = pending;<a name="line.105"></a>
+<FONT color="green">106</FONT>                    } else if(pending == 0) {<a name="line.106"></a>
+<FONT color="green">107</FONT>                        pendingByte = pendingByte | b;<a name="line.107"></a>
+<FONT color="green">108</FONT>                        emitByte(pendingByte);<a name="line.108"></a>
+<FONT color="green">109</FONT>                        pendingNumberOfBits = 0;<a name="line.109"></a>
+<FONT color="green">110</FONT>                    } else {<a name="line.110"></a>
+<FONT color="green">111</FONT>                        pendingByte = pendingByte | (b &lt;&lt; pending);<a name="line.111"></a>
+<FONT color="green">112</FONT>                        pendingNumberOfBits = 8 - pending;<a name="line.112"></a>
+<FONT color="green">113</FONT>                    }<a name="line.113"></a>
+<FONT color="green">114</FONT>                }<a name="line.114"></a>
+<FONT color="green">115</FONT>            }<a name="line.115"></a>
+<FONT color="green">116</FONT>        }<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>        @Override<a name="line.118"></a>
+<FONT color="green">119</FONT>        public void close() throws IOException {<a name="line.119"></a>
+<FONT color="green">120</FONT>            flush(true);<a name="line.120"></a>
+<FONT color="green">121</FONT>            out.close();<a name="line.121"></a>
+<FONT color="green">122</FONT>        }<a name="line.122"></a>
+<FONT color="green">123</FONT>    <a name="line.123"></a>
+<FONT color="green">124</FONT>        /**<a name="line.124"></a>
+<FONT color="green">125</FONT>         * Not flushed if there is a pending bytes. <a name="line.125"></a>
+<FONT color="green">126</FONT>         */<a name="line.126"></a>
+<FONT color="green">127</FONT>        @Override<a name="line.127"></a>
+<FONT color="green">128</FONT>        public void flush() throws IOException {<a name="line.128"></a>
+<FONT color="green">129</FONT>            flush(false);<a name="line.129"></a>
+<FONT color="green">130</FONT>        }<a name="line.130"></a>
+<FONT color="green">131</FONT>    <a name="line.131"></a>
+<FONT color="green">132</FONT>        public void flush(boolean force) throws IOException {<a name="line.132"></a>
+<FONT color="green">133</FONT>            if(force &amp;&amp; pendingNumberOfBits &gt; 0) {<a name="line.133"></a>
+<FONT color="green">134</FONT>                emitByte(pendingByte);<a name="line.134"></a>
+<FONT color="green">135</FONT>            }<a name="line.135"></a>
+<FONT color="green">136</FONT>            out.flush();<a name="line.136"></a>
+<FONT color="green">137</FONT>        }<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>        private void emitByte(int b) throws IOException {<a name="line.139"></a>
+<FONT color="green">140</FONT>            out.write(b); // highest 24 bit is ignored<a name="line.140"></a>
+<FONT color="green">141</FONT>        }<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>    }<a name="line.143"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

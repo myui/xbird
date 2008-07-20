@@ -1,0 +1,328 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: DirectFunctionCall.java 3619 2008-03-26 07:23:03Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.xquery.expr.func;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.*;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.ArrayList;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.util.List;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    import xbird.storage.DbCollection;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import xbird.util.struct.ThreeLogic;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import xbird.xquery.TypeError;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import xbird.xquery.XQueryException;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import xbird.xquery.dm.labeling.LabelingHandler;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import xbird.xquery.dm.value.*;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import xbird.xquery.dm.value.sequence.SingleCollection;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import xbird.xquery.dm.value.sequence.ValueSequence;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import xbird.xquery.expr.Evaluable;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import xbird.xquery.expr.XQExpression;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import xbird.xquery.expr.opt.ThreadedVariable;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import xbird.xquery.expr.var.Variable.PreEvaluatedVariable;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import xbird.xquery.func.*;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import xbird.xquery.func.Function.EvaluationPolicy;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import xbird.xquery.func.doc.FnCollection;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import xbird.xquery.meta.*;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import xbird.xquery.optim.RewriteInfo;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import xbird.xquery.parser.XQueryParserVisitor;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import xbird.xquery.type.*;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import xbird.xquery.type.xs.UntypedAtomicType;<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>    /**<a name="line.48"></a>
+<FONT color="green">049</FONT>     * <a name="line.49"></a>
+<FONT color="green">050</FONT>     * &lt;DIV lang="en"&gt;&lt;/DIV&gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     * <a name="line.52"></a>
+<FONT color="green">053</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.53"></a>
+<FONT color="green">054</FONT>     */<a name="line.54"></a>
+<FONT color="green">055</FONT>    public class DirectFunctionCall extends FunctionCall {<a name="line.55"></a>
+<FONT color="green">056</FONT>        private static final long serialVersionUID = 1L;<a name="line.56"></a>
+<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">058</FONT>        protected/* final */Function func;<a name="line.58"></a>
+<FONT color="green">059</FONT>    <a name="line.59"></a>
+<FONT color="green">060</FONT>        private transient ThreeLogic indexAccessable = ThreeLogic.NIL;<a name="line.60"></a>
+<FONT color="green">061</FONT>        private transient RewriteInfo prevInfo = null;<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        public DirectFunctionCall(Function func, List&lt;XQExpression&gt; params) {<a name="line.63"></a>
+<FONT color="green">064</FONT>            super(func.getName(), params);<a name="line.64"></a>
+<FONT color="green">065</FONT>            this.func = func;<a name="line.65"></a>
+<FONT color="green">066</FONT>        }<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>        public DirectFunctionCall() {// for Externalizable<a name="line.68"></a>
+<FONT color="green">069</FONT>            super();<a name="line.69"></a>
+<FONT color="green">070</FONT>        }<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>        @Override<a name="line.72"></a>
+<FONT color="green">073</FONT>        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {<a name="line.73"></a>
+<FONT color="green">074</FONT>            super.readExternal(in);<a name="line.74"></a>
+<FONT color="green">075</FONT>            final boolean isBuiltIn = in.readBoolean();<a name="line.75"></a>
+<FONT color="green">076</FONT>            if(isBuiltIn) {<a name="line.76"></a>
+<FONT color="green">077</FONT>                this.func = BuiltInFunction.readFrom(in);<a name="line.77"></a>
+<FONT color="green">078</FONT>            } else {<a name="line.78"></a>
+<FONT color="green">079</FONT>                this.func = (Function) in.readObject();<a name="line.79"></a>
+<FONT color="green">080</FONT>            }<a name="line.80"></a>
+<FONT color="green">081</FONT>        }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>        @Override<a name="line.83"></a>
+<FONT color="green">084</FONT>        public void writeExternal(ObjectOutput out) throws IOException {<a name="line.84"></a>
+<FONT color="green">085</FONT>            super.writeExternal(out);<a name="line.85"></a>
+<FONT color="green">086</FONT>            if(func instanceof BuiltInFunction) {<a name="line.86"></a>
+<FONT color="green">087</FONT>                out.writeBoolean(true);<a name="line.87"></a>
+<FONT color="green">088</FONT>                BuiltInFunction builtIn = (BuiltInFunction) func;<a name="line.88"></a>
+<FONT color="green">089</FONT>                builtIn.writeTo(out);<a name="line.89"></a>
+<FONT color="green">090</FONT>            } else {<a name="line.90"></a>
+<FONT color="green">091</FONT>                out.writeBoolean(false);<a name="line.91"></a>
+<FONT color="green">092</FONT>                out.writeObject(func);<a name="line.92"></a>
+<FONT color="green">093</FONT>            }<a name="line.93"></a>
+<FONT color="green">094</FONT>        }<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>        public XQExpression visit(XQueryParserVisitor visitor, XQueryContext ctxt)<a name="line.96"></a>
+<FONT color="green">097</FONT>                throws XQueryException {<a name="line.97"></a>
+<FONT color="green">098</FONT>            return visitor.visit(this, ctxt);<a name="line.98"></a>
+<FONT color="green">099</FONT>        }<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>        public Function getFunction() {<a name="line.101"></a>
+<FONT color="green">102</FONT>            return func;<a name="line.102"></a>
+<FONT color="green">103</FONT>        }<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>        //--------------------------------------------<a name="line.105"></a>
+<FONT color="green">106</FONT>        // static analysis/dynamic evaluation<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>        @Override<a name="line.108"></a>
+<FONT color="green">109</FONT>        public XQExpression staticAnalysis(StaticContext statEnv) throws XQueryException {<a name="line.109"></a>
+<FONT color="green">110</FONT>            if(!_analyzed) {<a name="line.110"></a>
+<FONT color="green">111</FONT>                super.staticAnalysis(statEnv);<a name="line.111"></a>
+<FONT color="green">112</FONT>                func.staticAnalysis(statEnv, _params);<a name="line.112"></a>
+<FONT color="green">113</FONT>                this._type = func.getReturnType(_params);<a name="line.113"></a>
+<FONT color="green">114</FONT>                final EvaluationPolicy evalPolicy = func.getEvaluationPolicy();<a name="line.114"></a>
+<FONT color="green">115</FONT>                if(evalPolicy == EvaluationPolicy.eager) {<a name="line.115"></a>
+<FONT color="green">116</FONT>                    Sequence preEvaled = eval(ValueSequence.EMPTY_SEQUENCE, new DynamicContext(statEnv));<a name="line.116"></a>
+<FONT color="green">117</FONT>                    return new PreEvaluatedVariable(preEvaled, _type);<a name="line.117"></a>
+<FONT color="green">118</FONT>                } else if(evalPolicy == EvaluationPolicy.rewritten) {<a name="line.118"></a>
+<FONT color="green">119</FONT>                    XQExpression rewritted = func.rewrite(_params, statEnv);<a name="line.119"></a>
+<FONT color="green">120</FONT>                    XQExpression analyzed = rewritted.staticAnalysis(statEnv);<a name="line.120"></a>
+<FONT color="green">121</FONT>                    return analyzed;<a name="line.121"></a>
+<FONT color="green">122</FONT>                } else if(evalPolicy == EvaluationPolicy.threaded) {<a name="line.122"></a>
+<FONT color="green">123</FONT>                    ThreadedVariable threadedVar = new ThreadedVariable(this);<a name="line.123"></a>
+<FONT color="green">124</FONT>                    statEnv.addThreadedVariable(threadedVar);<a name="line.124"></a>
+<FONT color="green">125</FONT>                    return threadedVar;<a name="line.125"></a>
+<FONT color="green">126</FONT>                }<a name="line.126"></a>
+<FONT color="green">127</FONT>            }<a name="line.127"></a>
+<FONT color="green">128</FONT>            return this;<a name="line.128"></a>
+<FONT color="green">129</FONT>        }<a name="line.129"></a>
+<FONT color="green">130</FONT>    <a name="line.130"></a>
+<FONT color="green">131</FONT>        @Override<a name="line.131"></a>
+<FONT color="green">132</FONT>        public boolean isPathIndexAccessable(StaticContext statEnv, RewriteInfo info) {<a name="line.132"></a>
+<FONT color="green">133</FONT>            if(indexAccessable != ThreeLogic.NIL) {<a name="line.133"></a>
+<FONT color="green">134</FONT>                if(indexAccessable == ThreeLogic.TRUE) {<a name="line.134"></a>
+<FONT color="green">135</FONT>                    if(prevInfo == null) {<a name="line.135"></a>
+<FONT color="green">136</FONT>                        throw new IllegalStateException("prevInfo is not set.. bug?");<a name="line.136"></a>
+<FONT color="green">137</FONT>                    }<a name="line.137"></a>
+<FONT color="green">138</FONT>                    info.setCollection(prevInfo.getCollection(), prevInfo.getFilter());<a name="line.138"></a>
+<FONT color="green">139</FONT>                    return true;<a name="line.139"></a>
+<FONT color="green">140</FONT>                } else {<a name="line.140"></a>
+<FONT color="green">141</FONT>                    return false;<a name="line.141"></a>
+<FONT color="green">142</FONT>                }<a name="line.142"></a>
+<FONT color="green">143</FONT>            }<a name="line.143"></a>
+<FONT color="green">144</FONT>            if(info.hasPreviousStep()) {<a name="line.144"></a>
+<FONT color="green">145</FONT>                this.indexAccessable = ThreeLogic.FALSE;<a name="line.145"></a>
+<FONT color="green">146</FONT>                return false;<a name="line.146"></a>
+<FONT color="green">147</FONT>            }<a name="line.147"></a>
+<FONT color="green">148</FONT>            final boolean isCol = (func instanceof FnCollection);<a name="line.148"></a>
+<FONT color="green">149</FONT>            if(isCol) {<a name="line.149"></a>
+<FONT color="green">150</FONT>                final int paramSize = _params.size();<a name="line.150"></a>
+<FONT color="green">151</FONT>                final String colpath;<a name="line.151"></a>
+<FONT color="green">152</FONT>                if(paramSize == 0) {<a name="line.152"></a>
+<FONT color="green">153</FONT>                    colpath = "/";<a name="line.153"></a>
+<FONT color="green">154</FONT>                } else if(paramSize == 1) {<a name="line.154"></a>
+<FONT color="green">155</FONT>                    XQExpression expr = _params.get(0);<a name="line.155"></a>
+<FONT color="green">156</FONT>                    if(expr instanceof Evaluable) {<a name="line.156"></a>
+<FONT color="green">157</FONT>                        final Sequence&lt;? extends Item&gt; result;<a name="line.157"></a>
+<FONT color="green">158</FONT>                        try {<a name="line.158"></a>
+<FONT color="green">159</FONT>                            result = expr.eval(null, DynamicContext.DUMMY);<a name="line.159"></a>
+<FONT color="green">160</FONT>                        } catch (XQueryException e) {<a name="line.160"></a>
+<FONT color="green">161</FONT>                            throw new IllegalStateException(e);<a name="line.161"></a>
+<FONT color="green">162</FONT>                        }<a name="line.162"></a>
+<FONT color="green">163</FONT>                        colpath = result.toString();<a name="line.163"></a>
+<FONT color="green">164</FONT>                    } else {<a name="line.164"></a>
+<FONT color="green">165</FONT>                        this.indexAccessable = ThreeLogic.FALSE;<a name="line.165"></a>
+<FONT color="green">166</FONT>                        return false;<a name="line.166"></a>
+<FONT color="green">167</FONT>                    }<a name="line.167"></a>
+<FONT color="green">168</FONT>                } else {<a name="line.168"></a>
+<FONT color="green">169</FONT>                    throw new IllegalStateException("Unexpected parameters: " + _params);<a name="line.169"></a>
+<FONT color="green">170</FONT>                }<a name="line.170"></a>
+<FONT color="green">171</FONT>                DbCollection col = DbCollection.getCollection(colpath);<a name="line.171"></a>
+<FONT color="green">172</FONT>                if(col == null) {<a name="line.172"></a>
+<FONT color="green">173</FONT>                    this.indexAccessable = ThreeLogic.FALSE;<a name="line.173"></a>
+<FONT color="green">174</FONT>                    return false;<a name="line.174"></a>
+<FONT color="green">175</FONT>                }<a name="line.175"></a>
+<FONT color="green">176</FONT>                File idxDir = new File(col.getDirectory(), LabelingHandler.INDEX_DIR_NAME);<a name="line.176"></a>
+<FONT color="green">177</FONT>                if(!idxDir.exists()) {<a name="line.177"></a>
+<FONT color="green">178</FONT>                    this.indexAccessable = ThreeLogic.FALSE;<a name="line.178"></a>
+<FONT color="green">179</FONT>                    return false;<a name="line.179"></a>
+<FONT color="green">180</FONT>                }<a name="line.180"></a>
+<FONT color="green">181</FONT>                info.setCollection(col, colpath);<a name="line.181"></a>
+<FONT color="green">182</FONT>                this.indexAccessable = ThreeLogic.TRUE;<a name="line.182"></a>
+<FONT color="green">183</FONT>                this.prevInfo = info;<a name="line.183"></a>
+<FONT color="green">184</FONT>                return true;<a name="line.184"></a>
+<FONT color="green">185</FONT>            } else {<a name="line.185"></a>
+<FONT color="green">186</FONT>                this.indexAccessable = ThreeLogic.FALSE;<a name="line.186"></a>
+<FONT color="green">187</FONT>                return false;<a name="line.187"></a>
+<FONT color="green">188</FONT>            }<a name="line.188"></a>
+<FONT color="green">189</FONT>        }<a name="line.189"></a>
+<FONT color="green">190</FONT>    <a name="line.190"></a>
+<FONT color="green">191</FONT>        public Sequence&lt;? extends Item&gt; eval(Sequence&lt;? extends Item&gt; contextSeq, DynamicContext dynEnv)<a name="line.191"></a>
+<FONT color="green">192</FONT>                throws XQueryException {<a name="line.192"></a>
+<FONT color="green">193</FONT>            final ValueSequence argv;<a name="line.193"></a>
+<FONT color="green">194</FONT>            final int arity = _params.size();<a name="line.194"></a>
+<FONT color="green">195</FONT>            if(arity == 0) {<a name="line.195"></a>
+<FONT color="green">196</FONT>                argv = null;<a name="line.196"></a>
+<FONT color="green">197</FONT>            } else {<a name="line.197"></a>
+<FONT color="green">198</FONT>                argv = new ValueSequence(dynEnv);<a name="line.198"></a>
+<FONT color="green">199</FONT>                FunctionSignature sign = func.getFunctionSignature(arity);<a name="line.199"></a>
+<FONT color="green">200</FONT>                for(int i = 0; i &lt; arity; i++) {<a name="line.200"></a>
+<FONT color="green">201</FONT>                    XQExpression p = _params.get(i);<a name="line.201"></a>
+<FONT color="green">202</FONT>                    Sequence seq = p.eval(contextSeq, dynEnv);<a name="line.202"></a>
+<FONT color="green">203</FONT>                    Sequence converted = mapFunctionArgument(seq, sign.getArgumentType(i), dynEnv);<a name="line.203"></a>
+<FONT color="green">204</FONT>                    argv.addItem(SingleCollection.wrap(converted, dynEnv));<a name="line.204"></a>
+<FONT color="green">205</FONT>                }<a name="line.205"></a>
+<FONT color="green">206</FONT>            }<a name="line.206"></a>
+<FONT color="green">207</FONT>            return func.eval(contextSeq, argv, dynEnv);<a name="line.207"></a>
+<FONT color="green">208</FONT>        }<a name="line.208"></a>
+<FONT color="green">209</FONT>    <a name="line.209"></a>
+<FONT color="green">210</FONT>        /**<a name="line.210"></a>
+<FONT color="green">211</FONT>         * @link http://www.w3.org/TR/xquery-semantics/#jd_map_function_argument<a name="line.211"></a>
+<FONT color="green">212</FONT>         */<a name="line.212"></a>
+<FONT color="green">213</FONT>        public static Sequence mapFunctionArgument(Sequence argv, Type expectedArgType, DynamicContext dynEnv)<a name="line.213"></a>
+<FONT color="green">214</FONT>                throws XQueryException {<a name="line.214"></a>
+<FONT color="green">215</FONT>            assert (argv != null);<a name="line.215"></a>
+<FONT color="green">216</FONT>            assert (expectedArgType != null);<a name="line.216"></a>
+<FONT color="green">217</FONT>            // If the function expects atomic parameters, then fn:data is called <a name="line.217"></a>
+<FONT color="green">218</FONT>            // to obtain them.<a name="line.218"></a>
+<FONT color="green">219</FONT>            final Type primeType = expectedArgType.prime();<a name="line.219"></a>
+<FONT color="green">220</FONT>            if(primeType instanceof AtomicType) {<a name="line.220"></a>
+<FONT color="green">221</FONT>                // Inserts conversions of function arguments that depend only on <a name="line.221"></a>
+<FONT color="green">222</FONT>                // the expected SequenceType of the corresponding parameters.<a name="line.222"></a>
+<FONT color="green">223</FONT>                if(expectedArgType instanceof SequenceType) {<a name="line.223"></a>
+<FONT color="green">224</FONT>                    expectedArgType = ((SequenceType) expectedArgType).prime();<a name="line.224"></a>
+<FONT color="green">225</FONT>                }<a name="line.225"></a>
+<FONT color="green">226</FONT>                if(!(expectedArgType instanceof AtomicType)) {<a name="line.226"></a>
+<FONT color="green">227</FONT>                    throw new TypeError("expectedArgType must be built-in atomic type, but was "<a name="line.227"></a>
+<FONT color="green">228</FONT>                            + expectedArgType);<a name="line.228"></a>
+<FONT color="green">229</FONT>                }<a name="line.229"></a>
+<FONT color="green">230</FONT>                final AtomicType expected = (AtomicType) expectedArgType;<a name="line.230"></a>
+<FONT color="green">231</FONT>                final ValueSequence res = new ValueSequence(dynEnv);<a name="line.231"></a>
+<FONT color="green">232</FONT>                final IFocus&lt;? extends Item&gt; atomizedItor = argv.atomize(dynEnv).iterator();<a name="line.232"></a>
+<FONT color="green">233</FONT>                for(Item it : atomizedItor) {<a name="line.233"></a>
+<FONT color="green">234</FONT>                    final Type actualType = it.getType();<a name="line.234"></a>
+<FONT color="green">235</FONT>                    // apply fs:ConvertSimpleOperand<a name="line.235"></a>
+<FONT color="green">236</FONT>                    if(actualType == UntypedAtomicType.UNTYPED_ATOMIC &amp;&amp; expected.getTypeId() &gt;= 0) {<a name="line.236"></a>
+<FONT color="green">237</FONT>                        final AtomicValue casted = ((AtomicValue) it).castAs(expected, dynEnv);<a name="line.237"></a>
+<FONT color="green">238</FONT>                        res.addItem(casted);<a name="line.238"></a>
+<FONT color="green">239</FONT>                    } else {<a name="line.239"></a>
+<FONT color="green">240</FONT>                        res.addItem(it);<a name="line.240"></a>
+<FONT color="green">241</FONT>                    }<a name="line.241"></a>
+<FONT color="green">242</FONT>                }<a name="line.242"></a>
+<FONT color="green">243</FONT>                atomizedItor.closeQuietly();<a name="line.243"></a>
+<FONT color="green">244</FONT>                return res.atomize(dynEnv);<a name="line.244"></a>
+<FONT color="green">245</FONT>            }<a name="line.245"></a>
+<FONT color="green">246</FONT>            return argv;<a name="line.246"></a>
+<FONT color="green">247</FONT>        }<a name="line.247"></a>
+<FONT color="green">248</FONT>    <a name="line.248"></a>
+<FONT color="green">249</FONT>        //--------------------------------------------<a name="line.249"></a>
+<FONT color="green">250</FONT>        // helpers<a name="line.250"></a>
+<FONT color="green">251</FONT>    <a name="line.251"></a>
+<FONT color="green">252</FONT>        public static DirectFunctionCall create(Function func, XQExpression... params) {<a name="line.252"></a>
+<FONT color="green">253</FONT>            final List&lt;XQExpression&gt; p = new ArrayList&lt;XQExpression&gt;(params.length);<a name="line.253"></a>
+<FONT color="green">254</FONT>            for(XQExpression param : params) {<a name="line.254"></a>
+<FONT color="green">255</FONT>                p.add(param);<a name="line.255"></a>
+<FONT color="green">256</FONT>            }<a name="line.256"></a>
+<FONT color="green">257</FONT>            final DirectFunctionCall f = new DirectFunctionCall(func, p);<a name="line.257"></a>
+<FONT color="green">258</FONT>            f.copyLocations(params[0]);<a name="line.258"></a>
+<FONT color="green">259</FONT>            return f;<a name="line.259"></a>
+<FONT color="green">260</FONT>        }<a name="line.260"></a>
+<FONT color="green">261</FONT>    <a name="line.261"></a>
+<FONT color="green">262</FONT>    }<a name="line.262"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,376 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id:BasicStringChunk.java 2335 2007-07-17 04:14:15Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.xquery.misc;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.File;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.IOException;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.io.ObjectInput;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.io.ObjectOutput;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.ArrayList;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.util.List;<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>    import org.apache.commons.logging.Log;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import org.apache.commons.logging.LogFactory;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>    import xbird.storage.DbCollection;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import xbird.storage.io.Segments;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import xbird.storage.io.VarSegments;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import xbird.storage.io.VarSegments.DescriptorType;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import xbird.util.collections.Int2IntHash.Int2IntLRUMap;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import xbird.util.compress.CompressionCodec;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import xbird.util.compress.CompressorFactory;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import xbird.util.lang.ArrayUtils;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import xbird.util.lang.HashUtils;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import xbird.util.lang.Primitives;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import xbird.util.resource.PropertyMap;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import xbird.util.string.StringUtils;<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>    /**<a name="line.46"></a>
+<FONT color="green">047</FONT>     * <a name="line.47"></a>
+<FONT color="green">048</FONT>     * &lt;DIV lang="en"&gt;&lt;/DIV&gt;<a name="line.48"></a>
+<FONT color="green">049</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>     * <a name="line.50"></a>
+<FONT color="green">051</FONT>     * @author Makoto YUI (yuin405 AT gmail.com)<a name="line.51"></a>
+<FONT color="green">052</FONT>     */<a name="line.52"></a>
+<FONT color="green">053</FONT>    public final class BasicStringChunk implements IStringChunk {<a name="line.53"></a>
+<FONT color="green">054</FONT>        private static final long serialVersionUID = -2802997860361606643L;<a name="line.54"></a>
+<FONT color="green">055</FONT>        private static final Log LOG = LogFactory.getLog(StringChunk.class);<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        private static final int DEFAULT_PAGES = 8;<a name="line.57"></a>
+<FONT color="green">058</FONT>        private static final float ENLARGE_PAGES_FACTOR = 1.4f;<a name="line.58"></a>
+<FONT color="green">059</FONT>    <a name="line.59"></a>
+<FONT color="green">060</FONT>        private static final int BLOCK_SHIFT = 12;<a name="line.60"></a>
+<FONT color="green">061</FONT>        private static final int BLOCK_SIZE = 1 &lt;&lt; BLOCK_SHIFT; // 2^12 = 4096 = 4KB<a name="line.61"></a>
+<FONT color="green">062</FONT>        private static final long BLOCK_MASK = BLOCK_SIZE - 1L;<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
+<FONT color="green">064</FONT>        //Caution: CHUNKED_THRESHOLD must be less than Character.MAX_VALUE (2^16=65536).<a name="line.64"></a>
+<FONT color="green">065</FONT>        private static final int CHUNKED_THRESHOLD = BLOCK_SIZE / 8; // 512 byte<a name="line.65"></a>
+<FONT color="green">066</FONT>        private static final int MAX_CHUNK_POINTER = (1 &lt;&lt; 31) - 1;<a name="line.66"></a>
+<FONT color="green">067</FONT>        private static final int DEFUALT_BIG_STRINGS_SIZE = (int) (DEFAULT_PAGES * ENLARGE_PAGES_FACTOR * 4);<a name="line.67"></a>
+<FONT color="green">068</FONT>        private static final long BIG_STRING_MASK = 1L;<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>        //  --------------------------------------------<a name="line.70"></a>
+<FONT color="green">071</FONT>        // transient stuff<a name="line.71"></a>
+<FONT color="green">072</FONT>    <a name="line.72"></a>
+<FONT color="green">073</FONT>        private final char[] tmpBuf = new char[CHUNKED_THRESHOLD];<a name="line.73"></a>
+<FONT color="green">074</FONT>        /** map for duplicate value management. key: chunk hash value, value: address */<a name="line.74"></a>
+<FONT color="green">075</FONT>        private transient final Int2IntLRUMap _hashv2addr = new Int2IntLRUMap(1024);<a name="line.75"></a>
+<FONT color="green">076</FONT>    <a name="line.76"></a>
+<FONT color="green">077</FONT>        //--------------------------------------------<a name="line.77"></a>
+<FONT color="green">078</FONT>        // persistent stuff<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        private List&lt;String&gt; _strPool;<a name="line.80"></a>
+<FONT color="green">081</FONT>        private char[][] _cchunks;<a name="line.81"></a>
+<FONT color="green">082</FONT>        private long _cpointer = 0;<a name="line.82"></a>
+<FONT color="green">083</FONT>    <a name="line.83"></a>
+<FONT color="green">084</FONT>        private final CompressionCodec compressor;<a name="line.84"></a>
+<FONT color="green">085</FONT>    <a name="line.85"></a>
+<FONT color="green">086</FONT>        //--------------------------------------------    <a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        public BasicStringChunk() {<a name="line.88"></a>
+<FONT color="green">089</FONT>            this._strPool = new ArrayList&lt;String&gt;(DEFUALT_BIG_STRINGS_SIZE);<a name="line.89"></a>
+<FONT color="green">090</FONT>            this._cchunks = new char[DEFAULT_PAGES][];<a name="line.90"></a>
+<FONT color="green">091</FONT>            this._cchunks[0] = new char[BLOCK_SIZE];<a name="line.91"></a>
+<FONT color="green">092</FONT>            this.compressor = CompressorFactory.createCodec();<a name="line.92"></a>
+<FONT color="green">093</FONT>        }<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        //--------------------------------------------    <a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>        public void get(final long addr, final StringBuilder sb) {<a name="line.97"></a>
+<FONT color="green">098</FONT>            final long ptr = indexOf(addr);<a name="line.98"></a>
+<FONT color="green">099</FONT>            if((addr &amp; BIG_STRING_MASK) != 0) { // is big string<a name="line.99"></a>
+<FONT color="green">100</FONT>                assert (ptr &lt;= 0x7fffffffL) : ptr;<a name="line.100"></a>
+<FONT color="green">101</FONT>                final String s = _strPool.get((int) ptr);<a name="line.101"></a>
+<FONT color="green">102</FONT>                sb.append(s);<a name="line.102"></a>
+<FONT color="green">103</FONT>            } else {<a name="line.103"></a>
+<FONT color="green">104</FONT>                final int page = (int) ptr &gt;&gt; BLOCK_SHIFT;<a name="line.104"></a>
+<FONT color="green">105</FONT>                final int block = (int) (ptr &amp; BLOCK_MASK);<a name="line.105"></a>
+<FONT color="green">106</FONT>                final char[] cc = _cchunks[page];<a name="line.106"></a>
+<FONT color="green">107</FONT>                final int length = cc[block]; // the first char is the length of the string<a name="line.107"></a>
+<FONT color="green">108</FONT>                sb.append(cc, block + 1, length);<a name="line.108"></a>
+<FONT color="green">109</FONT>            }<a name="line.109"></a>
+<FONT color="green">110</FONT>        }<a name="line.110"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>        public String getString(final long addr) {<a name="line.112"></a>
+<FONT color="green">113</FONT>            final long ptr = indexOf(addr);<a name="line.113"></a>
+<FONT color="green">114</FONT>            final String ret;<a name="line.114"></a>
+<FONT color="green">115</FONT>            if((addr &amp; BIG_STRING_MASK) != 0L) { // is big string<a name="line.115"></a>
+<FONT color="green">116</FONT>                ret = _strPool.get((int) ptr);<a name="line.116"></a>
+<FONT color="green">117</FONT>            } else {<a name="line.117"></a>
+<FONT color="green">118</FONT>                final int page = (int) ptr &gt;&gt; BLOCK_SHIFT;<a name="line.118"></a>
+<FONT color="green">119</FONT>                final int block = (int) (ptr &amp; BLOCK_MASK);<a name="line.119"></a>
+<FONT color="green">120</FONT>                final char[] cp = _cchunks[page];<a name="line.120"></a>
+<FONT color="green">121</FONT>                final int length = cp[block]; // the first char is the length of the string<a name="line.121"></a>
+<FONT color="green">122</FONT>                ret = new String(cp, block + 1, length);<a name="line.122"></a>
+<FONT color="green">123</FONT>            }<a name="line.123"></a>
+<FONT color="green">124</FONT>            return ret;<a name="line.124"></a>
+<FONT color="green">125</FONT>        }<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>        public long getBufferAddress(long addr) {<a name="line.127"></a>
+<FONT color="green">128</FONT>            throw new UnsupportedOperationException();<a name="line.128"></a>
+<FONT color="green">129</FONT>        }<a name="line.129"></a>
+<FONT color="green">130</FONT>    <a name="line.130"></a>
+<FONT color="green">131</FONT>        public long store(final char[] ch, final int start, final int length) {<a name="line.131"></a>
+<FONT color="green">132</FONT>            final int raddr;<a name="line.132"></a>
+<FONT color="green">133</FONT>            if(length &gt;= CHUNKED_THRESHOLD) {<a name="line.133"></a>
+<FONT color="green">134</FONT>                raddr = allocateStringChunk(new String(ch, start, length));<a name="line.134"></a>
+<FONT color="green">135</FONT>            } else {<a name="line.135"></a>
+<FONT color="green">136</FONT>                raddr = storeCharChunk(ch, start, length);<a name="line.136"></a>
+<FONT color="green">137</FONT>            }<a name="line.137"></a>
+<FONT color="green">138</FONT>            return raddr;<a name="line.138"></a>
+<FONT color="green">139</FONT>        }<a name="line.139"></a>
+<FONT color="green">140</FONT>    <a name="line.140"></a>
+<FONT color="green">141</FONT>        public long store(final String s) {<a name="line.141"></a>
+<FONT color="green">142</FONT>            assert (s != null);<a name="line.142"></a>
+<FONT color="green">143</FONT>            final int strlen = s.length();<a name="line.143"></a>
+<FONT color="green">144</FONT>            if(strlen &lt; CHUNKED_THRESHOLD) {<a name="line.144"></a>
+<FONT color="green">145</FONT>                s.getChars(0, strlen, tmpBuf, 0);<a name="line.145"></a>
+<FONT color="green">146</FONT>                return store(tmpBuf, 0, strlen);<a name="line.146"></a>
+<FONT color="green">147</FONT>            }<a name="line.147"></a>
+<FONT color="green">148</FONT>            return allocateStringChunk(s);<a name="line.148"></a>
+<FONT color="green">149</FONT>        }<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>        private int allocateStringChunk(final String s) {<a name="line.151"></a>
+<FONT color="green">152</FONT>            final int index = _strPool.size();<a name="line.152"></a>
+<FONT color="green">153</FONT>            _strPool.add(s);<a name="line.153"></a>
+<FONT color="green">154</FONT>            return stringKey(index);<a name="line.154"></a>
+<FONT color="green">155</FONT>        }<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>        private static int stringKey(final int index) {<a name="line.157"></a>
+<FONT color="green">158</FONT>            return (index &lt;&lt; 1) + 1;<a name="line.158"></a>
+<FONT color="green">159</FONT>        }<a name="line.159"></a>
+<FONT color="green">160</FONT>    <a name="line.160"></a>
+<FONT color="green">161</FONT>        private int storeCharChunk(final char[] ch, final int start, final int length) {<a name="line.161"></a>
+<FONT color="green">162</FONT>            final int hcode = HashUtils.hashCode(ch, start, length);<a name="line.162"></a>
+<FONT color="green">163</FONT>            final int haddr = _hashv2addr.get(hcode);<a name="line.163"></a>
+<FONT color="green">164</FONT>            if(haddr != -1) {<a name="line.164"></a>
+<FONT color="green">165</FONT>                final char[] strInAddr = getStoredChars(haddr);<a name="line.165"></a>
+<FONT color="green">166</FONT>                assert (strInAddr != null);<a name="line.166"></a>
+<FONT color="green">167</FONT>                if(ArrayUtils.equals(strInAddr, ch, start, length)) {<a name="line.167"></a>
+<FONT color="green">168</FONT>                    return haddr;<a name="line.168"></a>
+<FONT color="green">169</FONT>                } else {<a name="line.169"></a>
+<FONT color="green">170</FONT>                    _hashv2addr.remove(hcode);<a name="line.170"></a>
+<FONT color="green">171</FONT>                }<a name="line.171"></a>
+<FONT color="green">172</FONT>            }<a name="line.172"></a>
+<FONT color="green">173</FONT>            final int raddr = allocateCharChunk(ch, start, length);<a name="line.173"></a>
+<FONT color="green">174</FONT>            _hashv2addr.put(hcode, raddr);<a name="line.174"></a>
+<FONT color="green">175</FONT>            return raddr;<a name="line.175"></a>
+<FONT color="green">176</FONT>        }<a name="line.176"></a>
+<FONT color="green">177</FONT>    <a name="line.177"></a>
+<FONT color="green">178</FONT>        @Deprecated<a name="line.178"></a>
+<FONT color="green">179</FONT>        private char[] getStoredChars(final int addr) {<a name="line.179"></a>
+<FONT color="green">180</FONT>            final long ptr = indexOf(addr);<a name="line.180"></a>
+<FONT color="green">181</FONT>            final long lp = ptr &gt;&gt; BLOCK_SHIFT;<a name="line.181"></a>
+<FONT color="green">182</FONT>            if(lp &gt; 0x7fffffffL) {<a name="line.182"></a>
+<FONT color="green">183</FONT>                throw new IllegalStateException("Illegal page number: " + lp);<a name="line.183"></a>
+<FONT color="green">184</FONT>            }<a name="line.184"></a>
+<FONT color="green">185</FONT>            final int page = (int) lp;<a name="line.185"></a>
+<FONT color="green">186</FONT>            final char[] cc = _cchunks[page];<a name="line.186"></a>
+<FONT color="green">187</FONT>            final int block = (int) (ptr &amp; BLOCK_MASK);<a name="line.187"></a>
+<FONT color="green">188</FONT>            final int length = cc[block]; // the first char is the length of the string<a name="line.188"></a>
+<FONT color="green">189</FONT>            final int from = block + 1;<a name="line.189"></a>
+<FONT color="green">190</FONT>            return ArrayUtils.copyOfRange(cc, from, from + length);<a name="line.190"></a>
+<FONT color="green">191</FONT>        }<a name="line.191"></a>
+<FONT color="green">192</FONT>    <a name="line.192"></a>
+<FONT color="green">193</FONT>        private int allocateCharChunk(final char[] src, final int start, final int length) {<a name="line.193"></a>
+<FONT color="green">194</FONT>            assert (length &lt; CHUNKED_THRESHOLD) : length;<a name="line.194"></a>
+<FONT color="green">195</FONT>            final int reqlen = length + 1; // actual length is store in first char. <a name="line.195"></a>
+<FONT color="green">196</FONT>            final long lpage;<a name="line.196"></a>
+<FONT color="green">197</FONT>            if(((_cpointer &amp; BLOCK_MASK) + reqlen) &gt; BLOCK_SIZE) {<a name="line.197"></a>
+<FONT color="green">198</FONT>                // spanning pages is not allowed, allocate in next chunk.<a name="line.198"></a>
+<FONT color="green">199</FONT>                lpage = (_cpointer &gt;&gt; BLOCK_SHIFT) + 1;<a name="line.199"></a>
+<FONT color="green">200</FONT>                if(lpage &gt; Integer.MAX_VALUE) {<a name="line.200"></a>
+<FONT color="green">201</FONT>                    throw new IllegalStateException("Assained page exceeds system's limit: " + lpage);<a name="line.201"></a>
+<FONT color="green">202</FONT>                }<a name="line.202"></a>
+<FONT color="green">203</FONT>                this._cpointer = lpage * BLOCK_SIZE;<a name="line.203"></a>
+<FONT color="green">204</FONT>            } else {<a name="line.204"></a>
+<FONT color="green">205</FONT>                lpage = _cpointer &gt;&gt; BLOCK_SHIFT;<a name="line.205"></a>
+<FONT color="green">206</FONT>            }<a name="line.206"></a>
+<FONT color="green">207</FONT>            final int page = (int) lpage;<a name="line.207"></a>
+<FONT color="green">208</FONT>            if(page &gt;= _cchunks.length) {<a name="line.208"></a>
+<FONT color="green">209</FONT>                enlarge((int) (_cchunks.length * ENLARGE_PAGES_FACTOR));<a name="line.209"></a>
+<FONT color="green">210</FONT>            }<a name="line.210"></a>
+<FONT color="green">211</FONT>            if(_cchunks[page] == null) {<a name="line.211"></a>
+<FONT color="green">212</FONT>                _cchunks[page] = new char[BLOCK_SIZE];<a name="line.212"></a>
+<FONT color="green">213</FONT>            }<a name="line.213"></a>
+<FONT color="green">214</FONT>            final long lblock = _cpointer &amp; BLOCK_MASK;<a name="line.214"></a>
+<FONT color="green">215</FONT>            if(lblock &gt; Integer.MAX_VALUE) {<a name="line.215"></a>
+<FONT color="green">216</FONT>                throw new IllegalStateException("Assained block exceeds system's limit: " + lblock);<a name="line.216"></a>
+<FONT color="green">217</FONT>            }<a name="line.217"></a>
+<FONT color="green">218</FONT>            final int block = (int) lblock;<a name="line.218"></a>
+<FONT color="green">219</FONT>            assert (length &lt; Character.MAX_VALUE) : length;<a name="line.219"></a>
+<FONT color="green">220</FONT>            _cchunks[page][block] = (char) length;<a name="line.220"></a>
+<FONT color="green">221</FONT>            System.arraycopy(src, start, _cchunks[page], block + 1, length);<a name="line.221"></a>
+<FONT color="green">222</FONT>            final long index = _cpointer;<a name="line.222"></a>
+<FONT color="green">223</FONT>            _cpointer += reqlen; // move ahead pointer<a name="line.223"></a>
+<FONT color="green">224</FONT>            return chunkKey(index);<a name="line.224"></a>
+<FONT color="green">225</FONT>        }<a name="line.225"></a>
+<FONT color="green">226</FONT>    <a name="line.226"></a>
+<FONT color="green">227</FONT>        private static int chunkKey(final long index) {<a name="line.227"></a>
+<FONT color="green">228</FONT>            if(index &gt; MAX_CHUNK_POINTER) {<a name="line.228"></a>
+<FONT color="green">229</FONT>                throw new IllegalStateException("Assained key '" + index + "' exceeds system's limit '"<a name="line.229"></a>
+<FONT color="green">230</FONT>                        + MAX_CHUNK_POINTER + '\'');<a name="line.230"></a>
+<FONT color="green">231</FONT>            }<a name="line.231"></a>
+<FONT color="green">232</FONT>            return (int) index &lt;&lt; 1;<a name="line.232"></a>
+<FONT color="green">233</FONT>        }<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>        private static long indexOf(final long addr) {<a name="line.235"></a>
+<FONT color="green">236</FONT>            return addr &gt;&gt;&gt; 1;<a name="line.236"></a>
+<FONT color="green">237</FONT>        }<a name="line.237"></a>
+<FONT color="green">238</FONT>    <a name="line.238"></a>
+<FONT color="green">239</FONT>        private void enlarge(final int pages) {<a name="line.239"></a>
+<FONT color="green">240</FONT>            final char[][] newchunks = new char[pages][];<a name="line.240"></a>
+<FONT color="green">241</FONT>            System.arraycopy(_cchunks, 0, newchunks, 0, _cchunks.length);<a name="line.241"></a>
+<FONT color="green">242</FONT>            this._cchunks = newchunks;<a name="line.242"></a>
+<FONT color="green">243</FONT>        }<a name="line.243"></a>
+<FONT color="green">244</FONT>    <a name="line.244"></a>
+<FONT color="green">245</FONT>        public void flush(final DbCollection coll, final String docName, final PropertyMap docProps)<a name="line.245"></a>
+<FONT color="green">246</FONT>                throws IOException {<a name="line.246"></a>
+<FONT color="green">247</FONT>            final File chunkFile = getChunkFile(coll, docName);<a name="line.247"></a>
+<FONT color="green">248</FONT>            assert (!chunkFile.exists()) : "file already exists: " + chunkFile.getAbsolutePath();<a name="line.248"></a>
+<FONT color="green">249</FONT>            final int splen = _strPool.size();<a name="line.249"></a>
+<FONT color="green">250</FONT>            final Segments paged = new VarSegments(chunkFile, DescriptorType.hash);<a name="line.250"></a>
+<FONT color="green">251</FONT>            for(int i = 0; i &lt; splen; i++) {// big string<a name="line.251"></a>
+<FONT color="green">252</FONT>                final String s = _strPool.get(i);<a name="line.252"></a>
+<FONT color="green">253</FONT>                final byte[] b = compressor.compress(StringUtils.getBytes(s));<a name="line.253"></a>
+<FONT color="green">254</FONT>                final int addr = stringKey(i);<a name="line.254"></a>
+<FONT color="green">255</FONT>                paged.write(addr, b);<a name="line.255"></a>
+<FONT color="green">256</FONT>            }<a name="line.256"></a>
+<FONT color="green">257</FONT>            _strPool.clear();<a name="line.257"></a>
+<FONT color="green">258</FONT>            final long lcclen = _cpointer &gt;&gt; BLOCK_SHIFT;<a name="line.258"></a>
+<FONT color="green">259</FONT>            assert (lcclen &lt;= Integer.MAX_VALUE) : lcclen;<a name="line.259"></a>
+<FONT color="green">260</FONT>            final int cclen = Math.min((int) lcclen, _cchunks.length - 1);<a name="line.260"></a>
+<FONT color="green">261</FONT>            for(int i = 0; i &lt;= cclen; i++) {<a name="line.261"></a>
+<FONT color="green">262</FONT>                final char[] c = _cchunks[i];<a name="line.262"></a>
+<FONT color="green">263</FONT>                assert (c != null);<a name="line.263"></a>
+<FONT color="green">264</FONT>                final byte[] b = compress(compressor, c);<a name="line.264"></a>
+<FONT color="green">265</FONT>                final int addr = chunkKey(i * BLOCK_SIZE);<a name="line.265"></a>
+<FONT color="green">266</FONT>                paged.write(addr, b);<a name="line.266"></a>
+<FONT color="green">267</FONT>                _cchunks[i] = null;<a name="line.267"></a>
+<FONT color="green">268</FONT>            }<a name="line.268"></a>
+<FONT color="green">269</FONT>            docProps.setProperty(KEY_STRPOOL_WRITTEN, String.valueOf(splen));<a name="line.269"></a>
+<FONT color="green">270</FONT>            docProps.setProperty(KEY_CHUNK_WRITTEN, String.valueOf(cclen));<a name="line.270"></a>
+<FONT color="green">271</FONT>            paged.flush(false);<a name="line.271"></a>
+<FONT color="green">272</FONT>            close();<a name="line.272"></a>
+<FONT color="green">273</FONT>            LOG.info("write string chunk file:" + chunkFile.getAbsolutePath());<a name="line.273"></a>
+<FONT color="green">274</FONT>        }<a name="line.274"></a>
+<FONT color="green">275</FONT>    <a name="line.275"></a>
+<FONT color="green">276</FONT>        private static File getChunkFile(final DbCollection coll, final String docName) {<a name="line.276"></a>
+<FONT color="green">277</FONT>            final File baseDir = new File(coll.getAbsolutePath());<a name="line.277"></a>
+<FONT color="green">278</FONT>            assert (baseDir.exists() &amp;&amp; baseDir.isDirectory());<a name="line.278"></a>
+<FONT color="green">279</FONT>            final File chunkFile = new File(baseDir, docName + STRING_CHUNK_FILE_SUFFIX);<a name="line.279"></a>
+<FONT color="green">280</FONT>            return chunkFile;<a name="line.280"></a>
+<FONT color="green">281</FONT>        }<a name="line.281"></a>
+<FONT color="green">282</FONT>    <a name="line.282"></a>
+<FONT color="green">283</FONT>        private final byte[] compress(final CompressionCodec compressor, final char[] c) {<a name="line.283"></a>
+<FONT color="green">284</FONT>            final byte[] b = Primitives.toBytes(c);<a name="line.284"></a>
+<FONT color="green">285</FONT>            return compressor.compress(b);<a name="line.285"></a>
+<FONT color="green">286</FONT>        }<a name="line.286"></a>
+<FONT color="green">287</FONT>    <a name="line.287"></a>
+<FONT color="green">288</FONT>        public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {<a name="line.288"></a>
+<FONT color="green">289</FONT>            this._strPool = (List&lt;String&gt;) in.readObject();<a name="line.289"></a>
+<FONT color="green">290</FONT>            this._cchunks = (char[][]) in.readObject();<a name="line.290"></a>
+<FONT color="green">291</FONT>            this._cpointer = in.readLong();<a name="line.291"></a>
+<FONT color="green">292</FONT>        }<a name="line.292"></a>
+<FONT color="green">293</FONT>    <a name="line.293"></a>
+<FONT color="green">294</FONT>        public void writeExternal(final ObjectOutput out) throws IOException {<a name="line.294"></a>
+<FONT color="green">295</FONT>            out.writeObject(_strPool);<a name="line.295"></a>
+<FONT color="green">296</FONT>            out.writeObject(_cchunks);<a name="line.296"></a>
+<FONT color="green">297</FONT>            out.writeLong(_cpointer);<a name="line.297"></a>
+<FONT color="green">298</FONT>        }<a name="line.298"></a>
+<FONT color="green">299</FONT>    <a name="line.299"></a>
+<FONT color="green">300</FONT>        public void close() throws IOException {<a name="line.300"></a>
+<FONT color="green">301</FONT>            this._strPool = null;<a name="line.301"></a>
+<FONT color="green">302</FONT>            this._cchunks = null;<a name="line.302"></a>
+<FONT color="green">303</FONT>            _hashv2addr.close();<a name="line.303"></a>
+<FONT color="green">304</FONT>        }<a name="line.304"></a>
+<FONT color="green">305</FONT>    <a name="line.305"></a>
+<FONT color="green">306</FONT>        public int getAndIncrementReferenceCount() {<a name="line.306"></a>
+<FONT color="green">307</FONT>            return 1; // dummy<a name="line.307"></a>
+<FONT color="green">308</FONT>        }<a name="line.308"></a>
+<FONT color="green">309</FONT>    <a name="line.309"></a>
+<FONT color="green">310</FONT>    }<a name="line.310"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
