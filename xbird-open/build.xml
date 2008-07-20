@@ -73,7 +73,7 @@
 		        file="${target.dir}/xbird-${version}-src.zip" />
 		<zip destfile="${target.dir}/xbird-${version}-src.zip"
 		     basedir="."
-		     excludes="${target.dir}/classes/**,build/**,**/*.log,**/.svn/**" />
+		     excludes="${target.dir}/**,build/**,**/*.log,**/.svn/**" />
 	</target>
 
 	<target name="javadoc" depends="compile">
