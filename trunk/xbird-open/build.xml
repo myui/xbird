@@ -69,9 +69,16 @@
 	</target>
 
 	<target name="javadoc" depends="compile">
-		<delete failonerror="false" dir="${target.dir}/docs/api" />
-		<mkdir dir="${target.dir}/docs/api" />
-		<javadoc destdir="${target.dir}/docs/api"
+		<delete failonerror="false" dir="${javadoc.dstdir}" />
+		<mkdir dir="${javadoc.dstdir}" />
+		<javadoc windowtitle="${javadoc.title}"
+		         doctitle="${javadoc.title}"
+		         bottom="${javadoc.bottom}"
+		         failonerror="true"
+		         classpathref="classpath"
+		         excludepackagenames="${javadoc.excludepackagenames}"
+		         linksource="${javadoc.linksource}"
+		         destdir="${javadoc.dstdir}"
 		         sourcepath="${src.dir}/java"
 		         useexternalfile="true"
 		         docencoding="${javadoc.docencoding}"

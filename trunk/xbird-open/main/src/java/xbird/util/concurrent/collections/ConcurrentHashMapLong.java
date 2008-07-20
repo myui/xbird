@@ -855,11 +855,7 @@ public final class ConcurrentHashMapLong<V> extends AbstractMap<Long, V>
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return the previous value associated with the specified key,
-     *         or <tt>null</tt> if there was no mapping for the key
-     * @throws NullPointerException if the specified key or value is null
+     * Auto-boxing version of {@link #put(Long, Object)}
      */
     public V putIfAbsent(long key, V value) {
         int hash = hash(key);
