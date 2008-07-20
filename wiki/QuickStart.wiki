@@ -46,7 +46,7 @@ We here assume that '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test
  -wrap                  # Wrap result with dummy root node (default=false)
 }}}
 
-This is an exmaple query file that retrieves books in "C:\bib.xml" which title contains "TCP/IP".
+The query below is an exmaple that retrieves books in "C:\bib.xml" which title contains "TCP/IP". Please save this query as a file and specify the file path to the above "-q" command line arguments.
 {{{
 for $b in fn:doc("file:///C:/bib.xml")/bib/book, 
      $t in $b/title
