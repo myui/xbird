@@ -195,7 +195,7 @@ public class DynamicContext implements XQueryContext {
     }
 
     /**
-     * @see Last#eval(xbird.xquery.dm.value.sequence.ValueSequence, DynamicContext)
+     * @see Last#eval(Sequence, xbird.xquery.dm.value.sequence.ValueSequence, DynamicContext)
      */
     public final Sequence<? extends Item> peekSequence() {
         return tracSequenceStack.peek();

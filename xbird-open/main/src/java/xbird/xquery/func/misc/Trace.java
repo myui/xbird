@@ -22,6 +22,7 @@ package xbird.xquery.func.misc;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
@@ -62,14 +63,15 @@ public final class Trace extends BuiltInFunction {
         return s;
     }
 
-    public Sequence eval(Sequence<? extends Item> contextSeq, ValueSequence argv, DynamicContext dynEnv) throws XQueryException {
+    public Sequence eval(Sequence<? extends Item> contextSeq, ValueSequence argv, DynamicContext dynEnv)
+            throws XQueryException {
         assert (argv != null && argv.size() == 2);
         Item value = argv.getItem(0);
         Item secondItem = argv.getItem(1);
         XString label = (XString) secondItem;
         assert (label != null);
         final String message = label.getValue() + ": { " + traceItem(value, ", ") + " }.";
-        LOGGER.trace(message);  // TODO create trace listener?
+        LOGGER.trace(message); // TODO create trace listener?
         return value;
     }
 
@@ -77,8 +79,8 @@ public final class Trace extends BuiltInFunction {
         assert (items != null);
         final StringBuilder buf = new StringBuilder(256);
         boolean first = true;
-        for (Item it : items) {
-            if (first) {
+        for(Item it : items) {
+            if(first) {
                 first = false;
             } else {
                 buf.append(delimitter);
