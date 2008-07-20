@@ -31,5 +31,6 @@
 	<classpathentry kind="lib" path="lib/optional/icu4j_3_4_2.jar"/>
 	<classpathentry kind="lib" path="lib/optional/resolver.jar"/>
 	<classpathentry kind="lib" path="lib/optional/nekohtml-1.9.7.jar"/>
+	<classpathentry kind="lib" path="lib/optional/tagsoup-1.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
