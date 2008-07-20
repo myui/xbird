@@ -23,6 +23,9 @@ There are three types of binary as follows:
 
 = Command Line Execution =
 
+An exmaple XML file '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is used for the following discussion. 
+We here assume that '[http://xbird.googlecode.com/svn/trunk/xbird-open/main/test/resources/example/bib.xml bib.xml]' is put under "C:\".
+
 == execute with fat jar ==
 
 {{{
@@ -41,4 +44,12 @@ There are three types of binary as follows:
  -timeout TIME(seconds) # specify timeout in seconds
  -tms                   # enable timing in mill seconds (default=false)
  -wrap                  # Wrap result with dummy root node (default=false)
+}}}
+
+This is an exmaple query file that retrieves books in "C:\bib.xml" which title contains "TCP/IP".
+{{{
+for $b in fn:doc("file:///C:/bib.xml")/bib/book, 
+     $t in $b/title
+where fn:contains(fn:string($t), "TCP/IP")
+return $b
 }}}
