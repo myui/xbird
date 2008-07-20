@@ -1,0 +1,740 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: codetemplate_xbird.xml 943 2006-09-13 07:03:37Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Google Inc.- initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     *     Makoto YUI - ported<a name="line.20"></a>
+<FONT color="green">021</FONT>     */<a name="line.21"></a>
+<FONT color="green">022</FONT>    /*<a name="line.22"></a>
+<FONT color="green">023</FONT>     * Copyright (C) 2007 Google Inc.<a name="line.23"></a>
+<FONT color="green">024</FONT>     *<a name="line.24"></a>
+<FONT color="green">025</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.25"></a>
+<FONT color="green">026</FONT>     * you may not use this file except in compliance with the License.<a name="line.26"></a>
+<FONT color="green">027</FONT>     * You may obtain a copy of the License at<a name="line.27"></a>
+<FONT color="green">028</FONT>     *<a name="line.28"></a>
+<FONT color="green">029</FONT>     * http://www.apache.org/licenses/LICENSE-2.0<a name="line.29"></a>
+<FONT color="green">030</FONT>     *<a name="line.30"></a>
+<FONT color="green">031</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.31"></a>
+<FONT color="green">032</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.32"></a>
+<FONT color="green">033</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.33"></a>
+<FONT color="green">034</FONT>     * See the License for the specific language governing permissions and<a name="line.34"></a>
+<FONT color="green">035</FONT>     * limitations under the License.<a name="line.35"></a>
+<FONT color="green">036</FONT>     */<a name="line.36"></a>
+<FONT color="green">037</FONT>    <a name="line.37"></a>
+<FONT color="green">038</FONT>    package xbird.util.concurrent.reference;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>    import static xbird.util.concurrent.reference.ReferenceType.STRONG;<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>    import java.io.IOException;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import java.io.ObjectInputStream;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import java.io.ObjectOutputStream;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import java.io.Serializable;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import java.lang.ref.Reference;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import java.util.AbstractMap;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import java.util.AbstractSet;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import java.util.Iterator;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import java.util.Map;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import java.util.NoSuchElementException;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import java.util.Set;<a name="line.52"></a>
+<FONT color="green">053</FONT>    import java.util.concurrent.ConcurrentHashMap;<a name="line.53"></a>
+<FONT color="green">054</FONT>    import java.util.concurrent.ConcurrentMap;<a name="line.54"></a>
+<FONT color="green">055</FONT>    <a name="line.55"></a>
+<FONT color="green">056</FONT>    /**<a name="line.56"></a>
+<FONT color="green">057</FONT>     * Concurrent hash map that wraps keys and/or values in soft or weak references.<a name="line.57"></a>
+<FONT color="green">058</FONT>     * Does not support null keys or values. Uses identity equality for weak and<a name="line.58"></a>
+<FONT color="green">059</FONT>     * soft keys.<a name="line.59"></a>
+<FONT color="green">060</FONT>     *<a name="line.60"></a>
+<FONT color="green">061</FONT>     * &lt;p&gt;The concurrent semantics of {@link ConcurrentHashMap} combined with the<a name="line.61"></a>
+<FONT color="green">062</FONT>     * fact that the garbage collector can asynchronously reclaim and clean up<a name="line.62"></a>
+<FONT color="green">063</FONT>     * keys and values at any time can lead to some racy semantics. For example,<a name="line.63"></a>
+<FONT color="green">064</FONT>     * {@link #size()} returns an upper bound on the size; that is, the actual size<a name="line.64"></a>
+<FONT color="green">065</FONT>     * may be smaller in cases where the key or value has been reclaimed but the map<a name="line.65"></a>
+<FONT color="green">066</FONT>     * entry has not been cleaned up yet.<a name="line.66"></a>
+<FONT color="green">067</FONT>     *<a name="line.67"></a>
+<FONT color="green">068</FONT>     * @author crazybob@google.com (Bob Lee)<a name="line.68"></a>
+<FONT color="green">069</FONT>     * @author fry@google.com (Charles Fry)<a name="line.69"></a>
+<FONT color="green">070</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.70"></a>
+<FONT color="green">071</FONT>     */<a name="line.71"></a>
+<FONT color="green">072</FONT>    @SuppressWarnings("unchecked")<a name="line.72"></a>
+<FONT color="green">073</FONT>    public class ReferenceMap&lt;K, V&gt; extends AbstractMap&lt;K, V&gt;<a name="line.73"></a>
+<FONT color="green">074</FONT>            implements ConcurrentMap&lt;K, V&gt;, Serializable {<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>        transient ConcurrentMap&lt;Object, Object&gt; delegate;<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>        private final ReferenceType keyReferenceType;<a name="line.78"></a>
+<FONT color="green">079</FONT>        private final ReferenceType valueReferenceType;<a name="line.79"></a>
+<FONT color="green">080</FONT>    <a name="line.80"></a>
+<FONT color="green">081</FONT>        /**<a name="line.81"></a>
+<FONT color="green">082</FONT>         * Concurrent hash map that wraps keys and/or values based on specified<a name="line.82"></a>
+<FONT color="green">083</FONT>         * reference types.<a name="line.83"></a>
+<FONT color="green">084</FONT>         *<a name="line.84"></a>
+<FONT color="green">085</FONT>         * @param delegateMap internally used map instance<a name="line.85"></a>
+<FONT color="green">086</FONT>         * @param keyReferenceType key reference type<a name="line.86"></a>
+<FONT color="green">087</FONT>         * @param valueReferenceType value reference type<a name="line.87"></a>
+<FONT color="green">088</FONT>         */<a name="line.88"></a>
+<FONT color="green">089</FONT>        public ReferenceMap(ConcurrentMap delegateMap, ReferenceType keyReferenceType, ReferenceType valueReferenceType) {<a name="line.89"></a>
+<FONT color="green">090</FONT>            ensureNotNull(keyReferenceType, valueReferenceType);<a name="line.90"></a>
+<FONT color="green">091</FONT>    <a name="line.91"></a>
+<FONT color="green">092</FONT>            if(keyReferenceType == ReferenceType.PHANTOM || valueReferenceType == ReferenceType.PHANTOM) {<a name="line.92"></a>
+<FONT color="green">093</FONT>                throw new IllegalArgumentException("Phantom references not supported.");<a name="line.93"></a>
+<FONT color="green">094</FONT>            }<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>            this.delegate = delegateMap;<a name="line.96"></a>
+<FONT color="green">097</FONT>            this.keyReferenceType = keyReferenceType;<a name="line.97"></a>
+<FONT color="green">098</FONT>            this.valueReferenceType = valueReferenceType;<a name="line.98"></a>
+<FONT color="green">099</FONT>        }<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>        /**<a name="line.101"></a>
+<FONT color="green">102</FONT>         * Concurrent hash map that wraps keys and/or values based on specified<a name="line.102"></a>
+<FONT color="green">103</FONT>         * reference types.<a name="line.103"></a>
+<FONT color="green">104</FONT>         *<a name="line.104"></a>
+<FONT color="green">105</FONT>         * @param keyReferenceType key reference type<a name="line.105"></a>
+<FONT color="green">106</FONT>         * @param valueReferenceType value reference type<a name="line.106"></a>
+<FONT color="green">107</FONT>         */<a name="line.107"></a>
+<FONT color="green">108</FONT>        public ReferenceMap(ReferenceType keyReferenceType, ReferenceType valueReferenceType) {<a name="line.108"></a>
+<FONT color="green">109</FONT>            this(new ConcurrentHashMap(), keyReferenceType, valueReferenceType);<a name="line.109"></a>
+<FONT color="green">110</FONT>        }<a name="line.110"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>        V internalGet(K key) {<a name="line.112"></a>
+<FONT color="green">113</FONT>            Object valueReference = delegate.get(makeKeyReferenceAware(key));<a name="line.113"></a>
+<FONT color="green">114</FONT>            return dereferenceValue(valueReference);<a name="line.114"></a>
+<FONT color="green">115</FONT>        }<a name="line.115"></a>
+<FONT color="green">116</FONT>    <a name="line.116"></a>
+<FONT color="green">117</FONT>        public V get(final Object key) {<a name="line.117"></a>
+<FONT color="green">118</FONT>            ensureNotNull(key);<a name="line.118"></a>
+<FONT color="green">119</FONT>            return internalGet((K) key);<a name="line.119"></a>
+<FONT color="green">120</FONT>        }<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
+<FONT color="green">122</FONT>        private V execute(Strategy strategy, K key, V value) {<a name="line.122"></a>
+<FONT color="green">123</FONT>            ensureNotNull(key, value);<a name="line.123"></a>
+<FONT color="green">124</FONT>            Object keyReference = referenceKey(key);<a name="line.124"></a>
+<FONT color="green">125</FONT>            return (V) strategy.execute(this, keyReference, referenceValue(keyReference, value));<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        public V put(K key, V value) {<a name="line.128"></a>
+<FONT color="green">129</FONT>            return execute(putStrategy(), key, value);<a name="line.129"></a>
+<FONT color="green">130</FONT>        }<a name="line.130"></a>
+<FONT color="green">131</FONT>    <a name="line.131"></a>
+<FONT color="green">132</FONT>        public V remove(Object key) {<a name="line.132"></a>
+<FONT color="green">133</FONT>            ensureNotNull(key);<a name="line.133"></a>
+<FONT color="green">134</FONT>            Object referenceAwareKey = makeKeyReferenceAware(key);<a name="line.134"></a>
+<FONT color="green">135</FONT>            Object valueReference = delegate.remove(referenceAwareKey);<a name="line.135"></a>
+<FONT color="green">136</FONT>            return dereferenceValue(valueReference);<a name="line.136"></a>
+<FONT color="green">137</FONT>        }<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>        public int size() {<a name="line.139"></a>
+<FONT color="green">140</FONT>            return delegate.size();<a name="line.140"></a>
+<FONT color="green">141</FONT>        }<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>        public boolean isEmpty() {<a name="line.143"></a>
+<FONT color="green">144</FONT>            return delegate.isEmpty();<a name="line.144"></a>
+<FONT color="green">145</FONT>        }<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>        public boolean containsKey(Object key) {<a name="line.147"></a>
+<FONT color="green">148</FONT>            ensureNotNull(key);<a name="line.148"></a>
+<FONT color="green">149</FONT>            Object referenceAwareKey = makeKeyReferenceAware(key);<a name="line.149"></a>
+<FONT color="green">150</FONT>            return delegate.containsKey(referenceAwareKey);<a name="line.150"></a>
+<FONT color="green">151</FONT>        }<a name="line.151"></a>
+<FONT color="green">152</FONT>    <a name="line.152"></a>
+<FONT color="green">153</FONT>        public boolean containsValue(Object value) {<a name="line.153"></a>
+<FONT color="green">154</FONT>            ensureNotNull(value);<a name="line.154"></a>
+<FONT color="green">155</FONT>            for(Object valueReference : delegate.values()) {<a name="line.155"></a>
+<FONT color="green">156</FONT>                if(value.equals(dereferenceValue(valueReference))) {<a name="line.156"></a>
+<FONT color="green">157</FONT>                    return true;<a name="line.157"></a>
+<FONT color="green">158</FONT>                }<a name="line.158"></a>
+<FONT color="green">159</FONT>            }<a name="line.159"></a>
+<FONT color="green">160</FONT>            return false;<a name="line.160"></a>
+<FONT color="green">161</FONT>        }<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">163</FONT>        public void putAll(Map&lt;? extends K, ? extends V&gt; t) {<a name="line.163"></a>
+<FONT color="green">164</FONT>            for(Map.Entry&lt;? extends K, ? extends V&gt; entry : t.entrySet()) {<a name="line.164"></a>
+<FONT color="green">165</FONT>                put(entry.getKey(), entry.getValue());<a name="line.165"></a>
+<FONT color="green">166</FONT>            }<a name="line.166"></a>
+<FONT color="green">167</FONT>        }<a name="line.167"></a>
+<FONT color="green">168</FONT>    <a name="line.168"></a>
+<FONT color="green">169</FONT>        public void clear() {<a name="line.169"></a>
+<FONT color="green">170</FONT>            delegate.clear();<a name="line.170"></a>
+<FONT color="green">171</FONT>        }<a name="line.171"></a>
+<FONT color="green">172</FONT>    <a name="line.172"></a>
+<FONT color="green">173</FONT>        public V putIfAbsent(K key, V value) {<a name="line.173"></a>
+<FONT color="green">174</FONT>            return execute(putIfAbsentStrategy(), key, value);<a name="line.174"></a>
+<FONT color="green">175</FONT>        }<a name="line.175"></a>
+<FONT color="green">176</FONT>    <a name="line.176"></a>
+<FONT color="green">177</FONT>        public boolean remove(Object key, Object value) {<a name="line.177"></a>
+<FONT color="green">178</FONT>            ensureNotNull(key, value);<a name="line.178"></a>
+<FONT color="green">179</FONT>            Object referenceAwareKey = makeKeyReferenceAware(key);<a name="line.179"></a>
+<FONT color="green">180</FONT>            Object referenceAwareValue = makeValueReferenceAware(value);<a name="line.180"></a>
+<FONT color="green">181</FONT>            return delegate.remove(referenceAwareKey, referenceAwareValue);<a name="line.181"></a>
+<FONT color="green">182</FONT>        }<a name="line.182"></a>
+<FONT color="green">183</FONT>    <a name="line.183"></a>
+<FONT color="green">184</FONT>        public boolean replace(K key, V oldValue, V newValue) {<a name="line.184"></a>
+<FONT color="green">185</FONT>            ensureNotNull(key, oldValue, newValue);<a name="line.185"></a>
+<FONT color="green">186</FONT>            Object keyReference = referenceKey(key);<a name="line.186"></a>
+<FONT color="green">187</FONT>    <a name="line.187"></a>
+<FONT color="green">188</FONT>            Object referenceAwareOldValue = makeValueReferenceAware(oldValue);<a name="line.188"></a>
+<FONT color="green">189</FONT>            return delegate.replace(keyReference, referenceAwareOldValue, referenceValue(keyReference, newValue));<a name="line.189"></a>
+<FONT color="green">190</FONT>        }<a name="line.190"></a>
+<FONT color="green">191</FONT>    <a name="line.191"></a>
+<FONT color="green">192</FONT>        public V replace(K key, V value) {<a name="line.192"></a>
+<FONT color="green">193</FONT>            return execute(replaceStrategy(), key, value);<a name="line.193"></a>
+<FONT color="green">194</FONT>        }<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>        private transient volatile Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = null;<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
+<FONT color="green">198</FONT>        public Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet() {<a name="line.198"></a>
+<FONT color="green">199</FONT>            if(entrySet == null) {<a name="line.199"></a>
+<FONT color="green">200</FONT>                entrySet = new EntrySet();<a name="line.200"></a>
+<FONT color="green">201</FONT>            }<a name="line.201"></a>
+<FONT color="green">202</FONT>            return entrySet;<a name="line.202"></a>
+<FONT color="green">203</FONT>        }<a name="line.203"></a>
+<FONT color="green">204</FONT>    <a name="line.204"></a>
+<FONT color="green">205</FONT>        /** Dereferences an entry. Returns null if the key or value has been gc'ed. */<a name="line.205"></a>
+<FONT color="green">206</FONT>        private Entry dereferenceEntry(Map.Entry&lt;Object, Object&gt; entry) {<a name="line.206"></a>
+<FONT color="green">207</FONT>            K key = dereferenceKey(entry.getKey());<a name="line.207"></a>
+<FONT color="green">208</FONT>            V value = dereferenceValue(entry.getValue());<a name="line.208"></a>
+<FONT color="green">209</FONT>            return (key == null || value == null) ? null : new Entry(key, value);<a name="line.209"></a>
+<FONT color="green">210</FONT>        }<a name="line.210"></a>
+<FONT color="green">211</FONT>    <a name="line.211"></a>
+<FONT color="green">212</FONT>        /** Creates a reference for a key. */<a name="line.212"></a>
+<FONT color="green">213</FONT>        Object referenceKey(K key) {<a name="line.213"></a>
+<FONT color="green">214</FONT>            switch(keyReferenceType) {<a name="line.214"></a>
+<FONT color="green">215</FONT>                case STRONG:<a name="line.215"></a>
+<FONT color="green">216</FONT>                    return key;<a name="line.216"></a>
+<FONT color="green">217</FONT>                case SOFT:<a name="line.217"></a>
+<FONT color="green">218</FONT>                    return new SoftKeyReference(key);<a name="line.218"></a>
+<FONT color="green">219</FONT>                case WEAK:<a name="line.219"></a>
+<FONT color="green">220</FONT>                    return new WeakKeyReference(key);<a name="line.220"></a>
+<FONT color="green">221</FONT>                default:<a name="line.221"></a>
+<FONT color="green">222</FONT>                    throw new AssertionError();<a name="line.222"></a>
+<FONT color="green">223</FONT>            }<a name="line.223"></a>
+<FONT color="green">224</FONT>        }<a name="line.224"></a>
+<FONT color="green">225</FONT>    <a name="line.225"></a>
+<FONT color="green">226</FONT>        /** Converts a reference to a key. */<a name="line.226"></a>
+<FONT color="green">227</FONT>        K dereferenceKey(Object o) {<a name="line.227"></a>
+<FONT color="green">228</FONT>            return (K) dereference(keyReferenceType, o);<a name="line.228"></a>
+<FONT color="green">229</FONT>        }<a name="line.229"></a>
+<FONT color="green">230</FONT>    <a name="line.230"></a>
+<FONT color="green">231</FONT>        /** Converts a reference to a value. */<a name="line.231"></a>
+<FONT color="green">232</FONT>        V dereferenceValue(Object o) {<a name="line.232"></a>
+<FONT color="green">233</FONT>            if(o == null) {<a name="line.233"></a>
+<FONT color="green">234</FONT>                return null;<a name="line.234"></a>
+<FONT color="green">235</FONT>            }<a name="line.235"></a>
+<FONT color="green">236</FONT>            Object value = dereference(valueReferenceType, o);<a name="line.236"></a>
+<FONT color="green">237</FONT>            if(o instanceof InternalReference) {<a name="line.237"></a>
+<FONT color="green">238</FONT>                InternalReference ref = (InternalReference) o;<a name="line.238"></a>
+<FONT color="green">239</FONT>                if(value == null) {<a name="line.239"></a>
+<FONT color="green">240</FONT>                    // old value was garbage collected<a name="line.240"></a>
+<FONT color="green">241</FONT>                    ref.finalizeReferent();<a name="line.241"></a>
+<FONT color="green">242</FONT>                }<a name="line.242"></a>
+<FONT color="green">243</FONT>            }<a name="line.243"></a>
+<FONT color="green">244</FONT>            return (V) value;<a name="line.244"></a>
+<FONT color="green">245</FONT>        }<a name="line.245"></a>
+<FONT color="green">246</FONT>    <a name="line.246"></a>
+<FONT color="green">247</FONT>        /** Returns the refererent for reference given its reference type. */<a name="line.247"></a>
+<FONT color="green">248</FONT>        private Object dereference(ReferenceType referenceType, Object reference) {<a name="line.248"></a>
+<FONT color="green">249</FONT>            return referenceType == STRONG ? reference : ((Reference) reference).get();<a name="line.249"></a>
+<FONT color="green">250</FONT>        }<a name="line.250"></a>
+<FONT color="green">251</FONT>    <a name="line.251"></a>
+<FONT color="green">252</FONT>        /** Creates a reference for a value. */<a name="line.252"></a>
+<FONT color="green">253</FONT>        Object referenceValue(Object keyReference, V value) {<a name="line.253"></a>
+<FONT color="green">254</FONT>            switch(valueReferenceType) {<a name="line.254"></a>
+<FONT color="green">255</FONT>                case STRONG:<a name="line.255"></a>
+<FONT color="green">256</FONT>                    return value;<a name="line.256"></a>
+<FONT color="green">257</FONT>                case SOFT:<a name="line.257"></a>
+<FONT color="green">258</FONT>                    return new SoftValueReference(keyReference, value);<a name="line.258"></a>
+<FONT color="green">259</FONT>                case WEAK:<a name="line.259"></a>
+<FONT color="green">260</FONT>                    return new WeakValueReference(keyReference, value);<a name="line.260"></a>
+<FONT color="green">261</FONT>                default:<a name="line.261"></a>
+<FONT color="green">262</FONT>                    throw new AssertionError();<a name="line.262"></a>
+<FONT color="green">263</FONT>            }<a name="line.263"></a>
+<FONT color="green">264</FONT>        }<a name="line.264"></a>
+<FONT color="green">265</FONT>    <a name="line.265"></a>
+<FONT color="green">266</FONT>        /**<a name="line.266"></a>
+<FONT color="green">267</FONT>         * Wraps key so it can be compared to a referenced key for equality.<a name="line.267"></a>
+<FONT color="green">268</FONT>         */<a name="line.268"></a>
+<FONT color="green">269</FONT>        private Object makeKeyReferenceAware(Object o) {<a name="line.269"></a>
+<FONT color="green">270</FONT>            return keyReferenceType == STRONG ? o : new KeyReferenceAwareWrapper(o);<a name="line.270"></a>
+<FONT color="green">271</FONT>        }<a name="line.271"></a>
+<FONT color="green">272</FONT>    <a name="line.272"></a>
+<FONT color="green">273</FONT>        /** Wraps value so it can be compared to a referenced value for equality. */<a name="line.273"></a>
+<FONT color="green">274</FONT>        private Object makeValueReferenceAware(Object o) {<a name="line.274"></a>
+<FONT color="green">275</FONT>            return valueReferenceType == STRONG ? o : new ReferenceAwareWrapper(o);<a name="line.275"></a>
+<FONT color="green">276</FONT>        }<a name="line.276"></a>
+<FONT color="green">277</FONT>    <a name="line.277"></a>
+<FONT color="green">278</FONT>        /**<a name="line.278"></a>
+<FONT color="green">279</FONT>         * Marker interface to differentiate external and internal references. Also<a name="line.279"></a>
+<FONT color="green">280</FONT>         * duplicates FinalizableReference and Reference.get for internal use.<a name="line.280"></a>
+<FONT color="green">281</FONT>         */<a name="line.281"></a>
+<FONT color="green">282</FONT>        interface InternalReference {<a name="line.282"></a>
+<FONT color="green">283</FONT>            void finalizeReferent();<a name="line.283"></a>
+<FONT color="green">284</FONT>    <a name="line.284"></a>
+<FONT color="green">285</FONT>            Object get();<a name="line.285"></a>
+<FONT color="green">286</FONT>        }<a name="line.286"></a>
+<FONT color="green">287</FONT>    <a name="line.287"></a>
+<FONT color="green">288</FONT>        private static int keyHashCode(Object key) {<a name="line.288"></a>
+<FONT color="green">289</FONT>            return System.identityHashCode(key);<a name="line.289"></a>
+<FONT color="green">290</FONT>        }<a name="line.290"></a>
+<FONT color="green">291</FONT>    <a name="line.291"></a>
+<FONT color="green">292</FONT>        /*<a name="line.292"></a>
+<FONT color="green">293</FONT>         * Tests weak and soft references for identity equality. Compares references<a name="line.293"></a>
+<FONT color="green">294</FONT>         * to other references and wrappers. If o is a reference, this returns true if<a name="line.294"></a>
+<FONT color="green">295</FONT>         * r == o or if r and o reference the same non-null object. If o is a wrapper,<a name="line.295"></a>
+<FONT color="green">296</FONT>         * this returns true if r's referent is identical to the wrapped object.<a name="line.296"></a>
+<FONT color="green">297</FONT>         */<a name="line.297"></a>
+<FONT color="green">298</FONT>        protected static boolean referenceEquals(Reference r, Object o) {<a name="line.298"></a>
+<FONT color="green">299</FONT>            // compare reference to reference.<a name="line.299"></a>
+<FONT color="green">300</FONT>            if(o instanceof InternalReference) {<a name="line.300"></a>
+<FONT color="green">301</FONT>                // are they the same reference? used in cleanup.<a name="line.301"></a>
+<FONT color="green">302</FONT>                if(o == r) {<a name="line.302"></a>
+<FONT color="green">303</FONT>                    return true;<a name="line.303"></a>
+<FONT color="green">304</FONT>                }<a name="line.304"></a>
+<FONT color="green">305</FONT>    <a name="line.305"></a>
+<FONT color="green">306</FONT>                // do they reference identical values? used in conditional puts.<a name="line.306"></a>
+<FONT color="green">307</FONT>                Object referent = ((Reference) o).get();<a name="line.307"></a>
+<FONT color="green">308</FONT>                return referent != null &amp;&amp; referent == r.get();<a name="line.308"></a>
+<FONT color="green">309</FONT>            }<a name="line.309"></a>
+<FONT color="green">310</FONT>    <a name="line.310"></a>
+<FONT color="green">311</FONT>            // is the wrapped object identical to the referent? used in lookups.<a name="line.311"></a>
+<FONT color="green">312</FONT>            return ((ReferenceAwareWrapper) o).unwrap() == r.get();<a name="line.312"></a>
+<FONT color="green">313</FONT>        }<a name="line.313"></a>
+<FONT color="green">314</FONT>    <a name="line.314"></a>
+<FONT color="green">315</FONT>        /**<a name="line.315"></a>
+<FONT color="green">316</FONT>         * Returns {@code true} if the specified value reference has been garbage<a name="line.316"></a>
+<FONT color="green">317</FONT>         * collected. The value behind the reference is also passed in, rather than<a name="line.317"></a>
+<FONT color="green">318</FONT>         * queried inside this method, to ensure that the return statement of this<a name="line.318"></a>
+<FONT color="green">319</FONT>         * method will still hold true after it has returned (that is, a value<a name="line.319"></a>
+<FONT color="green">320</FONT>         * reference exists outside of this method which will prevent that value from<a name="line.320"></a>
+<FONT color="green">321</FONT>         * being garbage collected).<a name="line.321"></a>
+<FONT color="green">322</FONT>         *<a name="line.322"></a>
+<FONT color="green">323</FONT>         * @param valueReference the value reference to be tested<a name="line.323"></a>
+<FONT color="green">324</FONT>         * @param value the object referenced by {@code valueReference}<a name="line.324"></a>
+<FONT color="green">325</FONT>         * @return {@code true} if {@code valueReference} is non-null and {@code<a name="line.325"></a>
+<FONT color="green">326</FONT>         *     value} is null<a name="line.326"></a>
+<FONT color="green">327</FONT>         */<a name="line.327"></a>
+<FONT color="green">328</FONT>        private static boolean isExpired(Object valueReference, Object value) {<a name="line.328"></a>
+<FONT color="green">329</FONT>            return (valueReference != null) &amp;&amp; (value == null);<a name="line.329"></a>
+<FONT color="green">330</FONT>        }<a name="line.330"></a>
+<FONT color="green">331</FONT>    <a name="line.331"></a>
+<FONT color="green">332</FONT>        /**<a name="line.332"></a>
+<FONT color="green">333</FONT>         * Big hack. Used to compare keys and values to referenced keys and values<a name="line.333"></a>
+<FONT color="green">334</FONT>         * without creating more references.<a name="line.334"></a>
+<FONT color="green">335</FONT>         */<a name="line.335"></a>
+<FONT color="green">336</FONT>        static class ReferenceAwareWrapper {<a name="line.336"></a>
+<FONT color="green">337</FONT>            final Object wrapped;<a name="line.337"></a>
+<FONT color="green">338</FONT>    <a name="line.338"></a>
+<FONT color="green">339</FONT>            ReferenceAwareWrapper(Object wrapped) {<a name="line.339"></a>
+<FONT color="green">340</FONT>                this.wrapped = wrapped;<a name="line.340"></a>
+<FONT color="green">341</FONT>            }<a name="line.341"></a>
+<FONT color="green">342</FONT>    <a name="line.342"></a>
+<FONT color="green">343</FONT>            Object unwrap() {<a name="line.343"></a>
+<FONT color="green">344</FONT>                return wrapped;<a name="line.344"></a>
+<FONT color="green">345</FONT>            }<a name="line.345"></a>
+<FONT color="green">346</FONT>    <a name="line.346"></a>
+<FONT color="green">347</FONT>            public int hashCode() {<a name="line.347"></a>
+<FONT color="green">348</FONT>                return wrapped.hashCode();<a name="line.348"></a>
+<FONT color="green">349</FONT>            }<a name="line.349"></a>
+<FONT color="green">350</FONT>    <a name="line.350"></a>
+<FONT color="green">351</FONT>            public boolean equals(Object obj) {<a name="line.351"></a>
+<FONT color="green">352</FONT>                // defer to reference's equals() logic.<a name="line.352"></a>
+<FONT color="green">353</FONT>                return obj.equals(this);<a name="line.353"></a>
+<FONT color="green">354</FONT>            }<a name="line.354"></a>
+<FONT color="green">355</FONT>        }<a name="line.355"></a>
+<FONT color="green">356</FONT>    <a name="line.356"></a>
+<FONT color="green">357</FONT>        /** Used for keys. Overrides hash code to use identity hash code. */<a name="line.357"></a>
+<FONT color="green">358</FONT>        static class KeyReferenceAwareWrapper extends ReferenceAwareWrapper {<a name="line.358"></a>
+<FONT color="green">359</FONT>            public KeyReferenceAwareWrapper(Object wrapped) {<a name="line.359"></a>
+<FONT color="green">360</FONT>                super(wrapped);<a name="line.360"></a>
+<FONT color="green">361</FONT>            }<a name="line.361"></a>
+<FONT color="green">362</FONT>    <a name="line.362"></a>
+<FONT color="green">363</FONT>            public int hashCode() {<a name="line.363"></a>
+<FONT color="green">364</FONT>                return System.identityHashCode(wrapped);<a name="line.364"></a>
+<FONT color="green">365</FONT>            }<a name="line.365"></a>
+<FONT color="green">366</FONT>        }<a name="line.366"></a>
+<FONT color="green">367</FONT>    <a name="line.367"></a>
+<FONT color="green">368</FONT>        class SoftKeyReference extends FinalizableSoftReference&lt;Object&gt; implements InternalReference {<a name="line.368"></a>
+<FONT color="green">369</FONT>            final int hashCode;<a name="line.369"></a>
+<FONT color="green">370</FONT>    <a name="line.370"></a>
+<FONT color="green">371</FONT>            public SoftKeyReference(Object key) {<a name="line.371"></a>
+<FONT color="green">372</FONT>                super(key);<a name="line.372"></a>
+<FONT color="green">373</FONT>                this.hashCode = keyHashCode(key);<a name="line.373"></a>
+<FONT color="green">374</FONT>            }<a name="line.374"></a>
+<FONT color="green">375</FONT>    <a name="line.375"></a>
+<FONT color="green">376</FONT>            public void finalizeReferent() {<a name="line.376"></a>
+<FONT color="green">377</FONT>                delegate.remove(this);<a name="line.377"></a>
+<FONT color="green">378</FONT>            }<a name="line.378"></a>
+<FONT color="green">379</FONT>    <a name="line.379"></a>
+<FONT color="green">380</FONT>            @Override<a name="line.380"></a>
+<FONT color="green">381</FONT>            public int hashCode() {<a name="line.381"></a>
+<FONT color="green">382</FONT>                return this.hashCode;<a name="line.382"></a>
+<FONT color="green">383</FONT>            }<a name="line.383"></a>
+<FONT color="green">384</FONT>    <a name="line.384"></a>
+<FONT color="green">385</FONT>            @Override<a name="line.385"></a>
+<FONT color="green">386</FONT>            public boolean equals(Object o) {<a name="line.386"></a>
+<FONT color="green">387</FONT>                return referenceEquals(this, o);<a name="line.387"></a>
+<FONT color="green">388</FONT>            }<a name="line.388"></a>
+<FONT color="green">389</FONT>        }<a name="line.389"></a>
+<FONT color="green">390</FONT>    <a name="line.390"></a>
+<FONT color="green">391</FONT>        class WeakKeyReference extends FinalizableWeakReference&lt;Object&gt; implements InternalReference {<a name="line.391"></a>
+<FONT color="green">392</FONT>            final int hashCode;<a name="line.392"></a>
+<FONT color="green">393</FONT>    <a name="line.393"></a>
+<FONT color="green">394</FONT>            public WeakKeyReference(Object key) {<a name="line.394"></a>
+<FONT color="green">395</FONT>                super(key);<a name="line.395"></a>
+<FONT color="green">396</FONT>                this.hashCode = keyHashCode(key);<a name="line.396"></a>
+<FONT color="green">397</FONT>            }<a name="line.397"></a>
+<FONT color="green">398</FONT>    <a name="line.398"></a>
+<FONT color="green">399</FONT>            public void finalizeReferent() {<a name="line.399"></a>
+<FONT color="green">400</FONT>                delegate.remove(this);<a name="line.400"></a>
+<FONT color="green">401</FONT>            }<a name="line.401"></a>
+<FONT color="green">402</FONT>    <a name="line.402"></a>
+<FONT color="green">403</FONT>            @Override<a name="line.403"></a>
+<FONT color="green">404</FONT>            public int hashCode() {<a name="line.404"></a>
+<FONT color="green">405</FONT>                return this.hashCode;<a name="line.405"></a>
+<FONT color="green">406</FONT>            }<a name="line.406"></a>
+<FONT color="green">407</FONT>    <a name="line.407"></a>
+<FONT color="green">408</FONT>            @Override<a name="line.408"></a>
+<FONT color="green">409</FONT>            public boolean equals(Object o) {<a name="line.409"></a>
+<FONT color="green">410</FONT>                return referenceEquals(this, o);<a name="line.410"></a>
+<FONT color="green">411</FONT>            }<a name="line.411"></a>
+<FONT color="green">412</FONT>        }<a name="line.412"></a>
+<FONT color="green">413</FONT>    <a name="line.413"></a>
+<FONT color="green">414</FONT>        class SoftValueReference extends FinalizableSoftReference&lt;Object&gt; implements InternalReference {<a name="line.414"></a>
+<FONT color="green">415</FONT>            final Object keyReference;<a name="line.415"></a>
+<FONT color="green">416</FONT>    <a name="line.416"></a>
+<FONT color="green">417</FONT>            public SoftValueReference(Object keyReference, Object value) {<a name="line.417"></a>
+<FONT color="green">418</FONT>                super(value);<a name="line.418"></a>
+<FONT color="green">419</FONT>                this.keyReference = keyReference;<a name="line.419"></a>
+<FONT color="green">420</FONT>            }<a name="line.420"></a>
+<FONT color="green">421</FONT>    <a name="line.421"></a>
+<FONT color="green">422</FONT>            public void finalizeReferent() {<a name="line.422"></a>
+<FONT color="green">423</FONT>                delegate.remove(keyReference, this);<a name="line.423"></a>
+<FONT color="green">424</FONT>            }<a name="line.424"></a>
+<FONT color="green">425</FONT>    <a name="line.425"></a>
+<FONT color="green">426</FONT>            @Override<a name="line.426"></a>
+<FONT color="green">427</FONT>            public boolean equals(Object obj) {<a name="line.427"></a>
+<FONT color="green">428</FONT>                return referenceEquals(this, obj);<a name="line.428"></a>
+<FONT color="green">429</FONT>            }<a name="line.429"></a>
+<FONT color="green">430</FONT>        }<a name="line.430"></a>
+<FONT color="green">431</FONT>    <a name="line.431"></a>
+<FONT color="green">432</FONT>        class WeakValueReference extends FinalizableWeakReference&lt;Object&gt; implements InternalReference {<a name="line.432"></a>
+<FONT color="green">433</FONT>            final Object keyReference;<a name="line.433"></a>
+<FONT color="green">434</FONT>    <a name="line.434"></a>
+<FONT color="green">435</FONT>            public WeakValueReference(Object keyReference, Object value) {<a name="line.435"></a>
+<FONT color="green">436</FONT>                super(value);<a name="line.436"></a>
+<FONT color="green">437</FONT>                this.keyReference = keyReference;<a name="line.437"></a>
+<FONT color="green">438</FONT>            }<a name="line.438"></a>
+<FONT color="green">439</FONT>    <a name="line.439"></a>
+<FONT color="green">440</FONT>            public void finalizeReferent() {<a name="line.440"></a>
+<FONT color="green">441</FONT>                delegate.remove(keyReference, this);<a name="line.441"></a>
+<FONT color="green">442</FONT>            }<a name="line.442"></a>
+<FONT color="green">443</FONT>    <a name="line.443"></a>
+<FONT color="green">444</FONT>            @Override<a name="line.444"></a>
+<FONT color="green">445</FONT>            public boolean equals(Object obj) {<a name="line.445"></a>
+<FONT color="green">446</FONT>                return referenceEquals(this, obj);<a name="line.446"></a>
+<FONT color="green">447</FONT>            }<a name="line.447"></a>
+<FONT color="green">448</FONT>        }<a name="line.448"></a>
+<FONT color="green">449</FONT>    <a name="line.449"></a>
+<FONT color="green">450</FONT>        protected interface Strategy {<a name="line.450"></a>
+<FONT color="green">451</FONT>            public Object execute(ReferenceMap map, Object keyReference, Object valueReference);<a name="line.451"></a>
+<FONT color="green">452</FONT>        }<a name="line.452"></a>
+<FONT color="green">453</FONT>    <a name="line.453"></a>
+<FONT color="green">454</FONT>        // TODO(crazybob): a getter called put() is probably a bad idea<a name="line.454"></a>
+<FONT color="green">455</FONT>        protected Strategy putStrategy() {<a name="line.455"></a>
+<FONT color="green">456</FONT>            return PutStrategy.PUT;<a name="line.456"></a>
+<FONT color="green">457</FONT>        }<a name="line.457"></a>
+<FONT color="green">458</FONT>    <a name="line.458"></a>
+<FONT color="green">459</FONT>        protected Strategy putIfAbsentStrategy() {<a name="line.459"></a>
+<FONT color="green">460</FONT>            return PutStrategy.PUT_IF_ABSENT;<a name="line.460"></a>
+<FONT color="green">461</FONT>        }<a name="line.461"></a>
+<FONT color="green">462</FONT>    <a name="line.462"></a>
+<FONT color="green">463</FONT>        protected Strategy replaceStrategy() {<a name="line.463"></a>
+<FONT color="green">464</FONT>            return PutStrategy.REPLACE;<a name="line.464"></a>
+<FONT color="green">465</FONT>        }<a name="line.465"></a>
+<FONT color="green">466</FONT>    <a name="line.466"></a>
+<FONT color="green">467</FONT>        private enum PutStrategy implements Strategy {<a name="line.467"></a>
+<FONT color="green">468</FONT>            PUT {<a name="line.468"></a>
+<FONT color="green">469</FONT>                public Object execute(ReferenceMap map, Object keyReference, Object valueReference) {<a name="line.469"></a>
+<FONT color="green">470</FONT>                    return map.dereferenceValue(map.delegate.put(keyReference, valueReference));<a name="line.470"></a>
+<FONT color="green">471</FONT>                }<a name="line.471"></a>
+<FONT color="green">472</FONT>            },<a name="line.472"></a>
+<FONT color="green">473</FONT>    <a name="line.473"></a>
+<FONT color="green">474</FONT>            REPLACE {<a name="line.474"></a>
+<FONT color="green">475</FONT>                public Object execute(ReferenceMap map, Object keyReference, Object valueReference) {<a name="line.475"></a>
+<FONT color="green">476</FONT>                    // ensure that the existing value is not collected<a name="line.476"></a>
+<FONT color="green">477</FONT>                    do {<a name="line.477"></a>
+<FONT color="green">478</FONT>                        Object existingValueReference;<a name="line.478"></a>
+<FONT color="green">479</FONT>                        Object existingValue;<a name="line.479"></a>
+<FONT color="green">480</FONT>                        do {<a name="line.480"></a>
+<FONT color="green">481</FONT>                            existingValueReference = map.delegate.get(keyReference);<a name="line.481"></a>
+<FONT color="green">482</FONT>                            existingValue = map.dereferenceValue(existingValueReference);<a name="line.482"></a>
+<FONT color="green">483</FONT>                        } while(isExpired(existingValueReference, existingValue));<a name="line.483"></a>
+<FONT color="green">484</FONT>    <a name="line.484"></a>
+<FONT color="green">485</FONT>                        if(existingValueReference == null) {<a name="line.485"></a>
+<FONT color="green">486</FONT>                            // nothing to replace<a name="line.486"></a>
+<FONT color="green">487</FONT>                            return false;<a name="line.487"></a>
+<FONT color="green">488</FONT>                        }<a name="line.488"></a>
+<FONT color="green">489</FONT>    <a name="line.489"></a>
+<FONT color="green">490</FONT>                        if(map.delegate.replace(keyReference, existingValueReference, valueReference)) {<a name="line.490"></a>
+<FONT color="green">491</FONT>                            // existingValue didn't expire since we still have a reference to it<a name="line.491"></a>
+<FONT color="green">492</FONT>                            return existingValue;<a name="line.492"></a>
+<FONT color="green">493</FONT>                        }<a name="line.493"></a>
+<FONT color="green">494</FONT>                    } while(true);<a name="line.494"></a>
+<FONT color="green">495</FONT>                }<a name="line.495"></a>
+<FONT color="green">496</FONT>            },<a name="line.496"></a>
+<FONT color="green">497</FONT>    <a name="line.497"></a>
+<FONT color="green">498</FONT>            PUT_IF_ABSENT {<a name="line.498"></a>
+<FONT color="green">499</FONT>                public Object execute(ReferenceMap map, Object keyReference, Object valueReference) {<a name="line.499"></a>
+<FONT color="green">500</FONT>                    Object existingValueReference;<a name="line.500"></a>
+<FONT color="green">501</FONT>                    Object existingValue;<a name="line.501"></a>
+<FONT color="green">502</FONT>                    do {<a name="line.502"></a>
+<FONT color="green">503</FONT>                        existingValueReference = map.delegate.putIfAbsent(keyReference, valueReference);<a name="line.503"></a>
+<FONT color="green">504</FONT>                        existingValue = map.dereferenceValue(existingValueReference);<a name="line.504"></a>
+<FONT color="green">505</FONT>                    } while(isExpired(existingValueReference, existingValue));<a name="line.505"></a>
+<FONT color="green">506</FONT>                    return existingValue;<a name="line.506"></a>
+<FONT color="green">507</FONT>                }<a name="line.507"></a>
+<FONT color="green">508</FONT>            },<a name="line.508"></a>
+<FONT color="green">509</FONT>        }<a name="line.509"></a>
+<FONT color="green">510</FONT>    <a name="line.510"></a>
+<FONT color="green">511</FONT>        private static PutStrategy defaultPutStrategy;<a name="line.511"></a>
+<FONT color="green">512</FONT>    <a name="line.512"></a>
+<FONT color="green">513</FONT>        protected PutStrategy getPutStrategy() {<a name="line.513"></a>
+<FONT color="green">514</FONT>            return defaultPutStrategy;<a name="line.514"></a>
+<FONT color="green">515</FONT>        }<a name="line.515"></a>
+<FONT color="green">516</FONT>    <a name="line.516"></a>
+<FONT color="green">517</FONT>        class Entry implements Map.Entry&lt;K, V&gt; {<a name="line.517"></a>
+<FONT color="green">518</FONT>            final K key;<a name="line.518"></a>
+<FONT color="green">519</FONT>            V value;<a name="line.519"></a>
+<FONT color="green">520</FONT>    <a name="line.520"></a>
+<FONT color="green">521</FONT>            public Entry(K key, V value) {<a name="line.521"></a>
+<FONT color="green">522</FONT>                this.key = key;<a name="line.522"></a>
+<FONT color="green">523</FONT>                this.value = value;<a name="line.523"></a>
+<FONT color="green">524</FONT>            }<a name="line.524"></a>
+<FONT color="green">525</FONT>    <a name="line.525"></a>
+<FONT color="green">526</FONT>            public K getKey() {<a name="line.526"></a>
+<FONT color="green">527</FONT>                return this.key;<a name="line.527"></a>
+<FONT color="green">528</FONT>            }<a name="line.528"></a>
+<FONT color="green">529</FONT>    <a name="line.529"></a>
+<FONT color="green">530</FONT>            public V getValue() {<a name="line.530"></a>
+<FONT color="green">531</FONT>                return this.value;<a name="line.531"></a>
+<FONT color="green">532</FONT>            }<a name="line.532"></a>
+<FONT color="green">533</FONT>    <a name="line.533"></a>
+<FONT color="green">534</FONT>            public V setValue(V newValue) {<a name="line.534"></a>
+<FONT color="green">535</FONT>                value = newValue;<a name="line.535"></a>
+<FONT color="green">536</FONT>                return put(key, newValue);<a name="line.536"></a>
+<FONT color="green">537</FONT>            }<a name="line.537"></a>
+<FONT color="green">538</FONT>    <a name="line.538"></a>
+<FONT color="green">539</FONT>            public int hashCode() {<a name="line.539"></a>
+<FONT color="green">540</FONT>                return key.hashCode() * 31 + value.hashCode();<a name="line.540"></a>
+<FONT color="green">541</FONT>            }<a name="line.541"></a>
+<FONT color="green">542</FONT>    <a name="line.542"></a>
+<FONT color="green">543</FONT>            public boolean equals(Object o) {<a name="line.543"></a>
+<FONT color="green">544</FONT>                if(!(o instanceof ReferenceMap.Entry)) {<a name="line.544"></a>
+<FONT color="green">545</FONT>                    return false;<a name="line.545"></a>
+<FONT color="green">546</FONT>                }<a name="line.546"></a>
+<FONT color="green">547</FONT>    <a name="line.547"></a>
+<FONT color="green">548</FONT>                Entry entry = (Entry) o;<a name="line.548"></a>
+<FONT color="green">549</FONT>                return key.equals(entry.key) &amp;&amp; value.equals(entry.value);<a name="line.549"></a>
+<FONT color="green">550</FONT>            }<a name="line.550"></a>
+<FONT color="green">551</FONT>    <a name="line.551"></a>
+<FONT color="green">552</FONT>            public String toString() {<a name="line.552"></a>
+<FONT color="green">553</FONT>                return key + "=" + value;<a name="line.553"></a>
+<FONT color="green">554</FONT>            }<a name="line.554"></a>
+<FONT color="green">555</FONT>        }<a name="line.555"></a>
+<FONT color="green">556</FONT>    <a name="line.556"></a>
+<FONT color="green">557</FONT>        private class ReferenceIterator implements Iterator&lt;Map.Entry&lt;K, V&gt;&gt; {<a name="line.557"></a>
+<FONT color="green">558</FONT>            private Iterator&lt;Map.Entry&lt;Object, Object&gt;&gt; i = delegate.entrySet().iterator();<a name="line.558"></a>
+<FONT color="green">559</FONT>            private Map.Entry&lt;K, V&gt; nextEntry;<a name="line.559"></a>
+<FONT color="green">560</FONT>            private Map.Entry&lt;K, V&gt; lastReturned;<a name="line.560"></a>
+<FONT color="green">561</FONT>    <a name="line.561"></a>
+<FONT color="green">562</FONT>            public ReferenceIterator() {<a name="line.562"></a>
+<FONT color="green">563</FONT>                advance();<a name="line.563"></a>
+<FONT color="green">564</FONT>            }<a name="line.564"></a>
+<FONT color="green">565</FONT>    <a name="line.565"></a>
+<FONT color="green">566</FONT>            private void advance() {<a name="line.566"></a>
+<FONT color="green">567</FONT>                while(i.hasNext()) {<a name="line.567"></a>
+<FONT color="green">568</FONT>                    Map.Entry&lt;K, V&gt; entry = dereferenceEntry(i.next());<a name="line.568"></a>
+<FONT color="green">569</FONT>                    if(entry != null) {<a name="line.569"></a>
+<FONT color="green">570</FONT>                        nextEntry = entry;<a name="line.570"></a>
+<FONT color="green">571</FONT>                        return;<a name="line.571"></a>
+<FONT color="green">572</FONT>                    }<a name="line.572"></a>
+<FONT color="green">573</FONT>                }<a name="line.573"></a>
+<FONT color="green">574</FONT>    <a name="line.574"></a>
+<FONT color="green">575</FONT>                // nothing left<a name="line.575"></a>
+<FONT color="green">576</FONT>                nextEntry = null;<a name="line.576"></a>
+<FONT color="green">577</FONT>            }<a name="line.577"></a>
+<FONT color="green">578</FONT>    <a name="line.578"></a>
+<FONT color="green">579</FONT>            public boolean hasNext() {<a name="line.579"></a>
+<FONT color="green">580</FONT>                return nextEntry != null;<a name="line.580"></a>
+<FONT color="green">581</FONT>            }<a name="line.581"></a>
+<FONT color="green">582</FONT>    <a name="line.582"></a>
+<FONT color="green">583</FONT>            public Map.Entry&lt;K, V&gt; next() {<a name="line.583"></a>
+<FONT color="green">584</FONT>                if(nextEntry == null) {<a name="line.584"></a>
+<FONT color="green">585</FONT>                    throw new NoSuchElementException();<a name="line.585"></a>
+<FONT color="green">586</FONT>                }<a name="line.586"></a>
+<FONT color="green">587</FONT>                lastReturned = nextEntry;<a name="line.587"></a>
+<FONT color="green">588</FONT>                advance();<a name="line.588"></a>
+<FONT color="green">589</FONT>                return lastReturned;<a name="line.589"></a>
+<FONT color="green">590</FONT>            }<a name="line.590"></a>
+<FONT color="green">591</FONT>    <a name="line.591"></a>
+<FONT color="green">592</FONT>            public void remove() {<a name="line.592"></a>
+<FONT color="green">593</FONT>                ReferenceMap.this.remove(lastReturned.getKey());<a name="line.593"></a>
+<FONT color="green">594</FONT>            }<a name="line.594"></a>
+<FONT color="green">595</FONT>        }<a name="line.595"></a>
+<FONT color="green">596</FONT>    <a name="line.596"></a>
+<FONT color="green">597</FONT>        private class EntrySet extends AbstractSet&lt;Map.Entry&lt;K, V&gt;&gt; {<a name="line.597"></a>
+<FONT color="green">598</FONT>            public Iterator&lt;Map.Entry&lt;K, V&gt;&gt; iterator() {<a name="line.598"></a>
+<FONT color="green">599</FONT>                return new ReferenceIterator();<a name="line.599"></a>
+<FONT color="green">600</FONT>            }<a name="line.600"></a>
+<FONT color="green">601</FONT>    <a name="line.601"></a>
+<FONT color="green">602</FONT>            public int size() {<a name="line.602"></a>
+<FONT color="green">603</FONT>                return delegate.size();<a name="line.603"></a>
+<FONT color="green">604</FONT>            }<a name="line.604"></a>
+<FONT color="green">605</FONT>    <a name="line.605"></a>
+<FONT color="green">606</FONT>            public boolean contains(Object o) {<a name="line.606"></a>
+<FONT color="green">607</FONT>                if(!(o instanceof Map.Entry)) {<a name="line.607"></a>
+<FONT color="green">608</FONT>                    return false;<a name="line.608"></a>
+<FONT color="green">609</FONT>                }<a name="line.609"></a>
+<FONT color="green">610</FONT>                Map.Entry&lt;K, V&gt; e = (Map.Entry&lt;K, V&gt;) o;<a name="line.610"></a>
+<FONT color="green">611</FONT>                V v = ReferenceMap.this.get(e.getKey());<a name="line.611"></a>
+<FONT color="green">612</FONT>                return v != null &amp;&amp; v.equals(e.getValue());<a name="line.612"></a>
+<FONT color="green">613</FONT>            }<a name="line.613"></a>
+<FONT color="green">614</FONT>    <a name="line.614"></a>
+<FONT color="green">615</FONT>            public boolean remove(Object o) {<a name="line.615"></a>
+<FONT color="green">616</FONT>                if(!(o instanceof Map.Entry)) {<a name="line.616"></a>
+<FONT color="green">617</FONT>                    return false;<a name="line.617"></a>
+<FONT color="green">618</FONT>                }<a name="line.618"></a>
+<FONT color="green">619</FONT>                Map.Entry&lt;K, V&gt; e = (Map.Entry&lt;K, V&gt;) o;<a name="line.619"></a>
+<FONT color="green">620</FONT>                return ReferenceMap.this.remove(e.getKey(), e.getValue());<a name="line.620"></a>
+<FONT color="green">621</FONT>            }<a name="line.621"></a>
+<FONT color="green">622</FONT>    <a name="line.622"></a>
+<FONT color="green">623</FONT>            public void clear() {<a name="line.623"></a>
+<FONT color="green">624</FONT>                delegate.clear();<a name="line.624"></a>
+<FONT color="green">625</FONT>            }<a name="line.625"></a>
+<FONT color="green">626</FONT>        };<a name="line.626"></a>
+<FONT color="green">627</FONT>    <a name="line.627"></a>
+<FONT color="green">628</FONT>        // TODO(kevinb): use preconditions<a name="line.628"></a>
+<FONT color="green">629</FONT>        static void ensureNotNull(Object o) {<a name="line.629"></a>
+<FONT color="green">630</FONT>            if(o == null) {<a name="line.630"></a>
+<FONT color="green">631</FONT>                throw new NullPointerException();<a name="line.631"></a>
+<FONT color="green">632</FONT>            }<a name="line.632"></a>
+<FONT color="green">633</FONT>        }<a name="line.633"></a>
+<FONT color="green">634</FONT>    <a name="line.634"></a>
+<FONT color="green">635</FONT>        static void ensureNotNull(Object... array) {<a name="line.635"></a>
+<FONT color="green">636</FONT>            for(int i = 0; i &lt; array.length; i++) {<a name="line.636"></a>
+<FONT color="green">637</FONT>                if(array[i] == null) {<a name="line.637"></a>
+<FONT color="green">638</FONT>                    throw new NullPointerException("Argument #" + i + " is null.");<a name="line.638"></a>
+<FONT color="green">639</FONT>                }<a name="line.639"></a>
+<FONT color="green">640</FONT>            }<a name="line.640"></a>
+<FONT color="green">641</FONT>        }<a name="line.641"></a>
+<FONT color="green">642</FONT>    <a name="line.642"></a>
+<FONT color="green">643</FONT>        private void writeObject(ObjectOutputStream out) throws IOException {<a name="line.643"></a>
+<FONT color="green">644</FONT>            out.defaultWriteObject();<a name="line.644"></a>
+<FONT color="green">645</FONT>            out.writeInt(size());<a name="line.645"></a>
+<FONT color="green">646</FONT>            for(Map.Entry&lt;Object, Object&gt; entry : delegate.entrySet()) {<a name="line.646"></a>
+<FONT color="green">647</FONT>                Object key = dereferenceKey(entry.getKey());<a name="line.647"></a>
+<FONT color="green">648</FONT>                Object value = dereferenceValue(entry.getValue());<a name="line.648"></a>
+<FONT color="green">649</FONT>    <a name="line.649"></a>
+<FONT color="green">650</FONT>                // don't persist gc'ed entries.<a name="line.650"></a>
+<FONT color="green">651</FONT>                if(key != null &amp;&amp; value != null) {<a name="line.651"></a>
+<FONT color="green">652</FONT>                    out.writeObject(key);<a name="line.652"></a>
+<FONT color="green">653</FONT>                    out.writeObject(value);<a name="line.653"></a>
+<FONT color="green">654</FONT>                }<a name="line.654"></a>
+<FONT color="green">655</FONT>            }<a name="line.655"></a>
+<FONT color="green">656</FONT>            out.writeObject(null);<a name="line.656"></a>
+<FONT color="green">657</FONT>        }<a name="line.657"></a>
+<FONT color="green">658</FONT>    <a name="line.658"></a>
+<FONT color="green">659</FONT>        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {<a name="line.659"></a>
+<FONT color="green">660</FONT>            in.defaultReadObject();<a name="line.660"></a>
+<FONT color="green">661</FONT>            int size = in.readInt();<a name="line.661"></a>
+<FONT color="green">662</FONT>            this.delegate = new ConcurrentHashMap&lt;Object, Object&gt;(size);<a name="line.662"></a>
+<FONT color="green">663</FONT>            while(true) {<a name="line.663"></a>
+<FONT color="green">664</FONT>                K key = (K) in.readObject();<a name="line.664"></a>
+<FONT color="green">665</FONT>                if(key == null) {<a name="line.665"></a>
+<FONT color="green">666</FONT>                    break;<a name="line.666"></a>
+<FONT color="green">667</FONT>                }<a name="line.667"></a>
+<FONT color="green">668</FONT>                V value = (V) in.readObject();<a name="line.668"></a>
+<FONT color="green">669</FONT>                put(key, value);<a name="line.669"></a>
+<FONT color="green">670</FONT>            }<a name="line.670"></a>
+<FONT color="green">671</FONT>        }<a name="line.671"></a>
+<FONT color="green">672</FONT>    <a name="line.672"></a>
+<FONT color="green">673</FONT>        private static final long serialVersionUID = 0;<a name="line.673"></a>
+<FONT color="green">674</FONT>    }<a name="line.674"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

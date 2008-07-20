@@ -1,0 +1,1318 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: CommandProcessor.java 2531 2007-08-21 18:39:23Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - modified to identified version of hash<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    /*<a name="line.21"></a>
+<FONT color="green">022</FONT>     * @(#)ConcurrentHashMap.java   1.19 06/08/07<a name="line.22"></a>
+<FONT color="green">023</FONT>     *<a name="line.23"></a>
+<FONT color="green">024</FONT>     * Copyright 2006 Sun Microsystems, Inc. All rights reserved.<a name="line.24"></a>
+<FONT color="green">025</FONT>     * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.<a name="line.25"></a>
+<FONT color="green">026</FONT>     * <a name="line.26"></a>
+<FONT color="green">027</FONT>     * Written by Doug Lea with assistance from members of JCP JSR-166<a name="line.27"></a>
+<FONT color="green">028</FONT>     * Expert Group and released to the public domain, as explained at<a name="line.28"></a>
+<FONT color="green">029</FONT>     * http://creativecommons.org/licenses/publicdomain<a name="line.29"></a>
+<FONT color="green">030</FONT>     */<a name="line.30"></a>
+<FONT color="green">031</FONT>    package xbird.util.concurrent.collections;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>    import java.io.IOException;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import java.io.Serializable;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.util.*;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.concurrent.ConcurrentMap;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import java.util.concurrent.locks.ReentrantLock;<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>    /**<a name="line.39"></a>
+<FONT color="green">040</FONT>     * This extends the public domain version of java.util.concurrent.ConcurrentHashMap<a name="line.40"></a>
+<FONT color="green">041</FONT>     * to use the system identity hash code, instead of the class' hash code.<a name="line.41"></a>
+<FONT color="green">042</FONT>     *<a name="line.42"></a>
+<FONT color="green">043</FONT>     * @author Doug Lea<a name="line.43"></a>
+<FONT color="green">044</FONT>     * @param &lt;K&gt; the type of keys maintained by this map<a name="line.44"></a>
+<FONT color="green">045</FONT>     * @param &lt;V&gt; the type of mapped values<a name="line.45"></a>
+<FONT color="green">046</FONT>     * @see java.util.concurrent.ConcurrentHashMap<a name="line.46"></a>
+<FONT color="green">047</FONT>     */<a name="line.47"></a>
+<FONT color="green">048</FONT>    public class ConcurrentIdentityHashMap&lt;K, V&gt; extends AbstractMap&lt;K, V&gt;<a name="line.48"></a>
+<FONT color="green">049</FONT>            implements ConcurrentMap&lt;K, V&gt;, Serializable {<a name="line.49"></a>
+<FONT color="green">050</FONT>        private static final long serialVersionUID = 7249069246763182397L;<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+<FONT color="green">052</FONT>        /*<a name="line.52"></a>
+<FONT color="green">053</FONT>         * The basic strategy is to subdivide the table among Segments,<a name="line.53"></a>
+<FONT color="green">054</FONT>         * each of which itself is a concurrently readable hash table.<a name="line.54"></a>
+<FONT color="green">055</FONT>         */<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        /* ---------------- Constants -------------- */<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>        /**<a name="line.59"></a>
+<FONT color="green">060</FONT>         * The default initial capacity for this table,<a name="line.60"></a>
+<FONT color="green">061</FONT>         * used when not otherwise specified in a constructor.<a name="line.61"></a>
+<FONT color="green">062</FONT>         */<a name="line.62"></a>
+<FONT color="green">063</FONT>        static final int DEFAULT_INITIAL_CAPACITY = 16;<a name="line.63"></a>
+<FONT color="green">064</FONT>    <a name="line.64"></a>
+<FONT color="green">065</FONT>        /**<a name="line.65"></a>
+<FONT color="green">066</FONT>         * The default load factor for this table, used when not<a name="line.66"></a>
+<FONT color="green">067</FONT>         * otherwise specified in a constructor.<a name="line.67"></a>
+<FONT color="green">068</FONT>         */<a name="line.68"></a>
+<FONT color="green">069</FONT>        static final float DEFAULT_LOAD_FACTOR = 0.75f;<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>        /**<a name="line.71"></a>
+<FONT color="green">072</FONT>         * The default concurrency level for this table, used when not<a name="line.72"></a>
+<FONT color="green">073</FONT>         * otherwise specified in a constructor.<a name="line.73"></a>
+<FONT color="green">074</FONT>         */<a name="line.74"></a>
+<FONT color="green">075</FONT>        static final int DEFAULT_CONCURRENCY_LEVEL = 16;<a name="line.75"></a>
+<FONT color="green">076</FONT>    <a name="line.76"></a>
+<FONT color="green">077</FONT>        /**<a name="line.77"></a>
+<FONT color="green">078</FONT>         * The maximum capacity, used if a higher value is implicitly<a name="line.78"></a>
+<FONT color="green">079</FONT>         * specified by either of the constructors with arguments.  MUST<a name="line.79"></a>
+<FONT color="green">080</FONT>         * be a power of two &lt;= 1&lt;&lt;30 to ensure that entries are indexable<a name="line.80"></a>
+<FONT color="green">081</FONT>         * using ints.<a name="line.81"></a>
+<FONT color="green">082</FONT>         */<a name="line.82"></a>
+<FONT color="green">083</FONT>        static final int MAXIMUM_CAPACITY = 1 &lt;&lt; 30;<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>        /**<a name="line.85"></a>
+<FONT color="green">086</FONT>         * The maximum number of segments to allow; used to bound<a name="line.86"></a>
+<FONT color="green">087</FONT>         * constructor arguments.<a name="line.87"></a>
+<FONT color="green">088</FONT>         */<a name="line.88"></a>
+<FONT color="green">089</FONT>        static final int MAX_SEGMENTS = 1 &lt;&lt; 16; // slightly conservative<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>        /**<a name="line.91"></a>
+<FONT color="green">092</FONT>         * Number of unsynchronized retries in size and containsValue<a name="line.92"></a>
+<FONT color="green">093</FONT>         * methods before resorting to locking. This is used to avoid<a name="line.93"></a>
+<FONT color="green">094</FONT>         * unbounded retries if tables undergo continuous modification<a name="line.94"></a>
+<FONT color="green">095</FONT>         * which would make it impossible to obtain an accurate result.<a name="line.95"></a>
+<FONT color="green">096</FONT>         */<a name="line.96"></a>
+<FONT color="green">097</FONT>        static final int RETRIES_BEFORE_LOCK = 2;<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>        /* ---------------- Fields -------------- */<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>        /**<a name="line.101"></a>
+<FONT color="green">102</FONT>         * Mask value for indexing into segments. The upper bits of a<a name="line.102"></a>
+<FONT color="green">103</FONT>         * key's hash code are used to choose the segment.<a name="line.103"></a>
+<FONT color="green">104</FONT>         */<a name="line.104"></a>
+<FONT color="green">105</FONT>        final int segmentMask;<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>        /**<a name="line.107"></a>
+<FONT color="green">108</FONT>         * Shift value for indexing within segments.<a name="line.108"></a>
+<FONT color="green">109</FONT>         */<a name="line.109"></a>
+<FONT color="green">110</FONT>        final int segmentShift;<a name="line.110"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>        /**<a name="line.112"></a>
+<FONT color="green">113</FONT>         * The segments, each of which is a specialized hash table<a name="line.113"></a>
+<FONT color="green">114</FONT>         */<a name="line.114"></a>
+<FONT color="green">115</FONT>        final Segment&lt;K, V&gt;[] segments;<a name="line.115"></a>
+<FONT color="green">116</FONT>    <a name="line.116"></a>
+<FONT color="green">117</FONT>        transient Set&lt;K&gt; keySet;<a name="line.117"></a>
+<FONT color="green">118</FONT>        transient Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet;<a name="line.118"></a>
+<FONT color="green">119</FONT>        transient Collection&lt;V&gt; values;<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>        /* ---------------- Small Utilities -------------- */<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>        /**<a name="line.123"></a>
+<FONT color="green">124</FONT>         * Applies a supplemental hash function to a given hashCode, which<a name="line.124"></a>
+<FONT color="green">125</FONT>         * defends against poor quality hash functions.  This is critical<a name="line.125"></a>
+<FONT color="green">126</FONT>         * because ConcurrentHashMap uses power-of-two length hash tables,<a name="line.126"></a>
+<FONT color="green">127</FONT>         * that otherwise encounter collisions for hashCodes that do not<a name="line.127"></a>
+<FONT color="green">128</FONT>         * differ in lower bits.<a name="line.128"></a>
+<FONT color="green">129</FONT>         */<a name="line.129"></a>
+<FONT color="green">130</FONT>        private static int hash(Object x) {<a name="line.130"></a>
+<FONT color="green">131</FONT>            int h = System.identityHashCode(x);<a name="line.131"></a>
+<FONT color="green">132</FONT>            // This function ensures that hashCodes that differ only by<a name="line.132"></a>
+<FONT color="green">133</FONT>            // constant multiples at each bit position have a bounded<a name="line.133"></a>
+<FONT color="green">134</FONT>            // number of collisions (approximately 8 at default load factor).<a name="line.134"></a>
+<FONT color="green">135</FONT>            h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);<a name="line.135"></a>
+<FONT color="green">136</FONT>            return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);<a name="line.136"></a>
+<FONT color="green">137</FONT>        }<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>        /**<a name="line.139"></a>
+<FONT color="green">140</FONT>         * Returns the segment that should be used for key with given hash<a name="line.140"></a>
+<FONT color="green">141</FONT>         * @param hash the hash code for the key<a name="line.141"></a>
+<FONT color="green">142</FONT>         * @return the segment<a name="line.142"></a>
+<FONT color="green">143</FONT>         */<a name="line.143"></a>
+<FONT color="green">144</FONT>        final Segment&lt;K, V&gt; segmentFor(int hash) {<a name="line.144"></a>
+<FONT color="green">145</FONT>            return segments[(hash &gt;&gt;&gt; segmentShift) &amp; segmentMask];<a name="line.145"></a>
+<FONT color="green">146</FONT>        }<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>        /* ---------------- Inner Classes -------------- */<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>        /**<a name="line.150"></a>
+<FONT color="green">151</FONT>         * ConcurrentHashMap list entry. Note that this is never exported<a name="line.151"></a>
+<FONT color="green">152</FONT>         * out as a user-visible Map.Entry.<a name="line.152"></a>
+<FONT color="green">153</FONT>         *<a name="line.153"></a>
+<FONT color="green">154</FONT>         * Because the value field is volatile, not final, it is legal wrt<a name="line.154"></a>
+<FONT color="green">155</FONT>         * the Java Memory Model for an unsynchronized reader to see null<a name="line.155"></a>
+<FONT color="green">156</FONT>         * instead of initial value when read via a data race.  Although a<a name="line.156"></a>
+<FONT color="green">157</FONT>         * reordering leading to this is not likely to ever actually<a name="line.157"></a>
+<FONT color="green">158</FONT>         * occur, the Segment.readValueUnderLock method is used as a<a name="line.158"></a>
+<FONT color="green">159</FONT>         * backup in case a null (pre-initialized) value is ever seen in<a name="line.159"></a>
+<FONT color="green">160</FONT>         * an unsynchronized access method.<a name="line.160"></a>
+<FONT color="green">161</FONT>         */<a name="line.161"></a>
+<FONT color="green">162</FONT>        static final class HashEntry&lt;K, V&gt; {<a name="line.162"></a>
+<FONT color="green">163</FONT>            final K key;<a name="line.163"></a>
+<FONT color="green">164</FONT>            final int hash;<a name="line.164"></a>
+<FONT color="green">165</FONT>            volatile V value;<a name="line.165"></a>
+<FONT color="green">166</FONT>            final HashEntry&lt;K, V&gt; next;<a name="line.166"></a>
+<FONT color="green">167</FONT>    <a name="line.167"></a>
+<FONT color="green">168</FONT>            HashEntry(K key, int hash, HashEntry&lt;K, V&gt; next, V value) {<a name="line.168"></a>
+<FONT color="green">169</FONT>                this.key = key;<a name="line.169"></a>
+<FONT color="green">170</FONT>                this.hash = hash;<a name="line.170"></a>
+<FONT color="green">171</FONT>                this.next = next;<a name="line.171"></a>
+<FONT color="green">172</FONT>                this.value = value;<a name="line.172"></a>
+<FONT color="green">173</FONT>            }<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>            @SuppressWarnings("unchecked")<a name="line.175"></a>
+<FONT color="green">176</FONT>            static final &lt;K, V&gt; HashEntry&lt;K, V&gt;[] newArray(int i) {<a name="line.176"></a>
+<FONT color="green">177</FONT>                return new HashEntry[i];<a name="line.177"></a>
+<FONT color="green">178</FONT>            }<a name="line.178"></a>
+<FONT color="green">179</FONT>        }<a name="line.179"></a>
+<FONT color="green">180</FONT>    <a name="line.180"></a>
+<FONT color="green">181</FONT>        /**<a name="line.181"></a>
+<FONT color="green">182</FONT>         * Segments are specialized versions of hash tables.  This<a name="line.182"></a>
+<FONT color="green">183</FONT>         * subclasses from ReentrantLock opportunistically, just to<a name="line.183"></a>
+<FONT color="green">184</FONT>         * simplify some locking and avoid separate construction.<a name="line.184"></a>
+<FONT color="green">185</FONT>         */<a name="line.185"></a>
+<FONT color="green">186</FONT>        static final class Segment&lt;K, V&gt; extends ReentrantLock implements Serializable {<a name="line.186"></a>
+<FONT color="green">187</FONT>            /*<a name="line.187"></a>
+<FONT color="green">188</FONT>             * Segments maintain a table of entry lists that are ALWAYS<a name="line.188"></a>
+<FONT color="green">189</FONT>             * kept in a consistent state, so can be read without locking.<a name="line.189"></a>
+<FONT color="green">190</FONT>             * Next fields of nodes are immutable (final).  All list<a name="line.190"></a>
+<FONT color="green">191</FONT>             * additions are performed at the front of each bin. This<a name="line.191"></a>
+<FONT color="green">192</FONT>             * makes it easy to check changes, and also fast to traverse.<a name="line.192"></a>
+<FONT color="green">193</FONT>             * When nodes would otherwise be changed, new nodes are<a name="line.193"></a>
+<FONT color="green">194</FONT>             * created to replace them. This works well for hash tables<a name="line.194"></a>
+<FONT color="green">195</FONT>             * since the bin lists tend to be short. (The average length<a name="line.195"></a>
+<FONT color="green">196</FONT>             * is less than two for the default load factor threshold.)<a name="line.196"></a>
+<FONT color="green">197</FONT>             *<a name="line.197"></a>
+<FONT color="green">198</FONT>             * Read operations can thus proceed without locking, but rely<a name="line.198"></a>
+<FONT color="green">199</FONT>             * on selected uses of volatiles to ensure that completed<a name="line.199"></a>
+<FONT color="green">200</FONT>             * write operations performed by other threads are<a name="line.200"></a>
+<FONT color="green">201</FONT>             * noticed. For most purposes, the "count" field, tracking the<a name="line.201"></a>
+<FONT color="green">202</FONT>             * number of elements, serves as that volatile variable<a name="line.202"></a>
+<FONT color="green">203</FONT>             * ensuring visibility.  This is convenient because this field<a name="line.203"></a>
+<FONT color="green">204</FONT>             * needs to be read in many read operations anyway:<a name="line.204"></a>
+<FONT color="green">205</FONT>             *<a name="line.205"></a>
+<FONT color="green">206</FONT>             *   - All (unsynchronized) read operations must first read the<a name="line.206"></a>
+<FONT color="green">207</FONT>             *     "count" field, and should not look at table entries if<a name="line.207"></a>
+<FONT color="green">208</FONT>             *     it is 0.<a name="line.208"></a>
+<FONT color="green">209</FONT>             *<a name="line.209"></a>
+<FONT color="green">210</FONT>             *   - All (synchronized) write operations should write to<a name="line.210"></a>
+<FONT color="green">211</FONT>             *     the "count" field after structurally changing any bin.<a name="line.211"></a>
+<FONT color="green">212</FONT>             *     The operations must not take any action that could even<a name="line.212"></a>
+<FONT color="green">213</FONT>             *     momentarily cause a concurrent read operation to see<a name="line.213"></a>
+<FONT color="green">214</FONT>             *     inconsistent data. This is made easier by the nature of<a name="line.214"></a>
+<FONT color="green">215</FONT>             *     the read operations in Map. For example, no operation<a name="line.215"></a>
+<FONT color="green">216</FONT>             *     can reveal that the table has grown but the threshold<a name="line.216"></a>
+<FONT color="green">217</FONT>             *     has not yet been updated, so there are no atomicity<a name="line.217"></a>
+<FONT color="green">218</FONT>             *     requirements for this with respect to reads.<a name="line.218"></a>
+<FONT color="green">219</FONT>             *<a name="line.219"></a>
+<FONT color="green">220</FONT>             * As a guide, all critical volatile reads and writes to the<a name="line.220"></a>
+<FONT color="green">221</FONT>             * count field are marked in code comments.<a name="line.221"></a>
+<FONT color="green">222</FONT>             */<a name="line.222"></a>
+<FONT color="green">223</FONT>    <a name="line.223"></a>
+<FONT color="green">224</FONT>            private static final long serialVersionUID = 2249069246763182397L;<a name="line.224"></a>
+<FONT color="green">225</FONT>    <a name="line.225"></a>
+<FONT color="green">226</FONT>            /**<a name="line.226"></a>
+<FONT color="green">227</FONT>             * The number of elements in this segment's region.<a name="line.227"></a>
+<FONT color="green">228</FONT>             */<a name="line.228"></a>
+<FONT color="green">229</FONT>            transient volatile int count;<a name="line.229"></a>
+<FONT color="green">230</FONT>    <a name="line.230"></a>
+<FONT color="green">231</FONT>            /**<a name="line.231"></a>
+<FONT color="green">232</FONT>             * Number of updates that alter the size of the table. This is<a name="line.232"></a>
+<FONT color="green">233</FONT>             * used during bulk-read methods to make sure they see a<a name="line.233"></a>
+<FONT color="green">234</FONT>             * consistent snapshot: If modCounts change during a traversal<a name="line.234"></a>
+<FONT color="green">235</FONT>             * of segments computing size or checking containsValue, then<a name="line.235"></a>
+<FONT color="green">236</FONT>             * we might have an inconsistent view of state so (usually)<a name="line.236"></a>
+<FONT color="green">237</FONT>             * must retry.<a name="line.237"></a>
+<FONT color="green">238</FONT>             */<a name="line.238"></a>
+<FONT color="green">239</FONT>            transient int modCount;<a name="line.239"></a>
+<FONT color="green">240</FONT>    <a name="line.240"></a>
+<FONT color="green">241</FONT>            /**<a name="line.241"></a>
+<FONT color="green">242</FONT>             * The table is rehashed when its size exceeds this threshold.<a name="line.242"></a>
+<FONT color="green">243</FONT>             * (The value of this field is always &lt;tt&gt;(int)(capacity *<a name="line.243"></a>
+<FONT color="green">244</FONT>             * loadFactor)&lt;/tt&gt;.)<a name="line.244"></a>
+<FONT color="green">245</FONT>             */<a name="line.245"></a>
+<FONT color="green">246</FONT>            transient int threshold;<a name="line.246"></a>
+<FONT color="green">247</FONT>    <a name="line.247"></a>
+<FONT color="green">248</FONT>            /**<a name="line.248"></a>
+<FONT color="green">249</FONT>             * The per-segment table.<a name="line.249"></a>
+<FONT color="green">250</FONT>             */<a name="line.250"></a>
+<FONT color="green">251</FONT>            transient volatile HashEntry&lt;K, V&gt;[] table;<a name="line.251"></a>
+<FONT color="green">252</FONT>    <a name="line.252"></a>
+<FONT color="green">253</FONT>            /**<a name="line.253"></a>
+<FONT color="green">254</FONT>             * The load factor for the hash table.  Even though this value<a name="line.254"></a>
+<FONT color="green">255</FONT>             * is same for all segments, it is replicated to avoid needing<a name="line.255"></a>
+<FONT color="green">256</FONT>             * links to outer object.<a name="line.256"></a>
+<FONT color="green">257</FONT>             * @serial<a name="line.257"></a>
+<FONT color="green">258</FONT>             */<a name="line.258"></a>
+<FONT color="green">259</FONT>            final float loadFactor;<a name="line.259"></a>
+<FONT color="green">260</FONT>    <a name="line.260"></a>
+<FONT color="green">261</FONT>            Segment(int initialCapacity, float lf) {<a name="line.261"></a>
+<FONT color="green">262</FONT>                loadFactor = lf;<a name="line.262"></a>
+<FONT color="green">263</FONT>                setTable(HashEntry.&lt;K, V&gt; newArray(initialCapacity));<a name="line.263"></a>
+<FONT color="green">264</FONT>            }<a name="line.264"></a>
+<FONT color="green">265</FONT>    <a name="line.265"></a>
+<FONT color="green">266</FONT>            @SuppressWarnings("unchecked")<a name="line.266"></a>
+<FONT color="green">267</FONT>            static final &lt;K, V&gt; Segment&lt;K, V&gt;[] newArray(int i) {<a name="line.267"></a>
+<FONT color="green">268</FONT>                return new Segment[i];<a name="line.268"></a>
+<FONT color="green">269</FONT>            }<a name="line.269"></a>
+<FONT color="green">270</FONT>    <a name="line.270"></a>
+<FONT color="green">271</FONT>            /**<a name="line.271"></a>
+<FONT color="green">272</FONT>             * Sets table to new HashEntry array.<a name="line.272"></a>
+<FONT color="green">273</FONT>             * Call only while holding lock or in constructor.<a name="line.273"></a>
+<FONT color="green">274</FONT>             */<a name="line.274"></a>
+<FONT color="green">275</FONT>            void setTable(HashEntry&lt;K, V&gt;[] newTable) {<a name="line.275"></a>
+<FONT color="green">276</FONT>                threshold = (int) (newTable.length * loadFactor);<a name="line.276"></a>
+<FONT color="green">277</FONT>                table = newTable;<a name="line.277"></a>
+<FONT color="green">278</FONT>            }<a name="line.278"></a>
+<FONT color="green">279</FONT>    <a name="line.279"></a>
+<FONT color="green">280</FONT>            /**<a name="line.280"></a>
+<FONT color="green">281</FONT>             * Returns properly casted first entry of bin for given hash.<a name="line.281"></a>
+<FONT color="green">282</FONT>             */<a name="line.282"></a>
+<FONT color="green">283</FONT>            HashEntry&lt;K, V&gt; getFirst(int hash) {<a name="line.283"></a>
+<FONT color="green">284</FONT>                HashEntry&lt;K, V&gt;[] tab = table;<a name="line.284"></a>
+<FONT color="green">285</FONT>                return tab[hash &amp; (tab.length - 1)];<a name="line.285"></a>
+<FONT color="green">286</FONT>            }<a name="line.286"></a>
+<FONT color="green">287</FONT>    <a name="line.287"></a>
+<FONT color="green">288</FONT>            /**<a name="line.288"></a>
+<FONT color="green">289</FONT>             * Reads value field of an entry under lock. Called if value<a name="line.289"></a>
+<FONT color="green">290</FONT>             * field ever appears to be null. This is possible only if a<a name="line.290"></a>
+<FONT color="green">291</FONT>             * compiler happens to reorder a HashEntry initialization with<a name="line.291"></a>
+<FONT color="green">292</FONT>             * its table assignment, which is legal under memory model<a name="line.292"></a>
+<FONT color="green">293</FONT>             * but is not known to ever occur.<a name="line.293"></a>
+<FONT color="green">294</FONT>             */<a name="line.294"></a>
+<FONT color="green">295</FONT>            V readValueUnderLock(HashEntry&lt;K, V&gt; e) {<a name="line.295"></a>
+<FONT color="green">296</FONT>                lock();<a name="line.296"></a>
+<FONT color="green">297</FONT>                try {<a name="line.297"></a>
+<FONT color="green">298</FONT>                    return e.value;<a name="line.298"></a>
+<FONT color="green">299</FONT>                } finally {<a name="line.299"></a>
+<FONT color="green">300</FONT>                    unlock();<a name="line.300"></a>
+<FONT color="green">301</FONT>                }<a name="line.301"></a>
+<FONT color="green">302</FONT>            }<a name="line.302"></a>
+<FONT color="green">303</FONT>    <a name="line.303"></a>
+<FONT color="green">304</FONT>            /* Specialized implementations of map methods */<a name="line.304"></a>
+<FONT color="green">305</FONT>    <a name="line.305"></a>
+<FONT color="green">306</FONT>            V get(Object key, int hash) {<a name="line.306"></a>
+<FONT color="green">307</FONT>                if(count != 0) { // read-volatile<a name="line.307"></a>
+<FONT color="green">308</FONT>                    HashEntry&lt;K, V&gt; e = getFirst(hash);<a name="line.308"></a>
+<FONT color="green">309</FONT>                    while(e != null) {<a name="line.309"></a>
+<FONT color="green">310</FONT>                        if(e.hash == hash &amp;&amp; key.equals(e.key)) {<a name="line.310"></a>
+<FONT color="green">311</FONT>                            V v = e.value;<a name="line.311"></a>
+<FONT color="green">312</FONT>                            if(v != null)<a name="line.312"></a>
+<FONT color="green">313</FONT>                                return v;<a name="line.313"></a>
+<FONT color="green">314</FONT>                            return readValueUnderLock(e); // recheck<a name="line.314"></a>
+<FONT color="green">315</FONT>                        }<a name="line.315"></a>
+<FONT color="green">316</FONT>                        e = e.next;<a name="line.316"></a>
+<FONT color="green">317</FONT>                    }<a name="line.317"></a>
+<FONT color="green">318</FONT>                }<a name="line.318"></a>
+<FONT color="green">319</FONT>                return null;<a name="line.319"></a>
+<FONT color="green">320</FONT>            }<a name="line.320"></a>
+<FONT color="green">321</FONT>    <a name="line.321"></a>
+<FONT color="green">322</FONT>            boolean containsKey(Object key, int hash) {<a name="line.322"></a>
+<FONT color="green">323</FONT>                if(count != 0) { // read-volatile<a name="line.323"></a>
+<FONT color="green">324</FONT>                    HashEntry&lt;K, V&gt; e = getFirst(hash);<a name="line.324"></a>
+<FONT color="green">325</FONT>                    while(e != null) {<a name="line.325"></a>
+<FONT color="green">326</FONT>                        if(e.hash == hash &amp;&amp; key.equals(e.key))<a name="line.326"></a>
+<FONT color="green">327</FONT>                            return true;<a name="line.327"></a>
+<FONT color="green">328</FONT>                        e = e.next;<a name="line.328"></a>
+<FONT color="green">329</FONT>                    }<a name="line.329"></a>
+<FONT color="green">330</FONT>                }<a name="line.330"></a>
+<FONT color="green">331</FONT>                return false;<a name="line.331"></a>
+<FONT color="green">332</FONT>            }<a name="line.332"></a>
+<FONT color="green">333</FONT>    <a name="line.333"></a>
+<FONT color="green">334</FONT>            boolean containsValue(Object value) {<a name="line.334"></a>
+<FONT color="green">335</FONT>                if(count != 0) { // read-volatile<a name="line.335"></a>
+<FONT color="green">336</FONT>                    HashEntry&lt;K, V&gt;[] tab = table;<a name="line.336"></a>
+<FONT color="green">337</FONT>                    int len = tab.length;<a name="line.337"></a>
+<FONT color="green">338</FONT>                    for(int i = 0; i &lt; len; i++) {<a name="line.338"></a>
+<FONT color="green">339</FONT>                        for(HashEntry&lt;K, V&gt; e = tab[i]; e != null; e = e.next) {<a name="line.339"></a>
+<FONT color="green">340</FONT>                            V v = e.value;<a name="line.340"></a>
+<FONT color="green">341</FONT>                            if(v == null) // recheck<a name="line.341"></a>
+<FONT color="green">342</FONT>                                v = readValueUnderLock(e);<a name="line.342"></a>
+<FONT color="green">343</FONT>                            if(value.equals(v))<a name="line.343"></a>
+<FONT color="green">344</FONT>                                return true;<a name="line.344"></a>
+<FONT color="green">345</FONT>                        }<a name="line.345"></a>
+<FONT color="green">346</FONT>                    }<a name="line.346"></a>
+<FONT color="green">347</FONT>                }<a name="line.347"></a>
+<FONT color="green">348</FONT>                return false;<a name="line.348"></a>
+<FONT color="green">349</FONT>            }<a name="line.349"></a>
+<FONT color="green">350</FONT>    <a name="line.350"></a>
+<FONT color="green">351</FONT>            boolean replace(K key, int hash, V oldValue, V newValue) {<a name="line.351"></a>
+<FONT color="green">352</FONT>                lock();<a name="line.352"></a>
+<FONT color="green">353</FONT>                try {<a name="line.353"></a>
+<FONT color="green">354</FONT>                    HashEntry&lt;K, V&gt; e = getFirst(hash);<a name="line.354"></a>
+<FONT color="green">355</FONT>                    while(e != null &amp;&amp; (e.hash != hash || !key.equals(e.key)))<a name="line.355"></a>
+<FONT color="green">356</FONT>                        e = e.next;<a name="line.356"></a>
+<FONT color="green">357</FONT>    <a name="line.357"></a>
+<FONT color="green">358</FONT>                    boolean replaced = false;<a name="line.358"></a>
+<FONT color="green">359</FONT>                    if(e != null &amp;&amp; oldValue.equals(e.value)) {<a name="line.359"></a>
+<FONT color="green">360</FONT>                        replaced = true;<a name="line.360"></a>
+<FONT color="green">361</FONT>                        e.value = newValue;<a name="line.361"></a>
+<FONT color="green">362</FONT>                    }<a name="line.362"></a>
+<FONT color="green">363</FONT>                    return replaced;<a name="line.363"></a>
+<FONT color="green">364</FONT>                } finally {<a name="line.364"></a>
+<FONT color="green">365</FONT>                    unlock();<a name="line.365"></a>
+<FONT color="green">366</FONT>                }<a name="line.366"></a>
+<FONT color="green">367</FONT>            }<a name="line.367"></a>
+<FONT color="green">368</FONT>    <a name="line.368"></a>
+<FONT color="green">369</FONT>            V replace(K key, int hash, V newValue) {<a name="line.369"></a>
+<FONT color="green">370</FONT>                lock();<a name="line.370"></a>
+<FONT color="green">371</FONT>                try {<a name="line.371"></a>
+<FONT color="green">372</FONT>                    HashEntry&lt;K, V&gt; e = getFirst(hash);<a name="line.372"></a>
+<FONT color="green">373</FONT>                    while(e != null &amp;&amp; (e.hash != hash || !key.equals(e.key)))<a name="line.373"></a>
+<FONT color="green">374</FONT>                        e = e.next;<a name="line.374"></a>
+<FONT color="green">375</FONT>    <a name="line.375"></a>
+<FONT color="green">376</FONT>                    V oldValue = null;<a name="line.376"></a>
+<FONT color="green">377</FONT>                    if(e != null) {<a name="line.377"></a>
+<FONT color="green">378</FONT>                        oldValue = e.value;<a name="line.378"></a>
+<FONT color="green">379</FONT>                        e.value = newValue;<a name="line.379"></a>
+<FONT color="green">380</FONT>                    }<a name="line.380"></a>
+<FONT color="green">381</FONT>                    return oldValue;<a name="line.381"></a>
+<FONT color="green">382</FONT>                } finally {<a name="line.382"></a>
+<FONT color="green">383</FONT>                    unlock();<a name="line.383"></a>
+<FONT color="green">384</FONT>                }<a name="line.384"></a>
+<FONT color="green">385</FONT>            }<a name="line.385"></a>
+<FONT color="green">386</FONT>    <a name="line.386"></a>
+<FONT color="green">387</FONT>            V put(K key, int hash, V value, boolean onlyIfAbsent) {<a name="line.387"></a>
+<FONT color="green">388</FONT>                lock();<a name="line.388"></a>
+<FONT color="green">389</FONT>                try {<a name="line.389"></a>
+<FONT color="green">390</FONT>                    int c = count;<a name="line.390"></a>
+<FONT color="green">391</FONT>                    if(c++ &gt; threshold) // ensure capacity<a name="line.391"></a>
+<FONT color="green">392</FONT>                        rehash();<a name="line.392"></a>
+<FONT color="green">393</FONT>                    HashEntry&lt;K, V&gt;[] tab = table;<a name="line.393"></a>
+<FONT color="green">394</FONT>                    int index = hash &amp; (tab.length - 1);<a name="line.394"></a>
+<FONT color="green">395</FONT>                    HashEntry&lt;K, V&gt; first = tab[index];<a name="line.395"></a>
+<FONT color="green">396</FONT>                    HashEntry&lt;K, V&gt; e = first;<a name="line.396"></a>
+<FONT color="green">397</FONT>                    while(e != null &amp;&amp; (e.hash != hash || !key.equals(e.key)))<a name="line.397"></a>
+<FONT color="green">398</FONT>                        e = e.next;<a name="line.398"></a>
+<FONT color="green">399</FONT>    <a name="line.399"></a>
+<FONT color="green">400</FONT>                    V oldValue;<a name="line.400"></a>
+<FONT color="green">401</FONT>                    if(e != null) {<a name="line.401"></a>
+<FONT color="green">402</FONT>                        oldValue = e.value;<a name="line.402"></a>
+<FONT color="green">403</FONT>                        if(!onlyIfAbsent)<a name="line.403"></a>
+<FONT color="green">404</FONT>                            e.value = value;<a name="line.404"></a>
+<FONT color="green">405</FONT>                    } else {<a name="line.405"></a>
+<FONT color="green">406</FONT>                        oldValue = null;<a name="line.406"></a>
+<FONT color="green">407</FONT>                        ++modCount;<a name="line.407"></a>
+<FONT color="green">408</FONT>                        tab[index] = new HashEntry&lt;K, V&gt;(key, hash, first, value);<a name="line.408"></a>
+<FONT color="green">409</FONT>                        count = c; // write-volatile<a name="line.409"></a>
+<FONT color="green">410</FONT>                    }<a name="line.410"></a>
+<FONT color="green">411</FONT>                    return oldValue;<a name="line.411"></a>
+<FONT color="green">412</FONT>                } finally {<a name="line.412"></a>
+<FONT color="green">413</FONT>                    unlock();<a name="line.413"></a>
+<FONT color="green">414</FONT>                }<a name="line.414"></a>
+<FONT color="green">415</FONT>            }<a name="line.415"></a>
+<FONT color="green">416</FONT>    <a name="line.416"></a>
+<FONT color="green">417</FONT>            void rehash() {<a name="line.417"></a>
+<FONT color="green">418</FONT>                HashEntry&lt;K, V&gt;[] oldTable = table;<a name="line.418"></a>
+<FONT color="green">419</FONT>                int oldCapacity = oldTable.length;<a name="line.419"></a>
+<FONT color="green">420</FONT>                if(oldCapacity &gt;= MAXIMUM_CAPACITY)<a name="line.420"></a>
+<FONT color="green">421</FONT>                    return;<a name="line.421"></a>
+<FONT color="green">422</FONT>    <a name="line.422"></a>
+<FONT color="green">423</FONT>                /*<a name="line.423"></a>
+<FONT color="green">424</FONT>                 * Reclassify nodes in each list to new Map.  Because we are<a name="line.424"></a>
+<FONT color="green">425</FONT>                 * using power-of-two expansion, the elements from each bin<a name="line.425"></a>
+<FONT color="green">426</FONT>                 * must either stay at same index, or move with a power of two<a name="line.426"></a>
+<FONT color="green">427</FONT>                 * offset. We eliminate unnecessary node creation by catching<a name="line.427"></a>
+<FONT color="green">428</FONT>                 * cases where old nodes can be reused because their next<a name="line.428"></a>
+<FONT color="green">429</FONT>                 * fields won't change. Statistically, at the default<a name="line.429"></a>
+<FONT color="green">430</FONT>                 * threshold, only about one-sixth of them need cloning when<a name="line.430"></a>
+<FONT color="green">431</FONT>                 * a table doubles. The nodes they replace will be garbage<a name="line.431"></a>
+<FONT color="green">432</FONT>                 * collectable as soon as they are no longer referenced by any<a name="line.432"></a>
+<FONT color="green">433</FONT>                 * reader thread that may be in the midst of traversing table<a name="line.433"></a>
+<FONT color="green">434</FONT>                 * right now.<a name="line.434"></a>
+<FONT color="green">435</FONT>                 */<a name="line.435"></a>
+<FONT color="green">436</FONT>    <a name="line.436"></a>
+<FONT color="green">437</FONT>                HashEntry&lt;K, V&gt;[] newTable = HashEntry.newArray(oldCapacity &lt;&lt; 1);<a name="line.437"></a>
+<FONT color="green">438</FONT>                threshold = (int) (newTable.length * loadFactor);<a name="line.438"></a>
+<FONT color="green">439</FONT>                int sizeMask = newTable.length - 1;<a name="line.439"></a>
+<FONT color="green">440</FONT>                for(int i = 0; i &lt; oldCapacity; i++) {<a name="line.440"></a>
+<FONT color="green">441</FONT>                    // We need to guarantee that any existing reads of old Map can<a name="line.441"></a>
+<FONT color="green">442</FONT>                    //  proceed. So we cannot yet null out each bin.<a name="line.442"></a>
+<FONT color="green">443</FONT>                    HashEntry&lt;K, V&gt; e = oldTable[i];<a name="line.443"></a>
+<FONT color="green">444</FONT>    <a name="line.444"></a>
+<FONT color="green">445</FONT>                    if(e != null) {<a name="line.445"></a>
+<FONT color="green">446</FONT>                        HashEntry&lt;K, V&gt; next = e.next;<a name="line.446"></a>
+<FONT color="green">447</FONT>                        int idx = e.hash &amp; sizeMask;<a name="line.447"></a>
+<FONT color="green">448</FONT>    <a name="line.448"></a>
+<FONT color="green">449</FONT>                        //  Single node on list<a name="line.449"></a>
+<FONT color="green">450</FONT>                        if(next == null)<a name="line.450"></a>
+<FONT color="green">451</FONT>                            newTable[idx] = e;<a name="line.451"></a>
+<FONT color="green">452</FONT>    <a name="line.452"></a>
+<FONT color="green">453</FONT>                        else {<a name="line.453"></a>
+<FONT color="green">454</FONT>                            // Reuse trailing consecutive sequence at same slot<a name="line.454"></a>
+<FONT color="green">455</FONT>                            HashEntry&lt;K, V&gt; lastRun = e;<a name="line.455"></a>
+<FONT color="green">456</FONT>                            int lastIdx = idx;<a name="line.456"></a>
+<FONT color="green">457</FONT>                            for(HashEntry&lt;K, V&gt; last = next; last != null; last = last.next) {<a name="line.457"></a>
+<FONT color="green">458</FONT>                                int k = last.hash &amp; sizeMask;<a name="line.458"></a>
+<FONT color="green">459</FONT>                                if(k != lastIdx) {<a name="line.459"></a>
+<FONT color="green">460</FONT>                                    lastIdx = k;<a name="line.460"></a>
+<FONT color="green">461</FONT>                                    lastRun = last;<a name="line.461"></a>
+<FONT color="green">462</FONT>                                }<a name="line.462"></a>
+<FONT color="green">463</FONT>                            }<a name="line.463"></a>
+<FONT color="green">464</FONT>                            newTable[lastIdx] = lastRun;<a name="line.464"></a>
+<FONT color="green">465</FONT>    <a name="line.465"></a>
+<FONT color="green">466</FONT>                            // Clone all remaining nodes<a name="line.466"></a>
+<FONT color="green">467</FONT>                            for(HashEntry&lt;K, V&gt; p = e; p != lastRun; p = p.next) {<a name="line.467"></a>
+<FONT color="green">468</FONT>                                int k = p.hash &amp; sizeMask;<a name="line.468"></a>
+<FONT color="green">469</FONT>                                HashEntry&lt;K, V&gt; n = newTable[k];<a name="line.469"></a>
+<FONT color="green">470</FONT>                                newTable[k] = new HashEntry&lt;K, V&gt;(p.key, p.hash, n, p.value);<a name="line.470"></a>
+<FONT color="green">471</FONT>                            }<a name="line.471"></a>
+<FONT color="green">472</FONT>                        }<a name="line.472"></a>
+<FONT color="green">473</FONT>                    }<a name="line.473"></a>
+<FONT color="green">474</FONT>                }<a name="line.474"></a>
+<FONT color="green">475</FONT>                table = newTable;<a name="line.475"></a>
+<FONT color="green">476</FONT>            }<a name="line.476"></a>
+<FONT color="green">477</FONT>    <a name="line.477"></a>
+<FONT color="green">478</FONT>            /**<a name="line.478"></a>
+<FONT color="green">479</FONT>             * Remove; match on key only if value null, else match both.<a name="line.479"></a>
+<FONT color="green">480</FONT>             */<a name="line.480"></a>
+<FONT color="green">481</FONT>            V remove(Object key, int hash, Object value) {<a name="line.481"></a>
+<FONT color="green">482</FONT>                lock();<a name="line.482"></a>
+<FONT color="green">483</FONT>                try {<a name="line.483"></a>
+<FONT color="green">484</FONT>                    int c = count - 1;<a name="line.484"></a>
+<FONT color="green">485</FONT>                    HashEntry&lt;K, V&gt;[] tab = table;<a name="line.485"></a>
+<FONT color="green">486</FONT>                    int index = hash &amp; (tab.length - 1);<a name="line.486"></a>
+<FONT color="green">487</FONT>                    HashEntry&lt;K, V&gt; first = tab[index];<a name="line.487"></a>
+<FONT color="green">488</FONT>                    HashEntry&lt;K, V&gt; e = first;<a name="line.488"></a>
+<FONT color="green">489</FONT>                    while(e != null &amp;&amp; (e.hash != hash || !key.equals(e.key)))<a name="line.489"></a>
+<FONT color="green">490</FONT>                        e = e.next;<a name="line.490"></a>
+<FONT color="green">491</FONT>    <a name="line.491"></a>
+<FONT color="green">492</FONT>                    V oldValue = null;<a name="line.492"></a>
+<FONT color="green">493</FONT>                    if(e != null) {<a name="line.493"></a>
+<FONT color="green">494</FONT>                        V v = e.value;<a name="line.494"></a>
+<FONT color="green">495</FONT>                        if(value == null || value.equals(v)) {<a name="line.495"></a>
+<FONT color="green">496</FONT>                            oldValue = v;<a name="line.496"></a>
+<FONT color="green">497</FONT>                            // All entries following removed node can stay<a name="line.497"></a>
+<FONT color="green">498</FONT>                            // in list, but all preceding ones need to be<a name="line.498"></a>
+<FONT color="green">499</FONT>                            // cloned.<a name="line.499"></a>
+<FONT color="green">500</FONT>                            ++modCount;<a name="line.500"></a>
+<FONT color="green">501</FONT>                            HashEntry&lt;K, V&gt; newFirst = e.next;<a name="line.501"></a>
+<FONT color="green">502</FONT>                            for(HashEntry&lt;K, V&gt; p = first; p != e; p = p.next)<a name="line.502"></a>
+<FONT color="green">503</FONT>                                newFirst = new HashEntry&lt;K, V&gt;(p.key, p.hash, newFirst, p.value);<a name="line.503"></a>
+<FONT color="green">504</FONT>                            tab[index] = newFirst;<a name="line.504"></a>
+<FONT color="green">505</FONT>                            count = c; // write-volatile<a name="line.505"></a>
+<FONT color="green">506</FONT>                        }<a name="line.506"></a>
+<FONT color="green">507</FONT>                    }<a name="line.507"></a>
+<FONT color="green">508</FONT>                    return oldValue;<a name="line.508"></a>
+<FONT color="green">509</FONT>                } finally {<a name="line.509"></a>
+<FONT color="green">510</FONT>                    unlock();<a name="line.510"></a>
+<FONT color="green">511</FONT>                }<a name="line.511"></a>
+<FONT color="green">512</FONT>            }<a name="line.512"></a>
+<FONT color="green">513</FONT>    <a name="line.513"></a>
+<FONT color="green">514</FONT>            void clear() {<a name="line.514"></a>
+<FONT color="green">515</FONT>                if(count != 0) {<a name="line.515"></a>
+<FONT color="green">516</FONT>                    lock();<a name="line.516"></a>
+<FONT color="green">517</FONT>                    try {<a name="line.517"></a>
+<FONT color="green">518</FONT>                        HashEntry&lt;K, V&gt;[] tab = table;<a name="line.518"></a>
+<FONT color="green">519</FONT>                        for(int i = 0; i &lt; tab.length; i++)<a name="line.519"></a>
+<FONT color="green">520</FONT>                            tab[i] = null;<a name="line.520"></a>
+<FONT color="green">521</FONT>                        ++modCount;<a name="line.521"></a>
+<FONT color="green">522</FONT>                        count = 0; // write-volatile<a name="line.522"></a>
+<FONT color="green">523</FONT>                    } finally {<a name="line.523"></a>
+<FONT color="green">524</FONT>                        unlock();<a name="line.524"></a>
+<FONT color="green">525</FONT>                    }<a name="line.525"></a>
+<FONT color="green">526</FONT>                }<a name="line.526"></a>
+<FONT color="green">527</FONT>            }<a name="line.527"></a>
+<FONT color="green">528</FONT>        }<a name="line.528"></a>
+<FONT color="green">529</FONT>    <a name="line.529"></a>
+<FONT color="green">530</FONT>        /* ---------------- Public operations -------------- */<a name="line.530"></a>
+<FONT color="green">531</FONT>    <a name="line.531"></a>
+<FONT color="green">532</FONT>        /**<a name="line.532"></a>
+<FONT color="green">533</FONT>         * Creates a new, empty map with the specified initial<a name="line.533"></a>
+<FONT color="green">534</FONT>         * capacity, load factor and concurrency level.<a name="line.534"></a>
+<FONT color="green">535</FONT>         *<a name="line.535"></a>
+<FONT color="green">536</FONT>         * @param initialCapacity the initial capacity. The implementation<a name="line.536"></a>
+<FONT color="green">537</FONT>         * performs internal sizing to accommodate this many elements.<a name="line.537"></a>
+<FONT color="green">538</FONT>         * @param loadFactor  the load factor threshold, used to control resizing.<a name="line.538"></a>
+<FONT color="green">539</FONT>         * Resizing may be performed when the average number of elements per<a name="line.539"></a>
+<FONT color="green">540</FONT>         * bin exceeds this threshold.<a name="line.540"></a>
+<FONT color="green">541</FONT>         * @param concurrencyLevel the estimated number of concurrently<a name="line.541"></a>
+<FONT color="green">542</FONT>         * updating threads. The implementation performs internal sizing<a name="line.542"></a>
+<FONT color="green">543</FONT>         * to try to accommodate this many threads.<a name="line.543"></a>
+<FONT color="green">544</FONT>         * @throws IllegalArgumentException if the initial capacity is<a name="line.544"></a>
+<FONT color="green">545</FONT>         * negative or the load factor or concurrencyLevel are<a name="line.545"></a>
+<FONT color="green">546</FONT>         * nonpositive.<a name="line.546"></a>
+<FONT color="green">547</FONT>         */<a name="line.547"></a>
+<FONT color="green">548</FONT>        public ConcurrentIdentityHashMap(int initialCapacity, float loadFactor, int concurrencyLevel) {<a name="line.548"></a>
+<FONT color="green">549</FONT>            if(!(loadFactor &gt; 0) || initialCapacity &lt; 0 || concurrencyLevel &lt;= 0)<a name="line.549"></a>
+<FONT color="green">550</FONT>                throw new IllegalArgumentException();<a name="line.550"></a>
+<FONT color="green">551</FONT>    <a name="line.551"></a>
+<FONT color="green">552</FONT>            if(concurrencyLevel &gt; MAX_SEGMENTS)<a name="line.552"></a>
+<FONT color="green">553</FONT>                concurrencyLevel = MAX_SEGMENTS;<a name="line.553"></a>
+<FONT color="green">554</FONT>    <a name="line.554"></a>
+<FONT color="green">555</FONT>            // Find power-of-two sizes best matching arguments<a name="line.555"></a>
+<FONT color="green">556</FONT>            int sshift = 0;<a name="line.556"></a>
+<FONT color="green">557</FONT>            int ssize = 1;<a name="line.557"></a>
+<FONT color="green">558</FONT>            while(ssize &lt; concurrencyLevel) {<a name="line.558"></a>
+<FONT color="green">559</FONT>                ++sshift;<a name="line.559"></a>
+<FONT color="green">560</FONT>                ssize &lt;&lt;= 1;<a name="line.560"></a>
+<FONT color="green">561</FONT>            }<a name="line.561"></a>
+<FONT color="green">562</FONT>            segmentShift = 32 - sshift;<a name="line.562"></a>
+<FONT color="green">563</FONT>            segmentMask = ssize - 1;<a name="line.563"></a>
+<FONT color="green">564</FONT>            this.segments = Segment.newArray(ssize);<a name="line.564"></a>
+<FONT color="green">565</FONT>    <a name="line.565"></a>
+<FONT color="green">566</FONT>            if(initialCapacity &gt; MAXIMUM_CAPACITY)<a name="line.566"></a>
+<FONT color="green">567</FONT>                initialCapacity = MAXIMUM_CAPACITY;<a name="line.567"></a>
+<FONT color="green">568</FONT>            int c = initialCapacity / ssize;<a name="line.568"></a>
+<FONT color="green">569</FONT>            if(c * ssize &lt; initialCapacity)<a name="line.569"></a>
+<FONT color="green">570</FONT>                ++c;<a name="line.570"></a>
+<FONT color="green">571</FONT>            int cap = 1;<a name="line.571"></a>
+<FONT color="green">572</FONT>            while(cap &lt; c)<a name="line.572"></a>
+<FONT color="green">573</FONT>                cap &lt;&lt;= 1;<a name="line.573"></a>
+<FONT color="green">574</FONT>    <a name="line.574"></a>
+<FONT color="green">575</FONT>            for(int i = 0; i &lt; this.segments.length; ++i)<a name="line.575"></a>
+<FONT color="green">576</FONT>                this.segments[i] = new Segment&lt;K, V&gt;(cap, loadFactor);<a name="line.576"></a>
+<FONT color="green">577</FONT>        }<a name="line.577"></a>
+<FONT color="green">578</FONT>    <a name="line.578"></a>
+<FONT color="green">579</FONT>        /**<a name="line.579"></a>
+<FONT color="green">580</FONT>         * Creates a new, empty map with the specified initial capacity<a name="line.580"></a>
+<FONT color="green">581</FONT>         * and load factor and with the default concurrencyLevel (16).<a name="line.581"></a>
+<FONT color="green">582</FONT>         *<a name="line.582"></a>
+<FONT color="green">583</FONT>         * @param initialCapacity The implementation performs internal<a name="line.583"></a>
+<FONT color="green">584</FONT>         * sizing to accommodate this many elements.<a name="line.584"></a>
+<FONT color="green">585</FONT>         * @param loadFactor  the load factor threshold, used to control resizing.<a name="line.585"></a>
+<FONT color="green">586</FONT>         * Resizing may be performed when the average number of elements per<a name="line.586"></a>
+<FONT color="green">587</FONT>         * bin exceeds this threshold.<a name="line.587"></a>
+<FONT color="green">588</FONT>         * @throws IllegalArgumentException if the initial capacity of<a name="line.588"></a>
+<FONT color="green">589</FONT>         * elements is negative or the load factor is nonpositive<a name="line.589"></a>
+<FONT color="green">590</FONT>         *<a name="line.590"></a>
+<FONT color="green">591</FONT>         * @since 1.6<a name="line.591"></a>
+<FONT color="green">592</FONT>         */<a name="line.592"></a>
+<FONT color="green">593</FONT>        public ConcurrentIdentityHashMap(int initialCapacity, float loadFactor) {<a name="line.593"></a>
+<FONT color="green">594</FONT>            this(initialCapacity, loadFactor, DEFAULT_CONCURRENCY_LEVEL);<a name="line.594"></a>
+<FONT color="green">595</FONT>        }<a name="line.595"></a>
+<FONT color="green">596</FONT>    <a name="line.596"></a>
+<FONT color="green">597</FONT>        /**<a name="line.597"></a>
+<FONT color="green">598</FONT>         * Creates a new, empty map with the specified initial capacity,<a name="line.598"></a>
+<FONT color="green">599</FONT>         * and with default load factor (0.75) and concurrencyLevel (16).<a name="line.599"></a>
+<FONT color="green">600</FONT>         *<a name="line.600"></a>
+<FONT color="green">601</FONT>         * @param initialCapacity the initial capacity. The implementation<a name="line.601"></a>
+<FONT color="green">602</FONT>         * performs internal sizing to accommodate this many elements.<a name="line.602"></a>
+<FONT color="green">603</FONT>         * @throws IllegalArgumentException if the initial capacity of<a name="line.603"></a>
+<FONT color="green">604</FONT>         * elements is negative.<a name="line.604"></a>
+<FONT color="green">605</FONT>         */<a name="line.605"></a>
+<FONT color="green">606</FONT>        public ConcurrentIdentityHashMap(int initialCapacity) {<a name="line.606"></a>
+<FONT color="green">607</FONT>            this(initialCapacity, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL);<a name="line.607"></a>
+<FONT color="green">608</FONT>        }<a name="line.608"></a>
+<FONT color="green">609</FONT>    <a name="line.609"></a>
+<FONT color="green">610</FONT>        /**<a name="line.610"></a>
+<FONT color="green">611</FONT>         * Creates a new, empty map with a default initial capacity (16),<a name="line.611"></a>
+<FONT color="green">612</FONT>         * load factor (0.75) and concurrencyLevel (16).<a name="line.612"></a>
+<FONT color="green">613</FONT>         */<a name="line.613"></a>
+<FONT color="green">614</FONT>        public ConcurrentIdentityHashMap() {<a name="line.614"></a>
+<FONT color="green">615</FONT>            this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL);<a name="line.615"></a>
+<FONT color="green">616</FONT>        }<a name="line.616"></a>
+<FONT color="green">617</FONT>    <a name="line.617"></a>
+<FONT color="green">618</FONT>        /**<a name="line.618"></a>
+<FONT color="green">619</FONT>         * Creates a new map with the same mappings as the given map.<a name="line.619"></a>
+<FONT color="green">620</FONT>         * The map is created with a capacity of 1.5 times the number<a name="line.620"></a>
+<FONT color="green">621</FONT>         * of mappings in the given map or 16 (whichever is greater),<a name="line.621"></a>
+<FONT color="green">622</FONT>         * and a default load factor (0.75) and concurrencyLevel (16).<a name="line.622"></a>
+<FONT color="green">623</FONT>         *<a name="line.623"></a>
+<FONT color="green">624</FONT>         * @param m the map<a name="line.624"></a>
+<FONT color="green">625</FONT>         */<a name="line.625"></a>
+<FONT color="green">626</FONT>        public ConcurrentIdentityHashMap(Map&lt;? extends K, ? extends V&gt; m) {<a name="line.626"></a>
+<FONT color="green">627</FONT>            this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL);<a name="line.627"></a>
+<FONT color="green">628</FONT>            putAll(m);<a name="line.628"></a>
+<FONT color="green">629</FONT>        }<a name="line.629"></a>
+<FONT color="green">630</FONT>    <a name="line.630"></a>
+<FONT color="green">631</FONT>        /**<a name="line.631"></a>
+<FONT color="green">632</FONT>         * Returns &lt;tt&gt;true&lt;/tt&gt; if this map contains no key-value mappings.<a name="line.632"></a>
+<FONT color="green">633</FONT>         *<a name="line.633"></a>
+<FONT color="green">634</FONT>         * @return &lt;tt&gt;true&lt;/tt&gt; if this map contains no key-value mappings<a name="line.634"></a>
+<FONT color="green">635</FONT>         */<a name="line.635"></a>
+<FONT color="green">636</FONT>        public boolean isEmpty() {<a name="line.636"></a>
+<FONT color="green">637</FONT>            final Segment&lt;K, V&gt;[] segments = this.segments;<a name="line.637"></a>
+<FONT color="green">638</FONT>            /*<a name="line.638"></a>
+<FONT color="green">639</FONT>             * We keep track of per-segment modCounts to avoid ABA<a name="line.639"></a>
+<FONT color="green">640</FONT>             * problems in which an element in one segment was added and<a name="line.640"></a>
+<FONT color="green">641</FONT>             * in another removed during traversal, in which case the<a name="line.641"></a>
+<FONT color="green">642</FONT>             * table was never actually empty at any point. Note the<a name="line.642"></a>
+<FONT color="green">643</FONT>             * similar use of modCounts in the size() and containsValue()<a name="line.643"></a>
+<FONT color="green">644</FONT>             * methods, which are the only other methods also susceptible<a name="line.644"></a>
+<FONT color="green">645</FONT>             * to ABA problems.<a name="line.645"></a>
+<FONT color="green">646</FONT>             */<a name="line.646"></a>
+<FONT color="green">647</FONT>            int[] mc = new int[segments.length];<a name="line.647"></a>
+<FONT color="green">648</FONT>            int mcsum = 0;<a name="line.648"></a>
+<FONT color="green">649</FONT>            for(int i = 0; i &lt; segments.length; ++i) {<a name="line.649"></a>
+<FONT color="green">650</FONT>                if(segments[i].count != 0)<a name="line.650"></a>
+<FONT color="green">651</FONT>                    return false;<a name="line.651"></a>
+<FONT color="green">652</FONT>                else<a name="line.652"></a>
+<FONT color="green">653</FONT>                    mcsum += mc[i] = segments[i].modCount;<a name="line.653"></a>
+<FONT color="green">654</FONT>            }<a name="line.654"></a>
+<FONT color="green">655</FONT>            // If mcsum happens to be zero, then we know we got a snapshot<a name="line.655"></a>
+<FONT color="green">656</FONT>            // before any modifications at all were made.  This is<a name="line.656"></a>
+<FONT color="green">657</FONT>            // probably common enough to bother tracking.<a name="line.657"></a>
+<FONT color="green">658</FONT>            if(mcsum != 0) {<a name="line.658"></a>
+<FONT color="green">659</FONT>                for(int i = 0; i &lt; segments.length; ++i) {<a name="line.659"></a>
+<FONT color="green">660</FONT>                    if(segments[i].count != 0 || mc[i] != segments[i].modCount)<a name="line.660"></a>
+<FONT color="green">661</FONT>                        return false;<a name="line.661"></a>
+<FONT color="green">662</FONT>                }<a name="line.662"></a>
+<FONT color="green">663</FONT>            }<a name="line.663"></a>
+<FONT color="green">664</FONT>            return true;<a name="line.664"></a>
+<FONT color="green">665</FONT>        }<a name="line.665"></a>
+<FONT color="green">666</FONT>    <a name="line.666"></a>
+<FONT color="green">667</FONT>        /**<a name="line.667"></a>
+<FONT color="green">668</FONT>         * Returns the number of key-value mappings in this map.  If the<a name="line.668"></a>
+<FONT color="green">669</FONT>         * map contains more than &lt;tt&gt;Integer.MAX_VALUE&lt;/tt&gt; elements, returns<a name="line.669"></a>
+<FONT color="green">670</FONT>         * &lt;tt&gt;Integer.MAX_VALUE&lt;/tt&gt;.<a name="line.670"></a>
+<FONT color="green">671</FONT>         *<a name="line.671"></a>
+<FONT color="green">672</FONT>         * @return the number of key-value mappings in this map<a name="line.672"></a>
+<FONT color="green">673</FONT>         */<a name="line.673"></a>
+<FONT color="green">674</FONT>        public int size() {<a name="line.674"></a>
+<FONT color="green">675</FONT>            final Segment&lt;K, V&gt;[] segments = this.segments;<a name="line.675"></a>
+<FONT color="green">676</FONT>            long sum = 0;<a name="line.676"></a>
+<FONT color="green">677</FONT>            long check = 0;<a name="line.677"></a>
+<FONT color="green">678</FONT>            int[] mc = new int[segments.length];<a name="line.678"></a>
+<FONT color="green">679</FONT>            // Try a few times to get accurate count. On failure due to<a name="line.679"></a>
+<FONT color="green">680</FONT>            // continuous async changes in table, resort to locking.<a name="line.680"></a>
+<FONT color="green">681</FONT>            for(int k = 0; k &lt; RETRIES_BEFORE_LOCK; ++k) {<a name="line.681"></a>
+<FONT color="green">682</FONT>                check = 0;<a name="line.682"></a>
+<FONT color="green">683</FONT>                sum = 0;<a name="line.683"></a>
+<FONT color="green">684</FONT>                int mcsum = 0;<a name="line.684"></a>
+<FONT color="green">685</FONT>                for(int i = 0; i &lt; segments.length; ++i) {<a name="line.685"></a>
+<FONT color="green">686</FONT>                    sum += segments[i].count;<a name="line.686"></a>
+<FONT color="green">687</FONT>                    mcsum += mc[i] = segments[i].modCount;<a name="line.687"></a>
+<FONT color="green">688</FONT>                }<a name="line.688"></a>
+<FONT color="green">689</FONT>                if(mcsum != 0) {<a name="line.689"></a>
+<FONT color="green">690</FONT>                    for(int i = 0; i &lt; segments.length; ++i) {<a name="line.690"></a>
+<FONT color="green">691</FONT>                        check += segments[i].count;<a name="line.691"></a>
+<FONT color="green">692</FONT>                        if(mc[i] != segments[i].modCount) {<a name="line.692"></a>
+<FONT color="green">693</FONT>                            check = -1; // force retry<a name="line.693"></a>
+<FONT color="green">694</FONT>                            break;<a name="line.694"></a>
+<FONT color="green">695</FONT>                        }<a name="line.695"></a>
+<FONT color="green">696</FONT>                    }<a name="line.696"></a>
+<FONT color="green">697</FONT>                }<a name="line.697"></a>
+<FONT color="green">698</FONT>                if(check == sum)<a name="line.698"></a>
+<FONT color="green">699</FONT>                    break;<a name="line.699"></a>
+<FONT color="green">700</FONT>            }<a name="line.700"></a>
+<FONT color="green">701</FONT>            if(check != sum) { // Resort to locking all segments<a name="line.701"></a>
+<FONT color="green">702</FONT>                sum = 0;<a name="line.702"></a>
+<FONT color="green">703</FONT>                for(int i = 0; i &lt; segments.length; ++i)<a name="line.703"></a>
+<FONT color="green">704</FONT>                    segments[i].lock();<a name="line.704"></a>
+<FONT color="green">705</FONT>                for(int i = 0; i &lt; segments.length; ++i)<a name="line.705"></a>
+<FONT color="green">706</FONT>                    sum += segments[i].count;<a name="line.706"></a>
+<FONT color="green">707</FONT>                for(int i = 0; i &lt; segments.length; ++i)<a name="line.707"></a>
+<FONT color="green">708</FONT>                    segments[i].unlock();<a name="line.708"></a>
+<FONT color="green">709</FONT>            }<a name="line.709"></a>
+<FONT color="green">710</FONT>            if(sum &gt; Integer.MAX_VALUE)<a name="line.710"></a>
+<FONT color="green">711</FONT>                return Integer.MAX_VALUE;<a name="line.711"></a>
+<FONT color="green">712</FONT>            else<a name="line.712"></a>
+<FONT color="green">713</FONT>                return (int) sum;<a name="line.713"></a>
+<FONT color="green">714</FONT>        }<a name="line.714"></a>
+<FONT color="green">715</FONT>    <a name="line.715"></a>
+<FONT color="green">716</FONT>        /**<a name="line.716"></a>
+<FONT color="green">717</FONT>         * Returns the value to which the specified key is mapped,<a name="line.717"></a>
+<FONT color="green">718</FONT>         * or {@code null} if this map contains no mapping for the key.<a name="line.718"></a>
+<FONT color="green">719</FONT>         *<a name="line.719"></a>
+<FONT color="green">720</FONT>         * &lt;p&gt;More formally, if this map contains a mapping from a key<a name="line.720"></a>
+<FONT color="green">721</FONT>         * {@code k} to a value {@code v} such that {@code key.equals(k)},<a name="line.721"></a>
+<FONT color="green">722</FONT>         * then this method returns {@code v}; otherwise it returns<a name="line.722"></a>
+<FONT color="green">723</FONT>         * {@code null}.  (There can be at most one such mapping.)<a name="line.723"></a>
+<FONT color="green">724</FONT>         *<a name="line.724"></a>
+<FONT color="green">725</FONT>         * @throws NullPointerException if the specified key is null<a name="line.725"></a>
+<FONT color="green">726</FONT>         */<a name="line.726"></a>
+<FONT color="green">727</FONT>        public V get(Object key) {<a name="line.727"></a>
+<FONT color="green">728</FONT>            int hash = hash(key);<a name="line.728"></a>
+<FONT color="green">729</FONT>            return segmentFor(hash).get(key, hash);<a name="line.729"></a>
+<FONT color="green">730</FONT>        }<a name="line.730"></a>
+<FONT color="green">731</FONT>    <a name="line.731"></a>
+<FONT color="green">732</FONT>        /**<a name="line.732"></a>
+<FONT color="green">733</FONT>         * Tests if the specified object is a key in this table.<a name="line.733"></a>
+<FONT color="green">734</FONT>         *<a name="line.734"></a>
+<FONT color="green">735</FONT>         * @param  key   possible key<a name="line.735"></a>
+<FONT color="green">736</FONT>         * @return &lt;tt&gt;true&lt;/tt&gt; if and only if the specified object<a name="line.736"></a>
+<FONT color="green">737</FONT>         *         is a key in this table, as determined by the<a name="line.737"></a>
+<FONT color="green">738</FONT>         *         &lt;tt&gt;equals&lt;/tt&gt; method; &lt;tt&gt;false&lt;/tt&gt; otherwise.<a name="line.738"></a>
+<FONT color="green">739</FONT>         * @throws NullPointerException if the specified key is null<a name="line.739"></a>
+<FONT color="green">740</FONT>         */<a name="line.740"></a>
+<FONT color="green">741</FONT>        public boolean containsKey(Object key) {<a name="line.741"></a>
+<FONT color="green">742</FONT>            int hash = hash(key);<a name="line.742"></a>
+<FONT color="green">743</FONT>            return segmentFor(hash).containsKey(key, hash);<a name="line.743"></a>
+<FONT color="green">744</FONT>        }<a name="line.744"></a>
+<FONT color="green">745</FONT>    <a name="line.745"></a>
+<FONT color="green">746</FONT>        /**<a name="line.746"></a>
+<FONT color="green">747</FONT>         * Returns &lt;tt&gt;true&lt;/tt&gt; if this map maps one or more keys to the<a name="line.747"></a>
+<FONT color="green">748</FONT>         * specified value. Note: This method requires a full internal<a name="line.748"></a>
+<FONT color="green">749</FONT>         * traversal of the hash table, and so is much slower than<a name="line.749"></a>
+<FONT color="green">750</FONT>         * method &lt;tt&gt;containsKey&lt;/tt&gt;.<a name="line.750"></a>
+<FONT color="green">751</FONT>         *<a name="line.751"></a>
+<FONT color="green">752</FONT>         * @param value value whose presence in this map is to be tested<a name="line.752"></a>
+<FONT color="green">753</FONT>         * @return &lt;tt&gt;true&lt;/tt&gt; if this map maps one or more keys to the<a name="line.753"></a>
+<FONT color="green">754</FONT>         *         specified value<a name="line.754"></a>
+<FONT color="green">755</FONT>         * @throws NullPointerException if the specified value is null<a name="line.755"></a>
+<FONT color="green">756</FONT>         */<a name="line.756"></a>
+<FONT color="green">757</FONT>        public boolean containsValue(Object value) {<a name="line.757"></a>
+<FONT color="green">758</FONT>            if(value == null)<a name="line.758"></a>
+<FONT color="green">759</FONT>                throw new NullPointerException();<a name="line.759"></a>
+<FONT color="green">760</FONT>    <a name="line.760"></a>
+<FONT color="green">761</FONT>            // See explanation of modCount use above<a name="line.761"></a>
+<FONT color="green">762</FONT>    <a name="line.762"></a>
+<FONT color="green">763</FONT>            final Segment&lt;K, V&gt;[] segments = this.segments;<a name="line.763"></a>
+<FONT color="green">764</FONT>            int[] mc = new int[segments.length];<a name="line.764"></a>
+<FONT color="green">765</FONT>    <a name="line.765"></a>
+<FONT color="green">766</FONT>            // Try a few times without locking<a name="line.766"></a>
+<FONT color="green">767</FONT>            for(int k = 0; k &lt; RETRIES_BEFORE_LOCK; ++k) {<a name="line.767"></a>
+<FONT color="green">768</FONT>                int mcsum = 0;<a name="line.768"></a>
+<FONT color="green">769</FONT>                for(int i = 0; i &lt; segments.length; ++i) {<a name="line.769"></a>
+<FONT color="green">770</FONT>                    mcsum += mc[i] = segments[i].modCount;<a name="line.770"></a>
+<FONT color="green">771</FONT>                    if(segments[i].containsValue(value))<a name="line.771"></a>
+<FONT color="green">772</FONT>                        return true;<a name="line.772"></a>
+<FONT color="green">773</FONT>                }<a name="line.773"></a>
+<FONT color="green">774</FONT>                boolean cleanSweep = true;<a name="line.774"></a>
+<FONT color="green">775</FONT>                if(mcsum != 0) {<a name="line.775"></a>
+<FONT color="green">776</FONT>                    for(int i = 0; i &lt; segments.length; ++i) {<a name="line.776"></a>
+<FONT color="green">777</FONT>                        if(mc[i] != segments[i].modCount) {<a name="line.777"></a>
+<FONT color="green">778</FONT>                            cleanSweep = false;<a name="line.778"></a>
+<FONT color="green">779</FONT>                            break;<a name="line.779"></a>
+<FONT color="green">780</FONT>                        }<a name="line.780"></a>
+<FONT color="green">781</FONT>                    }<a name="line.781"></a>
+<FONT color="green">782</FONT>                }<a name="line.782"></a>
+<FONT color="green">783</FONT>                if(cleanSweep)<a name="line.783"></a>
+<FONT color="green">784</FONT>                    return false;<a name="line.784"></a>
+<FONT color="green">785</FONT>            }<a name="line.785"></a>
+<FONT color="green">786</FONT>            // Resort to locking all segments<a name="line.786"></a>
+<FONT color="green">787</FONT>            for(int i = 0; i &lt; segments.length; ++i)<a name="line.787"></a>
+<FONT color="green">788</FONT>                segments[i].lock();<a name="line.788"></a>
+<FONT color="green">789</FONT>            boolean found = false;<a name="line.789"></a>
+<FONT color="green">790</FONT>            try {<a name="line.790"></a>
+<FONT color="green">791</FONT>                for(int i = 0; i &lt; segments.length; ++i) {<a name="line.791"></a>
+<FONT color="green">792</FONT>                    if(segments[i].containsValue(value)) {<a name="line.792"></a>
+<FONT color="green">793</FONT>                        found = true;<a name="line.793"></a>
+<FONT color="green">794</FONT>                        break;<a name="line.794"></a>
+<FONT color="green">795</FONT>                    }<a name="line.795"></a>
+<FONT color="green">796</FONT>                }<a name="line.796"></a>
+<FONT color="green">797</FONT>            } finally {<a name="line.797"></a>
+<FONT color="green">798</FONT>                for(int i = 0; i &lt; segments.length; ++i)<a name="line.798"></a>
+<FONT color="green">799</FONT>                    segments[i].unlock();<a name="line.799"></a>
+<FONT color="green">800</FONT>            }<a name="line.800"></a>
+<FONT color="green">801</FONT>            return found;<a name="line.801"></a>
+<FONT color="green">802</FONT>        }<a name="line.802"></a>
+<FONT color="green">803</FONT>    <a name="line.803"></a>
+<FONT color="green">804</FONT>        /**<a name="line.804"></a>
+<FONT color="green">805</FONT>         * Legacy method testing if some key maps into the specified value<a name="line.805"></a>
+<FONT color="green">806</FONT>         * in this table.  This method is identical in functionality to<a name="line.806"></a>
+<FONT color="green">807</FONT>         * {@link #containsValue}, and exists solely to ensure<a name="line.807"></a>
+<FONT color="green">808</FONT>         * full compatibility with class {@link java.util.Hashtable},<a name="line.808"></a>
+<FONT color="green">809</FONT>         * which supported this method prior to introduction of the<a name="line.809"></a>
+<FONT color="green">810</FONT>         * Java Collections framework.<a name="line.810"></a>
+<FONT color="green">811</FONT>    <a name="line.811"></a>
+<FONT color="green">812</FONT>         * @param  value a value to search for<a name="line.812"></a>
+<FONT color="green">813</FONT>         * @return &lt;tt&gt;true&lt;/tt&gt; if and only if some key maps to the<a name="line.813"></a>
+<FONT color="green">814</FONT>         *         &lt;tt&gt;value&lt;/tt&gt; argument in this table as<a name="line.814"></a>
+<FONT color="green">815</FONT>         *         determined by the &lt;tt&gt;equals&lt;/tt&gt; method;<a name="line.815"></a>
+<FONT color="green">816</FONT>         *         &lt;tt&gt;false&lt;/tt&gt; otherwise<a name="line.816"></a>
+<FONT color="green">817</FONT>         * @throws NullPointerException if the specified value is null<a name="line.817"></a>
+<FONT color="green">818</FONT>         */<a name="line.818"></a>
+<FONT color="green">819</FONT>        public boolean contains(Object value) {<a name="line.819"></a>
+<FONT color="green">820</FONT>            return containsValue(value);<a name="line.820"></a>
+<FONT color="green">821</FONT>        }<a name="line.821"></a>
+<FONT color="green">822</FONT>    <a name="line.822"></a>
+<FONT color="green">823</FONT>        /**<a name="line.823"></a>
+<FONT color="green">824</FONT>         * Maps the specified key to the specified value in this table.<a name="line.824"></a>
+<FONT color="green">825</FONT>         * Neither the key nor the value can be null.<a name="line.825"></a>
+<FONT color="green">826</FONT>         *<a name="line.826"></a>
+<FONT color="green">827</FONT>         * &lt;p&gt; The value can be retrieved by calling the &lt;tt&gt;get&lt;/tt&gt; method<a name="line.827"></a>
+<FONT color="green">828</FONT>         * with a key that is equal to the original key.<a name="line.828"></a>
+<FONT color="green">829</FONT>         *<a name="line.829"></a>
+<FONT color="green">830</FONT>         * @param key key with which the specified value is to be associated<a name="line.830"></a>
+<FONT color="green">831</FONT>         * @param value value to be associated with the specified key<a name="line.831"></a>
+<FONT color="green">832</FONT>         * @return the previous value associated with &lt;tt&gt;key&lt;/tt&gt;, or<a name="line.832"></a>
+<FONT color="green">833</FONT>         *         &lt;tt&gt;null&lt;/tt&gt; if there was no mapping for &lt;tt&gt;key&lt;/tt&gt;<a name="line.833"></a>
+<FONT color="green">834</FONT>         * @throws NullPointerException if the specified key or value is null<a name="line.834"></a>
+<FONT color="green">835</FONT>         */<a name="line.835"></a>
+<FONT color="green">836</FONT>        public V put(K key, V value) {<a name="line.836"></a>
+<FONT color="green">837</FONT>            if(value == null)<a name="line.837"></a>
+<FONT color="green">838</FONT>                throw new NullPointerException();<a name="line.838"></a>
+<FONT color="green">839</FONT>            int hash = hash(key);<a name="line.839"></a>
+<FONT color="green">840</FONT>            return segmentFor(hash).put(key, hash, value, false);<a name="line.840"></a>
+<FONT color="green">841</FONT>        }<a name="line.841"></a>
+<FONT color="green">842</FONT>    <a name="line.842"></a>
+<FONT color="green">843</FONT>        /**<a name="line.843"></a>
+<FONT color="green">844</FONT>         * {@inheritDoc}<a name="line.844"></a>
+<FONT color="green">845</FONT>         *<a name="line.845"></a>
+<FONT color="green">846</FONT>         * @return the previous value associated with the specified key,<a name="line.846"></a>
+<FONT color="green">847</FONT>         *         or &lt;tt&gt;null&lt;/tt&gt; if there was no mapping for the key<a name="line.847"></a>
+<FONT color="green">848</FONT>         * @throws NullPointerException if the specified key or value is null<a name="line.848"></a>
+<FONT color="green">849</FONT>         */<a name="line.849"></a>
+<FONT color="green">850</FONT>        public V putIfAbsent(K key, V value) {<a name="line.850"></a>
+<FONT color="green">851</FONT>            if(value == null)<a name="line.851"></a>
+<FONT color="green">852</FONT>                throw new NullPointerException();<a name="line.852"></a>
+<FONT color="green">853</FONT>            int hash = hash(key);<a name="line.853"></a>
+<FONT color="green">854</FONT>            return segmentFor(hash).put(key, hash, value, true);<a name="line.854"></a>
+<FONT color="green">855</FONT>        }<a name="line.855"></a>
+<FONT color="green">856</FONT>    <a name="line.856"></a>
+<FONT color="green">857</FONT>        /**<a name="line.857"></a>
+<FONT color="green">858</FONT>         * Copies all of the mappings from the specified map to this one.<a name="line.858"></a>
+<FONT color="green">859</FONT>         * These mappings replace any mappings that this map had for any of the<a name="line.859"></a>
+<FONT color="green">860</FONT>         * keys currently in the specified map.<a name="line.860"></a>
+<FONT color="green">861</FONT>         *<a name="line.861"></a>
+<FONT color="green">862</FONT>         * @param m mappings to be stored in this map<a name="line.862"></a>
+<FONT color="green">863</FONT>         */<a name="line.863"></a>
+<FONT color="green">864</FONT>        public void putAll(Map&lt;? extends K, ? extends V&gt; m) {<a name="line.864"></a>
+<FONT color="green">865</FONT>            for(Map.Entry&lt;? extends K, ? extends V&gt; e : m.entrySet())<a name="line.865"></a>
+<FONT color="green">866</FONT>                put(e.getKey(), e.getValue());<a name="line.866"></a>
+<FONT color="green">867</FONT>        }<a name="line.867"></a>
+<FONT color="green">868</FONT>    <a name="line.868"></a>
+<FONT color="green">869</FONT>        /**<a name="line.869"></a>
+<FONT color="green">870</FONT>         * Removes the key (and its corresponding value) from this map.<a name="line.870"></a>
+<FONT color="green">871</FONT>         * This method does nothing if the key is not in the map.<a name="line.871"></a>
+<FONT color="green">872</FONT>         *<a name="line.872"></a>
+<FONT color="green">873</FONT>         * @param  key the key that needs to be removed<a name="line.873"></a>
+<FONT color="green">874</FONT>         * @return the previous value associated with &lt;tt&gt;key&lt;/tt&gt;, or<a name="line.874"></a>
+<FONT color="green">875</FONT>         *         &lt;tt&gt;null&lt;/tt&gt; if there was no mapping for &lt;tt&gt;key&lt;/tt&gt;<a name="line.875"></a>
+<FONT color="green">876</FONT>         * @throws NullPointerException if the specified key is null<a name="line.876"></a>
+<FONT color="green">877</FONT>         */<a name="line.877"></a>
+<FONT color="green">878</FONT>        public V remove(Object key) {<a name="line.878"></a>
+<FONT color="green">879</FONT>            int hash = hash(key);<a name="line.879"></a>
+<FONT color="green">880</FONT>            return segmentFor(hash).remove(key, hash, null);<a name="line.880"></a>
+<FONT color="green">881</FONT>        }<a name="line.881"></a>
+<FONT color="green">882</FONT>    <a name="line.882"></a>
+<FONT color="green">883</FONT>        /**<a name="line.883"></a>
+<FONT color="green">884</FONT>         * {@inheritDoc}<a name="line.884"></a>
+<FONT color="green">885</FONT>         *<a name="line.885"></a>
+<FONT color="green">886</FONT>         * @throws NullPointerException if the specified key is null<a name="line.886"></a>
+<FONT color="green">887</FONT>         */<a name="line.887"></a>
+<FONT color="green">888</FONT>        public boolean remove(Object key, Object value) {<a name="line.888"></a>
+<FONT color="green">889</FONT>            int hash = hash(key);<a name="line.889"></a>
+<FONT color="green">890</FONT>            if(value == null)<a name="line.890"></a>
+<FONT color="green">891</FONT>                return false;<a name="line.891"></a>
+<FONT color="green">892</FONT>            return segmentFor(hash).remove(key, hash, value) != null;<a name="line.892"></a>
+<FONT color="green">893</FONT>        }<a name="line.893"></a>
+<FONT color="green">894</FONT>    <a name="line.894"></a>
+<FONT color="green">895</FONT>        /**<a name="line.895"></a>
+<FONT color="green">896</FONT>         * {@inheritDoc}<a name="line.896"></a>
+<FONT color="green">897</FONT>         *<a name="line.897"></a>
+<FONT color="green">898</FONT>         * @throws NullPointerException if any of the arguments are null<a name="line.898"></a>
+<FONT color="green">899</FONT>         */<a name="line.899"></a>
+<FONT color="green">900</FONT>        public boolean replace(K key, V oldValue, V newValue) {<a name="line.900"></a>
+<FONT color="green">901</FONT>            if(oldValue == null || newValue == null)<a name="line.901"></a>
+<FONT color="green">902</FONT>                throw new NullPointerException();<a name="line.902"></a>
+<FONT color="green">903</FONT>            int hash = hash(key);<a name="line.903"></a>
+<FONT color="green">904</FONT>            return segmentFor(hash).replace(key, hash, oldValue, newValue);<a name="line.904"></a>
+<FONT color="green">905</FONT>        }<a name="line.905"></a>
+<FONT color="green">906</FONT>    <a name="line.906"></a>
+<FONT color="green">907</FONT>        /**<a name="line.907"></a>
+<FONT color="green">908</FONT>         * {@inheritDoc}<a name="line.908"></a>
+<FONT color="green">909</FONT>         *<a name="line.909"></a>
+<FONT color="green">910</FONT>         * @return the previous value associated with the specified key,<a name="line.910"></a>
+<FONT color="green">911</FONT>         *         or &lt;tt&gt;null&lt;/tt&gt; if there was no mapping for the key<a name="line.911"></a>
+<FONT color="green">912</FONT>         * @throws NullPointerException if the specified key or value is null<a name="line.912"></a>
+<FONT color="green">913</FONT>         */<a name="line.913"></a>
+<FONT color="green">914</FONT>        public V replace(K key, V value) {<a name="line.914"></a>
+<FONT color="green">915</FONT>            if(value == null)<a name="line.915"></a>
+<FONT color="green">916</FONT>                throw new NullPointerException();<a name="line.916"></a>
+<FONT color="green">917</FONT>            int hash = hash(key);<a name="line.917"></a>
+<FONT color="green">918</FONT>            return segmentFor(hash).replace(key, hash, value);<a name="line.918"></a>
+<FONT color="green">919</FONT>        }<a name="line.919"></a>
+<FONT color="green">920</FONT>    <a name="line.920"></a>
+<FONT color="green">921</FONT>        /**<a name="line.921"></a>
+<FONT color="green">922</FONT>         * Removes all of the mappings from this map.<a name="line.922"></a>
+<FONT color="green">923</FONT>         */<a name="line.923"></a>
+<FONT color="green">924</FONT>        public void clear() {<a name="line.924"></a>
+<FONT color="green">925</FONT>            for(int i = 0; i &lt; segments.length; ++i)<a name="line.925"></a>
+<FONT color="green">926</FONT>                segments[i].clear();<a name="line.926"></a>
+<FONT color="green">927</FONT>        }<a name="line.927"></a>
+<FONT color="green">928</FONT>    <a name="line.928"></a>
+<FONT color="green">929</FONT>        /**<a name="line.929"></a>
+<FONT color="green">930</FONT>         * Returns a {@link Set} view of the keys contained in this map.<a name="line.930"></a>
+<FONT color="green">931</FONT>         * The set is backed by the map, so changes to the map are<a name="line.931"></a>
+<FONT color="green">932</FONT>         * reflected in the set, and vice-versa.  The set supports element<a name="line.932"></a>
+<FONT color="green">933</FONT>         * removal, which removes the corresponding mapping from this map,<a name="line.933"></a>
+<FONT color="green">934</FONT>         * via the &lt;tt&gt;Iterator.remove&lt;/tt&gt;, &lt;tt&gt;Set.remove&lt;/tt&gt;,<a name="line.934"></a>
+<FONT color="green">935</FONT>         * &lt;tt&gt;removeAll&lt;/tt&gt;, &lt;tt&gt;retainAll&lt;/tt&gt;, and &lt;tt&gt;clear&lt;/tt&gt;<a name="line.935"></a>
+<FONT color="green">936</FONT>         * operations.  It does not support the &lt;tt&gt;add&lt;/tt&gt; or<a name="line.936"></a>
+<FONT color="green">937</FONT>         * &lt;tt&gt;addAll&lt;/tt&gt; operations.<a name="line.937"></a>
+<FONT color="green">938</FONT>         *<a name="line.938"></a>
+<FONT color="green">939</FONT>         * &lt;p&gt;The view's &lt;tt&gt;iterator&lt;/tt&gt; is a "weakly consistent" iterator<a name="line.939"></a>
+<FONT color="green">940</FONT>         * that will never throw {@link ConcurrentModificationException},<a name="line.940"></a>
+<FONT color="green">941</FONT>         * and guarantees to traverse elements as they existed upon<a name="line.941"></a>
+<FONT color="green">942</FONT>         * construction of the iterator, and may (but is not guaranteed to)<a name="line.942"></a>
+<FONT color="green">943</FONT>         * reflect any modifications subsequent to construction.<a name="line.943"></a>
+<FONT color="green">944</FONT>         */<a name="line.944"></a>
+<FONT color="green">945</FONT>        public Set&lt;K&gt; keySet() {<a name="line.945"></a>
+<FONT color="green">946</FONT>            Set&lt;K&gt; ks = keySet;<a name="line.946"></a>
+<FONT color="green">947</FONT>            return (ks != null) ? ks : (keySet = new KeySet());<a name="line.947"></a>
+<FONT color="green">948</FONT>        }<a name="line.948"></a>
+<FONT color="green">949</FONT>    <a name="line.949"></a>
+<FONT color="green">950</FONT>        /**<a name="line.950"></a>
+<FONT color="green">951</FONT>         * Returns a {@link Collection} view of the values contained in this map.<a name="line.951"></a>
+<FONT color="green">952</FONT>         * The collection is backed by the map, so changes to the map are<a name="line.952"></a>
+<FONT color="green">953</FONT>         * reflected in the collection, and vice-versa.  The collection<a name="line.953"></a>
+<FONT color="green">954</FONT>         * supports element removal, which removes the corresponding<a name="line.954"></a>
+<FONT color="green">955</FONT>         * mapping from this map, via the &lt;tt&gt;Iterator.remove&lt;/tt&gt;,<a name="line.955"></a>
+<FONT color="green">956</FONT>         * &lt;tt&gt;Collection.remove&lt;/tt&gt;, &lt;tt&gt;removeAll&lt;/tt&gt;,<a name="line.956"></a>
+<FONT color="green">957</FONT>         * &lt;tt&gt;retainAll&lt;/tt&gt;, and &lt;tt&gt;clear&lt;/tt&gt; operations.  It does not<a name="line.957"></a>
+<FONT color="green">958</FONT>         * support the &lt;tt&gt;add&lt;/tt&gt; or &lt;tt&gt;addAll&lt;/tt&gt; operations.<a name="line.958"></a>
+<FONT color="green">959</FONT>         *<a name="line.959"></a>
+<FONT color="green">960</FONT>         * &lt;p&gt;The view's &lt;tt&gt;iterator&lt;/tt&gt; is a "weakly consistent" iterator<a name="line.960"></a>
+<FONT color="green">961</FONT>         * that will never throw {@link ConcurrentModificationException},<a name="line.961"></a>
+<FONT color="green">962</FONT>         * and guarantees to traverse elements as they existed upon<a name="line.962"></a>
+<FONT color="green">963</FONT>         * construction of the iterator, and may (but is not guaranteed to)<a name="line.963"></a>
+<FONT color="green">964</FONT>         * reflect any modifications subsequent to construction.<a name="line.964"></a>
+<FONT color="green">965</FONT>         */<a name="line.965"></a>
+<FONT color="green">966</FONT>        public Collection&lt;V&gt; values() {<a name="line.966"></a>
+<FONT color="green">967</FONT>            Collection&lt;V&gt; vs = values;<a name="line.967"></a>
+<FONT color="green">968</FONT>            return (vs != null) ? vs : (values = new Values());<a name="line.968"></a>
+<FONT color="green">969</FONT>        }<a name="line.969"></a>
+<FONT color="green">970</FONT>    <a name="line.970"></a>
+<FONT color="green">971</FONT>        /**<a name="line.971"></a>
+<FONT color="green">972</FONT>         * Returns a {@link Set} view of the mappings contained in this map.<a name="line.972"></a>
+<FONT color="green">973</FONT>         * The set is backed by the map, so changes to the map are<a name="line.973"></a>
+<FONT color="green">974</FONT>         * reflected in the set, and vice-versa.  The set supports element<a name="line.974"></a>
+<FONT color="green">975</FONT>         * removal, which removes the corresponding mapping from the map,<a name="line.975"></a>
+<FONT color="green">976</FONT>         * via the &lt;tt&gt;Iterator.remove&lt;/tt&gt;, &lt;tt&gt;Set.remove&lt;/tt&gt;,<a name="line.976"></a>
+<FONT color="green">977</FONT>         * &lt;tt&gt;removeAll&lt;/tt&gt;, &lt;tt&gt;retainAll&lt;/tt&gt;, and &lt;tt&gt;clear&lt;/tt&gt;<a name="line.977"></a>
+<FONT color="green">978</FONT>         * operations.  It does not support the &lt;tt&gt;add&lt;/tt&gt; or<a name="line.978"></a>
+<FONT color="green">979</FONT>         * &lt;tt&gt;addAll&lt;/tt&gt; operations.<a name="line.979"></a>
+<FONT color="green">980</FONT>         *<a name="line.980"></a>
+<FONT color="green">981</FONT>         * &lt;p&gt;The view's &lt;tt&gt;iterator&lt;/tt&gt; is a "weakly consistent" iterator<a name="line.981"></a>
+<FONT color="green">982</FONT>         * that will never throw {@link ConcurrentModificationException},<a name="line.982"></a>
+<FONT color="green">983</FONT>         * and guarantees to traverse elements as they existed upon<a name="line.983"></a>
+<FONT color="green">984</FONT>         * construction of the iterator, and may (but is not guaranteed to)<a name="line.984"></a>
+<FONT color="green">985</FONT>         * reflect any modifications subsequent to construction.<a name="line.985"></a>
+<FONT color="green">986</FONT>         */<a name="line.986"></a>
+<FONT color="green">987</FONT>        public Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet() {<a name="line.987"></a>
+<FONT color="green">988</FONT>            Set&lt;Map.Entry&lt;K, V&gt;&gt; es = entrySet;<a name="line.988"></a>
+<FONT color="green">989</FONT>            return (es != null) ? es : (entrySet = new EntrySet());<a name="line.989"></a>
+<FONT color="green">990</FONT>        }<a name="line.990"></a>
+<FONT color="green">991</FONT>    <a name="line.991"></a>
+<FONT color="green">992</FONT>        /**<a name="line.992"></a>
+<FONT color="green">993</FONT>         * Returns an enumeration of the keys in this table.<a name="line.993"></a>
+<FONT color="green">994</FONT>         *<a name="line.994"></a>
+<FONT color="green">995</FONT>         * @return an enumeration of the keys in this table<a name="line.995"></a>
+<FONT color="green">996</FONT>         * @see #keySet()<a name="line.996"></a>
+<FONT color="green">997</FONT>         */<a name="line.997"></a>
+<FONT color="green">998</FONT>        public Enumeration&lt;K&gt; keys() {<a name="line.998"></a>
+<FONT color="green">999</FONT>            return new KeyIterator();<a name="line.999"></a>
+<FONT color="green">1000</FONT>        }<a name="line.1000"></a>
+<FONT color="green">1001</FONT>    <a name="line.1001"></a>
+<FONT color="green">1002</FONT>        /**<a name="line.1002"></a>
+<FONT color="green">1003</FONT>         * Returns an enumeration of the values in this table.<a name="line.1003"></a>
+<FONT color="green">1004</FONT>         *<a name="line.1004"></a>
+<FONT color="green">1005</FONT>         * @return an enumeration of the values in this table<a name="line.1005"></a>
+<FONT color="green">1006</FONT>         * @see #values()<a name="line.1006"></a>
+<FONT color="green">1007</FONT>         */<a name="line.1007"></a>
+<FONT color="green">1008</FONT>        public Enumeration&lt;V&gt; elements() {<a name="line.1008"></a>
+<FONT color="green">1009</FONT>            return new ValueIterator();<a name="line.1009"></a>
+<FONT color="green">1010</FONT>        }<a name="line.1010"></a>
+<FONT color="green">1011</FONT>    <a name="line.1011"></a>
+<FONT color="green">1012</FONT>        /* ---------------- Iterator Support -------------- */<a name="line.1012"></a>
+<FONT color="green">1013</FONT>    <a name="line.1013"></a>
+<FONT color="green">1014</FONT>        abstract class HashIterator {<a name="line.1014"></a>
+<FONT color="green">1015</FONT>            int nextSegmentIndex;<a name="line.1015"></a>
+<FONT color="green">1016</FONT>            int nextTableIndex;<a name="line.1016"></a>
+<FONT color="green">1017</FONT>            HashEntry&lt;K, V&gt;[] currentTable;<a name="line.1017"></a>
+<FONT color="green">1018</FONT>            HashEntry&lt;K, V&gt; nextEntry;<a name="line.1018"></a>
+<FONT color="green">1019</FONT>            HashEntry&lt;K, V&gt; lastReturned;<a name="line.1019"></a>
+<FONT color="green">1020</FONT>    <a name="line.1020"></a>
+<FONT color="green">1021</FONT>            HashIterator() {<a name="line.1021"></a>
+<FONT color="green">1022</FONT>                nextSegmentIndex = segments.length - 1;<a name="line.1022"></a>
+<FONT color="green">1023</FONT>                nextTableIndex = -1;<a name="line.1023"></a>
+<FONT color="green">1024</FONT>                advance();<a name="line.1024"></a>
+<FONT color="green">1025</FONT>            }<a name="line.1025"></a>
+<FONT color="green">1026</FONT>    <a name="line.1026"></a>
+<FONT color="green">1027</FONT>            public boolean hasMoreElements() {<a name="line.1027"></a>
+<FONT color="green">1028</FONT>                return hasNext();<a name="line.1028"></a>
+<FONT color="green">1029</FONT>            }<a name="line.1029"></a>
+<FONT color="green">1030</FONT>    <a name="line.1030"></a>
+<FONT color="green">1031</FONT>            final void advance() {<a name="line.1031"></a>
+<FONT color="green">1032</FONT>                if(nextEntry != null &amp;&amp; (nextEntry = nextEntry.next) != null)<a name="line.1032"></a>
+<FONT color="green">1033</FONT>                    return;<a name="line.1033"></a>
+<FONT color="green">1034</FONT>    <a name="line.1034"></a>
+<FONT color="green">1035</FONT>                while(nextTableIndex &gt;= 0) {<a name="line.1035"></a>
+<FONT color="green">1036</FONT>                    if((nextEntry = currentTable[nextTableIndex--]) != null)<a name="line.1036"></a>
+<FONT color="green">1037</FONT>                        return;<a name="line.1037"></a>
+<FONT color="green">1038</FONT>                }<a name="line.1038"></a>
+<FONT color="green">1039</FONT>    <a name="line.1039"></a>
+<FONT color="green">1040</FONT>                while(nextSegmentIndex &gt;= 0) {<a name="line.1040"></a>
+<FONT color="green">1041</FONT>                    Segment&lt;K, V&gt; seg = segments[nextSegmentIndex--];<a name="line.1041"></a>
+<FONT color="green">1042</FONT>                    if(seg.count != 0) {<a name="line.1042"></a>
+<FONT color="green">1043</FONT>                        currentTable = seg.table;<a name="line.1043"></a>
+<FONT color="green">1044</FONT>                        for(int j = currentTable.length - 1; j &gt;= 0; --j) {<a name="line.1044"></a>
+<FONT color="green">1045</FONT>                            if((nextEntry = currentTable[j]) != null) {<a name="line.1045"></a>
+<FONT color="green">1046</FONT>                                nextTableIndex = j - 1;<a name="line.1046"></a>
+<FONT color="green">1047</FONT>                                return;<a name="line.1047"></a>
+<FONT color="green">1048</FONT>                            }<a name="line.1048"></a>
+<FONT color="green">1049</FONT>                        }<a name="line.1049"></a>
+<FONT color="green">1050</FONT>                    }<a name="line.1050"></a>
+<FONT color="green">1051</FONT>                }<a name="line.1051"></a>
+<FONT color="green">1052</FONT>            }<a name="line.1052"></a>
+<FONT color="green">1053</FONT>    <a name="line.1053"></a>
+<FONT color="green">1054</FONT>            public boolean hasNext() {<a name="line.1054"></a>
+<FONT color="green">1055</FONT>                return nextEntry != null;<a name="line.1055"></a>
+<FONT color="green">1056</FONT>            }<a name="line.1056"></a>
+<FONT color="green">1057</FONT>    <a name="line.1057"></a>
+<FONT color="green">1058</FONT>            HashEntry&lt;K, V&gt; nextEntry() {<a name="line.1058"></a>
+<FONT color="green">1059</FONT>                if(nextEntry == null)<a name="line.1059"></a>
+<FONT color="green">1060</FONT>                    throw new NoSuchElementException();<a name="line.1060"></a>
+<FONT color="green">1061</FONT>                lastReturned = nextEntry;<a name="line.1061"></a>
+<FONT color="green">1062</FONT>                advance();<a name="line.1062"></a>
+<FONT color="green">1063</FONT>                return lastReturned;<a name="line.1063"></a>
+<FONT color="green">1064</FONT>            }<a name="line.1064"></a>
+<FONT color="green">1065</FONT>    <a name="line.1065"></a>
+<FONT color="green">1066</FONT>            public void remove() {<a name="line.1066"></a>
+<FONT color="green">1067</FONT>                if(lastReturned == null)<a name="line.1067"></a>
+<FONT color="green">1068</FONT>                    throw new IllegalStateException();<a name="line.1068"></a>
+<FONT color="green">1069</FONT>                ConcurrentIdentityHashMap.this.remove(lastReturned.key);<a name="line.1069"></a>
+<FONT color="green">1070</FONT>                lastReturned = null;<a name="line.1070"></a>
+<FONT color="green">1071</FONT>            }<a name="line.1071"></a>
+<FONT color="green">1072</FONT>        }<a name="line.1072"></a>
+<FONT color="green">1073</FONT>    <a name="line.1073"></a>
+<FONT color="green">1074</FONT>        final class KeyIterator extends HashIterator implements Iterator&lt;K&gt;, Enumeration&lt;K&gt; {<a name="line.1074"></a>
+<FONT color="green">1075</FONT>            public K next() {<a name="line.1075"></a>
+<FONT color="green">1076</FONT>                return super.nextEntry().key;<a name="line.1076"></a>
+<FONT color="green">1077</FONT>            }<a name="line.1077"></a>
+<FONT color="green">1078</FONT>    <a name="line.1078"></a>
+<FONT color="green">1079</FONT>            public K nextElement() {<a name="line.1079"></a>
+<FONT color="green">1080</FONT>                return super.nextEntry().key;<a name="line.1080"></a>
+<FONT color="green">1081</FONT>            }<a name="line.1081"></a>
+<FONT color="green">1082</FONT>        }<a name="line.1082"></a>
+<FONT color="green">1083</FONT>    <a name="line.1083"></a>
+<FONT color="green">1084</FONT>        final class ValueIterator extends HashIterator implements Iterator&lt;V&gt;, Enumeration&lt;V&gt; {<a name="line.1084"></a>
+<FONT color="green">1085</FONT>            public V next() {<a name="line.1085"></a>
+<FONT color="green">1086</FONT>                return super.nextEntry().value;<a name="line.1086"></a>
+<FONT color="green">1087</FONT>            }<a name="line.1087"></a>
+<FONT color="green">1088</FONT>    <a name="line.1088"></a>
+<FONT color="green">1089</FONT>            public V nextElement() {<a name="line.1089"></a>
+<FONT color="green">1090</FONT>                return super.nextEntry().value;<a name="line.1090"></a>
+<FONT color="green">1091</FONT>            }<a name="line.1091"></a>
+<FONT color="green">1092</FONT>        }<a name="line.1092"></a>
+<FONT color="green">1093</FONT>    <a name="line.1093"></a>
+<FONT color="green">1094</FONT>        /**<a name="line.1094"></a>
+<FONT color="green">1095</FONT>         * Custom Entry class used by EntryIterator.next(), that relays<a name="line.1095"></a>
+<FONT color="green">1096</FONT>         * setValue changes to the underlying map.<a name="line.1096"></a>
+<FONT color="green">1097</FONT>         */<a name="line.1097"></a>
+<FONT color="green">1098</FONT>        final class WriteThroughEntry extends AbstractMap.SimpleEntry&lt;K, V&gt; {<a name="line.1098"></a>
+<FONT color="green">1099</FONT>            WriteThroughEntry(K k, V v) {<a name="line.1099"></a>
+<FONT color="green">1100</FONT>                super(k, v);<a name="line.1100"></a>
+<FONT color="green">1101</FONT>            }<a name="line.1101"></a>
+<FONT color="green">1102</FONT>    <a name="line.1102"></a>
+<FONT color="green">1103</FONT>            /**<a name="line.1103"></a>
+<FONT color="green">1104</FONT>             * Set our entry's value and write through to the map. The<a name="line.1104"></a>
+<FONT color="green">1105</FONT>             * value to return is somewhat arbitrary here. Since a<a name="line.1105"></a>
+<FONT color="green">1106</FONT>             * WriteThroughEntry does not necessarily track asynchronous<a name="line.1106"></a>
+<FONT color="green">1107</FONT>             * changes, the most recent "previous" value could be<a name="line.1107"></a>
+<FONT color="green">1108</FONT>             * different from what we return (or could even have been<a name="line.1108"></a>
+<FONT color="green">1109</FONT>             * removed in which case the put will re-establish). We do not<a name="line.1109"></a>
+<FONT color="green">1110</FONT>             * and cannot guarantee more.<a name="line.1110"></a>
+<FONT color="green">1111</FONT>             */<a name="line.1111"></a>
+<FONT color="green">1112</FONT>            public V setValue(V value) {<a name="line.1112"></a>
+<FONT color="green">1113</FONT>                if(value == null)<a name="line.1113"></a>
+<FONT color="green">1114</FONT>                    throw new NullPointerException();<a name="line.1114"></a>
+<FONT color="green">1115</FONT>                V v = super.setValue(value);<a name="line.1115"></a>
+<FONT color="green">1116</FONT>                ConcurrentIdentityHashMap.this.put(getKey(), value);<a name="line.1116"></a>
+<FONT color="green">1117</FONT>                return v;<a name="line.1117"></a>
+<FONT color="green">1118</FONT>            }<a name="line.1118"></a>
+<FONT color="green">1119</FONT>        }<a name="line.1119"></a>
+<FONT color="green">1120</FONT>    <a name="line.1120"></a>
+<FONT color="green">1121</FONT>        final class EntryIterator extends HashIterator implements Iterator&lt;Entry&lt;K, V&gt;&gt; {<a name="line.1121"></a>
+<FONT color="green">1122</FONT>            public Map.Entry&lt;K, V&gt; next() {<a name="line.1122"></a>
+<FONT color="green">1123</FONT>                HashEntry&lt;K, V&gt; e = super.nextEntry();<a name="line.1123"></a>
+<FONT color="green">1124</FONT>                return new WriteThroughEntry(e.key, e.value);<a name="line.1124"></a>
+<FONT color="green">1125</FONT>            }<a name="line.1125"></a>
+<FONT color="green">1126</FONT>        }<a name="line.1126"></a>
+<FONT color="green">1127</FONT>    <a name="line.1127"></a>
+<FONT color="green">1128</FONT>        final class KeySet extends AbstractSet&lt;K&gt; {<a name="line.1128"></a>
+<FONT color="green">1129</FONT>            public Iterator&lt;K&gt; iterator() {<a name="line.1129"></a>
+<FONT color="green">1130</FONT>                return new KeyIterator();<a name="line.1130"></a>
+<FONT color="green">1131</FONT>            }<a name="line.1131"></a>
+<FONT color="green">1132</FONT>    <a name="line.1132"></a>
+<FONT color="green">1133</FONT>            public int size() {<a name="line.1133"></a>
+<FONT color="green">1134</FONT>                return ConcurrentIdentityHashMap.this.size();<a name="line.1134"></a>
+<FONT color="green">1135</FONT>            }<a name="line.1135"></a>
+<FONT color="green">1136</FONT>    <a name="line.1136"></a>
+<FONT color="green">1137</FONT>            public boolean contains(Object o) {<a name="line.1137"></a>
+<FONT color="green">1138</FONT>                return ConcurrentIdentityHashMap.this.containsKey(o);<a name="line.1138"></a>
+<FONT color="green">1139</FONT>            }<a name="line.1139"></a>
+<FONT color="green">1140</FONT>    <a name="line.1140"></a>
+<FONT color="green">1141</FONT>            public boolean remove(Object o) {<a name="line.1141"></a>
+<FONT color="green">1142</FONT>                return ConcurrentIdentityHashMap.this.remove(o) != null;<a name="line.1142"></a>
+<FONT color="green">1143</FONT>            }<a name="line.1143"></a>
+<FONT color="green">1144</FONT>    <a name="line.1144"></a>
+<FONT color="green">1145</FONT>            public void clear() {<a name="line.1145"></a>
+<FONT color="green">1146</FONT>                ConcurrentIdentityHashMap.this.clear();<a name="line.1146"></a>
+<FONT color="green">1147</FONT>            }<a name="line.1147"></a>
+<FONT color="green">1148</FONT>        }<a name="line.1148"></a>
+<FONT color="green">1149</FONT>    <a name="line.1149"></a>
+<FONT color="green">1150</FONT>        final class Values extends AbstractCollection&lt;V&gt; {<a name="line.1150"></a>
+<FONT color="green">1151</FONT>            public Iterator&lt;V&gt; iterator() {<a name="line.1151"></a>
+<FONT color="green">1152</FONT>                return new ValueIterator();<a name="line.1152"></a>
+<FONT color="green">1153</FONT>            }<a name="line.1153"></a>
+<FONT color="green">1154</FONT>    <a name="line.1154"></a>
+<FONT color="green">1155</FONT>            public int size() {<a name="line.1155"></a>
+<FONT color="green">1156</FONT>                return ConcurrentIdentityHashMap.this.size();<a name="line.1156"></a>
+<FONT color="green">1157</FONT>            }<a name="line.1157"></a>
+<FONT color="green">1158</FONT>    <a name="line.1158"></a>
+<FONT color="green">1159</FONT>            public boolean contains(Object o) {<a name="line.1159"></a>
+<FONT color="green">1160</FONT>                return ConcurrentIdentityHashMap.this.containsValue(o);<a name="line.1160"></a>
+<FONT color="green">1161</FONT>            }<a name="line.1161"></a>
+<FONT color="green">1162</FONT>    <a name="line.1162"></a>
+<FONT color="green">1163</FONT>            public void clear() {<a name="line.1163"></a>
+<FONT color="green">1164</FONT>                ConcurrentIdentityHashMap.this.clear();<a name="line.1164"></a>
+<FONT color="green">1165</FONT>            }<a name="line.1165"></a>
+<FONT color="green">1166</FONT>        }<a name="line.1166"></a>
+<FONT color="green">1167</FONT>    <a name="line.1167"></a>
+<FONT color="green">1168</FONT>        final class EntrySet extends AbstractSet&lt;Map.Entry&lt;K, V&gt;&gt; {<a name="line.1168"></a>
+<FONT color="green">1169</FONT>            public Iterator&lt;Map.Entry&lt;K, V&gt;&gt; iterator() {<a name="line.1169"></a>
+<FONT color="green">1170</FONT>                return new EntryIterator();<a name="line.1170"></a>
+<FONT color="green">1171</FONT>            }<a name="line.1171"></a>
+<FONT color="green">1172</FONT>    <a name="line.1172"></a>
+<FONT color="green">1173</FONT>            public boolean contains(Object o) {<a name="line.1173"></a>
+<FONT color="green">1174</FONT>                if(!(o instanceof Map.Entry))<a name="line.1174"></a>
+<FONT color="green">1175</FONT>                    return false;<a name="line.1175"></a>
+<FONT color="green">1176</FONT>                Map.Entry&lt;?, ?&gt; e = (Map.Entry&lt;?, ?&gt;) o;<a name="line.1176"></a>
+<FONT color="green">1177</FONT>                V v = ConcurrentIdentityHashMap.this.get(e.getKey());<a name="line.1177"></a>
+<FONT color="green">1178</FONT>                return v != null &amp;&amp; v.equals(e.getValue());<a name="line.1178"></a>
+<FONT color="green">1179</FONT>            }<a name="line.1179"></a>
+<FONT color="green">1180</FONT>    <a name="line.1180"></a>
+<FONT color="green">1181</FONT>            public boolean remove(Object o) {<a name="line.1181"></a>
+<FONT color="green">1182</FONT>                if(!(o instanceof Map.Entry))<a name="line.1182"></a>
+<FONT color="green">1183</FONT>                    return false;<a name="line.1183"></a>
+<FONT color="green">1184</FONT>                Map.Entry&lt;?, ?&gt; e = (Map.Entry&lt;?, ?&gt;) o;<a name="line.1184"></a>
+<FONT color="green">1185</FONT>                return ConcurrentIdentityHashMap.this.remove(e.getKey(), e.getValue());<a name="line.1185"></a>
+<FONT color="green">1186</FONT>            }<a name="line.1186"></a>
+<FONT color="green">1187</FONT>    <a name="line.1187"></a>
+<FONT color="green">1188</FONT>            public int size() {<a name="line.1188"></a>
+<FONT color="green">1189</FONT>                return ConcurrentIdentityHashMap.this.size();<a name="line.1189"></a>
+<FONT color="green">1190</FONT>            }<a name="line.1190"></a>
+<FONT color="green">1191</FONT>    <a name="line.1191"></a>
+<FONT color="green">1192</FONT>            public void clear() {<a name="line.1192"></a>
+<FONT color="green">1193</FONT>                ConcurrentIdentityHashMap.this.clear();<a name="line.1193"></a>
+<FONT color="green">1194</FONT>            }<a name="line.1194"></a>
+<FONT color="green">1195</FONT>        }<a name="line.1195"></a>
+<FONT color="green">1196</FONT>    <a name="line.1196"></a>
+<FONT color="green">1197</FONT>        /* ---------------- Serialization Support -------------- */<a name="line.1197"></a>
+<FONT color="green">1198</FONT>    <a name="line.1198"></a>
+<FONT color="green">1199</FONT>        /**<a name="line.1199"></a>
+<FONT color="green">1200</FONT>         * Save the state of the &lt;tt&gt;ConcurrentHashMap&lt;/tt&gt; instance to a<a name="line.1200"></a>
+<FONT color="green">1201</FONT>         * stream (i.e., serialize it).<a name="line.1201"></a>
+<FONT color="green">1202</FONT>         * @param s the stream<a name="line.1202"></a>
+<FONT color="green">1203</FONT>         * @serialData<a name="line.1203"></a>
+<FONT color="green">1204</FONT>         * the key (Object) and value (Object)<a name="line.1204"></a>
+<FONT color="green">1205</FONT>         * for each key-value mapping, followed by a null pair.<a name="line.1205"></a>
+<FONT color="green">1206</FONT>         * The key-value mappings are emitted in no particular order.<a name="line.1206"></a>
+<FONT color="green">1207</FONT>         */<a name="line.1207"></a>
+<FONT color="green">1208</FONT>        private void writeObject(java.io.ObjectOutputStream s) throws IOException {<a name="line.1208"></a>
+<FONT color="green">1209</FONT>            s.defaultWriteObject();<a name="line.1209"></a>
+<FONT color="green">1210</FONT>    <a name="line.1210"></a>
+<FONT color="green">1211</FONT>            for(int k = 0; k &lt; segments.length; ++k) {<a name="line.1211"></a>
+<FONT color="green">1212</FONT>                Segment&lt;K, V&gt; seg = segments[k];<a name="line.1212"></a>
+<FONT color="green">1213</FONT>                seg.lock();<a name="line.1213"></a>
+<FONT color="green">1214</FONT>                try {<a name="line.1214"></a>
+<FONT color="green">1215</FONT>                    HashEntry&lt;K, V&gt;[] tab = seg.table;<a name="line.1215"></a>
+<FONT color="green">1216</FONT>                    for(int i = 0; i &lt; tab.length; ++i) {<a name="line.1216"></a>
+<FONT color="green">1217</FONT>                        for(HashEntry&lt;K, V&gt; e = tab[i]; e != null; e = e.next) {<a name="line.1217"></a>
+<FONT color="green">1218</FONT>                            s.writeObject(e.key);<a name="line.1218"></a>
+<FONT color="green">1219</FONT>                            s.writeObject(e.value);<a name="line.1219"></a>
+<FONT color="green">1220</FONT>                        }<a name="line.1220"></a>
+<FONT color="green">1221</FONT>                    }<a name="line.1221"></a>
+<FONT color="green">1222</FONT>                } finally {<a name="line.1222"></a>
+<FONT color="green">1223</FONT>                    seg.unlock();<a name="line.1223"></a>
+<FONT color="green">1224</FONT>                }<a name="line.1224"></a>
+<FONT color="green">1225</FONT>            }<a name="line.1225"></a>
+<FONT color="green">1226</FONT>            s.writeObject(null);<a name="line.1226"></a>
+<FONT color="green">1227</FONT>            s.writeObject(null);<a name="line.1227"></a>
+<FONT color="green">1228</FONT>        }<a name="line.1228"></a>
+<FONT color="green">1229</FONT>    <a name="line.1229"></a>
+<FONT color="green">1230</FONT>        /**<a name="line.1230"></a>
+<FONT color="green">1231</FONT>         * Reconstitute the &lt;tt&gt;ConcurrentHashMap&lt;/tt&gt; instance from a<a name="line.1231"></a>
+<FONT color="green">1232</FONT>         * stream (i.e., deserialize it).<a name="line.1232"></a>
+<FONT color="green">1233</FONT>         * @param s the stream<a name="line.1233"></a>
+<FONT color="green">1234</FONT>         */<a name="line.1234"></a>
+<FONT color="green">1235</FONT>        private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {<a name="line.1235"></a>
+<FONT color="green">1236</FONT>            s.defaultReadObject();<a name="line.1236"></a>
+<FONT color="green">1237</FONT>    <a name="line.1237"></a>
+<FONT color="green">1238</FONT>            // Initialize each segment to be minimally sized, and let grow.<a name="line.1238"></a>
+<FONT color="green">1239</FONT>            for(int i = 0; i &lt; segments.length; ++i) {<a name="line.1239"></a>
+<FONT color="green">1240</FONT>                segments[i].setTable(new HashEntry[1]);<a name="line.1240"></a>
+<FONT color="green">1241</FONT>            }<a name="line.1241"></a>
+<FONT color="green">1242</FONT>    <a name="line.1242"></a>
+<FONT color="green">1243</FONT>            // Read the keys and values, and put the mappings in the table<a name="line.1243"></a>
+<FONT color="green">1244</FONT>            for(;;) {<a name="line.1244"></a>
+<FONT color="green">1245</FONT>                K key = (K) s.readObject();<a name="line.1245"></a>
+<FONT color="green">1246</FONT>                V value = (V) s.readObject();<a name="line.1246"></a>
+<FONT color="green">1247</FONT>                if(key == null)<a name="line.1247"></a>
+<FONT color="green">1248</FONT>                    break;<a name="line.1248"></a>
+<FONT color="green">1249</FONT>                put(key, value);<a name="line.1249"></a>
+<FONT color="green">1250</FONT>            }<a name="line.1250"></a>
+<FONT color="green">1251</FONT>        }<a name="line.1251"></a>
+<FONT color="green">1252</FONT>    }<a name="line.1252"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

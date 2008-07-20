@@ -1,0 +1,262 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: FastPipedInputStream.java 3619 2008-03-26 07:23:03Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.util.io;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.*;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    /**<a name="line.25"></a>
+<FONT color="green">026</FONT>     * This class is equivalent to &lt;code&gt;java.io.PipedInputStream&lt;/code&gt;. In the<a name="line.26"></a>
+<FONT color="green">027</FONT>     * interface it only adds a constructor which allows for specifying the buffer<a name="line.27"></a>
+<FONT color="green">028</FONT>     * size. Its implementation, however, is much simpler and a lot more efficient<a name="line.28"></a>
+<FONT color="green">029</FONT>     * than its equivalent. It doesn't rely on polling. Instead it uses proper<a name="line.29"></a>
+<FONT color="green">030</FONT>     * synchronization with its counterpart &lt;code&gt;be.re.io.PipedOutputStream&lt;/code&gt;.<a name="line.30"></a>
+<FONT color="green">031</FONT>     *<a name="line.31"></a>
+<FONT color="green">032</FONT>     * Multiple readers can read from this stream concurrently. The block asked for<a name="line.32"></a>
+<FONT color="green">033</FONT>     * by a reader is delivered completely, or until the end of the stream if less<a name="line.33"></a>
+<FONT color="green">034</FONT>     * is available. Other readers can't come in between.<a name="line.34"></a>
+<FONT color="green">035</FONT>     * <a name="line.35"></a>
+<FONT color="green">036</FONT>     * @author WD<a name="line.36"></a>
+<FONT color="green">037</FONT>     * @link http://developer.java.sun.com/developer/bugParade/bugs/4404700.html<a name="line.37"></a>
+<FONT color="green">038</FONT>     * @see FastPipedOutputStream<a name="line.38"></a>
+<FONT color="green">039</FONT>     */<a name="line.39"></a>
+<FONT color="green">040</FONT>    public class FastPipedInputStream extends InputStream {<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>        byte[] buffer;<a name="line.42"></a>
+<FONT color="green">043</FONT>        boolean closed = false;<a name="line.43"></a>
+<FONT color="green">044</FONT>        int readLaps = 0;<a name="line.44"></a>
+<FONT color="green">045</FONT>        int readPosition = 0;<a name="line.45"></a>
+<FONT color="green">046</FONT>        FastPipedOutputStream source;<a name="line.46"></a>
+<FONT color="green">047</FONT>        int writeLaps = 0;<a name="line.47"></a>
+<FONT color="green">048</FONT>        int writePosition = 0;<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>        /**<a name="line.50"></a>
+<FONT color="green">051</FONT>         * Creates an unconnected PipedInputStream with a default buffer size.<a name="line.51"></a>
+<FONT color="green">052</FONT>         */<a name="line.52"></a>
+<FONT color="green">053</FONT>        FastPipedInputStream() {<a name="line.53"></a>
+<FONT color="green">054</FONT>            super();<a name="line.54"></a>
+<FONT color="green">055</FONT>            this.buffer = new byte[0x10000];<a name="line.55"></a>
+<FONT color="green">056</FONT>        }<a name="line.56"></a>
+<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">058</FONT>        /**<a name="line.58"></a>
+<FONT color="green">059</FONT>         * Creates a PipedInputStream with a default buffer size and connects it to<a name="line.59"></a>
+<FONT color="green">060</FONT>         * &lt;code&gt;source&lt;/code&gt;.<a name="line.60"></a>
+<FONT color="green">061</FONT>         * @exception IOException It was already connected.<a name="line.61"></a>
+<FONT color="green">062</FONT>         */<a name="line.62"></a>
+<FONT color="green">063</FONT>        public FastPipedInputStream(FastPipedOutputStream source) throws IOException {<a name="line.63"></a>
+<FONT color="green">064</FONT>            this(source, 0x10000 /* 65536 */);<a name="line.64"></a>
+<FONT color="green">065</FONT>        }<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>        /**<a name="line.67"></a>
+<FONT color="green">068</FONT>         * Creates a PipedInputStream with buffer size &lt;code&gt;bufferSize&lt;/code&gt; and<a name="line.68"></a>
+<FONT color="green">069</FONT>         * connects it to &lt;code&gt;source&lt;/code&gt;.<a name="line.69"></a>
+<FONT color="green">070</FONT>         * @exception IOException It was already connected.<a name="line.70"></a>
+<FONT color="green">071</FONT>         */<a name="line.71"></a>
+<FONT color="green">072</FONT>        public FastPipedInputStream(FastPipedOutputStream source, int bufferSize) throws IOException {<a name="line.72"></a>
+<FONT color="green">073</FONT>            super();<a name="line.73"></a>
+<FONT color="green">074</FONT>            if(source != null) {<a name="line.74"></a>
+<FONT color="green">075</FONT>                connect(source);<a name="line.75"></a>
+<FONT color="green">076</FONT>            }<a name="line.76"></a>
+<FONT color="green">077</FONT>            this.buffer = new byte[bufferSize];<a name="line.77"></a>
+<FONT color="green">078</FONT>        }<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        @Override<a name="line.80"></a>
+<FONT color="green">081</FONT>        public int available() throws IOException {<a name="line.81"></a>
+<FONT color="green">082</FONT>            /* The circular buffer is inspected to see where the reader and the writer<a name="line.82"></a>
+<FONT color="green">083</FONT>             * are located.<a name="line.83"></a>
+<FONT color="green">084</FONT>             */<a name="line.84"></a>
+<FONT color="green">085</FONT>            return writePosition &gt; readPosition /* The writer is in the same lap. */? writePosition<a name="line.85"></a>
+<FONT color="green">086</FONT>                    - readPosition<a name="line.86"></a>
+<FONT color="green">087</FONT>                    : (writePosition &lt; readPosition /* The writer is in the next lap. */? buffer.length<a name="line.87"></a>
+<FONT color="green">088</FONT>                            - readPosition + 1 + writePosition<a name="line.88"></a>
+<FONT color="green">089</FONT>                            :<a name="line.89"></a>
+<FONT color="green">090</FONT>                            /* The writer is at the same position or a complete lap ahead. */<a name="line.90"></a>
+<FONT color="green">091</FONT>                            (writeLaps &gt; readLaps ? buffer.length : 0));<a name="line.91"></a>
+<FONT color="green">092</FONT>        }<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>        /**<a name="line.94"></a>
+<FONT color="green">095</FONT>         * @exception IOException The pipe is not connected.<a name="line.95"></a>
+<FONT color="green">096</FONT>         */<a name="line.96"></a>
+<FONT color="green">097</FONT>        @Override<a name="line.97"></a>
+<FONT color="green">098</FONT>        public void close() throws IOException {<a name="line.98"></a>
+<FONT color="green">099</FONT>            if(source == null) {<a name="line.99"></a>
+<FONT color="green">100</FONT>                throw new IOException("Unconnected pipe");<a name="line.100"></a>
+<FONT color="green">101</FONT>            }<a name="line.101"></a>
+<FONT color="green">102</FONT>            synchronized(buffer) {<a name="line.102"></a>
+<FONT color="green">103</FONT>                closed = true;<a name="line.103"></a>
+<FONT color="green">104</FONT>                // Release any pending writers.<a name="line.104"></a>
+<FONT color="green">105</FONT>                buffer.notifyAll();<a name="line.105"></a>
+<FONT color="green">106</FONT>            }<a name="line.106"></a>
+<FONT color="green">107</FONT>        }<a name="line.107"></a>
+<FONT color="green">108</FONT>    <a name="line.108"></a>
+<FONT color="green">109</FONT>        /**<a name="line.109"></a>
+<FONT color="green">110</FONT>         * @exception IOException The pipe is already connected.<a name="line.110"></a>
+<FONT color="green">111</FONT>         */<a name="line.111"></a>
+<FONT color="green">112</FONT>        public void connect(FastPipedOutputStream source) throws IOException {<a name="line.112"></a>
+<FONT color="green">113</FONT>            if(this.source != null) {<a name="line.113"></a>
+<FONT color="green">114</FONT>                throw new IOException("Pipe already connected");<a name="line.114"></a>
+<FONT color="green">115</FONT>            }<a name="line.115"></a>
+<FONT color="green">116</FONT>            this.source = source;<a name="line.116"></a>
+<FONT color="green">117</FONT>            source.sink = this;<a name="line.117"></a>
+<FONT color="green">118</FONT>        }<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        @Override<a name="line.120"></a>
+<FONT color="green">121</FONT>        protected void finalize() throws Throwable {<a name="line.121"></a>
+<FONT color="green">122</FONT>            close();<a name="line.122"></a>
+<FONT color="green">123</FONT>        }<a name="line.123"></a>
+<FONT color="green">124</FONT>    <a name="line.124"></a>
+<FONT color="green">125</FONT>        @Override<a name="line.125"></a>
+<FONT color="green">126</FONT>        public void mark(int readLimit) {<a name="line.126"></a>
+<FONT color="green">127</FONT>            return;<a name="line.127"></a>
+<FONT color="green">128</FONT>        }<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>        @Override<a name="line.130"></a>
+<FONT color="green">131</FONT>        public boolean markSupported() {<a name="line.131"></a>
+<FONT color="green">132</FONT>            return false;<a name="line.132"></a>
+<FONT color="green">133</FONT>        }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>        public int read() throws IOException {<a name="line.135"></a>
+<FONT color="green">136</FONT>            byte[] b = new byte[1];<a name="line.136"></a>
+<FONT color="green">137</FONT>            return read(b, 0, b.length) == -1 ? -1 : ((int) 255 &amp; b[0]);<a name="line.137"></a>
+<FONT color="green">138</FONT>        }<a name="line.138"></a>
+<FONT color="green">139</FONT>    <a name="line.139"></a>
+<FONT color="green">140</FONT>        @Override<a name="line.140"></a>
+<FONT color="green">141</FONT>        public int read(byte[] b) throws IOException {<a name="line.141"></a>
+<FONT color="green">142</FONT>            return read(b, 0, b.length);<a name="line.142"></a>
+<FONT color="green">143</FONT>        }<a name="line.143"></a>
+<FONT color="green">144</FONT>    <a name="line.144"></a>
+<FONT color="green">145</FONT>        /**<a name="line.145"></a>
+<FONT color="green">146</FONT>         * @exception IOException The pipe is not connected.<a name="line.146"></a>
+<FONT color="green">147</FONT>         */<a name="line.147"></a>
+<FONT color="green">148</FONT>        @Override<a name="line.148"></a>
+<FONT color="green">149</FONT>        public int read(byte[] b, int off, int len) throws IOException {<a name="line.149"></a>
+<FONT color="green">150</FONT>            if(source == null) {<a name="line.150"></a>
+<FONT color="green">151</FONT>                throw new IOException("Unconnected pipe");<a name="line.151"></a>
+<FONT color="green">152</FONT>            }<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>            synchronized(buffer) {<a name="line.154"></a>
+<FONT color="green">155</FONT>                if(writePosition == readPosition &amp;&amp; writeLaps == readLaps) {<a name="line.155"></a>
+<FONT color="green">156</FONT>                    if(closed) {<a name="line.156"></a>
+<FONT color="green">157</FONT>                        return -1;<a name="line.157"></a>
+<FONT color="green">158</FONT>                    }<a name="line.158"></a>
+<FONT color="green">159</FONT>                    // Wait for any writer to put something in the circular buffer.<a name="line.159"></a>
+<FONT color="green">160</FONT>                    try {<a name="line.160"></a>
+<FONT color="green">161</FONT>                        buffer.wait();<a name="line.161"></a>
+<FONT color="green">162</FONT>                    } catch (InterruptedException e) {<a name="line.162"></a>
+<FONT color="green">163</FONT>                        throw new IOException(e.getMessage());<a name="line.163"></a>
+<FONT color="green">164</FONT>                    }<a name="line.164"></a>
+<FONT color="green">165</FONT>                    // Try again.<a name="line.165"></a>
+<FONT color="green">166</FONT>                    return read(b, off, len);<a name="line.166"></a>
+<FONT color="green">167</FONT>                }<a name="line.167"></a>
+<FONT color="green">168</FONT>    <a name="line.168"></a>
+<FONT color="green">169</FONT>                // Don't read more than the capacity indicated by len or what's available<a name="line.169"></a>
+<FONT color="green">170</FONT>                // in the circular buffer.<a name="line.170"></a>
+<FONT color="green">171</FONT>                int amount = Math.min(len, (writePosition &gt; readPosition ? writePosition<a name="line.171"></a>
+<FONT color="green">172</FONT>                        : buffer.length)<a name="line.172"></a>
+<FONT color="green">173</FONT>                        - readPosition);<a name="line.173"></a>
+<FONT color="green">174</FONT>                System.arraycopy(buffer, readPosition, b, off, amount);<a name="line.174"></a>
+<FONT color="green">175</FONT>                readPosition += amount;<a name="line.175"></a>
+<FONT color="green">176</FONT>    <a name="line.176"></a>
+<FONT color="green">177</FONT>                if(readPosition == buffer.length) // A lap was completed, so go back.<a name="line.177"></a>
+<FONT color="green">178</FONT>                {<a name="line.178"></a>
+<FONT color="green">179</FONT>                    readPosition = 0;<a name="line.179"></a>
+<FONT color="green">180</FONT>                    ++readLaps;<a name="line.180"></a>
+<FONT color="green">181</FONT>                }<a name="line.181"></a>
+<FONT color="green">182</FONT>    <a name="line.182"></a>
+<FONT color="green">183</FONT>                // The buffer is only released when the complete desired block was<a name="line.183"></a>
+<FONT color="green">184</FONT>                // obtained.<a name="line.184"></a>
+<FONT color="green">185</FONT>                if(amount &lt; len) {<a name="line.185"></a>
+<FONT color="green">186</FONT>                    int second = read(b, off + amount, len - amount);<a name="line.186"></a>
+<FONT color="green">187</FONT>    <a name="line.187"></a>
+<FONT color="green">188</FONT>                    return second == -1 ? amount : amount + second;<a name="line.188"></a>
+<FONT color="green">189</FONT>                } else {<a name="line.189"></a>
+<FONT color="green">190</FONT>                    buffer.notifyAll();<a name="line.190"></a>
+<FONT color="green">191</FONT>                }<a name="line.191"></a>
+<FONT color="green">192</FONT>                return amount;<a name="line.192"></a>
+<FONT color="green">193</FONT>            }<a name="line.193"></a>
+<FONT color="green">194</FONT>        }<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>    }<a name="line.196"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

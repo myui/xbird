@@ -1,0 +1,396 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: PredefinedFunctions.java 3619 2008-03-26 07:23:03Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.xquery.func;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.util.HashMap;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.Map;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    import xbird.util.collections.SoftHashMap;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import xbird.util.lang.ObjectUtils;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import xbird.xquery.XQueryConstants;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import xbird.xquery.func.accessor.BaseURI;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import xbird.xquery.func.accessor.Data;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import xbird.xquery.func.accessor.DocumentUri;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import xbird.xquery.func.accessor.FnString;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import xbird.xquery.func.accessor.Nilled;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import xbird.xquery.func.accessor.NodeName;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import xbird.xquery.func.agg.Avg;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import xbird.xquery.func.agg.Count;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import xbird.xquery.func.agg.Max;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import xbird.xquery.func.agg.Min;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import xbird.xquery.func.agg.Sum;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import xbird.xquery.func.bool.False;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import xbird.xquery.func.bool.Not;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import xbird.xquery.func.bool.True;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import xbird.xquery.func.constructor.CastingFunction;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import xbird.xquery.func.constructor.DateTime;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import xbird.xquery.func.context.CurrentDateTime;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import xbird.xquery.func.context.DefaultCollation;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import xbird.xquery.func.context.ImplicitTimezone;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import xbird.xquery.func.context.Last;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import xbird.xquery.func.context.Position;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import xbird.xquery.func.context.StaticBaseUri;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import xbird.xquery.func.doc.Doc;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import xbird.xquery.func.doc.DocAvailable;<a name="line.52"></a>
+<FONT color="green">053</FONT>    import xbird.xquery.func.doc.FnCollection;<a name="line.53"></a>
+<FONT color="green">054</FONT>    import xbird.xquery.func.ext.Eval;<a name="line.54"></a>
+<FONT color="green">055</FONT>    import xbird.xquery.func.ext.Hostname;<a name="line.55"></a>
+<FONT color="green">056</FONT>    import xbird.xquery.func.ext.RemoteEval;<a name="line.56"></a>
+<FONT color="green">057</FONT>    import xbird.xquery.func.ext.UnionAll;<a name="line.57"></a>
+<FONT color="green">058</FONT>    import xbird.xquery.func.ext.VirtualView;<a name="line.58"></a>
+<FONT color="green">059</FONT>    import xbird.xquery.func.math.Abs;<a name="line.59"></a>
+<FONT color="green">060</FONT>    import xbird.xquery.func.math.Ceiling;<a name="line.60"></a>
+<FONT color="green">061</FONT>    import xbird.xquery.func.math.Floor;<a name="line.61"></a>
+<FONT color="green">062</FONT>    import xbird.xquery.func.math.Round;<a name="line.62"></a>
+<FONT color="green">063</FONT>    import xbird.xquery.func.math.RoundHalfToEven;<a name="line.63"></a>
+<FONT color="green">064</FONT>    import xbird.xquery.func.misc.Error;<a name="line.64"></a>
+<FONT color="green">065</FONT>    import xbird.xquery.func.misc.ResolveUri;<a name="line.65"></a>
+<FONT color="green">066</FONT>    import xbird.xquery.func.misc.Trace;<a name="line.66"></a>
+<FONT color="green">067</FONT>    import xbird.xquery.func.node.FnName;<a name="line.67"></a>
+<FONT color="green">068</FONT>    import xbird.xquery.func.node.FnNumber;<a name="line.68"></a>
+<FONT color="green">069</FONT>    import xbird.xquery.func.node.Lang;<a name="line.69"></a>
+<FONT color="green">070</FONT>    import xbird.xquery.func.node.LocalName;<a name="line.70"></a>
+<FONT color="green">071</FONT>    import xbird.xquery.func.node.NamespaceUri;<a name="line.71"></a>
+<FONT color="green">072</FONT>    import xbird.xquery.func.node.Root;<a name="line.72"></a>
+<FONT color="green">073</FONT>    import xbird.xquery.func.qname.FnQName;<a name="line.73"></a>
+<FONT color="green">074</FONT>    import xbird.xquery.func.qname.InScopePrefixes;<a name="line.74"></a>
+<FONT color="green">075</FONT>    import xbird.xquery.func.qname.LocalNameFromQName;<a name="line.75"></a>
+<FONT color="green">076</FONT>    import xbird.xquery.func.qname.NamespaceUriForPrefix;<a name="line.76"></a>
+<FONT color="green">077</FONT>    import xbird.xquery.func.qname.NamespaceUriFromQName;<a name="line.77"></a>
+<FONT color="green">078</FONT>    import xbird.xquery.func.qname.PrefixFromQName;<a name="line.78"></a>
+<FONT color="green">079</FONT>    import xbird.xquery.func.qname.ResolveQName;<a name="line.79"></a>
+<FONT color="green">080</FONT>    import xbird.xquery.func.seq.*;<a name="line.80"></a>
+<FONT color="green">081</FONT>    import xbird.xquery.func.string.*;<a name="line.81"></a>
+<FONT color="green">082</FONT>    import xbird.xquery.func.time.AdjustTimezone;<a name="line.82"></a>
+<FONT color="green">083</FONT>    import xbird.xquery.func.time.ExtractFromDateTime;<a name="line.83"></a>
+<FONT color="green">084</FONT>    import xbird.xquery.func.time.ExtractFromDuration;<a name="line.84"></a>
+<FONT color="green">085</FONT>    import xbird.xquery.misc.QNameTable.QualifiedName;<a name="line.85"></a>
+<FONT color="green">086</FONT>    import xbird.xquery.type.xs.*;<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>    /**<a name="line.88"></a>
+<FONT color="green">089</FONT>     * <a name="line.89"></a>
+<FONT color="green">090</FONT>     * &lt;DIV lang="en"&gt;&lt;/DIV&gt;<a name="line.90"></a>
+<FONT color="green">091</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.91"></a>
+<FONT color="green">092</FONT>     * <a name="line.92"></a>
+<FONT color="green">093</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.93"></a>
+<FONT color="green">094</FONT>     */<a name="line.94"></a>
+<FONT color="green">095</FONT>    public final class PredefinedFunctions {<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>        /** func name, func pair [soft V] */<a name="line.97"></a>
+<FONT color="green">098</FONT>        private static final Map&lt;String, BuiltInFunction&gt; table = new SoftHashMap&lt;String, BuiltInFunction&gt;();<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>        /** func name, class pair [hard K,V] */<a name="line.100"></a>
+<FONT color="green">101</FONT>        private static final Map&lt;String, String&gt; resolver;<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>        static {<a name="line.103"></a>
+<FONT color="green">104</FONT>            final Map&lt;String, String&gt; r = new HashMap&lt;String, String&gt;();<a name="line.104"></a>
+<FONT color="green">105</FONT>            //2 Accessors<a name="line.105"></a>
+<FONT color="green">106</FONT>            r.put(NodeName.SYMBOL, NodeName.class.getName());<a name="line.106"></a>
+<FONT color="green">107</FONT>            r.put(Nilled.SYMBOL, Nilled.class.getName());<a name="line.107"></a>
+<FONT color="green">108</FONT>            r.put(FnString.SYMBOL, FnString.class.getName());<a name="line.108"></a>
+<FONT color="green">109</FONT>            r.put(Data.SYMBOL, Data.class.getName());<a name="line.109"></a>
+<FONT color="green">110</FONT>            r.put(BaseURI.SYMBOL, BaseURI.class.getName());<a name="line.110"></a>
+<FONT color="green">111</FONT>            r.put(DocumentUri.SYMBOL, DocumentUri.class.getName());<a name="line.111"></a>
+<FONT color="green">112</FONT>            //3 The Error Function<a name="line.112"></a>
+<FONT color="green">113</FONT>            r.put(Error.SYMBOL, Error.class.getName());<a name="line.113"></a>
+<FONT color="green">114</FONT>            //4 The Trace Function<a name="line.114"></a>
+<FONT color="green">115</FONT>            r.put(Trace.SYMBOL, Trace.class.getName());<a name="line.115"></a>
+<FONT color="green">116</FONT>            //5 Constructor Functions<a name="line.116"></a>
+<FONT color="green">117</FONT>            r.put(DateTime.SYMBOL, DateTime.class.getName());<a name="line.117"></a>
+<FONT color="green">118</FONT>            r.put(StringType.SYMBOL, CastingFunction.CLAZZ);<a name="line.118"></a>
+<FONT color="green">119</FONT>            r.put(BooleanType.SYMBOL, CastingFunction.CLAZZ);<a name="line.119"></a>
+<FONT color="green">120</FONT>            r.put(DecimalType.SYMBOL, CastingFunction.CLAZZ);<a name="line.120"></a>
+<FONT color="green">121</FONT>            r.put(FloatType.SYMBOL, CastingFunction.CLAZZ);<a name="line.121"></a>
+<FONT color="green">122</FONT>            r.put(DoubleType.SYMBOL, CastingFunction.CLAZZ);<a name="line.122"></a>
+<FONT color="green">123</FONT>            r.put(DurationType.SYMBOL, CastingFunction.CLAZZ);<a name="line.123"></a>
+<FONT color="green">124</FONT>            r.put(DateTimeType.SYMBOL, CastingFunction.CLAZZ);<a name="line.124"></a>
+<FONT color="green">125</FONT>            r.put(TimeType.SYMBOL, CastingFunction.CLAZZ);<a name="line.125"></a>
+<FONT color="green">126</FONT>            r.put(DateType.SYMBOL, CastingFunction.CLAZZ);<a name="line.126"></a>
+<FONT color="green">127</FONT>            r.put(GYearType.SYMBOL, CastingFunction.CLAZZ);<a name="line.127"></a>
+<FONT color="green">128</FONT>            r.put(GYearMonthType.SYMBOL, CastingFunction.CLAZZ);<a name="line.128"></a>
+<FONT color="green">129</FONT>            r.put(GDayType.SYMBOL, CastingFunction.CLAZZ);<a name="line.129"></a>
+<FONT color="green">130</FONT>            r.put(GMonthType.SYMBOL, CastingFunction.CLAZZ);<a name="line.130"></a>
+<FONT color="green">131</FONT>            r.put(GMonthDayType.SYMBOL, CastingFunction.CLAZZ);<a name="line.131"></a>
+<FONT color="green">132</FONT>            r.put(HexBinaryType.SYMBOL, CastingFunction.CLAZZ);<a name="line.132"></a>
+<FONT color="green">133</FONT>            r.put(Base64BinaryType.SYMBOL, CastingFunction.CLAZZ);<a name="line.133"></a>
+<FONT color="green">134</FONT>            r.put(AnyURIType.SYMBOL, CastingFunction.CLAZZ);<a name="line.134"></a>
+<FONT color="green">135</FONT>            r.put(CastingFunction.XsQName.SYMBOL, CastingFunction.CLAZZ);<a name="line.135"></a>
+<FONT color="green">136</FONT>            r.put(NormalizedStringType.SYMBOL, CastingFunction.CLAZZ);<a name="line.136"></a>
+<FONT color="green">137</FONT>            r.put(TokenType.SYMBOL, CastingFunction.CLAZZ);<a name="line.137"></a>
+<FONT color="green">138</FONT>            r.put(LanguageType.SYMBOL, CastingFunction.CLAZZ);<a name="line.138"></a>
+<FONT color="green">139</FONT>            r.put(NMTokenType.SYMBOL, CastingFunction.CLAZZ);<a name="line.139"></a>
+<FONT color="green">140</FONT>            r.put(NameType.SYMBOL, CastingFunction.CLAZZ);<a name="line.140"></a>
+<FONT color="green">141</FONT>            r.put(NCNameType.SYMBOL, CastingFunction.CLAZZ);<a name="line.141"></a>
+<FONT color="green">142</FONT>            r.put(IDType.SYMBOL, CastingFunction.CLAZZ);<a name="line.142"></a>
+<FONT color="green">143</FONT>            r.put(IDREFType.SYMBOL, CastingFunction.CLAZZ);<a name="line.143"></a>
+<FONT color="green">144</FONT>            r.put(ENTITYType.SYMBOL, CastingFunction.CLAZZ);<a name="line.144"></a>
+<FONT color="green">145</FONT>            r.put(IntegerType.SYMBOL, CastingFunction.CLAZZ);<a name="line.145"></a>
+<FONT color="green">146</FONT>            r.put(NonPositiveIntegerType.SYMBOL, CastingFunction.CLAZZ);<a name="line.146"></a>
+<FONT color="green">147</FONT>            r.put(NegativeIntegerType.SYMBOL, CastingFunction.CLAZZ);<a name="line.147"></a>
+<FONT color="green">148</FONT>            r.put(LongType.SYMBOL, CastingFunction.CLAZZ);<a name="line.148"></a>
+<FONT color="green">149</FONT>            r.put(IntType.SYMBOL, CastingFunction.CLAZZ);<a name="line.149"></a>
+<FONT color="green">150</FONT>            r.put(ShortType.SYMBOL, CastingFunction.CLAZZ);<a name="line.150"></a>
+<FONT color="green">151</FONT>            r.put(ByteType.SYMBOL, CastingFunction.CLAZZ);<a name="line.151"></a>
+<FONT color="green">152</FONT>            r.put(NonNegativeIntegerType.SYMBOL, CastingFunction.CLAZZ);<a name="line.152"></a>
+<FONT color="green">153</FONT>            r.put(UnsignedLongType.SYMBOL, CastingFunction.CLAZZ);<a name="line.153"></a>
+<FONT color="green">154</FONT>            r.put(UnsignedIntType.SYMBOL, CastingFunction.CLAZZ);<a name="line.154"></a>
+<FONT color="green">155</FONT>            r.put(UnsignedShortType.SYMBOL, CastingFunction.CLAZZ);<a name="line.155"></a>
+<FONT color="green">156</FONT>            r.put(UnsignedByteType.SYMBOL, CastingFunction.CLAZZ);<a name="line.156"></a>
+<FONT color="green">157</FONT>            r.put(PositiveIntegerType.SYMBOL, CastingFunction.CLAZZ);<a name="line.157"></a>
+<FONT color="green">158</FONT>            r.put(YearMonthDurationType.SYMBOL, CastingFunction.CLAZZ);<a name="line.158"></a>
+<FONT color="green">159</FONT>            r.put(DayTimeDurationType.SYMBOL, CastingFunction.CLAZZ);<a name="line.159"></a>
+<FONT color="green">160</FONT>            r.put(UntypedAtomicType.SYMBOL, CastingFunction.CLAZZ);<a name="line.160"></a>
+<FONT color="green">161</FONT>            //6 Functions and Operators on Numerics<a name="line.161"></a>
+<FONT color="green">162</FONT>            r.put(Abs.SYMBOL, Abs.class.getName());<a name="line.162"></a>
+<FONT color="green">163</FONT>            r.put(Ceiling.SYMBOL, Ceiling.class.getName());<a name="line.163"></a>
+<FONT color="green">164</FONT>            r.put(Floor.SYMBOL, Floor.class.getName());<a name="line.164"></a>
+<FONT color="green">165</FONT>            r.put(Round.SYMBOL, Round.class.getName());<a name="line.165"></a>
+<FONT color="green">166</FONT>            r.put(RoundHalfToEven.SYMBOL, RoundHalfToEven.class.getName());<a name="line.166"></a>
+<FONT color="green">167</FONT>            //7 Functions on Strings<a name="line.167"></a>
+<FONT color="green">168</FONT>            r.put(CodepointsToString.SYMBOL, CodepointsToString.class.getName());<a name="line.168"></a>
+<FONT color="green">169</FONT>            r.put(StringToCodepoint.SYMBOL, StringToCodepoint.class.getName());<a name="line.169"></a>
+<FONT color="green">170</FONT>            r.put(Compare.SYMBOL, Compare.class.getName());<a name="line.170"></a>
+<FONT color="green">171</FONT>            r.put(CodepointEqual.SYMBOL, CodepointEqual.class.getName());<a name="line.171"></a>
+<FONT color="green">172</FONT>            r.put(Concat.SYMBOL, Concat.class.getName());<a name="line.172"></a>
+<FONT color="green">173</FONT>            r.put(StringJoin.SYMBOL, StringJoin.class.getName());<a name="line.173"></a>
+<FONT color="green">174</FONT>            r.put(Substring.SYMBOL, Substring.class.getName());<a name="line.174"></a>
+<FONT color="green">175</FONT>            r.put(StringLength.SYMBOL, StringLength.class.getName());<a name="line.175"></a>
+<FONT color="green">176</FONT>            r.put(NormalizeSpace.SYMBOL, NormalizeSpace.class.getName());<a name="line.176"></a>
+<FONT color="green">177</FONT>            r.put(NormalizeUnicode.SYMBOL, NormalizeUnicode.class.getName());<a name="line.177"></a>
+<FONT color="green">178</FONT>            r.put(UpperCase.SYMBOL, UpperCase.class.getName());<a name="line.178"></a>
+<FONT color="green">179</FONT>            r.put(LowerCase.SYMBOL, LowerCase.class.getName());<a name="line.179"></a>
+<FONT color="green">180</FONT>            r.put(Translate.SYMBOL, Translate.class.getName());<a name="line.180"></a>
+<FONT color="green">181</FONT>            r.put(EncodeForUri.SYMBOL, EncodeForUri.class.getName());<a name="line.181"></a>
+<FONT color="green">182</FONT>            r.put(IriToUri.SYMBOL, IriToUri.class.getName());<a name="line.182"></a>
+<FONT color="green">183</FONT>            r.put(EscapeHtmlUri.SYMBOL, EscapeHtmlUri.class.getName());<a name="line.183"></a>
+<FONT color="green">184</FONT>            r.put(SubstringMatch.Contains.SYMBOL, SubstringMatch.Contains.class.getName());<a name="line.184"></a>
+<FONT color="green">185</FONT>            r.put(SubstringMatch.StartWith.SYMBOL, SubstringMatch.StartWith.class.getName());<a name="line.185"></a>
+<FONT color="green">186</FONT>            r.put(SubstringMatch.EndWith.SYMBOL, SubstringMatch.EndWith.class.getName());<a name="line.186"></a>
+<FONT color="green">187</FONT>            r.put(SubstringMatch.SubstringBefore.SYMBOL, SubstringMatch.SubstringBefore.class.getName());<a name="line.187"></a>
+<FONT color="green">188</FONT>            r.put(SubstringMatch.SubstringAfter.SYMBOL, SubstringMatch.SubstringAfter.class.getName());<a name="line.188"></a>
+<FONT color="green">189</FONT>            r.put(Matches.SYMBOL, Matches.class.getName());<a name="line.189"></a>
+<FONT color="green">190</FONT>            r.put(Replace.SYMBOL, Replace.class.getName());<a name="line.190"></a>
+<FONT color="green">191</FONT>            r.put(Tokenize.SYMBOL, Tokenize.class.getName());<a name="line.191"></a>
+<FONT color="green">192</FONT>            //8 Functions and Operators for anyURI<a name="line.192"></a>
+<FONT color="green">193</FONT>            r.put(ResolveUri.SYMBOL, ResolveUri.class.getName());<a name="line.193"></a>
+<FONT color="green">194</FONT>            //9 Functions and Operators on Boolean Values<a name="line.194"></a>
+<FONT color="green">195</FONT>            r.put(True.SYMBOL, True.class.getName());<a name="line.195"></a>
+<FONT color="green">196</FONT>            r.put(False.SYMBOL, False.class.getName());<a name="line.196"></a>
+<FONT color="green">197</FONT>            r.put(Not.SYMBOL, Not.class.getName());<a name="line.197"></a>
+<FONT color="green">198</FONT>            //10 Functions and Operators on Durations, Dates and Times<a name="line.198"></a>
+<FONT color="green">199</FONT>            r.put(ExtractFromDuration.YearsFromDuration.SYMBOL, ExtractFromDuration.YearsFromDuration.class.getName());<a name="line.199"></a>
+<FONT color="green">200</FONT>            r.put(ExtractFromDuration.MonthsFromDuration.SYMBOL, ExtractFromDuration.MonthsFromDuration.class.getName());<a name="line.200"></a>
+<FONT color="green">201</FONT>            r.put(ExtractFromDuration.DaysFromDuration.SYMBOL, ExtractFromDuration.DaysFromDuration.class.getName());<a name="line.201"></a>
+<FONT color="green">202</FONT>            r.put(ExtractFromDuration.HoursFromDuration.SYMBOL, ExtractFromDuration.HoursFromDuration.class.getName());<a name="line.202"></a>
+<FONT color="green">203</FONT>            r.put(ExtractFromDuration.MinutesFromDuration.SYMBOL, ExtractFromDuration.MinutesFromDuration.class.getName());<a name="line.203"></a>
+<FONT color="green">204</FONT>            r.put(ExtractFromDuration.SecondsFromDuration.SYMBOL, ExtractFromDuration.SecondsFromDuration.class.getName());<a name="line.204"></a>
+<FONT color="green">205</FONT>            r.put(ExtractFromDateTime.YearFromDateTime.SYMBOL, ExtractFromDateTime.YearFromDateTime.class.getName());<a name="line.205"></a>
+<FONT color="green">206</FONT>            r.put(ExtractFromDateTime.MonthFromDateTime.SYMBOL, ExtractFromDateTime.MonthFromDateTime.class.getName());<a name="line.206"></a>
+<FONT color="green">207</FONT>            r.put(ExtractFromDateTime.DayFromDateTime.SYMBOL, ExtractFromDateTime.DayFromDateTime.class.getName());<a name="line.207"></a>
+<FONT color="green">208</FONT>            r.put(ExtractFromDateTime.HoursFromDateTime.SYMBOL, ExtractFromDateTime.HoursFromDateTime.class.getName());<a name="line.208"></a>
+<FONT color="green">209</FONT>            r.put(ExtractFromDateTime.MinutesFromDateTime.SYMBOL, ExtractFromDateTime.MinutesFromDateTime.class.getName());<a name="line.209"></a>
+<FONT color="green">210</FONT>            r.put(ExtractFromDateTime.SecondsFromDateTime.SYMBOL, ExtractFromDateTime.SecondsFromDateTime.class.getName());<a name="line.210"></a>
+<FONT color="green">211</FONT>            r.put(ExtractFromDateTime.TimezoneFromDateTime.SYMBOL, ExtractFromDateTime.TimezoneFromDateTime.class.getName());<a name="line.211"></a>
+<FONT color="green">212</FONT>            r.put(ExtractFromDateTime.YearFromDate.SYMBOL, ExtractFromDateTime.YearFromDate.class.getName());<a name="line.212"></a>
+<FONT color="green">213</FONT>            r.put(ExtractFromDateTime.MonthFromDate.SYMBOL, ExtractFromDateTime.MonthFromDate.class.getName());<a name="line.213"></a>
+<FONT color="green">214</FONT>            r.put(ExtractFromDateTime.DayFromDate.SYMBOL, ExtractFromDateTime.DayFromDate.class.getName());<a name="line.214"></a>
+<FONT color="green">215</FONT>            r.put(ExtractFromDateTime.TimezoneFromDate.SYMBOL, ExtractFromDateTime.TimezoneFromDate.class.getName());<a name="line.215"></a>
+<FONT color="green">216</FONT>            r.put(ExtractFromDateTime.HoursFromTime.SYMBOL, ExtractFromDateTime.HoursFromTime.class.getName());<a name="line.216"></a>
+<FONT color="green">217</FONT>            r.put(ExtractFromDateTime.MinutesFromTime.SYMBOL, ExtractFromDateTime.MinutesFromTime.class.getName());<a name="line.217"></a>
+<FONT color="green">218</FONT>            r.put(ExtractFromDateTime.SecondsFromTime.SYMBOL, ExtractFromDateTime.SecondsFromTime.class.getName());<a name="line.218"></a>
+<FONT color="green">219</FONT>            r.put(ExtractFromDateTime.TimezoneFromTime.SYMBOL, ExtractFromDateTime.TimezoneFromTime.class.getName());<a name="line.219"></a>
+<FONT color="green">220</FONT>            r.put(AdjustTimezone.AdjustDateTimeToTimezone.SYMBOL, AdjustTimezone.AdjustDateTimeToTimezone.class.getName());<a name="line.220"></a>
+<FONT color="green">221</FONT>            r.put(AdjustTimezone.AdjustDateToTimezone.SYMBOL, AdjustTimezone.AdjustDateToTimezone.class.getName());<a name="line.221"></a>
+<FONT color="green">222</FONT>            r.put(AdjustTimezone.AdjustTimeToTimezone.SYMBOL, AdjustTimezone.AdjustTimeToTimezone.class.getName());<a name="line.222"></a>
+<FONT color="green">223</FONT>            //11 Functions Related to QNames<a name="line.223"></a>
+<FONT color="green">224</FONT>            r.put(ResolveQName.SYMBOL, ResolveQName.class.getName());<a name="line.224"></a>
+<FONT color="green">225</FONT>            r.put(FnQName.SYMBOL, FnQName.class.getName());<a name="line.225"></a>
+<FONT color="green">226</FONT>            r.put(PrefixFromQName.SYMBOL, PrefixFromQName.class.getName());<a name="line.226"></a>
+<FONT color="green">227</FONT>            r.put(LocalNameFromQName.SYMBOL, LocalNameFromQName.class.getName());<a name="line.227"></a>
+<FONT color="green">228</FONT>            r.put(NamespaceUriFromQName.SYMBOL, NamespaceUriFromQName.class.getName());<a name="line.228"></a>
+<FONT color="green">229</FONT>            r.put(NamespaceUriForPrefix.SYMBOL, NamespaceUriForPrefix.class.getName());<a name="line.229"></a>
+<FONT color="green">230</FONT>            r.put(InScopePrefixes.SYMBOL, InScopePrefixes.class.getName());<a name="line.230"></a>
+<FONT color="green">231</FONT>            //14 Functions and Operators on Nodes<a name="line.231"></a>
+<FONT color="green">232</FONT>            r.put(FnName.SYMBOL, FnName.class.getName());<a name="line.232"></a>
+<FONT color="green">233</FONT>            r.put(LocalName.SYMBOL, LocalName.class.getName());<a name="line.233"></a>
+<FONT color="green">234</FONT>            r.put(NamespaceUri.SYMBOL, NamespaceUri.class.getName());<a name="line.234"></a>
+<FONT color="green">235</FONT>            r.put(FnNumber.SYMBOL, FnNumber.class.getName());<a name="line.235"></a>
+<FONT color="green">236</FONT>            r.put(Lang.SYMBOL, Lang.class.getName());<a name="line.236"></a>
+<FONT color="green">237</FONT>            r.put(Root.SYMBOL, Root.class.getName());<a name="line.237"></a>
+<FONT color="green">238</FONT>            //15 Functions and Operators on Sequences<a name="line.238"></a>
+<FONT color="green">239</FONT>            r.put(FnBoolean.SYMBOL, FnBoolean.class.getName());<a name="line.239"></a>
+<FONT color="green">240</FONT>            r.put(IndexOf.SYMBOL, IndexOf.class.getName());<a name="line.240"></a>
+<FONT color="green">241</FONT>            r.put(Empty.SYMBOL, Empty.class.getName());<a name="line.241"></a>
+<FONT color="green">242</FONT>            r.put(Exists.SYMBOL, Exists.class.getName());<a name="line.242"></a>
+<FONT color="green">243</FONT>            r.put(DistinctValues.SYMBOL, DistinctValues.class.getName());<a name="line.243"></a>
+<FONT color="green">244</FONT>            r.put(InsertBefore.SYMBOL, InsertBefore.class.getName());<a name="line.244"></a>
+<FONT color="green">245</FONT>            r.put(Remove.SYMBOL, Remove.class.getName());<a name="line.245"></a>
+<FONT color="green">246</FONT>            r.put(Reverse.SYMBOL, Reverse.class.getName());<a name="line.246"></a>
+<FONT color="green">247</FONT>            r.put(Subsequence.SYMBOL, Subsequence.class.getName());<a name="line.247"></a>
+<FONT color="green">248</FONT>            r.put(Unordered.SYMBOL, Unordered.class.getName());<a name="line.248"></a>
+<FONT color="green">249</FONT>            r.put(ZeroOrOne.SYMBOL, ZeroOrOne.class.getName());<a name="line.249"></a>
+<FONT color="green">250</FONT>            r.put(OneOrMore.SYMBOL, OneOrMore.class.getName());<a name="line.250"></a>
+<FONT color="green">251</FONT>            r.put(ExactlyOne.SYMBOL, ExactlyOne.class.getName());<a name="line.251"></a>
+<FONT color="green">252</FONT>            r.put(DeepEqual.SYMBOL, DeepEqual.class.getName());<a name="line.252"></a>
+<FONT color="green">253</FONT>            r.put(Count.SYMBOL, Count.class.getName());<a name="line.253"></a>
+<FONT color="green">254</FONT>            r.put(Avg.SYMBOL, Avg.class.getName());<a name="line.254"></a>
+<FONT color="green">255</FONT>            r.put(Max.SYMBOL, Max.class.getName());<a name="line.255"></a>
+<FONT color="green">256</FONT>            r.put(Min.SYMBOL, Min.class.getName());<a name="line.256"></a>
+<FONT color="green">257</FONT>            r.put(Sum.SYMBOL, Sum.class.getName());<a name="line.257"></a>
+<FONT color="green">258</FONT>            r.put(Id.SYMBOL, Id.class.getName());<a name="line.258"></a>
+<FONT color="green">259</FONT>            r.put(IdRef.SYMBOL, IdRef.class.getName());<a name="line.259"></a>
+<FONT color="green">260</FONT>            r.put(Doc.SYMBOL, Doc.class.getName());<a name="line.260"></a>
+<FONT color="green">261</FONT>            r.put(DocAvailable.SYMBOL, DocAvailable.class.getName());<a name="line.261"></a>
+<FONT color="green">262</FONT>            r.put(FnCollection.SYMBOL, FnCollection.class.getName());<a name="line.262"></a>
+<FONT color="green">263</FONT>            //16 Context Functions<a name="line.263"></a>
+<FONT color="green">264</FONT>            r.put(Position.SYMBOL, Position.class.getName());<a name="line.264"></a>
+<FONT color="green">265</FONT>            r.put(Last.SYMBOL, Last.class.getName());<a name="line.265"></a>
+<FONT color="green">266</FONT>            r.put(CurrentDateTime.SYMBOL, CurrentDateTime.class.getName());<a name="line.266"></a>
+<FONT color="green">267</FONT>            r.put(CurrentDateTime.CurrentDate.SYMBOL, CurrentDateTime.CurrentDate.class.getName());<a name="line.267"></a>
+<FONT color="green">268</FONT>            r.put(CurrentDateTime.CurrentTime.SYMBOL, CurrentDateTime.CurrentTime.class.getName());<a name="line.268"></a>
+<FONT color="green">269</FONT>            r.put(ImplicitTimezone.SYMBOL, ImplicitTimezone.class.getName());<a name="line.269"></a>
+<FONT color="green">270</FONT>            r.put(DefaultCollation.SYMBOL, DefaultCollation.class.getName());<a name="line.270"></a>
+<FONT color="green">271</FONT>            r.put(StaticBaseUri.SYMBOL, StaticBaseUri.class.getName());<a name="line.271"></a>
+<FONT color="green">272</FONT>            //extended functions<a name="line.272"></a>
+<FONT color="green">273</FONT>            r.put(Eval.SYMBOL, Eval.class.getName());<a name="line.273"></a>
+<FONT color="green">274</FONT>            r.put(RemoteEval.SYMBOL, RemoteEval.class.getName());<a name="line.274"></a>
+<FONT color="green">275</FONT>            r.put(VirtualView.SYMBOL, VirtualView.class.getName());<a name="line.275"></a>
+<FONT color="green">276</FONT>            r.put(UnionAll.SYMBOL, UnionAll.class.getName());<a name="line.276"></a>
+<FONT color="green">277</FONT>            r.put(Hostname.SYMBOL, Hostname.class.getName());<a name="line.277"></a>
+<FONT color="green">278</FONT>            resolver = r;<a name="line.278"></a>
+<FONT color="green">279</FONT>        }<a name="line.279"></a>
+<FONT color="green">280</FONT>    <a name="line.280"></a>
+<FONT color="green">281</FONT>        /**<a name="line.281"></a>
+<FONT color="green">282</FONT>         * Restricts instantiations.<a name="line.282"></a>
+<FONT color="green">283</FONT>         */<a name="line.283"></a>
+<FONT color="green">284</FONT>        private PredefinedFunctions() {}<a name="line.284"></a>
+<FONT color="green">285</FONT>    <a name="line.285"></a>
+<FONT color="green">286</FONT>        public static BuiltInFunction lookup(QualifiedName name) {<a name="line.286"></a>
+<FONT color="green">287</FONT>            String uri = name.getNamespaceURI();<a name="line.287"></a>
+<FONT color="green">288</FONT>            final String prefix;<a name="line.288"></a>
+<FONT color="green">289</FONT>            if(XQueryConstants.FN_URI.equals(uri)) {<a name="line.289"></a>
+<FONT color="green">290</FONT>                prefix = XQueryConstants.FN;<a name="line.290"></a>
+<FONT color="green">291</FONT>            } else if(XQueryConstants.XS_URI.equals(uri)) {<a name="line.291"></a>
+<FONT color="green">292</FONT>                prefix = XQueryConstants.XS;<a name="line.292"></a>
+<FONT color="green">293</FONT>            } else if(XQueryConstants.XDT_URI.equals(uri)) {<a name="line.293"></a>
+<FONT color="green">294</FONT>                prefix = XQueryConstants.XDT;<a name="line.294"></a>
+<FONT color="green">295</FONT>            } else if(BuiltInFunction.EXT_NAMESPACE_URI.equals(uri)) {<a name="line.295"></a>
+<FONT color="green">296</FONT>                prefix = BuiltInFunction.EXT_NSPREFIX;<a name="line.296"></a>
+<FONT color="green">297</FONT>            } else {<a name="line.297"></a>
+<FONT color="green">298</FONT>                return null;<a name="line.298"></a>
+<FONT color="green">299</FONT>            }<a name="line.299"></a>
+<FONT color="green">300</FONT>            String fname = prefix + ':' + name.getLocalPart();<a name="line.300"></a>
+<FONT color="green">301</FONT>            return lookup(fname);<a name="line.301"></a>
+<FONT color="green">302</FONT>        }<a name="line.302"></a>
+<FONT color="green">303</FONT>    <a name="line.303"></a>
+<FONT color="green">304</FONT>        public static BuiltInFunction lookup(String fname) {<a name="line.304"></a>
+<FONT color="green">305</FONT>            String clazz = resolver.get(fname);<a name="line.305"></a>
+<FONT color="green">306</FONT>            if(clazz == null) {<a name="line.306"></a>
+<FONT color="green">307</FONT>                return null;<a name="line.307"></a>
+<FONT color="green">308</FONT>            }<a name="line.308"></a>
+<FONT color="green">309</FONT>            BuiltInFunction func = table.get(fname);<a name="line.309"></a>
+<FONT color="green">310</FONT>            return (func == null) ? reborn(clazz, fname) : func;<a name="line.310"></a>
+<FONT color="green">311</FONT>        }<a name="line.311"></a>
+<FONT color="green">312</FONT>    <a name="line.312"></a>
+<FONT color="green">313</FONT>        private static BuiltInFunction reborn(String clazz, String fname) {<a name="line.313"></a>
+<FONT color="green">314</FONT>            final BuiltInFunction f;<a name="line.314"></a>
+<FONT color="green">315</FONT>            if(ObjectUtils.hasDefaultConstructor(clazz)) {<a name="line.315"></a>
+<FONT color="green">316</FONT>                f = ObjectUtils.&lt;BuiltInFunction&gt; instantiate(clazz);<a name="line.316"></a>
+<FONT color="green">317</FONT>            } else {<a name="line.317"></a>
+<FONT color="green">318</FONT>                f = ObjectUtils.&lt;BuiltInFunction&gt; instantiate(clazz, new Class[] { String.class }, fname);<a name="line.318"></a>
+<FONT color="green">319</FONT>            }<a name="line.319"></a>
+<FONT color="green">320</FONT>            if(clazz == CastingFunction.CLAZZ) {<a name="line.320"></a>
+<FONT color="green">321</FONT>                CastingFunction castFunc = (CastingFunction) f;<a name="line.321"></a>
+<FONT color="green">322</FONT>                castFunc.initialize(fname);<a name="line.322"></a>
+<FONT color="green">323</FONT>            }<a name="line.323"></a>
+<FONT color="green">324</FONT>            if(f.isReusable()) {<a name="line.324"></a>
+<FONT color="green">325</FONT>                table.put(fname, f);<a name="line.325"></a>
+<FONT color="green">326</FONT>            }<a name="line.326"></a>
+<FONT color="green">327</FONT>            return f;<a name="line.327"></a>
+<FONT color="green">328</FONT>        }<a name="line.328"></a>
+<FONT color="green">329</FONT>    <a name="line.329"></a>
+<FONT color="green">330</FONT>    }<a name="line.330"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,215 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: ModuleManager.java 3619 2008-03-26 07:23:03Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.xquery.misc;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.IOException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.InputStream;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.net.*;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.util.*;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    import xbird.xquery.*;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import xbird.xquery.ext.JavaModule;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import xbird.xquery.meta.StaticContext;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import xbird.xquery.parser.ParseException;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import xbird.xquery.parser.XQueryParser;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    /**<a name="line.34"></a>
+<FONT color="green">035</FONT>     * <a name="line.35"></a>
+<FONT color="green">036</FONT>     * &lt;DIV lang="en"&gt;&lt;/DIV&gt;<a name="line.36"></a>
+<FONT color="green">037</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     * <a name="line.38"></a>
+<FONT color="green">039</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.39"></a>
+<FONT color="green">040</FONT>     */<a name="line.40"></a>
+<FONT color="green">041</FONT>    public class ModuleManager {<a name="line.41"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>        private final Map&lt;String, Module&gt; moduleTable = new HashMap&lt;String, Module&gt;(4);<a name="line.43"></a>
+<FONT color="green">044</FONT>    <a name="line.44"></a>
+<FONT color="green">045</FONT>        private final StaticContext _statEnv;<a name="line.45"></a>
+<FONT color="green">046</FONT>        private ModuleResolver _resolver = null;<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>        public ModuleManager(StaticContext statEnv) {<a name="line.48"></a>
+<FONT color="green">049</FONT>            this._statEnv = statEnv;<a name="line.49"></a>
+<FONT color="green">050</FONT>        }<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+<FONT color="green">052</FONT>        public void setModuleResolver(ModuleResolver resolver) {<a name="line.52"></a>
+<FONT color="green">053</FONT>            this._resolver = resolver;<a name="line.53"></a>
+<FONT color="green">054</FONT>        }<a name="line.54"></a>
+<FONT color="green">055</FONT>    <a name="line.55"></a>
+<FONT color="green">056</FONT>        public Module loadModule(String targetNamespace) throws XQueryException {<a name="line.56"></a>
+<FONT color="green">057</FONT>            return loadModule(targetNamespace, targetNamespace);<a name="line.57"></a>
+<FONT color="green">058</FONT>        }<a name="line.58"></a>
+<FONT color="green">059</FONT>    <a name="line.59"></a>
+<FONT color="green">060</FONT>        public Module loadModule(String targetNamespace, String location) throws XQueryException {<a name="line.60"></a>
+<FONT color="green">061</FONT>            if(moduleTable.containsKey(targetNamespace)) {<a name="line.61"></a>
+<FONT color="green">062</FONT>                return moduleTable.get(targetNamespace); // found in the cache<a name="line.62"></a>
+<FONT color="green">063</FONT>            }<a name="line.63"></a>
+<FONT color="green">064</FONT>            if(targetNamespace.startsWith(JavaModule.SCHEME)) {<a name="line.64"></a>
+<FONT color="green">065</FONT>                final int from = JavaModule.SCHEME.length() + 1;<a name="line.65"></a>
+<FONT color="green">066</FONT>                return new JavaModule(targetNamespace.substring(from));<a name="line.66"></a>
+<FONT color="green">067</FONT>            } else if(targetNamespace.startsWith("wsdl:")) { // TODO rmi<a name="line.67"></a>
+<FONT color="green">068</FONT>                throw new UnsupportedOperationException("WSDL style module is not supported yet.");<a name="line.68"></a>
+<FONT color="green">069</FONT>            }<a name="line.69"></a>
+<FONT color="green">070</FONT>            if(_resolver != null) {<a name="line.70"></a>
+<FONT color="green">071</FONT>                location = _resolver.resolveLocation(location);<a name="line.71"></a>
+<FONT color="green">072</FONT>            }<a name="line.72"></a>
+<FONT color="green">073</FONT>            InputStream is = openResource(location);<a name="line.73"></a>
+<FONT color="green">074</FONT>            XQueryModule module = obtainModule(is, _statEnv);<a name="line.74"></a>
+<FONT color="green">075</FONT>            // TODO should confirm namespace between library-module and target-namespace?<a name="line.75"></a>
+<FONT color="green">076</FONT>            final String modns = module.getNamespace();<a name="line.76"></a>
+<FONT color="green">077</FONT>            if(modns == null || modns.equals(targetNamespace) == false) {<a name="line.77"></a>
+<FONT color="green">078</FONT>                throw new StaticError("XQST0059", "target namespace '" + targetNamespace<a name="line.78"></a>
+<FONT color="green">079</FONT>                        + "' does not much to the library module namespace '" + modns + "'.");<a name="line.79"></a>
+<FONT color="green">080</FONT>            }<a name="line.80"></a>
+<FONT color="green">081</FONT>            module.setLocation(location);<a name="line.81"></a>
+<FONT color="green">082</FONT>            putModule(module);<a name="line.82"></a>
+<FONT color="green">083</FONT>            return module;<a name="line.83"></a>
+<FONT color="green">084</FONT>        }<a name="line.84"></a>
+<FONT color="green">085</FONT>    <a name="line.85"></a>
+<FONT color="green">086</FONT>        private InputStream openResource(String targetNamespace) throws XQueryException {<a name="line.86"></a>
+<FONT color="green">087</FONT>            final URI u;<a name="line.87"></a>
+<FONT color="green">088</FONT>            try {<a name="line.88"></a>
+<FONT color="green">089</FONT>                u = new URI(targetNamespace);<a name="line.89"></a>
+<FONT color="green">090</FONT>            } catch (URISyntaxException e) {<a name="line.90"></a>
+<FONT color="green">091</FONT>                throw new StaticError("err:XQST0046", "Illegal xs:anyURI format: " + targetNamespace, e);<a name="line.91"></a>
+<FONT color="green">092</FONT>            }<a name="line.92"></a>
+<FONT color="green">093</FONT>            URI baseURI = _statEnv.getBaseURI();<a name="line.93"></a>
+<FONT color="green">094</FONT>            if(baseURI == null) { // TODO REVIEWME workaround<a name="line.94"></a>
+<FONT color="green">095</FONT>                baseURI = _statEnv.getSystemBaseURI();<a name="line.95"></a>
+<FONT color="green">096</FONT>            }<a name="line.96"></a>
+<FONT color="green">097</FONT>            URI targetURI = (baseURI == null) ? u : baseURI.resolve(u);<a name="line.97"></a>
+<FONT color="green">098</FONT>            final URL targetURL;<a name="line.98"></a>
+<FONT color="green">099</FONT>            try {<a name="line.99"></a>
+<FONT color="green">100</FONT>                targetURL = targetURI.toURL();<a name="line.100"></a>
+<FONT color="green">101</FONT>            } catch (Exception e) {<a name="line.101"></a>
+<FONT color="green">102</FONT>                throw new StaticError("err:XQST0046", "targetNamespace is not a valid URL: "<a name="line.102"></a>
+<FONT color="green">103</FONT>                        + targetNamespace, e);<a name="line.103"></a>
+<FONT color="green">104</FONT>            }<a name="line.104"></a>
+<FONT color="green">105</FONT>            final InputStream is;<a name="line.105"></a>
+<FONT color="green">106</FONT>            try {<a name="line.106"></a>
+<FONT color="green">107</FONT>                is = targetURL.openStream();<a name="line.107"></a>
+<FONT color="green">108</FONT>            } catch (IOException e) {<a name="line.108"></a>
+<FONT color="green">109</FONT>                throw new StaticError("err:XQST0059", "Opening stream failed: " + targetURL, e);<a name="line.109"></a>
+<FONT color="green">110</FONT>            }<a name="line.110"></a>
+<FONT color="green">111</FONT>            return is;<a name="line.111"></a>
+<FONT color="green">112</FONT>        }<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>        private static XQueryModule obtainModule(final InputStream target, final StaticContext statEnv)<a name="line.114"></a>
+<FONT color="green">115</FONT>                throws XQueryException {<a name="line.115"></a>
+<FONT color="green">116</FONT>            final XQueryParser parser = new XQueryParser(target);<a name="line.116"></a>
+<FONT color="green">117</FONT>            parser.setStaticContext(statEnv);<a name="line.117"></a>
+<FONT color="green">118</FONT>            final XQueryModule module;<a name="line.118"></a>
+<FONT color="green">119</FONT>            try {<a name="line.119"></a>
+<FONT color="green">120</FONT>                module = parser.parse();<a name="line.120"></a>
+<FONT color="green">121</FONT>            } catch (XQueryException e) {<a name="line.121"></a>
+<FONT color="green">122</FONT>                final Throwable cause = e.getCause();<a name="line.122"></a>
+<FONT color="green">123</FONT>                if(cause instanceof ParseException) {<a name="line.123"></a>
+<FONT color="green">124</FONT>                    throw new StaticError("err:XQST0059", "parse failed.", cause);<a name="line.124"></a>
+<FONT color="green">125</FONT>                } else {<a name="line.125"></a>
+<FONT color="green">126</FONT>                    throw e;<a name="line.126"></a>
+<FONT color="green">127</FONT>                }<a name="line.127"></a>
+<FONT color="green">128</FONT>            }<a name="line.128"></a>
+<FONT color="green">129</FONT>            return module;<a name="line.129"></a>
+<FONT color="green">130</FONT>        }<a name="line.130"></a>
+<FONT color="green">131</FONT>    <a name="line.131"></a>
+<FONT color="green">132</FONT>        public void putModule(Module module) throws XQueryException {<a name="line.132"></a>
+<FONT color="green">133</FONT>            final String moduleNamespace = module.getNamespace();<a name="line.133"></a>
+<FONT color="green">134</FONT>            if(moduleNamespace == null) {<a name="line.134"></a>
+<FONT color="green">135</FONT>                throw new StaticError("err:XQST0048", "Invalid as library module: "<a name="line.135"></a>
+<FONT color="green">136</FONT>                        + module.getLocation());<a name="line.136"></a>
+<FONT color="green">137</FONT>            }<a name="line.137"></a>
+<FONT color="green">138</FONT>            moduleTable.put(moduleNamespace, module);<a name="line.138"></a>
+<FONT color="green">139</FONT>        }<a name="line.139"></a>
+<FONT color="green">140</FONT>    <a name="line.140"></a>
+<FONT color="green">141</FONT>        public Module getModule(String namespace) {<a name="line.141"></a>
+<FONT color="green">142</FONT>            return moduleTable.get(namespace);<a name="line.142"></a>
+<FONT color="green">143</FONT>        }<a name="line.143"></a>
+<FONT color="green">144</FONT>    <a name="line.144"></a>
+<FONT color="green">145</FONT>        public Collection&lt;Module&gt; getModules() {<a name="line.145"></a>
+<FONT color="green">146</FONT>            return moduleTable.values();<a name="line.146"></a>
+<FONT color="green">147</FONT>        }<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>    }<a name="line.149"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

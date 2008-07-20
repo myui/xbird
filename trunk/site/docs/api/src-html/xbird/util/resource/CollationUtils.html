@@ -1,0 +1,281 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: CollationUtils.java 3619 2008-03-26 07:23:03Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.util.resource;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.InputStream;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.net.URI;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.net.URL;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.text.*;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.Locale;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    import xbird.util.io.IOUtils;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import xbird.xquery.XQueryConstants;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import xbird.xquery.meta.StaticContext;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>    /**<a name="line.33"></a>
+<FONT color="green">034</FONT>     * Collator construction utility.<a name="line.34"></a>
+<FONT color="green">035</FONT>     * &lt;DIV lang="en"&gt;<a name="line.35"></a>
+<FONT color="green">036</FONT>     * &lt;pre&gt;<a name="line.36"></a>
+<FONT color="green">037</FONT>     * Resolving &lt;code&gt;Collator&lt;/code&gt; strategy is as following:<a name="line.37"></a>
+<FONT color="green">038</FONT>     * <a name="line.38"></a>
+<FONT color="green">039</FONT>     *  (1) If arg is null or "http://www.w3.org/2005/04/xpath-functions/collation/codepoint",<a name="line.39"></a>
+<FONT color="green">040</FONT>     *     assumed to use default collation, and return null.<a name="line.40"></a>
+<FONT color="green">041</FONT>     *  <a name="line.41"></a>
+<FONT color="green">042</FONT>     *  (2) If arg is start with "http:://xbird.metabrick.org/collation?",<a name="line.42"></a>
+<FONT color="green">043</FONT>     *     assumed to use using system collation.<a name="line.43"></a>
+<FONT color="green">044</FONT>     *  <a name="line.44"></a>
+<FONT color="green">045</FONT>     *  (3) Else, try to read arg URI and constructs &lt;code&gt;RuleBasedCollator&lt;/code&gt;<a name="line.45"></a>
+<FONT color="green">046</FONT>     *     with the respond content as collation rule.<a name="line.46"></a>
+<FONT color="green">047</FONT>     *     <a name="line.47"></a>
+<FONT color="green">048</FONT>     *  (4) If fail to construct a collation in the step (1) to (3), return null. <a name="line.48"></a>
+<FONT color="green">049</FONT>     * <a name="line.49"></a>
+<FONT color="green">050</FONT>     * System collation form:   &lt;i&gt;SYSTEM_COLLATION?GETS_ARGS&lt;/i&gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     *<a name="line.51"></a>
+<FONT color="green">052</FONT>     *  [1] &lt;i&gt;SYSTEM_COLLATION&lt;/i&gt; = http:://xbird.metabrick.org/collation?<a name="line.52"></a>
+<FONT color="green">053</FONT>     *   <a name="line.53"></a>
+<FONT color="green">054</FONT>     *      - Precisely saying, the value defined in {@link CollationUtils#SYSTEM_COLLATION}.<a name="line.54"></a>
+<FONT color="green">055</FONT>     *<a name="line.55"></a>
+<FONT color="green">056</FONT>     *  [2] &lt;i&gt;GETS_ARGS&lt;/i&gt; := &lt;i&gt;LOCALE&lt;/i&gt;("#"&lt;i&gt;COLOPTS&lt;/i&gt; )*<a name="line.56"></a>
+<FONT color="green">057</FONT>     *  <a name="line.57"></a>
+<FONT color="green">058</FONT>     *  [3] &lt;i&gt;LOCALE&lt;/i&gt; := &lt;i&gt;LANG&lt;/i&gt;"-"&lt;i&gt;COUNTRY&lt;/i&gt;"-"&lt;i&gt;VARIANT&lt;/i&gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     *  <a name="line.59"></a>
+<FONT color="green">060</FONT>     *      - LOCALE(LANG, COUNTRY, VARIANT) constructs &lt;code&gt;java.util.Locale&lt;/code&gt;.<a name="line.60"></a>
+<FONT color="green">061</FONT>     *  <a name="line.61"></a>
+<FONT color="green">062</FONT>     *  [4] &lt;i&gt;COLOPTS&lt;/i&gt; := &lt;i&gt;STLENGTH&lt;/i&gt; | &lt;i&gt;DECOMPOSITION&lt;/i&gt;<a name="line.62"></a>
+<FONT color="green">063</FONT>     *  <a name="line.63"></a>
+<FONT color="green">064</FONT>     *  [5] &lt;i&gt;STLENGTH&lt;/i&gt; := "primary" | "secondary" | "tertiary"<a name="line.64"></a>
+<FONT color="green">065</FONT>     *  <a name="line.65"></a>
+<FONT color="green">066</FONT>     *  [6] &lt;i&gt;DECOMPOSITION&lt;/i&gt; :=  "canonical" | "NFD" | "full" | "NFKD"<a name="line.66"></a>
+<FONT color="green">067</FONT>     *  <a name="line.67"></a>
+<FONT color="green">068</FONT>     *      - "canonical" and "NFD" means &lt;a href="http://www.unicode.org/unicode/reports/tr15/#Canonical_Composition_Examples"&gt;CANONICAL_DECOMPOSITION&lt;/a&gt;.<a name="line.68"></a>
+<FONT color="green">069</FONT>     *      - "full" and "NFKD" means &lt;a href="http://www.unicode.org/unicode/reports/tr15/#Compatibility_Composition_Examples"&gt;FULL_DECOMPOSITION&lt;/a&gt;.<a name="line.69"></a>
+<FONT color="green">070</FONT>     * <a name="line.70"></a>
+<FONT color="green">071</FONT>     *  Cautions:<a name="line.71"></a>
+<FONT color="green">072</FONT>     *      - parameter is overrided within last specified.<a name="line.72"></a>
+<FONT color="green">073</FONT>     * &lt;/pre&gt;<a name="line.73"></a>
+<FONT color="green">074</FONT>     * &lt;/DIV&gt;<a name="line.74"></a>
+<FONT color="green">075</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>     * <a name="line.76"></a>
+<FONT color="green">077</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.77"></a>
+<FONT color="green">078</FONT>     * @see Locale<a name="line.78"></a>
+<FONT color="green">079</FONT>     * @see Collator<a name="line.79"></a>
+<FONT color="green">080</FONT>     * @see RuleBasedCollator<a name="line.80"></a>
+<FONT color="green">081</FONT>     * @see XQueryConstants#UNICODE_CODEPOINT_COLLATION<a name="line.81"></a>
+<FONT color="green">082</FONT>     * @see #SYSTEM_COLLATION<a name="line.82"></a>
+<FONT color="green">083</FONT>     */<a name="line.83"></a>
+<FONT color="green">084</FONT>    public final class CollationUtils {<a name="line.84"></a>
+<FONT color="green">085</FONT>    <a name="line.85"></a>
+<FONT color="green">086</FONT>        public static final String SYSTEM_COLLATION = "http:://xbird/collation?";<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        private CollationUtils() {}<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>        public static Collator resolve(URI uri, StaticContext statEnv) {<a name="line.90"></a>
+<FONT color="green">091</FONT>            return resolve(uri.toString(), statEnv);<a name="line.91"></a>
+<FONT color="green">092</FONT>        }<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>        public static Collator resolve(String uri, StaticContext statEnv) {<a name="line.94"></a>
+<FONT color="green">095</FONT>            if(uri == null) {<a name="line.95"></a>
+<FONT color="green">096</FONT>                uri = statEnv.getDefaultCollation();<a name="line.96"></a>
+<FONT color="green">097</FONT>            }<a name="line.97"></a>
+<FONT color="green">098</FONT>            if(uri == null || uri.equals(XQueryConstants.UNICODE_CODEPOINT_COLLATION)) {<a name="line.98"></a>
+<FONT color="green">099</FONT>                return null;<a name="line.99"></a>
+<FONT color="green">100</FONT>            }<a name="line.100"></a>
+<FONT color="green">101</FONT>            int pos = uri.indexOf(SYSTEM_COLLATION);<a name="line.101"></a>
+<FONT color="green">102</FONT>            if(pos &gt; 0) {<a name="line.102"></a>
+<FONT color="green">103</FONT>                String getsArg = uri.substring(SYSTEM_COLLATION.length());<a name="line.103"></a>
+<FONT color="green">104</FONT>                final int sharppos = getsArg.indexOf('#');<a name="line.104"></a>
+<FONT color="green">105</FONT>                String qloc = (sharppos &gt; 0) ? getsArg.substring(0, sharppos - 1) : getsArg;<a name="line.105"></a>
+<FONT color="green">106</FONT>                String args[] = qloc.split("-");<a name="line.106"></a>
+<FONT color="green">107</FONT>                final Locale loc;<a name="line.107"></a>
+<FONT color="green">108</FONT>                final int loclen = args.length;<a name="line.108"></a>
+<FONT color="green">109</FONT>                switch(loclen) {<a name="line.109"></a>
+<FONT color="green">110</FONT>                    case 1:<a name="line.110"></a>
+<FONT color="green">111</FONT>                        loc = new Locale(args[0]);<a name="line.111"></a>
+<FONT color="green">112</FONT>                        break;<a name="line.112"></a>
+<FONT color="green">113</FONT>                    case 2:<a name="line.113"></a>
+<FONT color="green">114</FONT>                        loc = new Locale(args[0], args[1]);<a name="line.114"></a>
+<FONT color="green">115</FONT>                        break;<a name="line.115"></a>
+<FONT color="green">116</FONT>                    case 3:<a name="line.116"></a>
+<FONT color="green">117</FONT>                        loc = new Locale(args[0], args[1], args[2]);<a name="line.117"></a>
+<FONT color="green">118</FONT>                        break;<a name="line.118"></a>
+<FONT color="green">119</FONT>                    default:<a name="line.119"></a>
+<FONT color="green">120</FONT>                        throw new IllegalArgumentException("invalid collation uri: " + uri);<a name="line.120"></a>
+<FONT color="green">121</FONT>                }<a name="line.121"></a>
+<FONT color="green">122</FONT>                final Collator col = Collator.getInstance(loc);<a name="line.122"></a>
+<FONT color="green">123</FONT>                if(sharppos &gt; 0) {<a name="line.123"></a>
+<FONT color="green">124</FONT>                    if(getsArg.indexOf("#primary") &gt; 0) {<a name="line.124"></a>
+<FONT color="green">125</FONT>                        col.setStrength(Collator.PRIMARY);<a name="line.125"></a>
+<FONT color="green">126</FONT>                    } else if(getsArg.indexOf("#secondary") &gt; 0) {<a name="line.126"></a>
+<FONT color="green">127</FONT>                        col.setStrength(Collator.SECONDARY);<a name="line.127"></a>
+<FONT color="green">128</FONT>                    } else if(getsArg.indexOf("#tertiary") &gt; 0) {<a name="line.128"></a>
+<FONT color="green">129</FONT>                        col.setStrength(Collator.TERTIARY);<a name="line.129"></a>
+<FONT color="green">130</FONT>                    } else if(getsArg.indexOf("#identical") &gt; 0) {<a name="line.130"></a>
+<FONT color="green">131</FONT>                        col.setStrength(Collator.IDENTICAL);<a name="line.131"></a>
+<FONT color="green">132</FONT>                    } else if(getsArg.indexOf("#canonical") &gt; 0 || getsArg.indexOf("#NFD") &gt; 0) {<a name="line.132"></a>
+<FONT color="green">133</FONT>                        col.setDecomposition(Collator.CANONICAL_DECOMPOSITION);<a name="line.133"></a>
+<FONT color="green">134</FONT>                    } else if(getsArg.indexOf("#full") &gt; 0 || getsArg.indexOf("#NFKD") &gt; 0) {<a name="line.134"></a>
+<FONT color="green">135</FONT>                        col.setDecomposition(Collator.FULL_DECOMPOSITION);<a name="line.135"></a>
+<FONT color="green">136</FONT>                    }<a name="line.136"></a>
+<FONT color="green">137</FONT>                }<a name="line.137"></a>
+<FONT color="green">138</FONT>                return col;<a name="line.138"></a>
+<FONT color="green">139</FONT>            } else {<a name="line.139"></a>
+<FONT color="green">140</FONT>                final Collator col;<a name="line.140"></a>
+<FONT color="green">141</FONT>                try {<a name="line.141"></a>
+<FONT color="green">142</FONT>                    URI baseuri = statEnv.getBaseURI();<a name="line.142"></a>
+<FONT color="green">143</FONT>                    final URI targetUri;<a name="line.143"></a>
+<FONT color="green">144</FONT>                    if(baseuri == null) {<a name="line.144"></a>
+<FONT color="green">145</FONT>                        targetUri = URI.create(uri);<a name="line.145"></a>
+<FONT color="green">146</FONT>                    } else {<a name="line.146"></a>
+<FONT color="green">147</FONT>                        targetUri = baseuri.resolve(uri);<a name="line.147"></a>
+<FONT color="green">148</FONT>                    }<a name="line.148"></a>
+<FONT color="green">149</FONT>                    URL targetUrl = targetUri.toURL();<a name="line.149"></a>
+<FONT color="green">150</FONT>                    InputStream is = targetUrl.openStream();<a name="line.150"></a>
+<FONT color="green">151</FONT>                    String rules = IOUtils.toString(is);<a name="line.151"></a>
+<FONT color="green">152</FONT>                    col = new RuleBasedCollator(rules);<a name="line.152"></a>
+<FONT color="green">153</FONT>                } catch (Exception e) {<a name="line.153"></a>
+<FONT color="green">154</FONT>                    return null;<a name="line.154"></a>
+<FONT color="green">155</FONT>                }<a name="line.155"></a>
+<FONT color="green">156</FONT>                return col;<a name="line.156"></a>
+<FONT color="green">157</FONT>            }<a name="line.157"></a>
+<FONT color="green">158</FONT>        }<a name="line.158"></a>
+<FONT color="green">159</FONT>    <a name="line.159"></a>
+<FONT color="green">160</FONT>        public static int indexOf(final String src, final String pattern, final RuleBasedCollator collator) {<a name="line.160"></a>
+<FONT color="green">161</FONT>            if(collator == null) {<a name="line.161"></a>
+<FONT color="green">162</FONT>                return src.indexOf(pattern);<a name="line.162"></a>
+<FONT color="green">163</FONT>            } else {<a name="line.163"></a>
+<FONT color="green">164</FONT>                return indexOf(src, pattern, collator, false);<a name="line.164"></a>
+<FONT color="green">165</FONT>            }<a name="line.165"></a>
+<FONT color="green">166</FONT>        }<a name="line.166"></a>
+<FONT color="green">167</FONT>    <a name="line.167"></a>
+<FONT color="green">168</FONT>        public static boolean endsWith(final String src, final String pattern, final RuleBasedCollator collator) {<a name="line.168"></a>
+<FONT color="green">169</FONT>            if(collator == null) {<a name="line.169"></a>
+<FONT color="green">170</FONT>                return src.endsWith(pattern);<a name="line.170"></a>
+<FONT color="green">171</FONT>            } else {<a name="line.171"></a>
+<FONT color="green">172</FONT>                return indexOf(src, pattern, collator, true) != -1;<a name="line.172"></a>
+<FONT color="green">173</FONT>            }<a name="line.173"></a>
+<FONT color="green">174</FONT>        }<a name="line.174"></a>
+<FONT color="green">175</FONT>    <a name="line.175"></a>
+<FONT color="green">176</FONT>        private static int indexOf(final String src, final String pattern, final RuleBasedCollator collator, boolean endsWith) {<a name="line.176"></a>
+<FONT color="green">177</FONT>            assert (collator != null);<a name="line.177"></a>
+<FONT color="green">178</FONT>            CollationElementIterator srcItor = collator.getCollationElementIterator(src);<a name="line.178"></a>
+<FONT color="green">179</FONT>            CollationElementIterator patternItor = collator.getCollationElementIterator(pattern);<a name="line.179"></a>
+<FONT color="green">180</FONT>            final int ptnlen = patternItor.getOffset();<a name="line.180"></a>
+<FONT color="green">181</FONT>            int seeked = 0;<a name="line.181"></a>
+<FONT color="green">182</FONT>            boolean more = true;<a name="line.182"></a>
+<FONT color="green">183</FONT>            int srccp, ptncp = -1;<a name="line.183"></a>
+<FONT color="green">184</FONT>            for(int i = 0; (srccp = srcItor.next()) != CollationElementIterator.NULLORDER; i++) {<a name="line.184"></a>
+<FONT color="green">185</FONT>                if(more) {<a name="line.185"></a>
+<FONT color="green">186</FONT>                    ptncp = patternItor.next();<a name="line.186"></a>
+<FONT color="green">187</FONT>                    if(ptncp == CollationElementIterator.NULLORDER) {<a name="line.187"></a>
+<FONT color="green">188</FONT>                        if(endsWith) {<a name="line.188"></a>
+<FONT color="green">189</FONT>                            if(srcItor.next() != CollationElementIterator.NULLORDER) {<a name="line.189"></a>
+<FONT color="green">190</FONT>                                return -1;<a name="line.190"></a>
+<FONT color="green">191</FONT>                            }<a name="line.191"></a>
+<FONT color="green">192</FONT>                        }<a name="line.192"></a>
+<FONT color="green">193</FONT>                        return i - 1;<a name="line.193"></a>
+<FONT color="green">194</FONT>                    }<a name="line.194"></a>
+<FONT color="green">195</FONT>                }<a name="line.195"></a>
+<FONT color="green">196</FONT>                if(srccp != ptncp) {<a name="line.196"></a>
+<FONT color="green">197</FONT>                    more = false;<a name="line.197"></a>
+<FONT color="green">198</FONT>                    seeked = 0;<a name="line.198"></a>
+<FONT color="green">199</FONT>                } else {<a name="line.199"></a>
+<FONT color="green">200</FONT>                    if(seeked == ptnlen) {<a name="line.200"></a>
+<FONT color="green">201</FONT>                        if(endsWith) {<a name="line.201"></a>
+<FONT color="green">202</FONT>                            if(srcItor.next() != CollationElementIterator.NULLORDER) {<a name="line.202"></a>
+<FONT color="green">203</FONT>                                return -1;<a name="line.203"></a>
+<FONT color="green">204</FONT>                            }<a name="line.204"></a>
+<FONT color="green">205</FONT>                        }<a name="line.205"></a>
+<FONT color="green">206</FONT>                        return i;<a name="line.206"></a>
+<FONT color="green">207</FONT>                    }<a name="line.207"></a>
+<FONT color="green">208</FONT>                    more = true;<a name="line.208"></a>
+<FONT color="green">209</FONT>                    ++seeked;<a name="line.209"></a>
+<FONT color="green">210</FONT>                }<a name="line.210"></a>
+<FONT color="green">211</FONT>            }<a name="line.211"></a>
+<FONT color="green">212</FONT>            return -1;<a name="line.212"></a>
+<FONT color="green">213</FONT>        }<a name="line.213"></a>
+<FONT color="green">214</FONT>    <a name="line.214"></a>
+<FONT color="green">215</FONT>    }<a name="line.215"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

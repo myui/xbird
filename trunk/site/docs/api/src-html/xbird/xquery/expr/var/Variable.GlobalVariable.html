@@ -1,0 +1,418 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * @(#)$Id: Variable.java 3749 2008-04-14 23:15:19Z yui $<a name="line.2"></a>
+<FONT color="green">003</FONT>     *<a name="line.3"></a>
+<FONT color="green">004</FONT>     * Copyright 2006-2008 Makoto YUI<a name="line.4"></a>
+<FONT color="green">005</FONT>     *<a name="line.5"></a>
+<FONT color="green">006</FONT>     * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.6"></a>
+<FONT color="green">007</FONT>     * you may not use this file except in compliance with the License.<a name="line.7"></a>
+<FONT color="green">008</FONT>     * You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>     *<a name="line.9"></a>
+<FONT color="green">010</FONT>     *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>     *<a name="line.11"></a>
+<FONT color="green">012</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<FONT color="green">013</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<FONT color="green">014</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * See the License for the specific language governing permissions and<a name="line.15"></a>
+<FONT color="green">016</FONT>     * limitations under the License.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * Contributors:<a name="line.18"></a>
+<FONT color="green">019</FONT>     *     Makoto YUI - initial implementation<a name="line.19"></a>
+<FONT color="green">020</FONT>     */<a name="line.20"></a>
+<FONT color="green">021</FONT>    package xbird.xquery.expr.var;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.IOException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.ObjectInput;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.io.ObjectInputStream;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.io.ObjectOutput;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.io.ObjectOutputStream;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    import xbird.util.concurrent.counter.ThreadLocalCounter;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import xbird.util.lang.MutableLong;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import xbird.xquery.DynamicError;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import xbird.xquery.XQueryException;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import xbird.xquery.XQueryModule;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import xbird.xquery.dm.value.Item;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import xbird.xquery.dm.value.Sequence;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import xbird.xquery.expr.AbstractXQExpression;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import xbird.xquery.expr.Evaluable;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import xbird.xquery.expr.XQExpression;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import xbird.xquery.expr.func.DirectFunctionCall;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import xbird.xquery.meta.DynamicContext;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import xbird.xquery.meta.StaticContext;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import xbird.xquery.meta.XQueryContext;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import xbird.xquery.misc.QNameUtil;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import xbird.xquery.misc.TypeUtil;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import xbird.xquery.misc.QNameTable.QualifiedName;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import xbird.xquery.optim.RewriteInfo;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import xbird.xquery.parser.XQueryParserVisitor;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import xbird.xquery.type.SequenceType;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import xbird.xquery.type.Type;<a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>    /**<a name="line.51"></a>
+<FONT color="green">052</FONT>     * <a name="line.52"></a>
+<FONT color="green">053</FONT>     * &lt;DIV lang="en"&gt;&lt;/DIV&gt;<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;DIV lang="ja"&gt;&lt;/DIV&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     * <a name="line.55"></a>
+<FONT color="green">056</FONT>     * @author Makoto YUI (yuin405+xbird@gmail.com)<a name="line.56"></a>
+<FONT color="green">057</FONT>     * @link http://www.w3.org/TR/xquery-semantics/#prod-core-VarDecl<a name="line.57"></a>
+<FONT color="green">058</FONT>     */<a name="line.58"></a>
+<FONT color="green">059</FONT>    public abstract class Variable extends AbstractXQExpression {<a name="line.59"></a>
+<FONT color="green">060</FONT>        private static final long serialVersionUID = 1L;<a name="line.60"></a>
+<FONT color="green">061</FONT>        private static final ThreadLocalCounter _counter = new ThreadLocalCounter(MutableLong.INT_MIN_VALUE);<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        protected QualifiedName _varName;<a name="line.63"></a>
+<FONT color="green">064</FONT>        protected XQExpression _value;<a name="line.64"></a>
+<FONT color="green">065</FONT>        protected Sequence _result = null;<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>        protected int _referenceCount = 0;<a name="line.67"></a>
+<FONT color="green">068</FONT>        private/* final */int _birthid;<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>        protected Variable(QualifiedName varName) {<a name="line.70"></a>
+<FONT color="green">071</FONT>            this(varName, null);<a name="line.71"></a>
+<FONT color="green">072</FONT>        }<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>        protected Variable(QualifiedName varName, XQExpression value) {<a name="line.74"></a>
+<FONT color="green">075</FONT>            this._varName = varName;<a name="line.75"></a>
+<FONT color="green">076</FONT>            this._value = value;<a name="line.76"></a>
+<FONT color="green">077</FONT>            this._birthid = (int) _counter.getAndIncrement();<a name="line.77"></a>
+<FONT color="green">078</FONT>        }<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        protected Variable() {}// Externalizable<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>        protected void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {<a name="line.82"></a>
+<FONT color="green">083</FONT>            this._type = (Type) in.readObject();<a name="line.83"></a>
+<FONT color="green">084</FONT>            final boolean hasVarName = in.readBoolean();<a name="line.84"></a>
+<FONT color="green">085</FONT>            if(hasVarName) {<a name="line.85"></a>
+<FONT color="green">086</FONT>                this._varName = QualifiedName.readFrom(in);<a name="line.86"></a>
+<FONT color="green">087</FONT>            }<a name="line.87"></a>
+<FONT color="green">088</FONT>            final boolean hasValue = in.readBoolean();<a name="line.88"></a>
+<FONT color="green">089</FONT>            if(hasValue) {<a name="line.89"></a>
+<FONT color="green">090</FONT>                this._value = (XQExpression) in.readObject();<a name="line.90"></a>
+<FONT color="green">091</FONT>            }<a name="line.91"></a>
+<FONT color="green">092</FONT>            final boolean hasResult = in.readBoolean();<a name="line.92"></a>
+<FONT color="green">093</FONT>            if(hasResult) {<a name="line.93"></a>
+<FONT color="green">094</FONT>                this._result = (Sequence) in.readObject();<a name="line.94"></a>
+<FONT color="green">095</FONT>            }<a name="line.95"></a>
+<FONT color="green">096</FONT>            this._referenceCount = in.readInt();<a name="line.96"></a>
+<FONT color="green">097</FONT>            this._birthid = in.readInt();<a name="line.97"></a>
+<FONT color="green">098</FONT>        }<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>        protected void writeExternal(ObjectOutput out) throws IOException {<a name="line.100"></a>
+<FONT color="green">101</FONT>            out.writeObject(_type);<a name="line.101"></a>
+<FONT color="green">102</FONT>            final QualifiedName varName = _varName;<a name="line.102"></a>
+<FONT color="green">103</FONT>            if(varName == null) {<a name="line.103"></a>
+<FONT color="green">104</FONT>                out.writeBoolean(false);<a name="line.104"></a>
+<FONT color="green">105</FONT>            } else {<a name="line.105"></a>
+<FONT color="green">106</FONT>                out.writeBoolean(true);<a name="line.106"></a>
+<FONT color="green">107</FONT>                varName.writeExternal(out);<a name="line.107"></a>
+<FONT color="green">108</FONT>            }<a name="line.108"></a>
+<FONT color="green">109</FONT>            final XQExpression value = _value;<a name="line.109"></a>
+<FONT color="green">110</FONT>            if(value == null) {<a name="line.110"></a>
+<FONT color="green">111</FONT>                out.writeBoolean(false);<a name="line.111"></a>
+<FONT color="green">112</FONT>            } else {<a name="line.112"></a>
+<FONT color="green">113</FONT>                out.writeBoolean(true);<a name="line.113"></a>
+<FONT color="green">114</FONT>                out.writeObject(value);<a name="line.114"></a>
+<FONT color="green">115</FONT>            }<a name="line.115"></a>
+<FONT color="green">116</FONT>            final Sequence result = _result;<a name="line.116"></a>
+<FONT color="green">117</FONT>            if(result == null) {<a name="line.117"></a>
+<FONT color="green">118</FONT>                out.writeBoolean(false);<a name="line.118"></a>
+<FONT color="green">119</FONT>            } else {<a name="line.119"></a>
+<FONT color="green">120</FONT>                out.writeBoolean(true);<a name="line.120"></a>
+<FONT color="green">121</FONT>                out.writeObject(_result);<a name="line.121"></a>
+<FONT color="green">122</FONT>            }<a name="line.122"></a>
+<FONT color="green">123</FONT>            out.writeInt(_referenceCount);<a name="line.123"></a>
+<FONT color="green">124</FONT>            out.writeInt(_birthid);<a name="line.124"></a>
+<FONT color="green">125</FONT>        }<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {<a name="line.127"></a>
+<FONT color="green">128</FONT>            readExternal(in);<a name="line.128"></a>
+<FONT color="green">129</FONT>        }<a name="line.129"></a>
+<FONT color="green">130</FONT>    <a name="line.130"></a>
+<FONT color="green">131</FONT>        private void writeObject(ObjectOutputStream out) throws IOException {<a name="line.131"></a>
+<FONT color="green">132</FONT>            writeExternal(out);<a name="line.132"></a>
+<FONT color="green">133</FONT>        }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>        public int incrementReferenceCount() {<a name="line.135"></a>
+<FONT color="green">136</FONT>            return ++_referenceCount;<a name="line.136"></a>
+<FONT color="green">137</FONT>        }<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>        public int getReferenceCount() {<a name="line.139"></a>
+<FONT color="green">140</FONT>            return _referenceCount;<a name="line.140"></a>
+<FONT color="green">141</FONT>        }<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>        public int getBirthId() {<a name="line.143"></a>
+<FONT color="green">144</FONT>            return _birthid;<a name="line.144"></a>
+<FONT color="green">145</FONT>        }<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>        public boolean isImmutable() {<a name="line.147"></a>
+<FONT color="green">148</FONT>            return true; // TODO REVIEWME<a name="line.148"></a>
+<FONT color="green">149</FONT>        }<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>        public boolean isInsideRemoteExpr() {<a name="line.151"></a>
+<FONT color="green">152</FONT>            return false;<a name="line.152"></a>
+<FONT color="green">153</FONT>        }<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>        public XQExpression visit(XQueryParserVisitor visitor, XQueryContext ctxt)<a name="line.155"></a>
+<FONT color="green">156</FONT>                throws XQueryException {<a name="line.156"></a>
+<FONT color="green">157</FONT>            return visitor.visit(this, ctxt);<a name="line.157"></a>
+<FONT color="green">158</FONT>        }<a name="line.158"></a>
+<FONT color="green">159</FONT>    <a name="line.159"></a>
+<FONT color="green">160</FONT>        //--------------------------------------------<a name="line.160"></a>
+<FONT color="green">161</FONT>        // getter/setter<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">163</FONT>        public QualifiedName getVarName() {<a name="line.163"></a>
+<FONT color="green">164</FONT>            return _varName;<a name="line.164"></a>
+<FONT color="green">165</FONT>        }<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>        public String getName() {<a name="line.167"></a>
+<FONT color="green">168</FONT>            if(_varName == null) {<a name="line.168"></a>
+<FONT color="green">169</FONT>                return Integer.toString(System.identityHashCode(this));<a name="line.169"></a>
+<FONT color="green">170</FONT>            }<a name="line.170"></a>
+<FONT color="green">171</FONT>            return QNameUtil.toLexicalForm(_varName);<a name="line.171"></a>
+<FONT color="green">172</FONT>        }<a name="line.172"></a>
+<FONT color="green">173</FONT>    <a name="line.173"></a>
+<FONT color="green">174</FONT>        public void setValue(XQExpression value) {<a name="line.174"></a>
+<FONT color="green">175</FONT>            this._value = value;<a name="line.175"></a>
+<FONT color="green">176</FONT>        }<a name="line.176"></a>
+<FONT color="green">177</FONT>    <a name="line.177"></a>
+<FONT color="green">178</FONT>        /**<a name="line.178"></a>
+<FONT color="green">179</FONT>         * This value may null if result already set.<a name="line.179"></a>
+<FONT color="green">180</FONT>         */<a name="line.180"></a>
+<FONT color="green">181</FONT>        public XQExpression getValue() {<a name="line.181"></a>
+<FONT color="green">182</FONT>            return _value;<a name="line.182"></a>
+<FONT color="green">183</FONT>        }<a name="line.183"></a>
+<FONT color="green">184</FONT>    <a name="line.184"></a>
+<FONT color="green">185</FONT>        public void setResult(Sequence res) {<a name="line.185"></a>
+<FONT color="green">186</FONT>            this._result = res;<a name="line.186"></a>
+<FONT color="green">187</FONT>        }<a name="line.187"></a>
+<FONT color="green">188</FONT>    <a name="line.188"></a>
+<FONT color="green">189</FONT>        public Sequence getResult() {<a name="line.189"></a>
+<FONT color="green">190</FONT>            return this._result;<a name="line.190"></a>
+<FONT color="green">191</FONT>        }<a name="line.191"></a>
+<FONT color="green">192</FONT>    <a name="line.192"></a>
+<FONT color="green">193</FONT>        public void setType(Type type) {<a name="line.193"></a>
+<FONT color="green">194</FONT>            this._type = type;<a name="line.194"></a>
+<FONT color="green">195</FONT>        }<a name="line.195"></a>
+<FONT color="green">196</FONT>    <a name="line.196"></a>
+<FONT color="green">197</FONT>        public boolean equals(Variable trgVar) {<a name="line.197"></a>
+<FONT color="green">198</FONT>            return (_varName == null) ? trgVar == null : _varName.equals(trgVar.getVarName());<a name="line.198"></a>
+<FONT color="green">199</FONT>        }<a name="line.199"></a>
+<FONT color="green">200</FONT>    <a name="line.200"></a>
+<FONT color="green">201</FONT>        @Override<a name="line.201"></a>
+<FONT color="green">202</FONT>        public String toString() {<a name="line.202"></a>
+<FONT color="green">203</FONT>            return '$' + getName();<a name="line.203"></a>
+<FONT color="green">204</FONT>        }<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>        //--------------------------------------------<a name="line.206"></a>
+<FONT color="green">207</FONT>        // static analysis/dynamic evaluation<a name="line.207"></a>
+<FONT color="green">208</FONT>    <a name="line.208"></a>
+<FONT color="green">209</FONT>        public XQExpression staticAnalysis(StaticContext statEnv) throws XQueryException {<a name="line.209"></a>
+<FONT color="green">210</FONT>            if(!_analyzed) {<a name="line.210"></a>
+<FONT color="green">211</FONT>                this._analyzed = true;<a name="line.211"></a>
+<FONT color="green">212</FONT>                if(_result == null &amp;&amp; _value == null) {<a name="line.212"></a>
+<FONT color="green">213</FONT>                    throw new IllegalStateException("Neither value nor result are binded of $"<a name="line.213"></a>
+<FONT color="green">214</FONT>                            + getName());<a name="line.214"></a>
+<FONT color="green">215</FONT>                }<a name="line.215"></a>
+<FONT color="green">216</FONT>                if(_result != null) {<a name="line.216"></a>
+<FONT color="green">217</FONT>                    this._type = _result.getType();<a name="line.217"></a>
+<FONT color="green">218</FONT>                } else {<a name="line.218"></a>
+<FONT color="green">219</FONT>                    // infer type<a name="line.219"></a>
+<FONT color="green">220</FONT>                    XQExpression analysed = _value.staticAnalysis(statEnv);<a name="line.220"></a>
+<FONT color="green">221</FONT>                    XQExpression promoted = TypeUtil.promote(analysed, _type);<a name="line.221"></a>
+<FONT color="green">222</FONT>                    this._type = promoted.getType();<a name="line.222"></a>
+<FONT color="green">223</FONT>                    this._value = promoted;<a name="line.223"></a>
+<FONT color="green">224</FONT>                }<a name="line.224"></a>
+<FONT color="green">225</FONT>            }<a name="line.225"></a>
+<FONT color="green">226</FONT>            return this;<a name="line.226"></a>
+<FONT color="green">227</FONT>        }<a name="line.227"></a>
+<FONT color="green">228</FONT>    <a name="line.228"></a>
+<FONT color="green">229</FONT>        public Sequence&lt;? extends Item&gt; eval(Sequence&lt;? extends Item&gt; contextSeq, DynamicContext dynEnv)<a name="line.229"></a>
+<FONT color="green">230</FONT>                throws XQueryException {<a name="line.230"></a>
+<FONT color="green">231</FONT>            if(_result != null) {<a name="line.231"></a>
+<FONT color="green">232</FONT>                return _result;<a name="line.232"></a>
+<FONT color="green">233</FONT>            }<a name="line.233"></a>
+<FONT color="green">234</FONT>            if(_value == null) {<a name="line.234"></a>
+<FONT color="green">235</FONT>                throw new DynamicError("The value of variable '$" + getName() + "' is not defined");<a name="line.235"></a>
+<FONT color="green">236</FONT>            }<a name="line.236"></a>
+<FONT color="green">237</FONT>            final Sequence&lt;? extends Item&gt; result = _value.eval(contextSeq, dynEnv);<a name="line.237"></a>
+<FONT color="green">238</FONT>            this._result = result;<a name="line.238"></a>
+<FONT color="green">239</FONT>            return result;<a name="line.239"></a>
+<FONT color="green">240</FONT>        }<a name="line.240"></a>
+<FONT color="green">241</FONT>    <a name="line.241"></a>
+<FONT color="green">242</FONT>        public static class GlobalVariable extends Variable {<a name="line.242"></a>
+<FONT color="green">243</FONT>            private static final long serialVersionUID = 4518495428271329049L;<a name="line.243"></a>
+<FONT color="green">244</FONT>    <a name="line.244"></a>
+<FONT color="green">245</FONT>            public GlobalVariable(QualifiedName varName, XQExpression value) {<a name="line.245"></a>
+<FONT color="green">246</FONT>                super(varName, value);<a name="line.246"></a>
+<FONT color="green">247</FONT>            }<a name="line.247"></a>
+<FONT color="green">248</FONT>    <a name="line.248"></a>
+<FONT color="green">249</FONT>            public GlobalVariable(QualifiedName varName) {<a name="line.249"></a>
+<FONT color="green">250</FONT>                super(varName, null);<a name="line.250"></a>
+<FONT color="green">251</FONT>            }<a name="line.251"></a>
+<FONT color="green">252</FONT>    <a name="line.252"></a>
+<FONT color="green">253</FONT>            @Override<a name="line.253"></a>
+<FONT color="green">254</FONT>            public boolean isPathIndexAccessable(StaticContext statEnv, RewriteInfo info) {<a name="line.254"></a>
+<FONT color="green">255</FONT>                return true;<a name="line.255"></a>
+<FONT color="green">256</FONT>            }<a name="line.256"></a>
+<FONT color="green">257</FONT>    <a name="line.257"></a>
+<FONT color="green">258</FONT>            @Override<a name="line.258"></a>
+<FONT color="green">259</FONT>            public XQExpression staticAnalysis(StaticContext statEnv) throws XQueryException {<a name="line.259"></a>
+<FONT color="green">260</FONT>                super.staticAnalysis(statEnv);<a name="line.260"></a>
+<FONT color="green">261</FONT>                if(_referenceCount == 1 &amp;&amp; _value != null) {<a name="line.261"></a>
+<FONT color="green">262</FONT>                    return _value;<a name="line.262"></a>
+<FONT color="green">263</FONT>                }<a name="line.263"></a>
+<FONT color="green">264</FONT>                return this;<a name="line.264"></a>
+<FONT color="green">265</FONT>            }<a name="line.265"></a>
+<FONT color="green">266</FONT>        }<a name="line.266"></a>
+<FONT color="green">267</FONT>    <a name="line.267"></a>
+<FONT color="green">268</FONT>        /**<a name="line.268"></a>
+<FONT color="green">269</FONT>         * @link http://www.w3.org/TR/xquery-semantics/#sec_variable-declarations<a name="line.269"></a>
+<FONT color="green">270</FONT>         */<a name="line.270"></a>
+<FONT color="green">271</FONT>        public static final class ExternalVariable extends GlobalVariable {<a name="line.271"></a>
+<FONT color="green">272</FONT>            private static final long serialVersionUID = -1619955854072232237L;<a name="line.272"></a>
+<FONT color="green">273</FONT>    <a name="line.273"></a>
+<FONT color="green">274</FONT>            private boolean checkType = false;<a name="line.274"></a>
+<FONT color="green">275</FONT>    <a name="line.275"></a>
+<FONT color="green">276</FONT>            public ExternalVariable(QualifiedName varName, XQueryModule currentModule) {<a name="line.276"></a>
+<FONT color="green">277</FONT>                super(varName, null);<a name="line.277"></a>
+<FONT color="green">278</FONT>                this._type = SequenceType.ANY_ITEMS;<a name="line.278"></a>
+<FONT color="green">279</FONT>            }<a name="line.279"></a>
+<FONT color="green">280</FONT>    <a name="line.280"></a>
+<FONT color="green">281</FONT>            @Override<a name="line.281"></a>
+<FONT color="green">282</FONT>            public XQExpression visit(XQueryParserVisitor visitor, XQueryContext ctxt)<a name="line.282"></a>
+<FONT color="green">283</FONT>                    throws XQueryException {<a name="line.283"></a>
+<FONT color="green">284</FONT>                return visitor.visit(this, ctxt);<a name="line.284"></a>
+<FONT color="green">285</FONT>            }<a name="line.285"></a>
+<FONT color="green">286</FONT>    <a name="line.286"></a>
+<FONT color="green">287</FONT>            @Override<a name="line.287"></a>
+<FONT color="green">288</FONT>            public String toString() {<a name="line.288"></a>
+<FONT color="green">289</FONT>                return super.toString() + " external";<a name="line.289"></a>
+<FONT color="green">290</FONT>            }<a name="line.290"></a>
+<FONT color="green">291</FONT>    <a name="line.291"></a>
+<FONT color="green">292</FONT>            @Override<a name="line.292"></a>
+<FONT color="green">293</FONT>            public void setType(Type type) {<a name="line.293"></a>
+<FONT color="green">294</FONT>                this._type = type;<a name="line.294"></a>
+<FONT color="green">295</FONT>                this.checkType = true;<a name="line.295"></a>
+<FONT color="green">296</FONT>            }<a name="line.296"></a>
+<FONT color="green">297</FONT>    <a name="line.297"></a>
+<FONT color="green">298</FONT>            @Override<a name="line.298"></a>
+<FONT color="green">299</FONT>            public XQExpression staticAnalysis(StaticContext statEnv) throws XQueryException {<a name="line.299"></a>
+<FONT color="green">300</FONT>                return this;<a name="line.300"></a>
+<FONT color="green">301</FONT>            }<a name="line.301"></a>
+<FONT color="green">302</FONT>    <a name="line.302"></a>
+<FONT color="green">303</FONT>            @Override<a name="line.303"></a>
+<FONT color="green">304</FONT>            public Sequence&lt;? extends Item&gt; eval(Sequence&lt;? extends Item&gt; contextSeq, DynamicContext dynEnv)<a name="line.304"></a>
+<FONT color="green">305</FONT>                    throws XQueryException {<a name="line.305"></a>
+<FONT color="green">306</FONT>                Sequence result = _result;<a name="line.306"></a>
+<FONT color="green">307</FONT>                if(result == null) {<a name="line.307"></a>
+<FONT color="green">308</FONT>                    throw new DynamicError("External variable is not set");<a name="line.308"></a>
+<FONT color="green">309</FONT>                }<a name="line.309"></a>
+<FONT color="green">310</FONT>                if(checkType) {<a name="line.310"></a>
+<FONT color="green">311</FONT>                    final Type resultType = result.getType();<a name="line.311"></a>
+<FONT color="green">312</FONT>                    if(!TypeUtil.subtypeOf(resultType, _type)) {<a name="line.312"></a>
+<FONT color="green">313</FONT>                        result = DirectFunctionCall.mapFunctionArgument(_result, _type, dynEnv);<a name="line.313"></a>
+<FONT color="green">314</FONT>                    }<a name="line.314"></a>
+<FONT color="green">315</FONT>                }<a name="line.315"></a>
+<FONT color="green">316</FONT>                return result;<a name="line.316"></a>
+<FONT color="green">317</FONT>            }<a name="line.317"></a>
+<FONT color="green">318</FONT>        }<a name="line.318"></a>
+<FONT color="green">319</FONT>    <a name="line.319"></a>
+<FONT color="green">320</FONT>        public static final class PreEvaluatedVariable extends Variable implements Evaluable {<a name="line.320"></a>
+<FONT color="green">321</FONT>            private static final long serialVersionUID = 555376125369760898L;<a name="line.321"></a>
+<FONT color="green">322</FONT>    <a name="line.322"></a>
+<FONT color="green">323</FONT>            public PreEvaluatedVariable(Sequence result, Type type) {<a name="line.323"></a>
+<FONT color="green">324</FONT>                super(null);<a name="line.324"></a>
+<FONT color="green">325</FONT>                if(result == null) {<a name="line.325"></a>
+<FONT color="green">326</FONT>                    throw new IllegalArgumentException();<a name="line.326"></a>
+<FONT color="green">327</FONT>                }<a name="line.327"></a>
+<FONT color="green">328</FONT>                if(type == null) {<a name="line.328"></a>
+<FONT color="green">329</FONT>                    throw new IllegalArgumentException();<a name="line.329"></a>
+<FONT color="green">330</FONT>                }<a name="line.330"></a>
+<FONT color="green">331</FONT>                this._result = result;<a name="line.331"></a>
+<FONT color="green">332</FONT>                this._type = type;<a name="line.332"></a>
+<FONT color="green">333</FONT>                this._analyzed = true;<a name="line.333"></a>
+<FONT color="green">334</FONT>            }<a name="line.334"></a>
+<FONT color="green">335</FONT>    <a name="line.335"></a>
+<FONT color="green">336</FONT>            public PreEvaluatedVariable(Sequence&lt;? extends Item&gt; eagerEvaluated) {<a name="line.336"></a>
+<FONT color="green">337</FONT>                this(eagerEvaluated, eagerEvaluated.getType());<a name="line.337"></a>
+<FONT color="green">338</FONT>            }<a name="line.338"></a>
+<FONT color="green">339</FONT>    <a name="line.339"></a>
+<FONT color="green">340</FONT>            @Override<a name="line.340"></a>
+<FONT color="green">341</FONT>            public XQExpression visit(XQueryParserVisitor visitor, XQueryContext ctxt)<a name="line.341"></a>
+<FONT color="green">342</FONT>                    throws XQueryException {<a name="line.342"></a>
+<FONT color="green">343</FONT>                return visitor.visit(this, ctxt);<a name="line.343"></a>
+<FONT color="green">344</FONT>            }<a name="line.344"></a>
+<FONT color="green">345</FONT>    <a name="line.345"></a>
+<FONT color="green">346</FONT>            @Override<a name="line.346"></a>
+<FONT color="green">347</FONT>            public String toString() {<a name="line.347"></a>
+<FONT color="green">348</FONT>                return _result.toString();<a name="line.348"></a>
+<FONT color="green">349</FONT>            }<a name="line.349"></a>
+<FONT color="green">350</FONT>        }<a name="line.350"></a>
+<FONT color="green">351</FONT>    <a name="line.351"></a>
+<FONT color="green">352</FONT>    }<a name="line.352"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,186 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Written by Doug Lea with assistance from members of JCP JSR-166<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Expert Group and released to the public domain, as explained at<a name="line.3"></a>
+<FONT color="green">004</FONT>     * http://creativecommons.org/licenses/publicdomain<a name="line.4"></a>
+<FONT color="green">005</FONT>     */<a name="line.5"></a>
+<FONT color="green">006</FONT>    <a name="line.6"></a>
+<FONT color="green">007</FONT>    package xbird.util.concurrent.jsr166;<a name="line.7"></a>
+<FONT color="green">008</FONT>    <a name="line.8"></a>
+<FONT color="green">009</FONT>    import java.util.concurrent.BlockingQueue;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.util.concurrent.SynchronousQueue;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.concurrent.TimeUnit;<a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    /**<a name="line.13"></a>
+<FONT color="green">014</FONT>     * A {@link BlockingQueue} in which producers may wait for consumers<a name="line.14"></a>
+<FONT color="green">015</FONT>     * to receive elements.  A &lt;tt&gt;TransferQueue&lt;/tt&gt; may be useful for<a name="line.15"></a>
+<FONT color="green">016</FONT>     * example in message passing applications in which producers<a name="line.16"></a>
+<FONT color="green">017</FONT>     * sometimes (using method &lt;tt&gt;transfer&lt;/tt&gt;) await receipt of<a name="line.17"></a>
+<FONT color="green">018</FONT>     * elements by consumers invoking &lt;tt&gt;take&lt;/tt&gt; or &lt;tt&gt;poll&lt;/tt&gt;,<a name="line.18"></a>
+<FONT color="green">019</FONT>     * while at other times enqueue elements (via method &lt;tt&gt;put&lt;/tt&gt;)<a name="line.19"></a>
+<FONT color="green">020</FONT>     * without waiting for receipt. Non-blocking and time-out versions of<a name="line.20"></a>
+<FONT color="green">021</FONT>     * &lt;tt&gt;tryTransfer&lt;/tt&gt; are also available.  A TransferQueue may also<a name="line.21"></a>
+<FONT color="green">022</FONT>     * be queried via &lt;tt&gt;hasWaitingConsumer&lt;/tt&gt; whether there are any<a name="line.22"></a>
+<FONT color="green">023</FONT>     * threads waiting for items, which is a converse analogy to a<a name="line.23"></a>
+<FONT color="green">024</FONT>     * &lt;tt&gt;peek&lt;/tt&gt; operation<a name="line.24"></a>
+<FONT color="green">025</FONT>     *<a name="line.25"></a>
+<FONT color="green">026</FONT>     * &lt;p&gt;Like any &lt;tt&gt;BlockingQueue&lt;/tt&gt;, a &lt;tt&gt;TransferQueue&lt;/tt&gt; may be<a name="line.26"></a>
+<FONT color="green">027</FONT>     * capacity bounded. If so, an attempted &lt;tt&gt;transfer&lt;/tt&gt; operation<a name="line.27"></a>
+<FONT color="green">028</FONT>     * may initially block waiting for available space, and/or<a name="line.28"></a>
+<FONT color="green">029</FONT>     * subsequently block waiting for reception by a consumer.  Note that<a name="line.29"></a>
+<FONT color="green">030</FONT>     * in a queue with zero capacity, such as {@link SynchronousQueue},<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;tt&gt;put&lt;/tt&gt; and &lt;tt&gt;transfer&lt;/tt&gt; are effectively synonymous.<a name="line.31"></a>
+<FONT color="green">032</FONT>     *<a name="line.32"></a>
+<FONT color="green">033</FONT>     * &lt;p&gt;This interface is a member of the<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;a href="{@docRoot}/../technotes/guides/collections/index.html"&gt;<a name="line.34"></a>
+<FONT color="green">035</FONT>     * Java Collections Framework&lt;/a&gt;.<a name="line.35"></a>
+<FONT color="green">036</FONT>     *<a name="line.36"></a>
+<FONT color="green">037</FONT>     * @since 1.7<a name="line.37"></a>
+<FONT color="green">038</FONT>     * @author Doug Lea<a name="line.38"></a>
+<FONT color="green">039</FONT>     * @param &lt;E&gt; the type of elements held in this collection<a name="line.39"></a>
+<FONT color="green">040</FONT>     */<a name="line.40"></a>
+<FONT color="green">041</FONT>    public interface TransferQueue&lt;E&gt; extends BlockingQueue&lt;E&gt; {<a name="line.41"></a>
+<FONT color="green">042</FONT>        /**<a name="line.42"></a>
+<FONT color="green">043</FONT>         * Transfers the specified element if there exists a consumer<a name="line.43"></a>
+<FONT color="green">044</FONT>         * already waiting to receive it, otherwise returning &lt;tt&gt;false&lt;/tt&gt;<a name="line.44"></a>
+<FONT color="green">045</FONT>         * without enqueuing the element.<a name="line.45"></a>
+<FONT color="green">046</FONT>         *<a name="line.46"></a>
+<FONT color="green">047</FONT>         * @param e the element to transfer<a name="line.47"></a>
+<FONT color="green">048</FONT>         * @return &lt;tt&gt;true&lt;/tt&gt; if the element was transferred, else<a name="line.48"></a>
+<FONT color="green">049</FONT>         *         &lt;tt&gt;false&lt;/tt&gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>         * @throws ClassCastException if the class of the specified element<a name="line.50"></a>
+<FONT color="green">051</FONT>         *         prevents it from being added to this queue<a name="line.51"></a>
+<FONT color="green">052</FONT>         * @throws NullPointerException if the specified element is null<a name="line.52"></a>
+<FONT color="green">053</FONT>         * @throws IllegalArgumentException if some property of the specified<a name="line.53"></a>
+<FONT color="green">054</FONT>         *         element prevents it from being added to this queue<a name="line.54"></a>
+<FONT color="green">055</FONT>         */<a name="line.55"></a>
+<FONT color="green">056</FONT>        boolean tryTransfer(E e);<a name="line.56"></a>
+<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">058</FONT>        /**<a name="line.58"></a>
+<FONT color="green">059</FONT>         * Inserts the specified element into this queue, waiting if<a name="line.59"></a>
+<FONT color="green">060</FONT>         * necessary for space to become available and the element to be<a name="line.60"></a>
+<FONT color="green">061</FONT>         * dequeued by a consumer invoking &lt;tt&gt;take&lt;/tt&gt; or &lt;tt&gt;poll&lt;/tt&gt;.<a name="line.61"></a>
+<FONT color="green">062</FONT>         *<a name="line.62"></a>
+<FONT color="green">063</FONT>         * @param e the element to transfer<a name="line.63"></a>
+<FONT color="green">064</FONT>         * @throws InterruptedException if interrupted while waiting,<a name="line.64"></a>
+<FONT color="green">065</FONT>         *         in which case the element is not enqueued.<a name="line.65"></a>
+<FONT color="green">066</FONT>         * @throws ClassCastException if the class of the specified element<a name="line.66"></a>
+<FONT color="green">067</FONT>         *         prevents it from being added to this queue<a name="line.67"></a>
+<FONT color="green">068</FONT>         * @throws NullPointerException if the specified element is null<a name="line.68"></a>
+<FONT color="green">069</FONT>         * @throws IllegalArgumentException if some property of the specified<a name="line.69"></a>
+<FONT color="green">070</FONT>         *         element prevents it from being added to this queue<a name="line.70"></a>
+<FONT color="green">071</FONT>         */<a name="line.71"></a>
+<FONT color="green">072</FONT>        void transfer(E e) throws InterruptedException;<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>        /**<a name="line.74"></a>
+<FONT color="green">075</FONT>         * Inserts the specified element into this queue, waiting up to<a name="line.75"></a>
+<FONT color="green">076</FONT>         * the specified wait time if necessary for space to become<a name="line.76"></a>
+<FONT color="green">077</FONT>         * available and the element to be dequeued by a consumer invoking<a name="line.77"></a>
+<FONT color="green">078</FONT>         * &lt;tt&gt;take&lt;/tt&gt; or &lt;tt&gt;poll&lt;/tt&gt;.<a name="line.78"></a>
+<FONT color="green">079</FONT>         *<a name="line.79"></a>
+<FONT color="green">080</FONT>         * @param e the element to transfer<a name="line.80"></a>
+<FONT color="green">081</FONT>         * @param timeout how long to wait before giving up, in units of<a name="line.81"></a>
+<FONT color="green">082</FONT>         *        &lt;tt&gt;unit&lt;/tt&gt;<a name="line.82"></a>
+<FONT color="green">083</FONT>         * @param unit a &lt;tt&gt;TimeUnit&lt;/tt&gt; determining how to interpret the<a name="line.83"></a>
+<FONT color="green">084</FONT>         *        &lt;tt&gt;timeout&lt;/tt&gt; parameter<a name="line.84"></a>
+<FONT color="green">085</FONT>         * @return &lt;tt&gt;true&lt;/tt&gt; if successful, or &lt;tt&gt;false&lt;/tt&gt; if<a name="line.85"></a>
+<FONT color="green">086</FONT>         *         the specified waiting time elapses before completion,<a name="line.86"></a>
+<FONT color="green">087</FONT>         *         in which case the element is not enqueued.<a name="line.87"></a>
+<FONT color="green">088</FONT>         * @throws InterruptedException if interrupted while waiting,<a name="line.88"></a>
+<FONT color="green">089</FONT>         *         in which case the element is not enqueued.<a name="line.89"></a>
+<FONT color="green">090</FONT>         * @throws ClassCastException if the class of the specified element<a name="line.90"></a>
+<FONT color="green">091</FONT>         *         prevents it from being added to this queue<a name="line.91"></a>
+<FONT color="green">092</FONT>         * @throws NullPointerException if the specified element is null<a name="line.92"></a>
+<FONT color="green">093</FONT>         * @throws IllegalArgumentException if some property of the specified<a name="line.93"></a>
+<FONT color="green">094</FONT>         *         element prevents it from being added to this queue<a name="line.94"></a>
+<FONT color="green">095</FONT>         */<a name="line.95"></a>
+<FONT color="green">096</FONT>        boolean tryTransfer(E e, long timeout, TimeUnit unit) <a name="line.96"></a>
+<FONT color="green">097</FONT>            throws InterruptedException;<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>        /**<a name="line.99"></a>
+<FONT color="green">100</FONT>         * Returns true if there is at least one consumer waiting to<a name="line.100"></a>
+<FONT color="green">101</FONT>         * dequeue an element via &lt;tt&gt;take&lt;/tt&gt; or &lt;tt&gt;poll&lt;/tt&gt;. The<a name="line.101"></a>
+<FONT color="green">102</FONT>         * return value represents a momentary state of affairs.<a name="line.102"></a>
+<FONT color="green">103</FONT>         * @return true if there is at least one waiting consumer.<a name="line.103"></a>
+<FONT color="green">104</FONT>         */<a name="line.104"></a>
+<FONT color="green">105</FONT>        boolean hasWaitingConsumer();<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>        /**<a name="line.108"></a>
+<FONT color="green">109</FONT>         * Returns an estimate of the number of consumers waiting to<a name="line.109"></a>
+<FONT color="green">110</FONT>         * dequeue elements via &lt;tt&gt;take&lt;/tt&gt; or &lt;tt&gt;poll&lt;/tt&gt;. The return<a name="line.110"></a>
+<FONT color="green">111</FONT>         * value is an approximation of a momentary state of affairs, that<a name="line.111"></a>
+<FONT color="green">112</FONT>         * may be inaccurate if consumers have completed or given up<a name="line.112"></a>
+<FONT color="green">113</FONT>         * waiting. The value may be useful for monitoring and heuristics,<a name="line.113"></a>
+<FONT color="green">114</FONT>         * but not for synchronization control. Implementations of this<a name="line.114"></a>
+<FONT color="green">115</FONT>         * method are likely to be noticeably slower than those for<a name="line.115"></a>
+<FONT color="green">116</FONT>         * &lt;tt&gt;hasWaitingConsumer&lt;/tt&gt;.<a name="line.116"></a>
+<FONT color="green">117</FONT>         * @return the number of consumers waiting to dequeue elements<a name="line.117"></a>
+<FONT color="green">118</FONT>         */<a name="line.118"></a>
+<FONT color="green">119</FONT>        int getWaitingConsumerCount();<a name="line.119"></a>
+<FONT color="green">120</FONT>    }<a name="line.120"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
