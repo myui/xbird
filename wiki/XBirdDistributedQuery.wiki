@@ -27,3 +27,6 @@ declare function local:remote-eval($colname)
 };
 local:remote-eval("/repos/xmark1.xml")
 }}}
+
+== Reference ==
+  * [http://jp.citeulike.org/user/myui/article/2810257 Makoto Yui, Jun Miyazaki, Shunsuke Uemura and Hirokazu Kato. ``XBird/D: Distributed and Parallel XQuery Processing using Remote Proxy'', In Proc. ACM SAC (DTTA track), pp. 1003-1007, 2008.]
