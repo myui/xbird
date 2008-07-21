@@ -16,7 +16,7 @@ Extract me please!
 Me too ;-(
 }}}
 
-----
+The following query extracts the table as provided below.
 
 {{{
 <html>
@@ -38,6 +38,9 @@ Me too ;-(
 </body>
 </html>
 }}}
+|| order || message ||
+|| 1 || Extract me please! ||
+|| 2 || Me too ;-( ||
 
 == List of future information == 
   * [http://www.ibm.com/developerworks/xml/library/j-jtp03225.html Java theory and practice: Screen-scraping with XQuery]^#1^
