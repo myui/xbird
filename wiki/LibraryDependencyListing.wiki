@@ -1,5 +1,5 @@
 #summary Library dependency listing
-#labels Phase-Requirements,Featured
+#labels Phase-Requirements
 
 = Minimum requirements =
 
