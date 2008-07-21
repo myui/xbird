@@ -13,9 +13,9 @@ XBird introduces a distributed query extention to XQuery called XBird Distribute
 
 T.B.D.
 
-=== Configuring service ===
+=== Configuring a service ===
 
-=== Starting servide ===
+=== Starting a service ===
 
 == Example Query ==
 
