@@ -12,6 +12,9 @@ We provide here an example that extracts the following text messege in this HTML
 {{{ 
 Extract me please!
 }}}
+{{{
+Me too ;-(
+}}}
 
 == List of future information == 
   * [http://www.ibm.com/developerworks/xml/library/j-jtp03225.html Java theory and practice: Screen-scraping with XQuery]^#1^
