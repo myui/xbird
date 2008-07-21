@@ -41,4 +41,4 @@ Me too ;-(
 
 == List of future information == 
   * [http://www.ibm.com/developerworks/xml/library/j-jtp03225.html Java theory and practice: Screen-scraping with XQuery]^#1^
-  * [http://en.wikipedia.org/wiki/Web_scraping Web scraping definition in Wikipedia]
+  * [http://en.wikipedia.org/wiki/Web_scraping Web scraping entry in Wikipedia]
