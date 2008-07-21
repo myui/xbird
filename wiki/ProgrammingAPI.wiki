@@ -6,12 +6,12 @@
 Running a XML query is fairly easy. 
 {{{
 InputStream input = ..  ; // a query as stream
-[http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/XQueryProcessor.java XQueryProcessor] proc = new XQueryProcessor();
+XQueryProcessor proc = new XQueryProcessor();
 // #1 parse a query
-[http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/XQueryModule.java XQueryModule] module = proc.parse(input);
+XQueryModule module = proc.parse(input);
 // #2 execute the compiled expression using ``pull'' mode
-[http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/value/Sequence.java Sequence]<? extends Item> result = proc.execute(module);
-for([http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/value/Item.java Item] item : result) {// Note that every Sequence instances implement Iterable. 
+Sequence<? extends Item> result = proc.execute(module);
+for(Item item : result) {// Note that every Sequence instances implement Iterable. 
     /* do something with item. */
     ..
 }
