@@ -3,13 +3,17 @@
 
 XBird introduces a distributed XQuery processing feature named XBird Distributed Query, _BDQ_ for short.
 
-= Syntax =
+== Syntax ==
 
 {{{
    BDQExpr ::= "execute at" [ VarRef "in" ] Expr "{" Expr "}"
 }}}
 
-= Usage = 
+== Usage ==
+
+T.B.D.
+
+== Example Query ==
 
 {{{
 declare variable $remote-endpoint := "//knuth.naist.jp:1099/xbird/srv-01";
