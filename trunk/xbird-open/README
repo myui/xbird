@@ -1,0 +1,37 @@
+===========================================================
+ Welcome to XBird/open  <http://code.google.com/p/xbird/> 
+ 	-- version 1.0
+ 
+ Copyright (C) 2006-2008, Makoto YUI and Project XBird
+===========================================================
+
+ 1). Minimum requirements
+ 
+  o Java 1.5 or later 
+  		-- Any operating system on which Java runs is supported.  	
+  o lib/xbird-db-xx.jar and lib/commons-logging-xx.jar
+
+  For details, visit the following page:
+
+	http://code.google.com/p/xbird/wiki/LibraryDependencyListing
+
+ 2). Getting started
+
+  A QuickStart can be found on the following page:
+	
+	http://code.google.com/p/xbird/wiki/QuickStart
+	
+ 3). Building XBird 
+ 
+  XBird is being developed with the Eclipse environment. 
+  
+  You can configure the environment by just importing this package 
+  as a Java project. Then, project -> Build Project compiles XBird
+  classes.
+
+ 3). Credits
+
+  See http://code.google.com/p/xbird/ for the list of XBird contributors.
+
+  If you want to be a developer of XBird, contact me <yuin405@gmail.com> 
+  freely with your patches.
