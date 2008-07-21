@@ -7,10 +7,10 @@ XQuery can be used effectively as a HTML/XML [http://en.wikipedia.org/wiki/Web_s
 
 == Example ==
 
-We provide here an example that scrapes the following messege in this HTML page by XQuery.
+We provide here an example that extracts the following messege in this HTML page by XQuery.
 
 {{{ 
-Scrape me please!
+Extract me please!
 }}}
 
 == List of future information == 
