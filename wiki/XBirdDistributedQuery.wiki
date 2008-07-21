@@ -1,7 +1,7 @@
 #summary XBird Distributed Query Processing.
 #labels Phase-Design,Featured
 
-XBird introduces a distributed XQuery processing extention to XQuery called XBird Distributed Query, _BDQ_ for short.
+XBird introduces a distributed query extention to XQuery called XBird Distributed Query, _BDQ_ for short.
 
 == Syntax ==
 
