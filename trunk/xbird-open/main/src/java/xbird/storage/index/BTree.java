@@ -1128,7 +1128,7 @@ public class BTree extends Paged {
          * Note that keys might be shortest-possible value.
          */
         private void scanLeaf(IndexQuery query, BTreeCallback callback, boolean edge) {
-            assert (ph.getStatus() == LEAF) : LEAF;
+            assert (ph.getStatus() == LEAF) : ph.getStatus();
             Value[] conds = query.getOperands();
             switch(query.getOperator()) {
                 case BasicIndexQuery.EQ: {
