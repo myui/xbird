@@ -1,5 +1,5 @@
 #summary HTML web page scraping
-#labels Phase-Implementation
+#labels Phase-Implementation,Featured
 
 == Introduction ==
 
@@ -16,11 +16,9 @@ Extract me please!
 Me too ;-(
 }}}
 
-The following query extracts the table as provided below.
+[http://xbird.googlecode.com/svn/trunk/xbird-open/examples/scraping/googlecode1.xq The following query] extracts [http://xbird.googlecode.com/svn/trunk/site/resources/misc/googlecode1.xq.html the table] as provided below.
 
 {{{
-<html>
-<body>
  <table border="1">
   <tr bgcolor="lightgreen">
     <td>order</td><td>message</td>
@@ -35,8 +33,6 @@ The following query extracts the table as provided below.
 		</tr>
 }
  </table>
-</body>
-</html>
 }}}
 || order || message ||
 || 1 || Extract me please! ||
