@@ -1,13 +1,11 @@
 #summary HTML web page scraping
 #labels Phase-Implementation
 
-= Introduction =
+== Introduction ==
 
-XQuery can be used effectively as a HTML/XML [http://en.wikipedia.org/wiki/Web_scraping web-scraping] engine.
-
-List of future information for web scraping:
-  * [http://www.ibm.com/developerworks/xml/library/j-jtp03225.html Java theory and practice: Screen-scraping with XQuery]
+XQuery can be used effectively as a HTML/XML [http://en.wikipedia.org/wiki/Web_scraping web-scraping] engine (see ^1^).
 
 = Details =
 
-T.B.D.
+== List of future information == 
+  * [http://www.ibm.com/developerworks/xml/library/j-jtp03225.html Java theory and practice: Screen-scraping with XQuery]^1^
