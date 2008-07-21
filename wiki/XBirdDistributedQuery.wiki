@@ -1,0 +1,24 @@
+#summary XBird Distributed Query Processing.
+
+XBird introduces a distributed XQuery processing feature named X*B*ird *D*istributed *Q*uery, _BDQ_ for short.
+
+= Syntax =
+
+{{{
+   BDQExpr ::= "execute at" [ VarRef "in" ] Expr "{" Expr "}"
+}}}
+
+= Usage = 
+
+{{{
+declare variable $remote-endpoint := "//knuth.naist.jp:1099/xbird/srv-01";
+declare function local:remote-eval($colname) 
+{
+  execute at $remote-endpoint {
+	for $a in fn:collection($colname)/site/closed_auctions/closed_auction
+	where $a/price/text() >= 40
+	return $a
+  }/price
+};
+local:remote-eval("/repos/xmark1.xml")
+}}}
