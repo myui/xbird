@@ -7,6 +7,7 @@
 {
 	let $page := fn:doc("http://code.google.com/p/xbird/wiki/WebScraping")
 	for $code at $pos in $page/html/body/div[@id='maincol']/div[@id='wikicontent']/pre
+	where $pos le 2
 	return 
 		<tr>
 		  <td>{ $pos }</td>
