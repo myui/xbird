@@ -43,7 +43,9 @@ Me too ;-(
 
 XBird uses [http://sourceforge.net/projects/nekohtml NekoHTML] or [http://ccil.org/~cowan/XML/tagsoup/ TagSoup] for the HTML parser in [http://xbird.googlecode.com/svn/trunk/xbird-open/main/src/java/xbird/xquery/dm/instance/DocumentTableModel.java DocumentTableModel class]. These parsers does not handle javascripts.
 
-The HTML parser is configurable through _xbird.util.xml.HTMLSAXParser_ property in xbird.properties. Javascript-aware HTML parser such as [http://lobobrowser.org/cobra/java-html-parser.jsp Cobra: Java HTML Parser] could be help. 
+The HTML parser is configurable through _xbird.util.xml.HTMLSAXParser_ property in [http://xbird.googlecode.com/svn/trunk/xbird-open/main/conf/xbird/config/xbird.properties xbird.properties]. 
+
+Javascript-aware HTML parsers such as [http://lobobrowser.org/cobra/java-html-parser.jsp Cobra: Java HTML Parser] could be a help. 
 
 == List of future information == 
   * [http://www.ibm.com/developerworks/xml/library/j-jtp03225.html Java theory and practice: Screen-scraping with XQuery]^#1^
