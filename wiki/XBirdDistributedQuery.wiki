@@ -32,5 +32,7 @@ declare function local:remote-eval($colname)
 local:remote-eval("/repos/xmark1.xml")
 }}}
 
+Nesting distributed queries as in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/examples/distributed/q06.xq q06.xq] can also be accepted.
+
 == Reference ==
   * [http://jp.citeulike.org/user/myui/article/2810257 Makoto Yui, Jun Miyazaki, Shunsuke Uemura and Hirokazu Kato. ``XBird/D: Distributed and Parallel XQuery Processing using Remote Proxy'', In Proc. ACM SAC (DTTA track), pp. 1003-1007, 2008.]
