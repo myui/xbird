@@ -25,9 +25,9 @@ Please move to $XBIRD_HOME/bin directory.
 
 The following command starts the database server:
 {{{
--- _on windows_
+-- on windows
 # server.bat 
--- _on unix_
+-- on unix
 # ./server.sh
 }}}
 
