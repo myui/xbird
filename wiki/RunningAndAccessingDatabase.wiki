@@ -19,11 +19,9 @@ T.B.D.
 
 == Running the Server ==
 
-Please move to $XBIRD_HOME/bin directory.
-
 ==== a) Running server by a command line ====
 
-The following command starts the database server:
+On $XBIRD_HOME/bin directory, the following command starts the database server:
 {{{
 -- on windows
 # server.bat 
