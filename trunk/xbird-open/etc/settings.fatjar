@@ -1,5 +1,5 @@
 #Fat Jar Configuration File
-#Mon Jul 21 05:31:43 JST 2008
+#Mon Jul 21 23:22:07 JST 2008
 onejar.license.required=true
 manifest.classpath=
 manifest.removesigners=true
@@ -10,5 +10,5 @@ manifest.mainclass=xbird.client.InteractiveShell
 manifest.file=<createnew>
 jarname.isextern=false
 onejar.expand=
-excludes=<po|xbird-open>~.svn/;<po|xbird-open>~example/;<jar|jdic-0.9.2.jar>;<jar|junit-4.1.jar>;<jar|log4j-1.2.13.jar>;<jar|saxon8-dom.jar>;<jar|saxon8.jar>;<jar|servlet-api.jar>;<jar|testng-5.8-jdk15.jar>;<jar|xmlunit-1.2.jar>;<jar|icu4j_3_4_2.jar>;<jar|tagsoup-1.2.jar>
+excludes=<po|xbird-open>~.svn/;<po|xbird-open>~example/;<jar|jdic-0.9.2.jar>;<jar|junit-4.1.jar>;<jar|log4j-1.2.13.jar>;<jar|saxon8-dom.jar>;<jar|saxon8.jar>;<jar|servlet-api.jar>;<jar|testng-5.8-jdk15.jar>;<jar|xmlunit-1.2.jar>;<jar|icu4j_3_4_2.jar>
 includes=

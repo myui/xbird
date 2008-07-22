@@ -20,7 +20,10 @@
  */
 package xbird.config;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import xbird.XBirdError;
@@ -34,23 +37,14 @@ import xbird.XBirdError;
  */
 public final class Settings {
 
-    public static final String XBIRD_VERSION = "0.9";
+    public static final String XBIRD_VERSION = "1.0";
 
-    /** properties file name */
     private static final String PROPERTY_FILE_NAME = "xbird.properties";
-
-    /** is enabled asserts */
     public static final boolean isLoggingEnabled = true;
 
     //--------------------------------------------
-    // property keys
-    
-    public static final String KEY_DATA_CLUSTER_DIR = "xbird.database.datadir";
-    
-    //--------------------------------------------
     // Shared variables
 
-    /** Map which holds configurations */
     private static final Properties properties;
     static {
         try {
@@ -68,9 +62,8 @@ public final class Settings {
             throw new XBirdError("Exception caused while loading user provided properties file.", e);
         }
     }
-    
-    // prevent instantiation
-    private Settings() {}
+
+    private Settings() {} // prevent instantiation
 
     public static Properties getProperties() {
         return properties;

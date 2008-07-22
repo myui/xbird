@@ -112,11 +112,11 @@ public final class DocumentManager {
             try {
                 final URLConnection conn = docurl.openConnection();
                 // TODO REVIEWME workaround code
-                conn.setRequestProperty("User-agent", "Mozilla/5.0");
                 final String contentType = conn.getContentType();
                 if(unescaped.endsWith(".html")
                         || (contentType != null && contentType.contains("html"))) {
                     parseAsHtml = true;
+                    conn.setRequestProperty("User-agent", "Mozilla/5.0");
                 }
                 is = conn.getInputStream();
             } catch (IOException e) {

@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
 import xbird.server.ServiceException;
+import xbird.storage.DbCollection;
 
 /**
  * A service that manages a database instance.
@@ -57,7 +58,7 @@ public class DbService extends ServiceBase {
         if(_status != Status.nil) {
             throw new IllegalStateException("Illegal service state: " + _status);
         }
-        this.dataCluster = Settings.get(Settings.KEY_DATA_CLUSTER_DIR);
+        this.dataCluster = DbCollection.DATA_DIR;
         this._status = Status.prepared;
     }
 

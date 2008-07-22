@@ -21,6 +21,9 @@
 package xbird.util.net;
 
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 /**
@@ -44,5 +47,13 @@ public final class NetUtils {
 
     public static String getLocalHostName() {
         return getLocalHost().getHostName();
+    }
+
+    public static URI toURI(URL url) {
+        try {
+            return url.toURI();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
