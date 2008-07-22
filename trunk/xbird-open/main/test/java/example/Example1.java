@@ -69,11 +69,8 @@ public class Example1 {
 
     private void doMain(String[] args) throws IOException, XQueryException, XMLStreamException {
         URL queryFileUrl = Example1.class.getResource("bib_relative.xq");
-        URI baseUri = NetUtils.toURI(queryFileUrl); // This baseUri effects to fn:doc(...)
-
-        System.out.println("--------------------------------");
-
         InputStream input1 = queryFileUrl.openStream();
+        URI baseUri = NetUtils.toURI(queryFileUrl); // This baseUri effects to fn:doc(...)
         invokeQueryPullMode(input1, baseUri);
         input1.close();
 
@@ -140,7 +137,7 @@ public class Example1 {
         //   In push mode, the result is directed to the events.
         proc.execute(module, handler);
 
-        streamWriter.flush();   // flushing is required
+        streamWriter.flush(); // flushing is required
         System.out.println(writer.toString());
     }
 
