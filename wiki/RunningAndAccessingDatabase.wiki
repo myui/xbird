@@ -1,0 +1,8 @@
+#summary Running the XML database server and accessing to it
+#labels Phase-Implementation,Featured
+
+== Introduction ==
+
+This document introduces a way to run the XML database server and lectures how to access the database. 
+
+== Details ==
