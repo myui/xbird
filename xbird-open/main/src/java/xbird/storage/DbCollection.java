@@ -71,8 +71,8 @@ public final class DbCollection implements Closeable {
     static {
         String dataDir = Settings.get("xbird.database.datadir");
         if(dataDir == null) {
-            dataDir = System.getProperty("java.io.tmpdir") + "/xbird";
-            File file = new File(dataDir);
+            String tmp = System.getProperty("java.io.tmpdir");
+            File file = new File(tmp, "xbird");
             if(file.canRead()) {
                 if(!file.exists() || file.isFile()) {
                     if(file.canWrite()) {
