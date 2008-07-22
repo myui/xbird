@@ -43,7 +43,7 @@ public final class PerfmonService extends ServiceBase {
     private static final Log LOG = LogFactory.getLog("xbird.PerfMon");
 
     public static final String SRV_NAME = "PerfMon";
-    private final int PERFMON_INTERVAL_IN_MILLS;
+    private final int perfmonIntervalnMills;
 
     private Timer timer = null;
 
@@ -53,16 +53,16 @@ public final class PerfmonService extends ServiceBase {
 
     public PerfmonService(int interval) {
         super(SRV_NAME);
-        this.PERFMON_INTERVAL_IN_MILLS = interval;
+        this.perfmonIntervalnMills = interval;
     }
 
     public void start() throws ServiceException {
-        if(!LOG.isInfoEnabled()) {
+        if(perfmonIntervalnMills == -1 || !LOG.isInfoEnabled()) {
             return;
         }
         PerfmonTask task = new PerfmonTask();
         Timer timer = new Timer(SRV_NAME, true);
-        timer.scheduleAtFixedRate(task, 1000, PERFMON_INTERVAL_IN_MILLS);
+        timer.scheduleAtFixedRate(task, 1000, perfmonIntervalnMills);
         this._status = Status.started;
     }
 
