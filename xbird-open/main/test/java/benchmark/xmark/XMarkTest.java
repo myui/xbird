@@ -59,7 +59,7 @@ public class XMarkTest extends TestCase {
     }
 
     private static String executeQueryWithXbird(String queryFile) throws XQueryException,
-            IOException {ＯＦＸＳ
+            IOException {
         System.gc();
         int gcBefore = SystemUtils.countGC();
         long free = SystemUtils.getHeapFreeMemory();

@@ -257,7 +257,7 @@ public class XMarkCollectionValidateTest extends TestCase {
         System.out.println("Running q19.xq ..");
         assertEqual(executeQueryWithXbird_file("q19.xq"), executeQueryWithXbird_collection("q19.xq"));
     }
-ＯＦＸＳ
+
     @Test
     public void testRun20() throws FileNotFoundException, XPathException, SAXException,
             IOException, ParserConfigurationException, XQueryException {
