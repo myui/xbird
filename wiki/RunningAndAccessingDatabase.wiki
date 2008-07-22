@@ -11,6 +11,12 @@ This document introduces a way to run the XML database server and lectures how t
 
 == Running the Server ==
 
+  * Running server by a command line script
+
+    * System tray clients
+
+  * Running a server in user program
+
 == Accessing to the Server == 
 
 == Running Examples ==
