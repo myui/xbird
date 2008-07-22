@@ -1,5 +1,7 @@
-#summary Programming with the XBird API
+#summary Programming with the XBird API (embedded use)
 #labels Phase-Implementation,Featured
+
+This document introduces directions for embedded uses.
 
 == Compiling and executing queries ==
 
