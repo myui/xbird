@@ -18,4 +18,5 @@ for(Item item : result) {// Note that every Sequence instances implement Iterabl
 }}}
 
 == List of examples ==
-  * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xqts/XQTSTestBase.java XQTSTestBase] - contains full-fledged usage of XBird API
+  * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/example/Example1.java Example1.java] - introduces pull/push mode with simple examples
+  * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xqts/XQTSTestBase.java XQTSTestBase] - contains full-fledged (and also complex) usage of XBird API
