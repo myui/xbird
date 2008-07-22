@@ -29,7 +29,7 @@ On the $XBIRD_HOME/bin directory, the following command starts the database serv
 # ./server.sh
 }}}
 
-==== b) Managing in System Tray ====
+==== b) Managing a server instance in System Tray ====
 
 ==== c) Running a server in user program ====
 
