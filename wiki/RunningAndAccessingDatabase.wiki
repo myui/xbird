@@ -20,7 +20,7 @@ T.B.D.
 
 Please move to $XBIRD_HOME/bin directory.
 
-  * Running server by a command line
+==== Running server by a command line ====
 
 The following command starts the database server:
 {{{
@@ -30,9 +30,9 @@ The following command starts the database server:
 # ./server.sh
 }}}
 
-  * Managing in System Tray
+==== Managing in System Tray ====
 
-  * Running a server in user program
+==== Running a server in user program ====
 
 == Accessing to the Server == 
 
