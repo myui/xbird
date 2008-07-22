@@ -79,7 +79,7 @@ public class XMarkRemoteTest extends TestCase {
         StringWriter res_sw = new StringWriter();
         Serializer ser = new SAXSerializer(new SAXWriter(res_sw), res_sw);
         ser.emit(remoteSequence);
-        String swresult = sw.toString();ｏｆｘｓ
+        String swresult = sw.toString();
         long used = SystemUtils.getHeapUsedMemory();
         stdbuf.append(", used(before GC): " + StringUtils.displayBytesSize(used));
         System.gc();
