@@ -18,7 +18,7 @@ T.B.D.
 
 == Running the Server ==
 
-Please move to _$XBIRD_HOME/bin_ directory.
+Please move to $XBIRD_HOME/bin directory.
 
   * Running server by a command line
 
