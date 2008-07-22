@@ -15,4 +15,4 @@
 
 XQEngine=xbird.server.services.XQEngineProxyService
 PerfMon=xbird.server.services.PerfmonService
-RemotePaging=xbird.server.services.RemotePagingService
+#RemotePaging=xbird.server.services.RemotePagingService

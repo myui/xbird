@@ -30,6 +30,9 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import xbird.config.Settings;
 import xbird.storage.tx.Transaction;
 import xbird.util.concurrent.reference.FinalizableSoftValueReferenceMap;
@@ -55,7 +58,8 @@ import xbird.xquery.misc.StringChunkLoader;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public final class DbCollection implements Closeable {
-
+    private static final Log LOG = LogFactory.getLog(DbCollection.class);
+    
     public static final String QNAMES_FILE_SUFFIX = ".qnames";
     private static final String DTM_PROPS_FILE_SUFFIX = ".dtmp";
     private static final String ROOT_COLLECTION_NAME = "/";
@@ -76,6 +80,7 @@ public final class DbCollection implements Closeable {
                     }
                 }
             }
+            LOG.info("Use `" + dataDir + "' for the data repository");
         }
         DATA_DIR = dataDir;
         _collectionCache = new FinalizableSoftValueReferenceMap<String, DbCollection>(new ReferentFinalizer<String, DbCollection>() {
