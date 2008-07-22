@@ -3,7 +3,7 @@
 
 == Introduction ==
 
-The XBird engine has the following three facilities: (file) XQuery query processor, client/server XML native database and embedded XML database. 
+The XBird engine has the following three facilities: XQuery query (file/stream)  processor, client/server XML native database and embedded XML database. 
 
 This document introduces a way to run the XML database server and lectures how to access the database in client/server fashion. XBird uses RMI as the internal protocol of remote access, and hence, the embedded access achieved in the same way.
 
