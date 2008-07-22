@@ -27,7 +27,7 @@
 	<classpathentry kind="lib" path="lib/optional/resolver.jar"/>
 	<classpathentry kind="lib" path="lib/optional/nekohtml-1.9.7.jar"/>
 	<classpathentry kind="lib" path="lib/optional/tagsoup-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/optional/jdic-0.9.5.jar">
+	<classpathentry kind="lib" path="lib/optional/jdic-0.9.2.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="xbird-open/lib/native/jdic"/>
 		</attributes>
