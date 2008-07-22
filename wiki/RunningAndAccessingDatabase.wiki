@@ -7,11 +7,19 @@ The XBird engine has the following three facilities: XQuery query (file/stream) 
 
 This document introduces a way to run the XML database server and lectures how to access the database in client/server fashion. XBird uses RMI as the internal protocol of remote access, and hence, the embedded access achieved in the same way.
 
+== Preparation == 
+
+  # Download [http://code.google.com/p/xbird/downloads/list xbird-xx-src.zip] and unzip it. We assume the decompressed directory as $XBIRD_HOME in this document.
+  # Then, put [http://code.google.com/p/xbird/downloads/list xbird-open-xx.zip] into the target directory in $XBIRD_HOME.
+
 == Configuring the Server ==
 
 == Running the Server ==
 
-  * Running server by a command line script
+  * Running server by a command line
+{{{
+  
+}}}
 
   * Managing in System Tray
 
