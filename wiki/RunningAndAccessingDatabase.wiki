@@ -14,11 +14,21 @@ This document introduces a way to run the XML database server and lectures how t
 
 == Configuring the Server ==
 
+T.B.D.
+
 == Running the Server ==
 
-  * Running server by a command line
 {{{
-  
+# cd $XBIRD_HOME/bin
+}}
+
+  * Running server by a command line
+
+The following command starts the database server:
+-- _on windows_
+# server.bat 
+-- _on unix_
+# ./server.sh
 }}}
 
   * Managing in System Tray
