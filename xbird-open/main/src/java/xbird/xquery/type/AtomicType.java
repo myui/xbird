@@ -216,7 +216,7 @@ public abstract class AtomicType extends ItemType implements AnySimpleType, Exte
         this._type = ObjectUtils.readString(in);
     }
 
-    protected AtomicType readResolve() throws ObjectStreamException {
+    protected Object readResolve() throws ObjectStreamException {
         final String type = _type;
         if(type == null) {
             throw new IllegalStateException();

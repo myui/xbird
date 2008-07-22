@@ -206,6 +206,7 @@ public abstract class XQNode extends AbstractNode
         return new Focus<Item>(this, DynamicContext.DUMMY);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends XQNode> T castAs() {
         return (T) this;
     }
@@ -303,6 +304,7 @@ public abstract class XQNode extends AbstractNode
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends DMNode> T asDMNode() {
         if(this instanceof DMNode) {
             return (T) this;
