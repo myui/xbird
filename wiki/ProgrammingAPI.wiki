@@ -1,4 +1,4 @@
-#summary Programming with the XBird API (embedded use)
+#summary Programming with the XBird API
 #labels Phase-Implementation,Featured
 
 This document introduces directions for embedded uses.
