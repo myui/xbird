@@ -18,13 +18,12 @@ T.B.D.
 
 == Running the Server ==
 
-{{{
-# cd $XBIRD_HOME/bin
-}}}
+Please move to _$XBIRD_HOME/bin_ directory.
 
   * Running server by a command line
 
 The following command starts the database server:
+{{{
 -- _on windows_
 # server.bat 
 -- _on unix_
