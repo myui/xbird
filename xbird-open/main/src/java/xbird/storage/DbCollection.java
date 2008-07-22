@@ -72,7 +72,7 @@ public final class DbCollection implements Closeable {
         String dataDir = Settings.get("xbird.database.datadir");
         if(dataDir == null) {
             String tmp = System.getProperty("java.io.tmpdir");
-            File file = new File(tmp, "xbird");
+            File file = new File(tmp, "xbird");            
             if(file.canRead()) {
                 if(!file.exists() || file.isFile()) {
                     if(file.canWrite()) {
@@ -80,6 +80,7 @@ public final class DbCollection implements Closeable {
                     }
                 }
             }
+            dataDir = file.getAbsolutePath();
             LOG.info("Use `" + dataDir + "' for the data repository");
         }
         DATA_DIR = dataDir;
