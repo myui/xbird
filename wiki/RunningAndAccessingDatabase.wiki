@@ -13,7 +13,7 @@ This document introduces a way to run the XML database server and lectures how t
 
   * Running server by a command line script
 
-    * System tray clients
+  * Managing in System Tray
 
   * Running a server in user program
 
