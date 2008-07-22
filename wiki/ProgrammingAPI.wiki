@@ -7,7 +7,7 @@ Running a XML query is fairly easy.
 {{{
 InputStream input = ..  ; // a query as stream
 XQueryProcessor proc = new XQueryProcessor();
-// #1 parse a query
+// #1 compile a query
 XQueryModule module = proc.parse(input);
 // #2 execute the compiled expression using ``pull'' mode
 Sequence<? extends Item> result = proc.execute(module);
