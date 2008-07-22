@@ -20,7 +20,7 @@ T.B.D.
 
 {{{
 # cd $XBIRD_HOME/bin
-}}
+}}}
 
   * Running server by a command line
 
