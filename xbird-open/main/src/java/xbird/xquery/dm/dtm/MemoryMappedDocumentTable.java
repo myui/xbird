@@ -185,67 +185,6 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
         return newPage[offset];
     }
 
-    /*
-    private long dataAt_RO_sync(final long at) {
-        final int offset = (int) (at & LOGICAL_PAGE_MASK);
-        final long pageId = toPageId(at);
-
-        final ICacheEntry<Long, int[]> cacheSlot;
-        int[] cachedPage;
-        synchronized(_pool) {
-            cacheSlot = _pool.allocateEntry(pageId);
-            cachedPage = cacheSlot.getValue();
-            if(cachedPage != null) {
-                final long pageOffset = toPageOffset(pageId);
-                final int[] newPage;
-                if(_transfered) {
-                    RemoteMemoryMappedFile remoteMM = (RemoteMemoryMappedFile) _mmfile;
-                    newPage = remoteMM.transferBuffers(pageOffset, LOGICAL_PAGE_LENGTH, _pool);
-                } else {
-                    newPage = _mmfile.transferBuffer(pageOffset, LOGICAL_PAGE_LENGTH);
-                }
-                cacheSlot.setValue(newPage);
-                cachedPage = newPage;
-            }
-        }
-        cacheSlot.unpin();
-        return cachedPage[offset];
-    }
-    */
-    
-    /*
-    private final xbird.util.concurrent.lock.SpinLock _lock = new xbird.util.concurrent.lock.AtomicBackoffLock();
-
-    private long dataAt_RO_spinlock(final long at) {
-        final int offset = (int) (at & LOGICAL_PAGE_MASK);
-        final long pageId = toPageId(at);
-
-        final ICacheEntry<Long, int[]> cacheSlot;
-        int[] cachedPage;
-        _lock.lock();
-        try {
-            cacheSlot = _pool.allocateEntry(pageId);
-            cachedPage = cacheSlot.getValue();
-            if(cachedPage != null) {
-                final long pageOffset = toPageOffset(pageId);
-                final int[] newPage;
-                if(_transfered) {
-                    RemoteMemoryMappedFile remoteMM = (RemoteMemoryMappedFile) _mmfile;
-                    newPage = remoteMM.transferBuffers(pageOffset, LOGICAL_PAGE_LENGTH, _pool);
-                } else {
-                    newPage = _mmfile.transferBuffer(pageOffset, LOGICAL_PAGE_LENGTH);
-                }
-                cacheSlot.setValue(newPage);
-                cachedPage = newPage;
-            }
-        } finally {
-            _lock.unlock();
-        }
-        cacheSlot.unpin();
-        return cachedPage[offset];
-    }
-    */
-
     private long dataAt_RW(final long at) {
         final long pageOffset = directToPageOffset(at);
         final CloseableMappedByteBuffer buf = _mmfile.allocateBuffer(pageOffset);
