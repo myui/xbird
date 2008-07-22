@@ -46,6 +46,7 @@ import xbird.util.net.TimeoutSocketProdiver;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public abstract class RemoteBase implements Remote, Serializable {
+    private static final long serialVersionUID = -9122824621530533606L;
     private static final Log LOG = LogFactory.getLog(RemoteBase.class);
 
     public static final String RMI_PROTOCOL_JRMP = "jrmp";
@@ -112,7 +113,7 @@ public abstract class RemoteBase implements Remote, Serializable {
         try {
             UnicastRemoteObject.unexportObject(this, true);
         } catch (NoSuchObjectException e) {
-            LOG.error("object is not registered: " + ObjectUtils.identityToString(this), e);
+            LOG.warn("object is not registered: " + ObjectUtils.identityToString(this), e);
         }
         unbind();
         if(forceExit) {            
