@@ -24,9 +24,9 @@ T.B.D.
 On the $XBIRD_HOME/bin directory, the following command starts the database server.
 {{{
 -- on windows
-# server.bat 
+$ server.bat 
 -- on unix
-# ./server.sh
+$ ./server.sh
 }}}
 
 ==== b) Managing a server instance in System Tray ====
