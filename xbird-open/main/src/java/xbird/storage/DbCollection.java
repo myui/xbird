@@ -59,11 +59,25 @@ public final class DbCollection implements Closeable {
     public static final String QNAMES_FILE_SUFFIX = ".qnames";
     private static final String DTM_PROPS_FILE_SUFFIX = ".dtmp";
     private static final String ROOT_COLLECTION_NAME = "/";
-    private static final String DATA_DIR = Settings.get(Settings.KEY_DATA_CLUSTER_DIR);
 
+    public static final String DATA_DIR;
     private static final DbCollection _rootCol = new DbCollection();
     private static final Map<String, DbCollection> _collectionCache;
+
     static {
+        String dataDir = Settings.get("xbird.database.datadir");
+        if(dataDir == null) {
+            dataDir = System.getProperty("java.io.tmpdir") + "/xbird";
+            File file = new File(dataDir);
+            if(file.canRead()) {
+                if(!file.exists() || file.isFile()) {
+                    if(file.canWrite()) {
+                        file.mkdir();
+                    }
+                }
+            }
+        }
+        DATA_DIR = dataDir;
         _collectionCache = new FinalizableSoftValueReferenceMap<String, DbCollection>(new ReferentFinalizer<String, DbCollection>() {
             public void finalize(String key, DbCollection reclaimed) {
                 IOUtils.closeQuietly(reclaimed);
