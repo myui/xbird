@@ -8,6 +8,7 @@ All XML data stored in XBird is organized into a hierarchy of _collections_.
 A collection is exactly what its name suggests: it contains any number of XML documents, and can in addition contain its own child collections, thus providing a hierarchy. 
 _A collection is directly mapped into a directory_ of the underlying file system. 
 
-The "root" collection is also called the Database:
+The "root" collection is also called the Database. It is special in that:
   * It has no parent as the name tells.
-  * The database root directory is specified through _xbird.database.datadir_ property in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/conf/xbird/config/xbird.properties xbird.properties]. By the default, `java.io.tmpdir'/xbird is used for the directory.
+  * The database root directory is specified through _xbird.database.datadir_ property in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/conf/xbird/config/xbird.properties xbird.properties]. 
+By the default, `java.io.tmpdir'/xbird is used for the directory.
