@@ -8,7 +8,7 @@ XQuery is useful for dynamic generation of web pages, like JSP and PHP do.
 
 == Deploying WAR ==
 
-T.B.D.
+To appear.
 
 == Reference ==
 
