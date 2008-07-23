@@ -15,7 +15,7 @@ Then, put [http://code.google.com/p/xbird/downloads/list xbird-open-xx.jar] into
 
 == Configuring the Server ==
 
-T.B.D.
+To appear.
 
 == Running the Server ==
 
