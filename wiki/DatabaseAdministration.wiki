@@ -63,7 +63,11 @@ Just delete directories or some.xml.* files in the database directory :-)
 
 == Accessing to documents in collection ==
 
-[http://www.w3.org/TR/xpath-functions/#func-collection fn:collection($arg as xs:string?) as node()*]
+The fn:collection function returns a sequence of documents in the specified collection.
+
+It takes the following syntax: 
+
+*[http://www.w3.org/TR/xpath-functions/#func-collection fn:collection($arg as xs:string?) as node()*]*
 
 {{{
 # To retrieve the "some.xml" document in "test1" collection.
