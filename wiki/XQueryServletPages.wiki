@@ -10,6 +10,8 @@ XQuery is useful for dynamic generation of web pages, like JSP and PHP do.
 
 To appear.
 
+== Running web applications ==
+
 == Reference ==
 
   * [http://lambda-the-ultimate.org/node/1629 Revealing the X/O impedance mismatch ]
