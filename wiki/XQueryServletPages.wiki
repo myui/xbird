@@ -8,7 +8,9 @@ XQuery is useful for dynamic generation of web pages, like JSP and PHP do.
 
 == Deploying WAR ==
 
-To appear.
+Deploy [http://code.google.com/p/xbird/downloads/list xbird-xx.war] into your favorite web application server. 
+
+To appear...
 
 == Running web applications ==
 
