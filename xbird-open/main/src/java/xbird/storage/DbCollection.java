@@ -207,7 +207,7 @@ public final class DbCollection implements Closeable {
             return new DbCollection(colName, this);
         }
         if(!baseDir.canWrite()) {
-            throw new DbException("could not write file. Check the pertition of "
+            throw new DbException("Could not write file. Check the permission of "
                     + baseDir.getAbsolutePath());
         }
         if(!colDir.mkdir()) {
