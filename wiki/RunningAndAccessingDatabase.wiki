@@ -11,7 +11,7 @@ This document introduces a way to run the XML database server and lectures how t
 
 Download [http://code.google.com/p/xbird/downloads/list xbird-xx-src.zip] and unzip it. We assume the decompressed directory as $XBIRD_HOME in this document.
 
-Then, put [http://code.google.com/p/xbird/downloads/list xbird-open-xx.jar] into the target directory in $XBIRD_HOME.
+Then, put [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/target/ xbird-open-xx.jar] into the target directory in $XBIRD_HOME.
 
 == Configuring the Server ==
 
