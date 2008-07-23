@@ -24,3 +24,18 @@ System.out.println("java.io.tmpdir: [" + tmpDir + "], user.dir: [" + userDir + "
 }}}
 
 == Importing Documents ==
+
+=== Importing documents by command line ===
+
+Importing XML documents into database is easily accomplished by command line scripts: 
+[http://code.google.com/p/xbird/source/browse/trunk/xbird-open/bin/command.sh command.sh] for Unix and [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/bin/command.bat command.bat] for Windows.
+
+These scripts are included in [http://code.google.com/p/xbird/downloads/list xbird-xx-src.zip]. We assume the decompressed directory as $XBIRD_HOME in this document. 
+
+The usage of these scripts is quite simple. 
+{{{
+# In Unix,
+ $ ./command.sh -col test1 import document FILEPATH
+# In Windows,
+ $ command.bat -col test1 import document FILEPATH
+}}}
