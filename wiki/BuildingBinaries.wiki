@@ -7,4 +7,4 @@ This how-to is aimed at developers who want to compile XBird from the source dis
 
 == Steps == 
 
-T.B.D.
+To appear.
