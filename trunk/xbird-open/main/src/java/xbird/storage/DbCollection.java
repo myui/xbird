@@ -73,9 +73,7 @@ public final class DbCollection implements Closeable {
             String tmp = System.getProperty("java.io.tmpdir");
             File file = new File(tmp, "xbird");
             if(!file.exists() || file.isFile()) {
-                if(file.canWrite()) {
-                    file.mkdir();
-                }
+                file.mkdir();
             }
             dataDir = file.getAbsolutePath();
             LOG.info("Use `" + dataDir + "' for the data repository");
