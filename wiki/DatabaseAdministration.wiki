@@ -47,8 +47,8 @@ The usage of these scripts is quite simple.
 
 The above command creates the following files:
 {{{
-xbird.database.datadir 
-└─test1                                # 'test1' collection
+xbird.database.datadir              # root collection 
+└─test1                                # '/test1' collection
         some.xml.dtms                  # some.xml document
         test1.dtmp                       # properties of collection
         test1.qnames                   # manages qnames of the documents in 'test1' collection
