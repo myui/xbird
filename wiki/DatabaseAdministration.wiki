@@ -34,8 +34,8 @@ These scripts are included in [http://code.google.com/p/xbird/downloads/list xbi
 
 The usage of these scripts is quite simple. 
 {{{
-# In Unix,
+-- In Unix,
  $ ./command.sh -col test1 import document FILEPATH
-# In Windows,
+-- In Windows,
  $ command.bat -col test1 import document FILEPATH
 }}}
