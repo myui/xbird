@@ -1,6 +1,8 @@
 #summary Creating Collections and importing Documents
 #labels Phase-Design,Phase-Implementation
 
-= Introduction =
+== Introduction ==
 
-T.B.D.
+All XML data stored in XBird is organized into a hierarchy of _collections_. 
+
+A collection is exactly what its name suggests: it contains any number of XML documents, and can in addition contain its own child collections, thus providing a hierarchy.
