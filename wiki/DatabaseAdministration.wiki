@@ -59,7 +59,7 @@ xbird.database.datadir              # root collection
 
 == Deleting documents or collections ==
 
-Just delete directories or some.xml.* files in the database directory : )
+Just delete directories or some.xml.* files in the database directory !
 
 == Accessing to documents in collection ==
 
