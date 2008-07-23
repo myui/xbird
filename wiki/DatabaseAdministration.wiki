@@ -74,9 +74,10 @@ fn:collection("/test1/some.xml")
 
 # To retrieve all documents in "test1" collection.
 fn:collection("/test1")
-
-# To retrieve every documents which name start with a prefix 's' and end with '.xml' in the collection 'test1'. 
-fn:collection("/test1/s.*.xml")
 }}}
 
 You can pass a regex expression in [http://java.sun.com/docs/books/tutorial/essential/regex/ Java's regex syntax] to $arg.
+{{{
+# To retrieve every documents which name start with a prefix 's' and end with '.xml' in the collection 'test1'. 
+fn:collection("/test1/s.*.xml")
+}}}
