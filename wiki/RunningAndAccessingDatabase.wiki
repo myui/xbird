@@ -35,5 +35,16 @@ $ ./server.sh
 
 == Accessing to the Server == 
 
+{{{
+XQEngine engine = new XQEngineClient("//knuth.naist.jp:1099/xbird/srv-01");
+QueryRequest request1 = new QueryRequest("1+2", ReturnType.REMOTE_SEQUENCE);
+Object result1 = engine.execute(request1);
+RemoteSequence remoteSequence = (RemoteSequence) result1;
+
+IFocus<Item> focus = remoteSequence.iterator();
+Assert.assertEquals(new XInteger(3), focus.next());
+Assert.assertFalse(focus.hasNext());
+}}
+
 == Running Examples ==
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/scenario/engine/XQEngineClientTest.java XQEngineClientTest.java] - _contains several examples for a client._
