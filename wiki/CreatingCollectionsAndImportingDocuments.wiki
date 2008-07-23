@@ -1,0 +1,6 @@
+#summary Creating Collections and importing Documents
+#labels Phase-Design,Phase-Implementation
+
+= Introduction =
+
+T.B.D.
