@@ -1,11 +1,14 @@
 #summary XQuery Servlet Pages (XQSP)
 #labels Phase-Implementation,Phase-Deploy
 
-= Introduction =
+== Introduction ==
 
 In this article we will show how to write and install a very simple "web application" in XQuery.
 XQuery is useful for dynamic generation of web pages, like JSP and PHP do.
 
+== Deploying WAR ==
+
+T.B.D.
 
 == Reference ==
 
