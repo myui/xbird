@@ -1,4 +1,4 @@
-#summary Running the XML database server and accessing to it - Client/Server API
+#summary Running the XML database server and accessing to it -- Client/Server API
 #labels Phase-Implementation,Featured
 
 == Introduction ==
