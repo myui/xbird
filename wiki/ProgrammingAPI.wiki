@@ -1,4 +1,4 @@
-#summary Programming with the XBird API -- Embedded API
+#summary Programming with the XBird API -- XQuery processor API
 #labels Phase-Implementation,Featured
 
 This document introduces directions for embedded uses.
