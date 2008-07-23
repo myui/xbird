@@ -56,3 +56,25 @@ xbird.database.datadir              # root collection
         test1.strc.cache              # cache file for text chunks
         test1.strc.di_h                 # index of the string chunks
 }}}
+
+== Deleting documents or collections ==
+
+Just delete directories or some.xml.* files in the database directory :-)
+
+== Accessing to documents in collection ==
+
+[http://www.w3.org/TR/xpath-functions/#func-collection fn:collection($arg as xs:string?) as node()*
+]
+
+{{{
+# To retrieve the "some.xml" document in "test1" collection.
+fn:collection("/test1/some.xml")
+
+# To retrieve all documents in "test1" collection.
+fn:collection("/test1")
+
+# To retrieve every documents which name start with a prefix 's' and end with '.xml' in the collection 'test1'. 
+fn:collection("/test1/s.*.xml")
+}}}
+
+You can pass a regex expression in [http://java.sun.com/docs/books/tutorial/essential/regex/ Java's regex syntax].
