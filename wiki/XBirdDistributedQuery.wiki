@@ -26,8 +26,7 @@ xbird.rmi.registry.local.port=1099
 xbird.rmi.engine.name=xbird/srv-01
 }}}
 
-Note: 
-  _You can override the settings by putting xbird.properties on the directory where System.getProperty("user.dir") specifies._
+*Note:* _You can override the settings by putting xbird.properties on the directory where System.getProperty("user.dir") specifies._
 
 === Starting a service ===
 
