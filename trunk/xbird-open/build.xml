@@ -75,6 +75,8 @@
 		     basedir="."
 		     excludes="${target.dir}/**,build/**,**/*.log,**/.svn/**" />
 	</target>
+	
+	<target name="makeall" depends="jar,war,makedist"/>
 
 	<target name="javadoc" depends="compile">
 		<delete failonerror="false" dir="${javadoc.dstdir}" />
