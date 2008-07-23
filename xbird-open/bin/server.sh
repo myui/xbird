@@ -33,3 +33,4 @@ JARS=$JARS:$optlib/args4j-2.0.4.jar:$optlib/high-scale-lib-0.8.1.jar:$optlib/nek
 # run it
 echo "java -classpath $JARS $VMOPTS xbird.server.Server"
 java -classpath $JARS $VMOPTS xbird.server.Server
+
