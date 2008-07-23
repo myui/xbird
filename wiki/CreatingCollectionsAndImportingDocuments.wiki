@@ -6,7 +6,7 @@
 All XML data stored in XBird is organized into a hierarchy of _collections_. 
 
 A collection is exactly what its name suggests: it contains any number of XML documents, and can in addition contain its own child collections, thus providing a hierarchy. 
-*A collection is directly mapped into a directory* of the underlying file system. 
+_A collection is directly mapped into a directory_ of the underlying file system. 
 
 The "root" collection is also called the Database:
   * It has no parent as the name tells.
