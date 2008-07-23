@@ -11,8 +11,6 @@ XBird introduces a distributed query extention to XQuery called XBird Distribute
 
 == Usage ==
 
-T.B.D.
-
 === Configuring a service ===
 
 === Starting a service ===
