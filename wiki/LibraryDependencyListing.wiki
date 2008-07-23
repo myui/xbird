@@ -30,3 +30,5 @@ The detail of the dependencies are as follows.
 || lib/optional/[http://testng.org/ testng-xx-jdk15.jar] || used in (XQTS) test cases. || classes under [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xqts main/test/java] || ASL 2.0 || no ||
 || lib/optional/[http://xerces.apache.org/xerces2-j/ xercesImpl-xx.jar] || recommended to use this library for parsing XML documents  because certain version of XML parser in Sun's JDK exhibits strange behavior.  Is also required by cyberneko HTML parser. || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/util/xml/HTMLSAXParser.java HTMLSAXParser] || ASL 2.0  || yes ||
 || lib/optional/[http://xmlunit.sourceforge.net/ xmlunit-xx.jar] || used in (XQTS) test cases. || classes under [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java main/test/java]  || new BSD || no ||
+
+The above libraries are re-distributed [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/lib/ here]. 
