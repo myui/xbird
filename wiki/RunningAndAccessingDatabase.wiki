@@ -47,7 +47,9 @@ Assert.assertFalse(focus.hasNext());
 }}}
 
 XBird supports three reply patterns: *response*, *callback*, and *poll*. 
-The *response* reply pattern is used by the default. Please see [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/engine/Request.java Request class] for details.
+The *response* reply pattern is used by the default. 
+
+Please refer [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/engine/Request.java Request class] for details.
 
 == Running Examples ==
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/scenario/engine/XQEngineClientTest.java XQEngineClientTest.java] - _contains several examples for a client._
