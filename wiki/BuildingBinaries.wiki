@@ -1,4 +1,5 @@
 #summary Building XBird binaries from the source distribution
+#labels Phase-Implementation,Phase-Deploy
 
 == Purpose ==
 
