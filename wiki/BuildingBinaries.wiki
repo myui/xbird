@@ -3,7 +3,7 @@
 
 == Purpose ==
 
-This how-to is aimed at developer's who want to compile XBird from the source distribution or from a Subversion checkout.
+This how-to is aimed at developers who want to compile XBird from the source distribution or from a Subversion checkout.
 
 == Steps == 
 
