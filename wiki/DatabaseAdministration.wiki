@@ -39,6 +39,8 @@ The usage of these scripts is quite simple.
  $ ./command.sh -col test1 import document /pathto/some.xml
 # import XML documents in /pathto/folder into the root (i.e., "/") collection.
  $ ./command.sh import document /pathto/folder
+# import XML documents *recursively* in the sub-directories of /pathto/folder into the root collection.
+ $ ./command.sh import document /pathto/folder recursive
 
 [Windows]
 # import an XML document into "/test1" collection.
