@@ -12,7 +12,7 @@ If not installed yet, please download JDK (or JRE) from [http://java.sun.com/jav
 
 = Download =
 
-Get the recent binary from [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/target/ svn]. The entire source codes can be download from [http://code.google.com/p/xbird/downloads/list here].
+Get the recent binary from [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/target/ svn]. Aside from it, the entire source codes can be download from [http://code.google.com/p/xbird/downloads/list here].
 
 There are three types of binary as follows:
   * xbird-open-xx_fat.jar -- _Most dependent library are included in one [http://fjep.sourceforge.net/ fat jar] package for ease use._
