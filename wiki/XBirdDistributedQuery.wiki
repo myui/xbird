@@ -1,7 +1,7 @@
 #summary XBird Distributed Query Processing.
 #labels Phase-Design,Featured
 
-XBird introduces a distributed query extention to XQuery called XBird Distributed Query, _BDQ_ for short.
+XBird/D introduces a distributed query extention to XQuery called XBird Distributed Query, _BDQ_ for short.
 
 == Syntax ==
 
@@ -13,7 +13,27 @@ XBird introduces a distributed query extention to XQuery called XBird Distribute
 
 === Configuring a service ===
 
+The distiributed query processor, XBird/D in short, is configurable through [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/conf/xbird/config/xbird.properties xbird.properties].
+
+{{{
+# The port number which XBird/D uses.
+# This effects host:port as appears in later.
+xbird.rmi.registry.local.port=1099
+
+# The identifying name of the services: 
+#   name(,name)*
+# caution: name should not start with slash.
+xbird.rmi.engine.name=xbird/srv-01
+}}}
+
+Note: 
+  _You can override the settings by putting xbird.properties on the directory where System.getProperty("user.dir") specifies._
+
 === Starting a service ===
+
+Just run a server as in [http://code.google.com/p/xbird/wiki/RunningAndAccessingDatabase this document] where the remote query executed.
+
+We assume here the serive '_xbird/srv-01_' is run at port 1099 on the host _knuth.naist.jp_.
 
 == Example Query ==
 
