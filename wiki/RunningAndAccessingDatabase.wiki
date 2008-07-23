@@ -46,5 +46,7 @@ Assert.assertEquals(new XInteger(3), focus.next());
 Assert.assertFalse(focus.hasNext());
 }}}
 
+XBird supports three reply patterns: *response, callback, and poll*.
+
 == Running Examples ==
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/scenario/engine/XQEngineClientTest.java XQEngineClientTest.java] - _contains several examples for a client._
