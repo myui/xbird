@@ -59,20 +59,19 @@ import xbird.xquery.misc.StringChunkLoader;
  */
 public final class DbCollection implements Closeable {
     private static final Log LOG = LogFactory.getLog(DbCollection.class);
-    
+
     public static final String QNAMES_FILE_SUFFIX = ".qnames";
     private static final String DTM_PROPS_FILE_SUFFIX = ".dtmp";
     private static final String ROOT_COLLECTION_NAME = "/";
 
     public static final String DATA_DIR;
-    private static final DbCollection _rootCol = new DbCollection();
     private static final Map<String, DbCollection> _collectionCache;
-
+    private static final DbCollection _rootCol;    
     static {
         String dataDir = Settings.get("xbird.database.datadir");
         if(dataDir == null) {
             String tmp = System.getProperty("java.io.tmpdir");
-            File file = new File(tmp, "xbird");            
+            File file = new File(tmp, "xbird");
             if(file.canRead()) {
                 if(!file.exists() || file.isFile()) {
                     if(file.canWrite()) {
@@ -89,6 +88,7 @@ public final class DbCollection implements Closeable {
                 IOUtils.closeQuietly(reclaimed);
             }
         });
+        _rootCol = new DbCollection();
     }
 
     private final DbCollection _parent;
@@ -113,7 +113,7 @@ public final class DbCollection implements Closeable {
         }
         this._parent = parent;
         this._colName = name;
-        this._absolutePath = parent.getAbsolutePath() + '/' + name;
+        this._absolutePath = parent.getAbsolutePath() + File.separatorChar + name;
         this._symbols = (parent == _rootCol) ? loadSymbols() : parent.getSymbols();
     }
 
