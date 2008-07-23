@@ -35,7 +35,12 @@ These scripts are included in [http://code.google.com/p/xbird/downloads/list xbi
 The usage of these scripts is quite simple. 
 {{{
 -- In Unix,
- $ ./command.sh -col test1 import document FILEPATH
+# import an XML document into "/test1" collection.
+ $ ./command.sh -col test1 import document /pathto/some.xml
+# import XML documents in /pathto/folder into the root (i.e., "/") collection.
+ $ ./command.sh import document /pathto/folder
+
 -- In Windows,
- $ command.bat -col test1 import document FILEPATH
+# import an XML document into "/test1" collection.
+ $ command.bat -col test1 import document C:\pathto\some.xml
 }}}
