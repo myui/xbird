@@ -11,9 +11,11 @@ _A collection is directly mapped into a directory_ of the underlying file system
 The "root" collection is also called the Database. It is special in that:
   * It has no parent as the name tells.
   * The database root directory is specified through _xbird.database.datadir_ property in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/conf/xbird/config/xbird.properties xbird.properties]. By the default, `java.io.tmpdir'/xbird is used for the directory.
+The _xbird.database.datadir_ property can be overrided by putting _xbird.properties_ on the directory where System.getProperty("user.dir") directs.
 
 {{{
-// You can simply ask the system for the “java.io.tmpdir” property as following:
+// You can simply ask the system for the “java.io.tmpdir” and "user.dir" properties as following:
 String tmpDir = System.getProperty("java.io.tmpdir");
-System.out.println("java.io.tmpdir: [" + tmpDir + "]");
+String userDir = System.getProperty("user.dir");
+System.out.println("java.io.tmpdir: [" + tmpDir + "], user.dir: [" + userDir + "]");
 }}}
