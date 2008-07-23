@@ -6,7 +6,7 @@
 ===========================================================
 
  1). Minimum requirements
- 
+
   o Java 1.5 or later 
   		-- Any operating system on which Java runs is supported.  	
   o lib/xbird-db-xx.jar and lib/commons-logging-xx.jar
@@ -29,10 +29,10 @@
   as a Java project. Then, project -> Build Project compiles XBird
   classes.
 
- 3). Credits
+ 4). Credits
 
   See http://code.google.com/p/xbird/ for the list of XBird contributors.
 
-  If you want to be a developer of XBird, contact me <yuin405@gmail.com> 
+  If you want to be a developer of XBird, contact me <yuin405+xbird@gmail.com> 
   freely with your patches. -- Makoto YUI
 
