@@ -79,4 +79,4 @@ fn:collection("/test1")
 fn:collection("/test1/s.*.xml")
 }}}
 
-You can pass a regex expression in [http://java.sun.com/docs/books/tutorial/essential/regex/ Java's regex syntax].
+You can pass a regex expression in [http://java.sun.com/docs/books/tutorial/essential/regex/ Java's regex syntax] to $arg.
