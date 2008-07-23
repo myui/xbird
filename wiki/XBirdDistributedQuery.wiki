@@ -32,7 +32,7 @@ xbird.rmi.engine.name=xbird/srv-01
 
 Just run a server as in [http://code.google.com/p/xbird/wiki/RunningAndAccessingDatabase this document] where the remote query executed.
 
-We assume here the serive _xbird/srv-01_ is run at port 1099 on the host _knuth.naist.jp_.
+We assume here that the serive _xbird/srv-01_ is run at port 1099 on the host _knuth.naist.jp_.
 
 == Example Query ==
 
