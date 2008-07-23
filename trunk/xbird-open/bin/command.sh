@@ -11,12 +11,12 @@
 #  Copyright (C) 2006-2008, Makoto YUI and Project XBird
 # ---------------------------------------------------------
 
-if [ "$JAVA_HOME" = "" ]; then
-   echo Java environment not found. Please set
-   echo your JAVA_HOME environment variable to
-   echo the home of your JDK.
-   exit 1
-fi
+#if [ "$JAVA_HOME" = "" ]; then
+#   echo Java environment not found. Please set
+#   echo your JAVA_HOME environment variable to
+#   echo the home of your JDK.
+#   exit 1
+#fi
 
 libdir=../lib
 distdir=../target
