@@ -7,4 +7,8 @@ This how-to is aimed at developers who want to compile XBird from the source dis
 
 == Steps == 
 
-To appear.
+{{{
+ant makeall
+}}}
+
+That's all :-). See [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/build.xml build.xml] for detail.
