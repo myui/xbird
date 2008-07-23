@@ -36,5 +36,5 @@ JARS=$JARS:$libdir/commons-logging-1.0.4.jar:$libdir/xbird-db-1.0.jar:$optlib/ar
 JARS=$JARS:$optlib/high-scale-lib-0.8.1.jar:$optlib/nekohtml-1.9.7.jar:$optlib/resolver.jar:$optlib/stax-api-1.0.jar:$optlib/xercesImpl-2.9.1.jar
 
 # run it
-echo "java -classpath $JARS $VMOPTS bird.client.command.CommandInvoker $@"
+echo "java -classpath $JARS $VMOPTS xbird.client.command.CommandInvoker $@"
 java -classpath $JARS $VMOPTS xbird.client.command.CommandInvoker $@
