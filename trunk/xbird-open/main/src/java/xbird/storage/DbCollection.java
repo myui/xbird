@@ -66,17 +66,15 @@ public final class DbCollection implements Closeable {
 
     public static final String DATA_DIR;
     private static final Map<String, DbCollection> _collectionCache;
-    private static final DbCollection _rootCol;    
+    private static final DbCollection _rootCol;
     static {
         String dataDir = Settings.get("xbird.database.datadir");
         if(dataDir == null) {
             String tmp = System.getProperty("java.io.tmpdir");
             File file = new File(tmp, "xbird");
-            if(file.canRead()) {
-                if(!file.exists() || file.isFile()) {
-                    if(file.canWrite()) {
-                        file.mkdir();
-                    }
+            if(!file.exists() || file.isFile()) {
+                if(file.canWrite()) {
+                    file.mkdir();
                 }
             }
             dataDir = file.getAbsolutePath();
