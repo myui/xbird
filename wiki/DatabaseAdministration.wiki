@@ -44,3 +44,15 @@ The usage of these scripts is quite simple.
 # import an XML document into "/test1" collection.
  $ command.bat -col test1 import document C:\pathto\some.xml
 }}}
+
+The above command creates the following files:
+{{{
+xbird.database.datadir 
+└─test1                                # 'test1' collection
+        some.xml.dtms                  # some.xml document
+        test1.dtmp                       # properties of collection
+        test1.qnames                   # manages qnames of the documents in 'test1' collection
+        test1.strc                        # manages texts (textchunks) of the documents in 'test1' collection
+        test1.strc.cache              # cache file for text chunks
+        test1.strc.di_h                 # index of the string chunks
+}}}
