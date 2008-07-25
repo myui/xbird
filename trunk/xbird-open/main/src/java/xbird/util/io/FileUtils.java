@@ -108,13 +108,25 @@ public final class FileUtils {
      * which match an array of suffixes. 
      */
     public static List<File> listFiles(File directory, String[] suffixes, boolean recursive) {
-        IOFileFilter filter;
+        final IOFileFilter filter;
         if(suffixes == null) {
             filter = TrueFileFilter.INSTANCE;
         } else {
             filter = new SuffixFileFilter(suffixes);
         }
         return listFiles(directory, filter, (recursive ? TrueFileFilter.INSTANCE
+                : FalseFileFilter.INSTANCE));
+    }
+
+    public static List<File> listFiles(File directory, String[] prefixes, String[] suffixes, boolean recursive) {
+        IOFileFilter fileFiler = null;
+        if(prefixes != null && prefixes.length > 0) {
+            fileFiler = new PrefixFileFilter(prefixes);
+        }
+        if(suffixes != null && suffixes.length > 0) {
+            fileFiler = new AndFileFilter(fileFiler, new SuffixFileFilter(suffixes));
+        }
+        return listFiles(directory, (fileFiler == null ? TrueFileFilter.INSTANCE : fileFiler), (recursive ? TrueFileFilter.INSTANCE
                 : FalseFileFilter.INSTANCE));
     }
 

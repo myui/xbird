@@ -708,7 +708,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         }
 
         public DTMAttribute getAttribute(String nsuri, String attname) {
-            assert (nsuri != null && attname != null);
+            assert (attname != null);
             final IDocumentTable store = documentTable();
             int attcnt = store.getAttributeCountAt(_id);
             for(int i = 0; i < attcnt; i++) {
@@ -718,7 +718,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
                 QualifiedName qname = store.getAttributeName(attid);
                 String attUri = qname.getNamespaceURI();
                 String attName = qname.getLocalPart();
-                if(nsuri != null && nsuri.equals(attUri)) {
+                if(nsuri == null || nsuri.equals(attUri)) {
                     if(attname.equals(attName)) {
                         final DocumentTableModel model = getDataModel();
                         return new DTMAttribute(model, attid);

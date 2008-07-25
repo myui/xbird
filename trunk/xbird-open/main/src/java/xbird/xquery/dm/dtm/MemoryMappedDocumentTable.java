@@ -228,6 +228,7 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
 
         properties.save();
 
+        _mmfile.flush();
         _mmfile.close();
     }
 

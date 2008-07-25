@@ -98,4 +98,9 @@ public final class DocumentTableLoader {
         _cache.put(id, table); // intended that two or more DTM table are created concurrently.
         return table;
     }
+
+    public synchronized static boolean removeFromCache(String docName) {
+        IDocumentTable removed = _cache.remove(docName);
+        return removed != null;
+    }
 }
