@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Collection;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -148,11 +149,11 @@ public final class DbCollection implements Closeable {
         return _rootCol;
     }
 
-    private final Symbols loadSymbols() throws DbException {
+    private Symbols loadSymbols() throws DbException {
         return new Symbols(loadQNameTable());
     }
 
-    private final QNameTable loadQNameTable() throws DbException {
+    private QNameTable loadQNameTable() throws DbException {
         File colDir = new File(getAbsolutePath());
         if(!colDir.exists()) {
             throw new DbException("Collection does not exist: " + colDir.getAbsolutePath());
@@ -191,7 +192,7 @@ public final class DbCollection implements Closeable {
         return symbols;
     }
 
-    public final DbCollection createCollection(String colName) throws DbException {
+    public DbCollection createCollection(String colName) throws DbException {
         if(colName == null || colName.indexOf('/') != -1) {
             throw new DbException("Collection name must not contain '/', but was " + colName);
         }
@@ -216,7 +217,7 @@ public final class DbCollection implements Closeable {
         return coll;
     }
 
-    public final boolean removeCollection(String colName) throws DbException {
+    public boolean removeCollection(String colName) throws DbException {
         File baseDir = getDirectory();
         File colDir = new File(baseDir, colName);
         if(!colDir.exists()) {
@@ -226,14 +227,13 @@ public final class DbCollection implements Closeable {
         return deleted;
     }
 
-    public final void putDocument(String docName, IDocumentTable doc) throws DbException {
+    public void putDocument(String docName, IDocumentTable doc) throws DbException {
         Transaction tx = new Transaction();
         putDocument(tx, docName, doc);
         tx.commit();
     }
 
-    public final void putDocument(Transaction tx, String docName, IDocumentTable doc)
-            throws DbException {
+    public void putDocument(Transaction tx, String docName, IDocumentTable doc) throws DbException {
         try {
             doc.flush(this, docName);
         } catch (IOException e) {
@@ -241,11 +241,31 @@ public final class DbCollection implements Closeable {
         }
     }
 
-    public final Map<String, DTMDocument> listDocuments(DynamicContext dynEnv) throws DbException {
+    public boolean removeDocument(Transaction tx, String docName) throws DbException {
+        assert (docName != null);
+        String filePrefix = docName + ".xml";
+
+        // remove from cache
+        DocumentTableLoader.removeFromCache(docName);
+
+        // deletes indices and document itself.
+        final List<File> files = FileUtils.listFiles(getDirectory(), new String[] { filePrefix }, null, true);
+        if(files.isEmpty()) {
+            return false;
+        }
+        for(File file : files) {
+            if(!file.delete()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Map<String, DTMDocument> listDocuments(DynamicContext dynEnv) throws DbException {
         return listDocuments(null, true, dynEnv);
     }
 
-    public final Map<String, DTMDocument> listDocuments(String filterExp, boolean lazy, DynamicContext dynEnv)
+    public Map<String, DTMDocument> listDocuments(String filterExp, boolean lazy, DynamicContext dynEnv)
             throws DbException {
         final Collection<File> files = FileUtils.listFiles(getDirectory(), new String[] { IDocumentTable.DTM_SEGMENT_FILE_SUFFIX }, false);
         final Map<String, DTMDocument> colls = new IdentityHashMap<String, DTMDocument>(files.size());
@@ -259,15 +279,22 @@ public final class DbCollection implements Closeable {
             if(lazy) {
                 doc = new LazyDTMDocument(dname, this, dynEnv);
             } else {
-                IDocumentTable doctbl = getDocument(null, dname, dynEnv);
-                doc = new DocumentTableModel(doctbl, true).documentNode();
+                doc = getDocument(null, dname, dynEnv);
             }
             colls.put(dname, doc);
         }
         return colls;
     }
 
-    public final IDocumentTable getDocument(Transaction tx, String docName, DynamicContext dynEnv)
+    public List<File> listDocumentFiles() {
+        return FileUtils.listFiles(getDirectory(), new String[] { IDocumentTable.DTM_SEGMENT_FILE_SUFFIX }, false);
+    }
+
+    public boolean containsDocument(String docName) {
+        return !FileUtils.listFiles(getDirectory(), new String[] { docName }, new String[] { IDocumentTable.DTM_SEGMENT_FILE_SUFFIX }, false).isEmpty();
+    }
+
+    public DTMDocument getDocument(Transaction tx, String docName, DynamicContext dynEnv)
             throws DbException {
         final IDocumentTable dtm;
         try {
@@ -275,30 +302,30 @@ public final class DbCollection implements Closeable {
         } catch (IOException e) {
             throw new DbException("loading document failed: " + docName, e);
         }
-        return dtm;
+        return new DocumentTableModel(dtm, true).documentNode();
     }
 
     public void flushSymbols() throws DbException {
         _symbols.flush(this);
     }
 
-    public final DbCollection getParentCollection() {
+    public DbCollection getParentCollection() {
         return _parent;
     }
 
-    public final String getCollectionName() {
+    public String getCollectionName() {
         return _colName;
     }
 
-    public final String getAbsolutePath() {
+    public String getAbsolutePath() {
         return _absolutePath;
     }
 
-    public final Symbols getSymbols() {
+    public Symbols getSymbols() {
         return _symbols;
     }
 
-    public final File getDirectory() {
+    public File getDirectory() {
         String baseDir = getAbsolutePath();
         File colDir = new File(baseDir);
         return colDir;
@@ -336,7 +363,7 @@ public final class DbCollection implements Closeable {
         }
     }
 
-    public static final DbCollection getCollection(String colpath) {
+    public static DbCollection getCollection(String colpath) {
         if(colpath == null) {
             throw new IllegalArgumentException();
         }
@@ -368,7 +395,7 @@ public final class DbCollection implements Closeable {
         }
     }
 
-    public static final String getDocumentFilterExp(String colpath) {
+    public static String getDocumentFilterExp(String colpath) {
         String[] colnames = colpath.split("/");
         if(colnames.length == 0) {
             return null;
