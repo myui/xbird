@@ -71,6 +71,11 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
         }
     }
 
+    public XBirdCollectionStrategy(DbCollection collection, XStream xstream) {
+        this.xstream = xstream;
+        this.collection = collection;
+    }
+
     public V get(Object key) {
         String docName = docName(key);
         return retrieveObject(docName);
@@ -198,7 +203,7 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
         return (V) value;
     }
 
-    private static String docName(final Object key) {
+    public static String docName(final Object key) {
         return escape(key.toString()) + ".xml";
     }
 

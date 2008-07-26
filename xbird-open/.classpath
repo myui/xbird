@@ -33,5 +33,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/optional/xstream-1.3.jar" sourcepath="/xstream-1.3"/>
+	<classpathentry kind="lib" path="lib/optional/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

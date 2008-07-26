@@ -24,7 +24,9 @@ import java.util.Iterator;
 
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.instance.XQueryDataModel;
-import xbird.xquery.dm.value.*;
+import xbird.xquery.dm.value.Item;
+import xbird.xquery.dm.value.Sequence;
+import xbird.xquery.dm.value.XQNode;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.IFocus;
 
@@ -60,11 +62,11 @@ public class ProxyNodeSequence<T extends XQNode> extends ProxySequence<T>
         return false;
     }
 
-    public static final INodeSequence<XQNode> wrap(Sequence src, DynamicContext dynEnv) {
-        return wrap(src, dynEnv, false);
+    public static final <E extends XQNode> INodeSequence<E> wrap(Sequence src, DynamicContext dynEnv) {
+        return (INodeSequence) wrap(src, dynEnv, false);
     }
 
-    public static final INodeSequence<XQNode> wrap(Sequence src, DynamicContext dynEnv, boolean forceDistinctSort) {
+    public static final <E extends XQNode> INodeSequence<XQNode> wrap(Sequence src, DynamicContext dynEnv, boolean forceDistinctSort) {
         assert (src != null);
         if(src instanceof INodeSequence) {
             return (INodeSequence) src;
