@@ -98,8 +98,9 @@ As you can see the above example, the partial object can be obtainable in additi
 
 _Note that you can define the serialized XML format through [http://xstream.codehaus.org/annotations-tutorial.html annotations] in XStream. Hence, you can query it!_
 
-The output of the above example will be as follows: 
 {{{
+#The output of the above example will be as follows: 
+
 author: makoto
 author: leo
 author: grun
