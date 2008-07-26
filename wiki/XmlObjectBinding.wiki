@@ -19,6 +19,9 @@ In addition to the minimum requirements for xbird/open, the X/O binding feature 
 
 === Persisting objects to Database ===
 
+XStream persistence API provides List/Map/Set to keep track of persistence data.
+
+Here is an example to persist objects using XmlArrayList:
 {{{
 XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();
 XBirdCollectionStrategy strategy = new XBirdCollectionStrategy(COLLECTION_NAME, xstream);
