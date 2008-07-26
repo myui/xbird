@@ -21,7 +21,7 @@ In addition to the minimum requirements for xbird/open, the X/O binding feature 
 
 [http://xstream.codehaus.org/javadoc/index.html XStream persistence API] provides persistent [http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlArrayList.html List]/[http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlMap.html Map]/[http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlSet.html Set] to keep track of persistence data.
 
-Here is an example to persist objects using XmlArrayList:
+Here is an example to persist objects using [http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlArrayList.html XmlArrayList]:
 {{{
 XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();
 XBirdCollectionStrategy strategy = new XBirdCollectionStrategy(COLLECTION_NAME, xstream);
@@ -37,6 +37,41 @@ System.out.println(xstream.toXML(msg2));
 List list = new XmlArrayList(strategy);
 list.add(msg1);
 list.add(msg2);
+}}}
+The definition of `Author` class and `RendezvousMessage` class are found in  [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest class].
+
+The output will be as follows:
+{{{
+# The first element in list is stored as "1.xml" in the specified collection.
+<message>
+  <author>
+    <name>anonymous</name>
+  </author>
+  <content class="java.util.Arrays$ArrayList">
+    <a class="string-array"/>
+  </content>
+  <created>1217087568161</created>
+</message>
+
+# The second element in list is stored as "2.xml" in the specified collection.
+<message>
+  <author>
+    <name>makoto</name>
+  </author>
+  <author>
+    <name>leo</name>
+  </author>
+  <author>
+    <name>grun</name>
+  </author>
+  <content class="java.util.Arrays$ArrayList">
+    <a class="string-array">
+      <string>firstPart</string>
+      <string>secondPart</string>
+    </a>
+  </content>
+  <created>1217087568163</created>
+</message>
 }}}
 
 === Retrieving objects from Database ===
@@ -55,8 +90,16 @@ for(DTMElement node : nodes) {
 }
 }}}
 
+*Output*:
+{{{
+author: makoto
+author: leo
+author: grun
+author: anonymous
+}}}
+
 = Reference =
 
-  * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest] - a testcase containing example usages
+  * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest class] - a testcase containing example usages
   * [http://xstream.codehaus.org/persistence-tutorial.html XStream Persistence API] - Tutorial with several examples
   * [http://db-www.naist.jp/~makoto-y/tdiary/?date=20080727#p01 Explanation in Japanese] - a translation of this page in Japanese
