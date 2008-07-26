@@ -62,4 +62,39 @@ public final class ClassResolver {
         return (T) wrapper.getClass();
     }
 
+    public static boolean isPresent(String className) {
+        return isPresent(className, getDefaultClassLoader());
+    }
+
+    public static boolean isPresent(String className, ClassLoader classLoader) {
+        assert (classLoader != null);
+        try {
+            classLoader.loadClass(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Return the default ClassLoader to use: typically the thread context
+     * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
+     * class will be used as fallback.
+     * <p>Call this method if you intend to use the thread context ClassLoader
+     * in a scenario where you absolutely need a non-null ClassLoader reference:
+     * for example, for class path resource loading (but not necessarily for
+     * <code>Class.forName</code>, which accepts a <code>null</code> ClassLoader
+     * reference as well).
+     * 
+     * @return the default ClassLoader (never <code>null</code>)
+     * @see java.lang.Thread#getContextClassLoader()
+     */
+    public static ClassLoader getDefaultClassLoader() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if(cl == null) {
+            cl = ClassResolver.class.getClassLoader();
+        }
+        return cl;
+    }
+
 }
