@@ -46,9 +46,9 @@ import xbird.xquery.misc.QNameTable.QualifiedName;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public abstract class AbstractDocumentTable implements IDocumentTable {
-
+    private static final long serialVersionUID = -7355233782454201238L;
+    
     /* for all nodes */
-
     /** @see NodeKind */
     private static final int KIND_BITS = 3; /* .....111 */
     private static final int KIND_MASK = (1 << KIND_BITS) - 1;
