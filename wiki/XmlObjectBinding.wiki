@@ -9,6 +9,43 @@ It supports querying capabilities to persistence objects with the full XQuery ex
 The feature uses [http://xstream.codehaus.org/persistence-tutorial.html XStream persistence API] to serialize a Java object into XML instead of a binary format, and then use a native XML database, i.e., XBird, to persist the objects.　
 It is easy since XStream avoids tedious configuration through [http://xstream.codehaus.org/annotations-tutorial.html annotation] or [http://en.wikipedia.org/wiki/Convention_over_Configuration Convention Over Configuration].
 
+= Coding Image =
+
+=== Persisting objects to Database ===
+
+{{{
+        XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();
+        XBirdCollectionStrategy strategy = new XBirdCollectionStrategy(COLLECTION_NAME, xstream);
+
+        List author1 = Arrays.asList(new Author("anonymous"));
+        RendezvousMessage msg1 = new RendezvousMessage(15, author1);
+        System.out.println(xstream.toXML(msg1));
+ 
+        List author2 = Arrays.asList(new Author("makoto"), new Author("leo"), new Author("grun"));
+        RendezvousMessage msg2 = new RendezvousMessage(15, author2, "firstPart", "secondPart");
+        System.out.println(xstream.toXML(msg2));
+ 
+        List list = new XmlArrayList(strategy);
+        list.add(msg1);
+        list.add(msg2);
+}}}
+
+=== Retrieving objects from Database ===
+
+{{{
+        String query1 = "fn:collection('/" + COLLECTION_NAME + "/.*.xml')//author";
+        XQueryProcessor proc = new XQueryProcessor();
+        XQueryModule compiled1 = proc.parse(query1);
+        Sequence items = proc.execute(compiled1);
+        INodeSequence nodes = ProxyNodeSequence.wrap(items, DynamicContext.DUMMY);
+ 
+        for(DTMElement node : nodes) {
+            Object unmarshalled = xstream.unmarshal(new DTMReader(node));
+            Author author = (Author) unmarshalled;
+            System.out.println("author: " + author.getName());
+        }
+}}}
+
 = Reference =
 
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest] - a testcase containing example usages
