@@ -104,7 +104,7 @@ author: grun
 author: anonymous
 }}}
 
-You can find more exmaples in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/ here].
+You can find more examples in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/ here].
 
 = Reference =
 
