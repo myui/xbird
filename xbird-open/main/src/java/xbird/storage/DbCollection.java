@@ -243,13 +243,13 @@ public final class DbCollection implements Closeable {
 
     public boolean removeDocument(Transaction tx, String docName) throws DbException {
         assert (docName != null);
-        String filePrefix = docName + ".xml";
-
         // remove from cache
-        DocumentTableLoader.removeFromCache(docName);
+        String docPath = getAbsolutePath() + File.separatorChar + docName;
+        IDocumentTable removedDoc = DocumentTableLoader.removeDocument(docPath);
+        IOUtils.closeQuietly(removedDoc);
 
         // deletes indices and document itself.
-        final List<File> files = FileUtils.listFiles(getDirectory(), new String[] { filePrefix }, null, true);
+        final List<File> files = FileUtils.listFiles(getDirectory(), new String[] { docName }, null, true);
         if(files.isEmpty()) {
             return false;
         }

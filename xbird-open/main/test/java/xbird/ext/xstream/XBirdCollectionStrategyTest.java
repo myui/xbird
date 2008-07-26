@@ -23,6 +23,7 @@ package xbird.ext.xstream;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
@@ -30,11 +31,16 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import com.thoughtworks.xstream.converters.extended.GregorianCalendarConverter;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.persistence.XmlArrayList;
 
 /**
@@ -61,7 +67,10 @@ public class XBirdCollectionStrategyTest {
 
     @Test
     public void addingElements() {
-        XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME);
+        XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();        
+        XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME, xstream);
+
+        //xstream.processAnnotations(Author.class);
 
         List<Author> list = new XmlArrayList(strategy);
 
@@ -93,7 +102,7 @@ public class XBirdCollectionStrategyTest {
     }
 
     @XStreamAlias("message")
-    public class RendezvousMessage {
+    public static class RendezvousMessage {
 
         private Author author;
 
@@ -103,7 +112,7 @@ public class XBirdCollectionStrategyTest {
         @XStreamImplicit(itemFieldName = "part")
         private List<String> content;
 
-        @XStreamConverter(GregorianCalendarConverter.class)
+        @XStreamConverter(SingleValueCalendarConverter.class)
         private Calendar created = new GregorianCalendar();
 
         public RendezvousMessage(int messageType, String... content) {
@@ -132,8 +141,8 @@ public class XBirdCollectionStrategyTest {
 
     }
 
-    public class Author {
-        private final String name;
+    public static class Author {
+        private String name;
 
         public Author(String name) {
             this.name = name;
@@ -156,4 +165,23 @@ public class XBirdCollectionStrategyTest {
             return name.hashCode();
         }
     }
+
+    private static final class SingleValueCalendarConverter implements Converter {
+
+        public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+            Calendar calendar = (Calendar) source;
+            writer.setValue(String.valueOf(calendar.getTime().getTime()));
+        }
+
+        public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(new Date(Long.parseLong(reader.getValue())));
+            return calendar;
+        }
+
+        public boolean canConvert(Class type) {
+            return type.equals(GregorianCalendar.class);
+        }
+    }
+
 }

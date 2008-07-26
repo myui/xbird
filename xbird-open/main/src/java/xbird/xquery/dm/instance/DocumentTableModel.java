@@ -22,6 +22,7 @@ package xbird.xquery.dm.instance;
 
 import static xbird.xquery.dm.dtm.IDocumentTable.BLOCKS_PER_NODE;
 
+import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
@@ -809,7 +810,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         }
     }
 
-    public static class DTMDocument extends DTMElement {
+    public static class DTMDocument extends DTMElement implements Closeable {
         private static final long serialVersionUID = -457402431467614608L;
 
         private String documentUri = null;
@@ -897,6 +898,10 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
 
         public void setDocumentUri(String docUri) {
             this.documentUri = docUri;
+        }
+
+        public void close() throws IOException {
+            _store.close();
         }
     }
 

@@ -29,6 +29,7 @@ import org.xml.sax.ContentHandler;
 import xbird.storage.DbCollection;
 import xbird.storage.DbException;
 import xbird.storage.tx.Transaction;
+import xbird.util.io.IOUtils;
 import xbird.xquery.dm.dtm.DocumentTable;
 import xbird.xquery.dm.dtm.DocumentTableBuilder;
 import xbird.xquery.dm.dtm.IDocumentTable;
@@ -52,7 +53,13 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
     private final DbCollection collection;
 
     public XBirdCollectionStrategy(String collectionName) {
-        this(collectionName, new XStream());
+        this(collectionName, getAnnotationProcessableXStreamInstance());
+    }
+
+    public static XStream getAnnotationProcessableXStreamInstance() {
+        XStream xstream = new XStream();
+        xstream.autodetectAnnotations(true);
+        return xstream;
     }
 
     public XBirdCollectionStrategy(String collectionName, XStream xstream) {
@@ -77,9 +84,10 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
     private V _put(String docName, V value) {
         V prev = _remove(docName);
 
-        SaxWriter writer = new SaxWriter();
-
         IDocumentTable doc = new DocumentTable(collection, docName);
+        //String docid = collection.getAbsolutePath() + File.separatorChar + docName;
+        //DocumentTableLoader.putDocumentIfAbsent(docid, doc);
+        SaxWriter writer = new SaxWriter();
         ContentHandler builder = new DocumentTableBuilder(doc);
         writer.setContentHandler(builder);
 
@@ -103,10 +111,14 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
     private V _remove(String docName) {
         V doc = retrieveObject(docName);
         if(doc != null) {
+            final boolean removed;
             try {
-                collection.removeCollection(docName);
+                removed = collection.removeDocument(null, docName);
             } catch (DbException e) {
                 throw new IllegalStateException("Could not delete: " + docName, e);
+            }
+            if(!removed) {
+                throw new IllegalStateException("Could not remove: " + docName);
             }
         }
         return doc;
@@ -180,7 +192,8 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
         if(doc == null) {
             return null;
         }
-        Object value = xstream.unmarshal(new DTMReader(doc), doc);
+        Object value = xstream.unmarshal(new DTMReader(doc));
+        IOUtils.closeQuietly(doc);
         return (V) value;
     }
 

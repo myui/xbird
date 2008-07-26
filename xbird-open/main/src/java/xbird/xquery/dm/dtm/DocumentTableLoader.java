@@ -20,6 +20,7 @@
  */
 package xbird.xquery.dm.dtm;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public final class DocumentTableLoader {
     //TODO reduce synchronized block
     public synchronized static IDocumentTable load(final DbCollection coll, final String docName, final DynamicContext dynEnv)
             throws IOException {
-        final String id = coll.getAbsolutePath() + '/' + docName;
+        final String id = coll.getAbsolutePath() + File.separatorChar + docName;
         final IDocumentTable cachedDoc = _cache.get(id);
         if(cachedDoc != null) {
             if(AtomicUtils.tryIncrementIfGreaterThan(cachedDoc.getReferenceCount(), 0)) {// may already be closed, thus assert not closed
@@ -80,14 +81,10 @@ public final class DocumentTableLoader {
         if(MemoryMappedDocumentTable.MMDTM_CLASS.equals(dtmClass) || dtmClass == null) {
             table = new MemoryMappedDocumentTable(coll, docName, docProps, true);
         } else if(DocumentTable.DTM_CLASS.equals(dtmClass)) {
-            if(USE_MMAP) {
-                table = new MemoryMappedDocumentTable(coll, docName, docProps, true);
+            if(PROFILE_ACCESS_PATTERN != null) {
+                table = new ProfiledPersistentDocumentTable(PROFILE_ACCESS_PATTERN, coll, docName, docProps);
             } else {
-                if(PROFILE_ACCESS_PATTERN != null) {
-                    table = new ProfiledPersistentDocumentTable(PROFILE_ACCESS_PATTERN, coll, docName, docProps);
-                } else {
-                    table = DocumentTable.load(coll, docName, docProps);
-                }
+                table = DocumentTable.load(coll, docName, docProps);
             }
         } else if(BigDocumentTable.DTM_CLASS.equals(dtmClass)) {
             table = BigDocumentTable.load(coll, docName, docProps);
@@ -99,8 +96,13 @@ public final class DocumentTableLoader {
         return table;
     }
 
-    public synchronized static boolean removeFromCache(String docName) {
-        IDocumentTable removed = _cache.remove(docName);
-        return removed != null;
+    public synchronized static IDocumentTable removeDocument(String docId) {
+        return _cache.remove(docId);
+    }
+
+    public synchronized static void putDocumentIfAbsent(String docId, IDocumentTable doc) {
+        if(_cache.containsKey(docId)) {
+            _cache.put(docId, doc);
+        }
     }
 }

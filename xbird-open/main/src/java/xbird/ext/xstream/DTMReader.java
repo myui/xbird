@@ -38,13 +38,17 @@ import com.thoughtworks.xstream.io.xml.XmlFriendlyReplacer;
 public final class DTMReader extends AbstractDocumentReader {
 
     private DTMElement currentElement;
-    
+
     public DTMReader(DTMDocument docmentRoot) {
-        this((DTMElement) docmentRoot.firstChild());
+        this((DTMElement) docmentRoot.firstChild(), new XmlFriendlyReplacer());
+    }
+
+    public DTMReader(DTMDocument docmentRoot, XmlFriendlyReplacer replacer) {
+        this((DTMElement) docmentRoot.firstChild(), replacer);
     }
 
     public DTMReader(DTMElement rootElement) {
-        super(rootElement);
+        super(rootElement, new XmlFriendlyReplacer());
     }
 
     public DTMReader(DTMElement rootElement, XmlFriendlyReplacer replacer) {
@@ -106,6 +110,7 @@ public final class DTMReader extends AbstractDocumentReader {
         int count = 0;
         while(child != null) {
             child = child.nextSibling();
+            count++;
         }
         return count;
     }
