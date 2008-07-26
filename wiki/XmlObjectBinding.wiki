@@ -100,7 +100,6 @@ _Note that you can define the serialized XML format through [http://xstream.code
 
 {{{
 #The output of the above example will be as follows: 
-
 author: makoto
 author: leo
 author: grun
