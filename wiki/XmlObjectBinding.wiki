@@ -111,6 +111,6 @@ You can find more examples in [http://code.google.com/p/xbird/source/browse/trun
 = Reference =
 
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest class] - a testcase containing example usages
-  * [http://xstream.codehaus.org/persistence-tutorial.html XStream Persistence API] - Tutorial with several examples
+  * [http://xstream.codehaus.org/persistence-tutorial.html XStream Persistence API] - tutorial with several examples
   * [http://www.jroller.com/rickard/date/20041218 XStream + Xindice] - a similar attempt to ours 
   * [http://db-www.naist.jp/~makoto-y/tdiary/?date=20080727#p01 Explanation in Japanese] - a translation of this page in Japanese
