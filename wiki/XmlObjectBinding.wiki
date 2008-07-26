@@ -10,7 +10,7 @@ It is easy since XStream avoids tedious configuration through [http://xstream.co
 
 = Requirements =
 
-In addition to the minimum requirements for xbird/open, the X/O binding feature requires the following libraries to serialize/deserialize objects:
+In addition to the minimum requirements for xbird/open, the X/O binding feature requires the following libraries in _classpath_ to serialize/deserialize objects:
    
    * lib/optional/xstream-xx.jar
    * lib/optional/xpp3_min-xx.jar
