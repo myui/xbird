@@ -164,6 +164,7 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
                 public V getValue() {
                     DTMDocument doc = entry.getValue();
                     Object value = xstream.unmarshal(new DTMReader(doc), doc);
+                    IOUtils.closeQuietly(doc);
                     return (V) value;
                 }
 
