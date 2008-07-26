@@ -8,6 +8,13 @@ XBird introduces an object persistence feature. It supports querying capabilitie
 The feature uses [http://xstream.codehaus.org/persistence-tutorial.html XStream persistence API] to serialize a Java object into XML instead of a binary format, and then use a native XML database, i.e., XBird, to persist the objects.　
 It is easy since XStream avoids tedious configuration through [http://xstream.codehaus.org/annotations-tutorial.html annotation] or [http://en.wikipedia.org/wiki/Convention_over_Configuration Convention Over Configuration].
 
+= Requirements =
+
+In addition to the minimum requirements for xbird/open, the X/O binding feature requires the following libraries to serialize/deserialize objects:
+   
+   * lib/optional/xstream-xx.jar
+   * lib/optional/xpp3_min-xx.jar
+
 = Coding Guideline =
 
 === Persisting objects to Database ===
