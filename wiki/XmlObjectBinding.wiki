@@ -94,7 +94,7 @@ for(DTMElement node : nodes) {
 
 As you can see the above example, the partial object can be obtainable in addition to the entire object. 
 
-The output of the above example will be:
+The output of the above example will be as follows: 
 {{{
 author: makoto
 author: leo
