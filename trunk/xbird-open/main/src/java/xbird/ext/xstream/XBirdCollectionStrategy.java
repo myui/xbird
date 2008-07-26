@@ -20,6 +20,7 @@
  */
 package xbird.ext.xstream;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +33,7 @@ import xbird.storage.tx.Transaction;
 import xbird.util.io.IOUtils;
 import xbird.xquery.dm.dtm.DocumentTable;
 import xbird.xquery.dm.dtm.DocumentTableBuilder;
+import xbird.xquery.dm.dtm.DocumentTableLoader;
 import xbird.xquery.dm.dtm.IDocumentTable;
 import xbird.xquery.dm.instance.DocumentTableModel.DTMDocument;
 import xbird.xquery.meta.DynamicContext;
@@ -90,8 +92,11 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
         V prev = _remove(docName);
 
         IDocumentTable doc = new DocumentTable(collection, docName);
-        //String docid = collection.getAbsolutePath() + File.separatorChar + docName;
-        //DocumentTableLoader.putDocumentIfAbsent(docid, doc);
+
+        // cache the document
+        String docid = collection.getAbsolutePath() + File.separatorChar + docName;
+        DocumentTableLoader.putDocumentIfAbsent(docid, doc);
+
         SaxWriter writer = new SaxWriter();
         ContentHandler builder = new DocumentTableBuilder(doc);
         writer.setContentHandler(builder);

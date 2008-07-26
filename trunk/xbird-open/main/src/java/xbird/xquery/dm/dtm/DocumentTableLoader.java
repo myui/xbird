@@ -78,7 +78,7 @@ public final class DocumentTableLoader {
         final PropertyMap docProps = coll.getCollectionProperties();
         final String dtmClass = docProps.getProperty(IDocumentTable.KEY_DTM_CLASS + docName);
         final IDocumentTable table;
-        if(MemoryMappedDocumentTable.MMDTM_CLASS.equals(dtmClass) || dtmClass == null) {
+        if(MemoryMappedDocumentTable.MMDTM_CLASS.equals(dtmClass) || (dtmClass == null && USE_MMAP)) {
             table = new MemoryMappedDocumentTable(coll, docName, docProps, true);
         } else if(DocumentTable.DTM_CLASS.equals(dtmClass)) {
             if(PROFILE_ACCESS_PATTERN != null) {
@@ -104,5 +104,9 @@ public final class DocumentTableLoader {
         if(_cache.containsKey(docId)) {
             _cache.put(docId, doc);
         }
+    }
+
+    public synchronized static void clean() {
+        _cache.clear();
     }
 }
