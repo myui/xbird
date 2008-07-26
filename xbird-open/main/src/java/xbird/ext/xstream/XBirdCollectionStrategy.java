@@ -31,6 +31,7 @@ import xbird.storage.DbCollection;
 import xbird.storage.DbException;
 import xbird.storage.tx.Transaction;
 import xbird.util.io.IOUtils;
+import xbird.util.lang.ClassResolver;
 import xbird.xquery.dm.dtm.DocumentTable;
 import xbird.xquery.dm.dtm.DocumentTableBuilder;
 import xbird.xquery.dm.dtm.DocumentTableLoader;
@@ -39,6 +40,7 @@ import xbird.xquery.dm.instance.DocumentTableModel.DTMDocument;
 import xbird.xquery.meta.DynamicContext;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.SaxWriter;
 import com.thoughtworks.xstream.persistence.StreamStrategy;
 
@@ -51,6 +53,8 @@ import com.thoughtworks.xstream.persistence.StreamStrategy;
  */
 public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
 
+    private static final String XPP_CLASS = "org.xmlpull.mxp1.MXParser";
+
     private final XStream xstream;
     private final DbCollection collection;
 
@@ -59,7 +63,12 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
     }
 
     public static XStream getAnnotationProcessableXStreamInstance() {
-        XStream xstream = new XStream();
+        final XStream xstream;
+        if(ClassResolver.isPresent(XPP_CLASS)) {
+            xstream = new XStream();
+        } else {
+            xstream = new XStream(new DomDriver());
+        }
         xstream.autodetectAnnotations(true);
         return xstream;
     }
