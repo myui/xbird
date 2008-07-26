@@ -19,7 +19,7 @@ In addition to the minimum requirements for xbird/open, the X/O binding feature 
 
 === Persisting objects to Database ===
 
-[http://xstream.codehaus.org/javadoc/index.html XStream persistence API] provides [http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlArrayList.html List]/[http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlMap.html Map]/[http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlSet.html Set] to keep track of persistence data.
+[http://xstream.codehaus.org/javadoc/index.html XStream persistence API] provides persistent [http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlArrayList.html List]/[http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlMap.html Map]/[http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/XmlSet.html Set] to keep track of persistence data.
 
 Here is an example to persist objects using XmlArrayList:
 {{{
