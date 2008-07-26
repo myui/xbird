@@ -3,6 +3,9 @@
 
 = Introduction =
 
+XBird introduces an object persistence feature using XStream. 
+It supports querying capabilities to persistence objects with the full XQuery expressibility.
+
 = Reference =
 
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest] - a testcase containing example usages
