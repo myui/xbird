@@ -129,11 +129,11 @@ public class XBirdCollectionStrategyTest {
         XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME, xstream);
         xstream.processAnnotations(RendezvousMessage.class);
 
-        RendezvousMessage msg1 = new RendezvousMessage(15);
+        RendezvousMessage msg1 = new RendezvousMessage(15, Arrays.asList(new Author("anonymous")));
         System.out.println(xstream.toXML(msg1));
         System.out.println();
 
-        RendezvousMessage msg2 = new RendezvousMessage(15, "firstPart", "secondPart");
+        RendezvousMessage msg2 = new RendezvousMessage(15, Arrays.asList(new Author("anonymous")), "firstPart", "secondPart");
         System.out.println(xstream.toXML(msg2));
         System.out.println();
 
@@ -165,11 +165,12 @@ public class XBirdCollectionStrategyTest {
         XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME, xstream);
         xstream.processAnnotations(RendezvousMessage.class);
 
-        RendezvousMessage msg1 = new RendezvousMessage(15);
+        RendezvousMessage msg1 = new RendezvousMessage(15, Arrays.asList(new Author("anonymous")));
         System.out.println(xstream.toXML(msg1));
         System.out.println();
 
-        RendezvousMessage msg2 = new RendezvousMessage(15, "firstPart", "secondPart");
+        RendezvousMessage msg2 = new RendezvousMessage(15, Arrays.asList(new Author[] {
+                new Author("makoto"), new Author("leo"), new Author("grun") }), "firstPart", "secondPart");
         System.out.println(xstream.toXML(msg2));
         System.out.println();
 
@@ -178,7 +179,7 @@ public class XBirdCollectionStrategyTest {
         list.add(msg2);
         Assert.assertEquals(2, list.size());
 
-        String query1 = "fn:collection('/" + COLLECTION_NAME + "/1.xml')//author";
+        String query1 = "fn:collection('/" + COLLECTION_NAME + "/*.xml')//author";
         XQueryProcessor proc = new XQueryProcessor();
         XQueryModule compiled1 = proc.parse(query1);
         Sequence<? extends Item> items = proc.execute(compiled1);
@@ -206,9 +207,8 @@ public class XBirdCollectionStrategyTest {
         @XStreamConverter(SingleValueCalendarConverter.class)
         private Calendar created = new GregorianCalendar();
 
-        public RendezvousMessage(int messageType, String... content) {
-            this.authors = Arrays.asList(new Author[] { new Author("makoto"), new Author("leo"),
-                    new Author("grun") });
+        public RendezvousMessage(int messageType, List<Author> authors, String... content) {
+            this.authors = authors;
             this.messageType = messageType;
             this.content = Arrays.asList(content);
         }
