@@ -79,8 +79,10 @@ public final class LazyDTMDocument extends DTMDocument {
      */
     public void reclaim() {
         this._model = null;
-        IOUtils.closeQuietly(_store);
-        this._store = null;
+        if(_store != null) {
+            IOUtils.closeQuietly(_store);
+            this._store = null;
+        }
     }
 
     @Override
