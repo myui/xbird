@@ -21,6 +21,8 @@
 package xbird.ext.xstream;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +32,21 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.testng.annotations.AfterTest;
+
+import xbird.storage.DbException;
+import xbird.util.io.FileUtils;
+import xbird.util.xml.SAXWriter;
+import xbird.xquery.XQueryException;
+import xbird.xquery.XQueryModule;
+import xbird.xquery.XQueryProcessor;
+import xbird.xquery.dm.instance.DocumentTableModel.DTMElement;
+import xbird.xquery.dm.ser.SAXSerializer;
+import xbird.xquery.dm.value.Item;
+import xbird.xquery.dm.value.Sequence;
+import xbird.xquery.dm.value.sequence.INodeSequence;
+import xbird.xquery.dm.value.sequence.ProxyNodeSequence;
+import xbird.xquery.meta.DynamicContext;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -53,21 +70,26 @@ import com.thoughtworks.xstream.persistence.XmlArrayList;
 public class XBirdCollectionStrategyTest {
 
     private static final String COLLECTION_NAME = "xstreamTest";
+    private static final File colDir = new File(System.getProperty("java.io.tmpdir")
+            + File.separatorChar + "xbird", COLLECTION_NAME);
 
-    public XBirdCollectionStrategyTest() {
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        File colDir = new File(tmpDir, COLLECTION_NAME);
-
+    public XBirdCollectionStrategyTest() throws IOException {
         if(colDir.exists()) {
-            colDir.delete();
+            FileUtils.cleanDirectory(colDir);
+        } else {
+            colDir.mkdir();
         }
-        colDir.mkdir();
         System.out.println("collection directory: " + colDir.getAbsolutePath());
     }
 
+    @AfterTest
+    public void tearDown() throws IOException {
+        FileUtils.cleanDirectory(colDir);
+    }
+
     @Test
-    public void addingElements() {
-        XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();        
+    public void addingAuthors1() {
+        XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();
         XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME, xstream);
 
         //xstream.processAnnotations(Author.class);
@@ -101,29 +123,99 @@ public class XBirdCollectionStrategyTest {
         Assert.assertEquals(4, list.size());
     }
 
+    @Test
+    public void addingRendezvousMessages1() throws DbException, XQueryException {
+        XStream xstream = new XStream();
+        XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME, xstream);
+        xstream.processAnnotations(RendezvousMessage.class);
+
+        RendezvousMessage msg1 = new RendezvousMessage(15);
+        System.out.println(xstream.toXML(msg1));
+        System.out.println();
+
+        RendezvousMessage msg2 = new RendezvousMessage(15, "firstPart", "secondPart");
+        System.out.println(xstream.toXML(msg2));
+        System.out.println();
+
+        List<RendezvousMessage> list = new XmlArrayList(strategy);
+        list.add(msg1);
+        list.add(msg2);
+        Assert.assertEquals(2, list.size());
+
+        String query1 = "fn:collection('/" + COLLECTION_NAME + "/1.xml')//author[1]";
+        XQueryProcessor proc = new XQueryProcessor();
+        XQueryModule compiled1 = proc.parse(query1);
+        StringWriter sw = new StringWriter();
+        SAXWriter handler = new SAXWriter(sw);
+        SAXSerializer ser = new SAXSerializer(handler);
+
+        proc.execute(compiled1, ser);
+        handler.flush();
+        String result1 = sw.toString();
+
+        System.err.println(result1);
+
+        Author author1 = (Author) xstream.fromXML(result1);
+        Assert.assertEquals("makoto", author1.getName());
+    }
+
+    @Test
+    public void addingRendezvousMessages2() throws DbException, XQueryException {
+        XStream xstream = new XStream();
+        XBirdCollectionStrategy<String, Object> strategy = new XBirdCollectionStrategy<String, Object>(COLLECTION_NAME, xstream);
+        xstream.processAnnotations(RendezvousMessage.class);
+
+        RendezvousMessage msg1 = new RendezvousMessage(15);
+        System.out.println(xstream.toXML(msg1));
+        System.out.println();
+
+        RendezvousMessage msg2 = new RendezvousMessage(15, "firstPart", "secondPart");
+        System.out.println(xstream.toXML(msg2));
+        System.out.println();
+
+        List<RendezvousMessage> list = new XmlArrayList(strategy);
+        list.add(msg1);
+        list.add(msg2);
+        Assert.assertEquals(2, list.size());
+
+        String query1 = "fn:collection('/" + COLLECTION_NAME + "/1.xml')//author";
+        XQueryProcessor proc = new XQueryProcessor();
+        XQueryModule compiled1 = proc.parse(query1);
+        Sequence<? extends Item> items = proc.execute(compiled1);
+        INodeSequence<DTMElement> nodes = ProxyNodeSequence.wrap(items, DynamicContext.DUMMY);
+
+        for(DTMElement node : nodes) {
+            Object unmarshalled = xstream.unmarshal(new DTMReader(node));
+            Author author = (Author) unmarshalled;
+            System.out.println("author: " + author.getName());
+        }
+    }
+
     @XStreamAlias("message")
     public static class RendezvousMessage {
 
-        private Author author;
+        @XStreamImplicit(itemFieldName = "author")
+        private List<Author> authors;
 
         @XStreamOmitField
         private int messageType = -1;
 
-        @XStreamImplicit(itemFieldName = "part")
+        //@XStreamImplicit(itemFieldName = "part")
         private List<String> content;
 
         @XStreamConverter(SingleValueCalendarConverter.class)
         private Calendar created = new GregorianCalendar();
 
         public RendezvousMessage(int messageType, String... content) {
-            this.author = new Author("anonymous");
+            this.authors = Arrays.asList(new Author[] { new Author("makoto"), new Author("leo"),
+                    new Author("grun") });
             this.messageType = messageType;
             this.content = Arrays.asList(content);
         }
 
         @Override
         public int hashCode() {
-            return content.hashCode() ^ author.hashCode() + messageType;
+            return content.hashCode() ^ authors.hashCode() + messageType;
         }
 
         @Override
@@ -132,7 +224,7 @@ public class XBirdCollectionStrategyTest {
                 return false;
             }
             RendezvousMessage other = (RendezvousMessage) obj;
-            if(author.equals(other.author) && content.equals(other.content)
+            if(authors.equals(other.authors) && content.equals(other.content)
                     && created.equals(other.created)) {
                 return true;
             }
@@ -141,6 +233,7 @@ public class XBirdCollectionStrategyTest {
 
     }
 
+    @XStreamAlias("author")
     public static class Author {
         private String name;
 
@@ -166,7 +259,11 @@ public class XBirdCollectionStrategyTest {
         }
     }
 
-    private static final class SingleValueCalendarConverter implements Converter {
+    public static final class SingleValueCalendarConverter implements Converter {
+
+        public SingleValueCalendarConverter() {
+            super();
+        }
 
         public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
             Calendar calendar = (Calendar) source;

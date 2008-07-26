@@ -130,6 +130,26 @@ public final class FileUtils {
                 : FalseFileFilter.INSTANCE));
     }
 
+    public static void cleanDirectory(File dir) throws IOException {
+        if(!dir.exists()) {
+            throw new IllegalArgumentException(dir + " does not exist");
+        }
+        if(!dir.isDirectory()) {
+            throw new IllegalArgumentException(dir + " is not a directory");
+        }
+
+        final File[] files = dir.listFiles();
+        if(files == null) { // null if security restricted
+            throw new IOException("Failed to list contents of " + dir);
+        }
+
+        for(int i = 0; i < files.length; i++) {
+            if(!files[i].delete()) {
+                throw new IOException("Unable to delete file: " + files[i].getAbsolutePath());
+            }
+        }
+    }
+
     /**
      * Converts an array of file extensions to suffixes for use
      * with IOFileFilters.
