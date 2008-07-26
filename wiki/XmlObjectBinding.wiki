@@ -14,36 +14,36 @@ It is easy since XStream avoids tedious configuration through [http://xstream.co
 === Persisting objects to Database ===
 
 {{{
-        XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();
-        XBirdCollectionStrategy strategy = new XBirdCollectionStrategy(COLLECTION_NAME, xstream);
+XStream xstream = XBirdCollectionStrategy.getAnnotationProcessableXStreamInstance();
+XBirdCollectionStrategy strategy = new XBirdCollectionStrategy(COLLECTION_NAME, xstream);
 
-        List author1 = Arrays.asList(new Author("anonymous"));
-        RendezvousMessage msg1 = new RendezvousMessage(15, author1);
-        System.out.println(xstream.toXML(msg1));
+List author1 = Arrays.asList(new Author("anonymous"));
+RendezvousMessage msg1 = new RendezvousMessage(15, author1);
+System.out.println(xstream.toXML(msg1));
  
-        List author2 = Arrays.asList(new Author("makoto"), new Author("leo"), new Author("grun"));
-        RendezvousMessage msg2 = new RendezvousMessage(15, author2, "firstPart", "secondPart");
-        System.out.println(xstream.toXML(msg2));
+List author2 = Arrays.asList(new Author("makoto"), new Author("leo"), new Author("grun"));
+RendezvousMessage msg2 = new RendezvousMessage(15, author2, "firstPart", "secondPart");
+System.out.println(xstream.toXML(msg2));
  
-        List list = new XmlArrayList(strategy);
-        list.add(msg1);
-        list.add(msg2);
+List list = new XmlArrayList(strategy);
+list.add(msg1);
+list.add(msg2);
 }}}
 
 === Retrieving objects from Database ===
 
 {{{
-        String query1 = "fn:collection('/" + COLLECTION_NAME + "/.*.xml')//author";
-        XQueryProcessor proc = new XQueryProcessor();
-        XQueryModule compiled1 = proc.parse(query1);
-        Sequence items = proc.execute(compiled1);
-        INodeSequence nodes = ProxyNodeSequence.wrap(items, DynamicContext.DUMMY);
- 
-        for(DTMElement node : nodes) {
-            Object unmarshalled = xstream.unmarshal(new DTMReader(node));
-            Author author = (Author) unmarshalled;
-            System.out.println("author: " + author.getName());
-        }
+String query1 = "fn:collection('/" + COLLECTION_NAME + "/.*.xml')//author";
+XQueryProcessor proc = new XQueryProcessor();
+XQueryModule compiled1 = proc.parse(query1);
+Sequence items = proc.execute(compiled1);
+INodeSequence nodes = ProxyNodeSequence.wrap(items, DynamicContext.DUMMY);
+
+for(DTMElement node : nodes) {
+   Object unmarshalled = xstream.unmarshal(new DTMReader(node));
+   Author author = (Author) unmarshalled;
+   System.out.println("author: " + author.getName());
+}
 }}}
 
 = Reference =
