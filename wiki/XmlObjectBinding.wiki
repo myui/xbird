@@ -47,7 +47,7 @@ The output will be as follows:
   <author>
     <name>anonymous</name>
   </author>
-  <content class="java.util.Arrays$ArrayList">
+  <content class=`"java.util.Arrays$ArrayList"`>
     <a class="string-array"/>
   </content>
   <created>1217087568161</created>
