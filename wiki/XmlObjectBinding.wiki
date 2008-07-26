@@ -8,6 +8,8 @@ XBird introduces an object persistence feature. It supports querying capabilitie
 The feature uses [http://xstream.codehaus.org/persistence-tutorial.html XStream persistence API] to serialize a Java object into XML instead of a binary format, and then use a native XML database, i.e., XBird, to persist the objects.　
 It is easy since XStream avoids tedious configuration through [http://xstream.codehaus.org/annotations-tutorial.html annotation] or [http://en.wikipedia.org/wiki/Convention_over_Configuration Convention Over Configuration].
 
+_Essentially, what we provided is [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/ext/xstream/XBirdCollectionStrategy.java an alternative] to [http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/FileStreamStrategy.html FileStreamStrategy]._
+
 = Requirements =
 
 In addition to [http://code.google.com/p/xbird/wiki/LibraryDependencyListing the minimum requirements] for xbird/open, the X/O binding feature requires the following libraries in _classpath_ to serialize/deserialize objects:
@@ -77,7 +79,7 @@ The output will be as follows:
 
 === Retrieving objects from Database ===
 
-Querying over persistent documents and retrieving the result sequence is capable as follows:
+Querying over persistent documents and retrieving the result is capable as follows:
 {{{
 String query1 = "fn:collection('/" + COLLECTION_NAME + "/.*.xml')//author";
 XQueryProcessor proc = new XQueryProcessor();
