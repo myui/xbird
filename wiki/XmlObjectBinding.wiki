@@ -1,0 +1,8 @@
+#summary XML/Object Binding and Object Persistence: XStream + XBird= !
+#labels Phase-Implementation
+
+= Introduction =
+
+= Reference =
+
+  * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest] - a testcase containing example usages
