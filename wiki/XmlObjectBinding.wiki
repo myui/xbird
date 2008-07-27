@@ -110,6 +110,10 @@ author: anonymous
 
 You can find more examples in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/ here].
 
+= Limitations =
+
+  * Does not support 'live' persistence for the stored objects. Modified objects is required to explicitly (re)set to the collection. Get details on [http://thread.gmane.org/gmane.comp.java.xstream.user/4088/focus=4089 XStream mailing list].
+
 = Reference =
 
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest class] - a testcase containing example usages
