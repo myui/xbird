@@ -6,7 +6,7 @@
 XBird introduces an object persistence feature. It supports querying capabilities to persistence objects with the full XQuery expressibility.
 
 The feature uses [http://xstream.codehaus.org/persistence-tutorial.html XStream persistence API] to serialize a Java object into XML instead of a binary format, and then use a native XML database, i.e., XBird, to persist the objects.　
-It is easy since XStream avoids tedious configuration through [http://xstream.codehaus.org/annotations-tutorial.html annotation] or [http://en.wikipedia.org/wiki/Convention_over_Configuration Convention Over Configuration].
+It is easy since XStream avoids tedious configuration through [http://xstream.codehaus.org/annotations-tutorial.html annotations].
 
 _Essentially, what we provided is [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/ext/xstream/XBirdCollectionStrategy.java an alternative] to [http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/persistence/FileStreamStrategy.html FileStreamStrategy] in [http://xstream.codehaus.org/ XStream]._
 
