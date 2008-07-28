@@ -7,7 +7,7 @@ This document intended to provide information for users to run XBird without hav
 
 = Preparation =
 
-Please ensure to prepare Java 5 or later for the runtime environment.
+Please ensure to prepare Java 5 or later, preferably from Sun, for the runtime environment.
 If not installed yet, please download JDK (or JRE) from [http://java.sun.com/javase here] and install it. 
 
 = Download =
