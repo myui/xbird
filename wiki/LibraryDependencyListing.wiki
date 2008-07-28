@@ -3,7 +3,7 @@
 
 = Minimum requirements =
 
-  * Java 1.5 or later
+  * Java 1.5 or later, preferably from Sun.
   * lib/xbird-db-xx.jar, lib/commons-logging-xx.jar
 
 = Dependency to open source libraries =
