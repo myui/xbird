@@ -96,7 +96,7 @@ for(DTMElement node : nodes) {
 }
 }}}
 
-As you can see the above example, the partial object can be obtainable in addition to the entire object.  
+As you can see the above example, the partial objects are obtainable in addition to the entire object.  
 
 _Note that you can define the serialized XML format through [http://xstream.codehaus.org/annotations-tutorial.html annotations] in XStream. Hence, you can query it!_
 
