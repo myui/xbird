@@ -31,7 +31,16 @@ import static xbird.xquery.expr.comp.NodeComp.Operator.IS;
 import static xbird.xquery.expr.comp.NodeComp.Operator.PRECEDES;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -837,10 +846,9 @@ public final class Join {
                 entry.add(value);
             } else {
                 entry = new Entry(value);
-                final Comparable k = (key == _probe) ? new Key(keys, _opr) : key;
+                Comparable k = (key == _probe) ? new Key(keys, _opr) : key;
                 _table.put(k, entry);
                 if(!_equiJoin) {
-                    assert (_orderedKey != null);
                     _orderedKey.add(k);
                 }
             }

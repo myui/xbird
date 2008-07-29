@@ -44,7 +44,7 @@ import xbird.xquery.parser.XQueryParserVisitor;
  * @link http://www.w3.org/TR/xquery/#id-orderby-return
  * @link http://www.w3.org/TR/xquery-semantics/#id_orderby_clause
  */
-public class OrderSpec extends AbstractXQExpression {
+public final class OrderSpec extends AbstractXQExpression {
     private static final long serialVersionUID = -258563761038835180L;
 
     private XQExpression keyExpr;

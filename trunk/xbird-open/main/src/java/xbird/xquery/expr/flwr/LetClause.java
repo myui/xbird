@@ -39,7 +39,7 @@ import xbird.xquery.parser.XQueryParserVisitor;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class LetClause extends Binding {
+public final class LetClause extends Binding {
     private static final long serialVersionUID = 7693803045289928607L;
 
     public LetClause(LetVariable variable) {

@@ -201,6 +201,9 @@ public final class ValueSequence extends AbstractSequence<Item>
 
     @Override
     public boolean equals(Object obj) {
+        if(obj == this) {
+            return true;
+        }
         if(obj instanceof Item) {
             final int cmp = compareTo((ValueSequence) obj);
             return cmp == 0;

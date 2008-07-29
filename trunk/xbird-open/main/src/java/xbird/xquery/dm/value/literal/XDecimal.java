@@ -79,6 +79,11 @@ public final class XDecimal extends XNumber {
     }
 
     @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
     public int compareTo(Item trg) {
         if(trg instanceof XDecimal) {
             BigDecimal trgValue = ((XDecimal) trg).value;
