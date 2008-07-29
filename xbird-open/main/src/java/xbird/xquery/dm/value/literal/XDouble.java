@@ -20,7 +20,9 @@
  */
 package xbird.xquery.dm.value.literal;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -57,6 +59,8 @@ public final class XDouble extends XNumber {
         decFormat = new DecimalFormat("#####0.#################", symbol);
         decSciFormat = new DecimalFormat("0.0################E0##", symbol);
     }
+
+    public static final XDouble COMPARABLE_NaN = new XDouble("NaN", Double.NaN);
 
     private double value;
     private transient int hashcode = -1;
@@ -107,6 +111,9 @@ public final class XDouble extends XNumber {
 
     @Override
     public int compareTo(Item trg) {
+        if(this == trg && trg == COMPARABLE_NaN) {
+            return 0;
+        }
         if(trg instanceof XDouble) {
             if(Double.isNaN(value) && ((XDouble) trg).isNaN()) {
                 return -1; // incomparable: this object set to be smaller than trg.
@@ -289,4 +296,10 @@ public final class XDouble extends XNumber {
     public int getIdentifier() {
         return ID;
     }
+
+    @Override
+    public AtomicValue asGroupingValue() {
+        return isNaN() ? COMPARABLE_NaN : this;
+    }
+
 }

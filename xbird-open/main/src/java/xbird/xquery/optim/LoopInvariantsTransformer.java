@@ -51,6 +51,7 @@ import xbird.xquery.expr.ext.BDQExpr;
 import xbird.xquery.expr.flwr.Binding;
 import xbird.xquery.expr.flwr.FLWRExpr;
 import xbird.xquery.expr.flwr.ForClause;
+import xbird.xquery.expr.flwr.GroupingSpec;
 import xbird.xquery.expr.flwr.LetClause;
 import xbird.xquery.expr.flwr.OrderSpec;
 import xbird.xquery.expr.func.DirectFunctionCall;
@@ -550,6 +551,10 @@ public final class LoopInvariantsTransformer implements XQueryParserVisitor {
             return hookLoopInvariant(call);
         }
         return call;
+    }
+    
+    public XQExpression visit(GroupingSpec spec, XQueryContext ctxt) throws XQueryException {
+        return spec;
     }
 
     public XQExpression visit(IfExpr expr, XQueryContext ctxt) throws XQueryException {

@@ -53,7 +53,7 @@ import xbird.xquery.type.xs.StringType;
  */
 public final class Compare extends BuiltInFunction {
     private static final long serialVersionUID = 3703985794159908946L;
-    
+
     public static final String SYMBOL = "fn:compare";
 
     public Compare() {
@@ -68,10 +68,9 @@ public final class Compare extends BuiltInFunction {
         return t;
     }
 
-    public Sequence eval(Sequence<? extends Item> contextSeq, ValueSequence argv, DynamicContext dynEnv) throws XQueryException {
+    public Sequence eval(Sequence<? extends Item> contextSeq, ValueSequence argv, DynamicContext dynEnv)
+            throws XQueryException {
         assert (argv != null);
-        final int arglen = argv.size();
-        assert (arglen == 2 || arglen == 3);
         Item firstItem = argv.getItem(0);
         if(firstItem.isEmpty()) {
             return ValueSequence.EMPTY_SEQUENCE;
@@ -83,6 +82,8 @@ public final class Compare extends BuiltInFunction {
         String comparand1 = firstItem.stringValue();
         String comparand2 = secondItem.stringValue();
         final int cmp;
+        final int arglen = argv.size();
+        assert (arglen == 2 || arglen == 3);
         if(arglen == 3) {
             Item thirdItem = argv.getItem(2);
             String collation = thirdItem.stringValue();

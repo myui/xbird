@@ -86,6 +86,9 @@ public final class XFloat extends XNumber {
     }
 
     public int compareTo(Item trg) {
+        if(trg == XDouble.COMPARABLE_NaN && isNaN()) {
+            return 0;
+        }
         if(trg instanceof XFloat) {
             final float trgValue = ((XFloat) trg).getValue();
             return Float.compare(value, trgValue);
@@ -249,5 +252,10 @@ public final class XFloat extends XNumber {
     @Override
     public int getIdentifier() {
         return ID;
+    }
+
+    @Override
+    public AtomicValue asGroupingValue() {
+        return isNaN() ? XDouble.COMPARABLE_NaN : this;
     }
 }

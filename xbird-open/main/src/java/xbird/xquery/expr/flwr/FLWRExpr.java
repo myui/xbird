@@ -228,7 +228,7 @@ public final class FLWRExpr extends AbstractXQExpression {
         // where + return
         Sequence ret = new PipedActionSequence(input, _filteredReturnExpr, dynEnv);
         // order by 
-        // TODO PERFORMANCE eagar ordering 
+        // TODO PERFORMANCE eager ordering 
         final List<OrderSpec> orderSpecs = _orderSpecs;
         if(!orderSpecs.isEmpty()) {
             return sorted(ret, orderSpecs, contextSeq, dynEnv);

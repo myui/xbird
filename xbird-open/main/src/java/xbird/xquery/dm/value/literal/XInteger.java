@@ -20,7 +20,9 @@
  */
 package xbird.xquery.dm.value.literal;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.math.BigDecimal;
 
 import xbird.util.lang.ObjectUtils;
@@ -43,7 +45,7 @@ import xbird.xquery.type.xs.IntegerType;
 public final class XInteger extends XNumber {
     private static final long serialVersionUID = -9151271868116812898L;
     public static final int ID = 4;
-    
+
     private long value;
 
     public XInteger() {
@@ -83,6 +85,11 @@ public final class XInteger extends XNumber {
 
     public Long toJavaObject() throws XQueryException {
         return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (value ^ (value >>> 32));
     }
 
     public int compareTo(Item trg) {
@@ -179,7 +186,7 @@ public final class XInteger extends XNumber {
         _type.writeExternal(out);
         out.writeLong(value);
     }
-    
+
     @Override
     public int getIdentifier() {
         return ID;

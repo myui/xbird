@@ -42,6 +42,7 @@ import xbird.xquery.expr.dyna.ValidateOp;
 import xbird.xquery.expr.ext.BDQExpr;
 import xbird.xquery.expr.flwr.FLWRExpr;
 import xbird.xquery.expr.flwr.ForClause;
+import xbird.xquery.expr.flwr.GroupingSpec;
 import xbird.xquery.expr.flwr.LetClause;
 import xbird.xquery.expr.flwr.OrderSpec;
 import xbird.xquery.expr.func.DirectFunctionCall;
@@ -102,6 +103,8 @@ public interface XQueryParserVisitor {
 
     public XQExpression visit(AxisStep step, XQueryContext ctxt) throws XQueryException;
 
+    public XQExpression visit(BDQExpr expr, XQueryContext ctxt) throws XQueryException;
+
     public XQExpression visit(BindingVariable variable, XQueryContext ctxt) throws XQueryException;
 
     public XQExpression visit(BuiltInFunction function, XQueryContext ctxt) throws XQueryException;
@@ -144,6 +147,8 @@ public interface XQueryParserVisitor {
     public ForClause visit(ForClause clause, XQueryContext ctxt) throws XQueryException;
 
     public XQExpression visit(FunctionCall call, XQueryContext ctxt) throws XQueryException;
+
+    public XQExpression visit(GroupingSpec spec, XQueryContext ctxt) throws XQueryException;
 
     public XQExpression visit(IfExpr expr, XQueryContext ctxt) throws XQueryException;
 
@@ -219,8 +224,6 @@ public interface XQueryParserVisitor {
     public XQExpression visit(Variable variable, XQueryContext ctxt) throws XQueryException;
 
     public XQExpression visit(VarRef ref, XQueryContext ctxt) throws XQueryException;
-
-    public XQExpression visit(BDQExpr expr, XQueryContext ctxt) throws XQueryException;
 
     public XQExpression visit(XQExpression expr, XQueryContext ctxt) throws XQueryException;
 

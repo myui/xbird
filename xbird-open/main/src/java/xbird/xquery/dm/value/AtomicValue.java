@@ -141,5 +141,14 @@ public abstract class AtomicValue extends SingleItem implements IAtomized<Item>,
         atom.readExternal(in);
         return atom;
     }
+    
+    /**
+     * To cope with the case when V1 and V2 are both NaN in Grouping.
+     * 
+     * @see http://www.w3.org/TR/2008/WD-xquery-11-20080711/#id-group-by
+     */
+    public AtomicValue asGroupingValue() {
+        return this;
+    }
 
 }
