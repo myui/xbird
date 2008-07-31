@@ -298,7 +298,7 @@ public abstract class AbstractXQueryParserVisitor implements XQueryParserVisitor
     }
 
     public XQExpression visit(GroupingSpec spec, XQueryContext ctxt) throws XQueryException {
-        Variable var = spec.getGroupingKey();
+        Variable var = spec.getKeyExpr();
         var.visit(this, ctxt);
         return spec;
     }

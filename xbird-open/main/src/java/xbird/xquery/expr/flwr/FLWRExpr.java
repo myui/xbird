@@ -66,13 +66,14 @@ public final class FLWRExpr extends AbstractXQExpression {
     private static final boolean ENV_NO_JOIN = System.getProperty("xbird.nojoins") != null;
     private static final boolean ENV_ENABLE_LOOPOPTIM = System.getProperty("xbird.enable_loopopt") != null;
 
-    private final List<Binding> _clauses = new LinkedList<Binding>();
+    private List<Binding> _clauses = new LinkedList<Binding>();
+    private Grouping _groupByClause = null;
     private/* final */List<OrderSpec> _orderSpecs = new ArrayList<OrderSpec>(4);
     private XQExpression _returnExpr;
-    private boolean _stableOrdering = false; // always stable in xbird
+    private boolean _stableOrdering = false; // always stable for now
     private XQExpression _whereExpr = null;
-    public XQExpression _filteredReturnExpr; // set at evaluation(normalization) time
 
+    public XQExpression _filteredReturnExpr; // set at evaluation(normalization) time
     private boolean _transformed = false;
 
     public FLWRExpr() {}
@@ -153,6 +154,14 @@ public final class FLWRExpr extends AbstractXQExpression {
         } else {
             this._whereExpr = new AndExpr(_whereExpr, expr);
         }
+    }
+
+    public void setGroupByClause(Grouping groupByClause) {
+        this._groupByClause = groupByClause;
+    }
+
+    public Grouping getGroupByClause() {
+        return _groupByClause;
     }
 
     //--------------------------------------------
@@ -283,6 +292,17 @@ public final class FLWRExpr extends AbstractXQExpression {
     // normalization stuff
 
     public XQExpression normalize() throws XQueryException {
+        if(_groupByClause != null) {
+            final List<Binding> letClausesInGrouping = _groupByClause.getLetClauses();
+            if(!letClausesInGrouping.isEmpty()) {
+                FLWRExpr innerFlwr = new FLWRExpr();
+                innerFlwr._clauses = letClausesInGrouping;
+                innerFlwr._whereExpr = _groupByClause.getWhereExpression();
+                innerFlwr._orderSpecs = _orderSpecs;
+                innerFlwr._returnExpr = _returnExpr;
+                _returnExpr = innerFlwr;
+            }
+        }
         final List<XQExpression> nodeps = new LinkedList<XQExpression>();
         final Map<Binding, XQExpression> dependancies = FLWORArranger.getDependentInWhereExpr(this, nodeps);
         this._whereExpr = null;

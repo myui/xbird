@@ -44,7 +44,7 @@ import xbird.xquery.parser.XQueryParserVisitor;
  * @link http://www.w3.org/TR/xquery/#id-orderby-return
  * @link http://www.w3.org/TR/xquery-semantics/#id_orderby_clause
  */
-public final class OrderSpec extends AbstractXQExpression {
+public class OrderSpec extends AbstractXQExpression {
     private static final long serialVersionUID = -258563761038835180L;
 
     private XQExpression keyExpr;
@@ -54,7 +54,9 @@ public final class OrderSpec extends AbstractXQExpression {
     private Collator collator = null;
 
     public OrderSpec(XQExpression expr) {
-        assert (expr != null);
+        if(expr == null) {
+            throw new IllegalArgumentException();
+        }
         this.keyExpr = expr;
     }
 
@@ -131,7 +133,7 @@ public final class OrderSpec extends AbstractXQExpression {
         throw new IllegalStateException("OrderSpec#eval() should not be called.");
     }
 
-    public int compare(Item one, Item two, DynamicContext dynEnv) {
+    public final int compare(final Item one, final Item two, final DynamicContext dynEnv) {
         final int cmp;
         if(one == null) { // null means empty.
             cmp = (two == null) ? 0 : (isEmptyGreatest ? 1 : -1);
@@ -156,7 +158,7 @@ public final class OrderSpec extends AbstractXQExpression {
         return descending ? -cmp : cmp;
     }
 
-    public int compare(Comparable one, Comparable two) {
+    public final int compare(final Comparable one, final Comparable two) {
         final int cmp;
         if(one == null) { // null means empty.
             cmp = (two == null) ? 0 : (isEmptyGreatest ? 1 : -1);
