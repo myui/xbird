@@ -34,6 +34,7 @@ import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.dm.value.SingleItem.DummySingleItem;
 import xbird.xquery.dm.value.sequence.GroupedSequence;
+import xbird.xquery.dm.value.sequence.GroupedSequence.PreGroupingVariableExtractor;
 import xbird.xquery.dm.value.sequence.ProxySequence;
 import xbird.xquery.dm.value.sequence.SortedSequence;
 import xbird.xquery.expr.AbstractXQExpression;
@@ -41,6 +42,7 @@ import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.cond.IfExpr;
 import xbird.xquery.expr.logical.AndExpr;
 import xbird.xquery.expr.opt.Join.JoinDetector;
+import xbird.xquery.expr.var.BindingVariable;
 import xbird.xquery.expr.var.BindingVariable.LetVariable;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.EmptyFocus;
@@ -240,9 +242,14 @@ public final class FLWRExpr extends AbstractXQExpression {
             }
         }
         // group by
-        if(_groupByClause != null) {
+        if(_groupByClause != null) { 
             GroupingSpec[] specs = _groupByClause.getGroupingKeysAsArray();
-            input = new GroupedSequence(input, specs, contextSeq, dynEnv, _groupByClause.isOrdering());
+            
+            PreGroupingVariableExtractor extractor = new PreGroupingVariableExtractor(specs);
+            extractor.visit(_filteredReturnExpr, dynEnv);
+            List<BindingVariable> nonGroupingVariables = extractor.getNonGroupingVariables();
+            
+            input = new GroupedSequence(input, specs, nonGroupingVariables, contextSeq, dynEnv, _groupByClause.isOrdering());
         }
         // where + return
         Sequence ret = new PipedActionSequence(input, _filteredReturnExpr, dynEnv);
@@ -301,16 +308,18 @@ public final class FLWRExpr extends AbstractXQExpression {
 
     public XQExpression normalize() throws XQueryException {
         if(_groupByClause != null) {
+            if(_groupByClause.isGroupingAndOrderingCombinable(_orderSpecs)) {
+                _groupByClause.composite(_orderSpecs);
+                _groupByClause.setOrdering(true);
+                _orderSpecs.clear();
+            }
             final List<Binding> letClausesInGrouping = _groupByClause.getLetClauses();
             if(letClausesInGrouping != null && !letClausesInGrouping.isEmpty()) {
                 FLWRExpr innerFlwr = new FLWRExpr();
                 innerFlwr._clauses = letClausesInGrouping;
                 innerFlwr._whereExpr = _groupByClause.getWhereExpression();
                 if(_orderSpecs != null) {
-                    if(_groupByClause.isGroupingAndOrderingCombinable(_orderSpecs)) {
-                        _groupByClause.setOrdering(true);
-                        _orderSpecs.clear();
-                    } else {
+                    if(_groupByClause.isOrdering()) {
                         innerFlwr._orderSpecs = _orderSpecs;
                         this._orderSpecs = null;
                     }
