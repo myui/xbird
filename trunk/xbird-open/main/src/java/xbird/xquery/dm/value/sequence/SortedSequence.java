@@ -22,13 +22,23 @@ package xbird.xquery.dm.value.sequence;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import xbird.xquery.XQRTException;
 import xbird.xquery.XQueryException;
-import xbird.xquery.dm.value.*;
+import xbird.xquery.dm.value.AbstractSequence;
+import xbird.xquery.dm.value.AtomicValue;
+import xbird.xquery.dm.value.ISorted;
+import xbird.xquery.dm.value.Item;
+import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.expr.flwr.OrderSpec;
-import xbird.xquery.meta.*;
+import xbird.xquery.meta.DynamicContext;
+import xbird.xquery.meta.Focus;
+import xbird.xquery.meta.IFocus;
 import xbird.xquery.type.Type;
 
 /**
@@ -152,8 +162,9 @@ public final class SortedSequence extends AbstractSequence implements ISorted {
         }
     }
 
-    private static final class KeyComparator implements Comparator<Comparable[]> {
-
+    private static final class KeyComparator implements Comparator<Comparable[]>, Serializable {
+        private static final long serialVersionUID = 7583066815798530104L;
+        
         private final List<OrderSpec> orderSpecs;
         private final DynamicContext dynEnv;
 
@@ -218,9 +229,7 @@ public final class SortedSequence extends AbstractSequence implements ISorted {
         }
 
         private Object readResolve() throws ObjectStreamException {
-            if(items == null) {
-                throw new IllegalStateException("_items was null");
-            }
+            assert (items != null);
             this.delegate = items.iterator();
             return this;
         }
