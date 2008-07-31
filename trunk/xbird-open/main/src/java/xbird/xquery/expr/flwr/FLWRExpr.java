@@ -302,7 +302,7 @@ public final class FLWRExpr extends AbstractXQExpression {
     public XQExpression normalize() throws XQueryException {
         if(_groupByClause != null) {
             final List<Binding> letClausesInGrouping = _groupByClause.getLetClauses();
-            if(!letClausesInGrouping.isEmpty()) {
+            if(letClausesInGrouping != null && !letClausesInGrouping.isEmpty()) {
                 FLWRExpr innerFlwr = new FLWRExpr();
                 innerFlwr._clauses = letClausesInGrouping;
                 innerFlwr._whereExpr = _groupByClause.getWhereExpression();
