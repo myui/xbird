@@ -51,7 +51,7 @@ public final class RewriteInfo {
     private StringBuilder original = new StringBuilder(128);
     private boolean prevDescOrSelf = false;
 
-    // collection infomation
+    // collection information
     private DbCollection collection;
     private String colFilter;
     private QNameTable qnameTable;

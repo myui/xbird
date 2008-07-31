@@ -33,6 +33,7 @@ import xbird.xquery.dm.value.ISorted;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.dm.value.SingleItem.DummySingleItem;
+import xbird.xquery.dm.value.sequence.GroupedSequence;
 import xbird.xquery.dm.value.sequence.ProxySequence;
 import xbird.xquery.dm.value.sequence.SortedSequence;
 import xbird.xquery.expr.AbstractXQExpression;
@@ -184,14 +185,18 @@ public final class FLWRExpr extends AbstractXQExpression {
                     forClause = (ForClause) clause;
                 }
             }
-            // #2 where, return
+            // #2 group by
+            if(_groupByClause != null) {
+                _groupByClause.staticAnalysis(statEnv);
+            }
+            // #3 where, return
             if(_filteredReturnExpr == null) {
                 throw new IllegalStateException();
             }
             XQExpression normRetExpr = _filteredReturnExpr.staticAnalysis(statEnv);
             this._type = normRetExpr.getType();
             this._filteredReturnExpr = normRetExpr;
-            // #3 order by
+            // #4 order by
             for(OrderSpec orderby : _orderSpecs) {
                 orderby.staticAnalysis(statEnv);
             }
@@ -234,13 +239,16 @@ public final class FLWRExpr extends AbstractXQExpression {
                 input = new PipedActionSequence(input, bc, dynEnv);
             }
         }
+        // group by
+        if(_groupByClause != null) {
+            GroupingSpec[] specs = _groupByClause.getGroupingKeysAsArray();
+            input = new GroupedSequence(input, specs, contextSeq, dynEnv, _groupByClause.isOrdering());
+        }
         // where + return
         Sequence ret = new PipedActionSequence(input, _filteredReturnExpr, dynEnv);
-        // order by 
-        // TODO PERFORMANCE eager ordering 
-        final List<OrderSpec> orderSpecs = _orderSpecs;
-        if(!orderSpecs.isEmpty()) {
-            return sorted(ret, orderSpecs, contextSeq, dynEnv);
+        // order by     TODO PERFORMANCE eager ordering 
+        if(!_orderSpecs.isEmpty()) {
+            return sorted(ret, _orderSpecs, contextSeq, dynEnv);
         }
         return ret;
     }
@@ -248,7 +256,7 @@ public final class FLWRExpr extends AbstractXQExpression {
     @Override
     public void evalAsEvents(XQEventReceiver handler, Sequence<? extends Item> contextSeq, DynamicContext dynEnv)
             throws XQueryException {
-        if(!_orderSpecs.isEmpty()) {
+        if(_groupByClause != null || !_orderSpecs.isEmpty()) {
             super.evalAsEvents(handler, contextSeq, dynEnv);
             return;
         }
@@ -298,7 +306,15 @@ public final class FLWRExpr extends AbstractXQExpression {
                 FLWRExpr innerFlwr = new FLWRExpr();
                 innerFlwr._clauses = letClausesInGrouping;
                 innerFlwr._whereExpr = _groupByClause.getWhereExpression();
-                innerFlwr._orderSpecs = _orderSpecs;
+                if(_orderSpecs != null) {
+                    if(_groupByClause.isGroupingAndOrderingCombinable(_orderSpecs)) {
+                        _groupByClause.setOrdering(true);
+                        _orderSpecs.clear();
+                    } else {
+                        innerFlwr._orderSpecs = _orderSpecs;
+                        this._orderSpecs = null;
+                    }
+                }
                 innerFlwr._returnExpr = _returnExpr;
                 _returnExpr = innerFlwr;
             }
