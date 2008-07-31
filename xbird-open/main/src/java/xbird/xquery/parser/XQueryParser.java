@@ -97,6 +97,7 @@ import xbird.xquery.expr.types.CastableExpr;
 import xbird.xquery.expr.types.InstanceofOp;
 import xbird.xquery.expr.types.TreatExpr;
 import xbird.xquery.expr.types.TypeswitchExpr;
+import xbird.xquery.expr.var.BindingVariable;
 import xbird.xquery.expr.var.VarRef;
 import xbird.xquery.expr.var.Variable;
 import xbird.xquery.expr.var.BindingVariable.CaseVariable;
@@ -2297,8 +2298,8 @@ public class XQueryParser implements XQueryParserConstants {
         if(!(var instanceof ForVariable || var instanceof LetVariable)) {
             error("err:XQST0094");
         }
-        VarRef ref = new VarRef(var);
-        spec = new GroupingSpec(ref);
+        BindingVariable bindingVar = (BindingVariable) var;
+        spec = new GroupingSpec(bindingVar);
         locate(spec);
         switch(jj_nt.kind) {
             case Collation:
@@ -5044,8 +5045,8 @@ public class XQueryParser implements XQueryParserConstants {
                     ;
             }
         }
-        // for dynamic namaespace decl
-        // TODO consider decled namespace is used in the attribute value.
+        // for dynamic namaspace declaration
+        // TODO consider declared namespace is used in the attribute value.
         if(lazyAtts != null) {
             for(Pair<String, List<XQExpression>> p : lazyAtts) {
                 QualifiedName att = QNameUtil.parse(p.first, namespaceContext, staticContext.getDefaultElementNamespace());
@@ -5609,23 +5610,6 @@ public class XQueryParser implements XQueryParserConstants {
         }
     }
 
-    private boolean jj_3_2() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if(jj_3R_35()) {
-            jj_scanpos = xsp;
-            if(jj_3R_36())
-                return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_38() {
-        if(jj_scan_token(NCNameColonStar))
-            return true;
-        return false;
-    }
-
     private boolean jj_3R_37() {
         if(jj_scan_token(Star))
             return true;
@@ -5687,6 +5671,23 @@ public class XQueryParser implements XQueryParserConstants {
 
     private boolean jj_3R_34() {
         if(jj_scan_token(PragmaContents))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_2() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if(jj_3R_35()) {
+            jj_scanpos = xsp;
+            if(jj_3R_36())
+                return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_38() {
+        if(jj_scan_token(NCNameColonStar))
             return true;
         return false;
     }

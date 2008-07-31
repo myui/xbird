@@ -20,8 +20,6 @@
  */
 package xbird.xquery;
 
-import xbird.xquery.misc.ErrorCodes;
-
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -50,11 +48,6 @@ public class DynamicError extends XQueryException {
 
     public DynamicError(XQRTException cause) {
         super(cause);
-    }
-
-    @Override
-    public String getMessage() {
-        return ErrorCodes.getMessage(error);
     }
 
 }
