@@ -130,6 +130,20 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
         throw new UnsupportedOperationException(); //TODO
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder buf = new StringBuilder(256);
+        buf.append("{ ");
+        for(Object o : table) {
+            if(o != null) {
+                buf.append(o.toString());
+                buf.append(", ");
+            }
+        }
+        buf.append("} ");
+        return buf.toString();
+    }
+
     private void rehash() {
         final int oldCapacity = table.length;
         final Object oldMap[] = table;
