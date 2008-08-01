@@ -22,6 +22,7 @@ package xbird.xquery.expr.flwr;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +35,9 @@ import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.dm.value.SingleItem.DummySingleItem;
 import xbird.xquery.dm.value.sequence.GroupedSequence;
-import xbird.xquery.dm.value.sequence.GroupedSequence.PreGroupingVariableExtractor;
 import xbird.xquery.dm.value.sequence.ProxySequence;
 import xbird.xquery.dm.value.sequence.SortedSequence;
+import xbird.xquery.dm.value.sequence.GroupedSequence.PreGroupingVariableExtractor;
 import xbird.xquery.expr.AbstractXQExpression;
 import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.cond.IfExpr;
@@ -242,13 +243,13 @@ public final class FLWRExpr extends AbstractXQExpression {
             }
         }
         // group by
-        if(_groupByClause != null) { 
+        if(_groupByClause != null) {
             GroupingSpec[] specs = _groupByClause.getGroupingKeysAsArray();
-            
+
             PreGroupingVariableExtractor extractor = new PreGroupingVariableExtractor(specs);
             extractor.visit(_filteredReturnExpr, dynEnv);
             List<BindingVariable> nonGroupingVariables = extractor.getNonGroupingVariables();
-            
+
             input = new GroupedSequence(input, specs, nonGroupingVariables, contextSeq, dynEnv, _groupByClause.isOrdering());
         }
         // where + return
@@ -321,7 +322,7 @@ public final class FLWRExpr extends AbstractXQExpression {
                 if(_orderSpecs != null) {
                     if(_groupByClause.isOrdering()) {
                         innerFlwr._orderSpecs = _orderSpecs;
-                        this._orderSpecs = null;
+                        this._orderSpecs = Collections.emptyList();
                     }
                 }
                 innerFlwr._returnExpr = _returnExpr;
