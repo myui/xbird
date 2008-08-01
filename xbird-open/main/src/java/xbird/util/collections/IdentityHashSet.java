@@ -37,7 +37,7 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
     private static final long serialVersionUID = 6894597723545148112L;
 
     private static final float loadFactor = 0.3f;
-    private static final int initialCapacity = 191;
+    private static final int initialCapacity = 256;
 
     private transient Object table[];
     private transient int threshold;
@@ -56,8 +56,9 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
     }
 
     private void init(int initialCapacity, float loadFactor) {
-        this.table = new Object[initialCapacity];
-        this.threshold = HashUtils.nextPowerOfTwo((int) (initialCapacity * loadFactor));
+        int actSize = HashUtils.nextPowerOfTwo(initialCapacity);
+        this.table = new Object[actSize];
+        this.threshold = HashUtils.nextPowerOfTwo((int) (actSize * loadFactor));
     }
 
     @Override
@@ -87,7 +88,7 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
         final Object[] tab = table;
         final int mask = tab.length - 1;
 
-        int index = hash(tab, mask);
+        int index = hash(newObj, mask);
         Object existing;
         while((existing = tab[index]) != null) {
             if(existing == newObj) {
