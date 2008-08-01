@@ -63,9 +63,9 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
     @Override
     public boolean contains(Object key) {
         final Object[] tab = table;
-        final int len = tab.length;
+        final int mask = tab.length - 1;
 
-        int index = hash(key, len);
+        int index = hash(key, mask);
         while(true) {
             final Object e = tab[index];
             if(e == key) {
@@ -74,7 +74,7 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
             if(e == null) {
                 return false;
             }
-            index = hash(index + 1, len);
+            index = (index + 1) & mask;
         }
     }
 
@@ -85,15 +85,15 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
         }
 
         final Object[] tab = table;
-        final int len = tab.length;
+        final int mask = tab.length - 1;
 
-        int index = hash(tab, len);
+        int index = hash(tab, mask);
         Object existing;
         while((existing = tab[index]) != null) {
             if(existing == newObj) {
                 return false;
             }
-            index = hash(index + 1, len);
+            index = (index + 1) & mask;
         }
         tab[index] = newObj;
 
@@ -135,13 +135,14 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
 
         final int newCapacity = oldCapacity * 2;
         final Object newMap[] = new Object[newCapacity];
+        final int mask = newCapacity - 1;
 
         for(int i = oldCapacity; i-- > 0;) {
             Object key = oldMap[i];
             if(key != null) {
-                int index = hash(key, newCapacity);
+                int index = hash(key, mask);
                 while(newMap[index] != null) {
-                    index = hash(index + 1, newCapacity);
+                    index = (index + 1) & mask;
                 }
                 newMap[index] = key;
             }
@@ -151,10 +152,10 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Serializ
         threshold = (int) (newCapacity * loadFactor);
     }
 
-    private static int hash(final Object x, final int length) {
+    private static int hash(final Object x, final int mask) {
         final int h = System.identityHashCode(x);
         // Multiply by -127, and left-shift to use least bit as part of hash
-        return ((h << 1) - (h << 8)) & (length - 1);
+        return ((h << 1) - (h << 8)) & mask;
     }
 
     private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
