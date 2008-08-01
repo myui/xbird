@@ -71,13 +71,13 @@ public final class StringJoin extends BuiltInFunction {
         final StringBuilder buf = new StringBuilder(256);
         boolean first = true;
         for(Item it : arg) {
-            assert (it instanceof XString);
-            buf.append(it.stringValue());
             if(first) {
                 first = false;
             } else {
                 buf.append(separator);
             }
+            assert (it instanceof XString);
+            buf.append(it.stringValue());
         }
         final String ret = buf.toString();
         return XString.valueOf(ret);
