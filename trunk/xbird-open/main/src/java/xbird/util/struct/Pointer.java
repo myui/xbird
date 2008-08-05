@@ -20,6 +20,11 @@
  */
 package xbird.util.struct;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -27,9 +32,12 @@ package xbird.util.struct;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class Pointer<T> {
+public final class Pointer<T> implements Externalizable {
+    private static final long serialVersionUID = 2317301064551955034L;
 
     private T _entity;
+
+    public Pointer() {}
 
     public Pointer(T entity) {
         this._entity = entity;
@@ -47,6 +55,14 @@ public final class Pointer<T> {
 
     public void set(T t) {
         this._entity = t;
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        this._entity = (T) in.readObject();
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(_entity);
     }
 
 }
