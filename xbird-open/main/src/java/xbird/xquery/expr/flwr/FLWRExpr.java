@@ -308,6 +308,9 @@ public final class FLWRExpr extends AbstractXQExpression {
     // normalization stuff
 
     public XQExpression normalize() throws XQueryException {
+        if(_returnExpr == null) {
+            return this;// already normalized
+        }
         if(_groupByClause != null) {
             if(_groupByClause.isGroupingAndOrderingCombinable(_orderSpecs)) {
                 _groupByClause.composite(_orderSpecs);
@@ -326,7 +329,15 @@ public final class FLWRExpr extends AbstractXQExpression {
                     }
                 }
                 innerFlwr._returnExpr = _returnExpr;
-                _returnExpr = innerFlwr;
+                _returnExpr = innerFlwr.normalize();
+            }            
+            PreGroupingVariableExtractor extractor = new PreGroupingVariableExtractor(_groupByClause.getGroupingKeysAsArray());
+            extractor.visit(_returnExpr, DynamicContext.DUMMY);
+            List<BindingVariable> vars = extractor.getNonGroupingVariables();
+            for(BindingVariable v : vars) {
+                if(v instanceof LetVariable && v.getReferenceCount() == 1) {
+                    v.incrementReferenceCount();
+                }
             }
         }
         final List<XQExpression> nodeps = new LinkedList<XQExpression>();
