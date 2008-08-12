@@ -20,7 +20,10 @@
  */
 package xbird.xquery.expr.func;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,20 +32,29 @@ import xbird.util.struct.ThreeLogic;
 import xbird.xquery.TypeError;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.labeling.LabelingHandler;
-import xbird.xquery.dm.value.*;
+import xbird.xquery.dm.value.AtomicValue;
+import xbird.xquery.dm.value.Item;
+import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.dm.value.sequence.SingleCollection;
 import xbird.xquery.dm.value.sequence.ValueSequence;
 import xbird.xquery.expr.Evaluable;
 import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.opt.ThreadedVariable;
 import xbird.xquery.expr.var.Variable.PreEvaluatedVariable;
-import xbird.xquery.func.*;
+import xbird.xquery.func.BuiltInFunction;
+import xbird.xquery.func.Function;
+import xbird.xquery.func.FunctionSignature;
 import xbird.xquery.func.Function.EvaluationPolicy;
 import xbird.xquery.func.doc.FnCollection;
-import xbird.xquery.meta.*;
+import xbird.xquery.meta.DynamicContext;
+import xbird.xquery.meta.IFocus;
+import xbird.xquery.meta.StaticContext;
+import xbird.xquery.meta.XQueryContext;
 import xbird.xquery.optim.RewriteInfo;
 import xbird.xquery.parser.XQueryParserVisitor;
-import xbird.xquery.type.*;
+import xbird.xquery.type.AtomicType;
+import xbird.xquery.type.SequenceType;
+import xbird.xquery.type.Type;
 import xbird.xquery.type.xs.UntypedAtomicType;
 
 /**
@@ -67,6 +79,7 @@ public class DirectFunctionCall extends FunctionCall {
 
     public DirectFunctionCall() {// for Externalizable
         super();
+        this.indexAccessable = ThreeLogic.NIL;
     }
 
     @Override
@@ -132,9 +145,7 @@ public class DirectFunctionCall extends FunctionCall {
     public boolean isPathIndexAccessable(StaticContext statEnv, RewriteInfo info) {
         if(indexAccessable != ThreeLogic.NIL) {
             if(indexAccessable == ThreeLogic.TRUE) {
-                if(prevInfo == null) {
-                    throw new IllegalStateException("prevInfo is not set.. bug?");
-                }
+                assert (prevInfo != null) : "prevInfo is not set.. bug?";
                 info.setCollection(prevInfo.getCollection(), prevInfo.getFilter());
                 return true;
             } else {
