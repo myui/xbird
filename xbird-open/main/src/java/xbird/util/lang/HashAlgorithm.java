@@ -149,8 +149,7 @@ public enum HashAlgorithm {
     /**
      * Get the md5 of the given key.
      */
-    public static byte[] computeMd5(@Nonnull
-    String k) {
+    public static byte[] computeMd5(@Nonnull String k) {
         final MessageDigest md5;
         try {
             md5 = MessageDigest.getInstance("MD5");
