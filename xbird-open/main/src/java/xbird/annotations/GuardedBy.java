@@ -49,7 +49,7 @@ import java.lang.annotation.Target;
  * </li>
  */
 @Target( { ElementType.FIELD, ElementType.METHOD })
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface GuardedBy {
     String value();
 }

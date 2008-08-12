@@ -1,5 +1,5 @@
 /*
- * @(#)$Id$$
+ * @(#)$Id$
  *
  * Copyright 2006-2008 Makoto YUI
  *
@@ -27,11 +27,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The presense of this annotation indicates that a field, a returning value, an argument, or a variable may be null.
+ * The presense of this annotation indicates that a field, a returning value, an argument, or a variable is guaranteed to be non-null.
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 @Documented
 @Target( { ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE })
 @Retention(RetentionPolicy.CLASS)
-public @interface Nullable {}
+public @interface NotNull {}
