@@ -36,6 +36,13 @@ public final class Primitives {
     public static final int TINY_INT_SIZE = 256;
 
     private Primitives() {}
+    
+    public static int parseInt(final String v, final int defaultValue) {
+        if(v == null || v.length() == 0) {
+            return defaultValue;
+        }
+        return Integer.parseInt(v);
+    }
 
     public static byte[] toBytes(final char[] c) {
         return toBytes(c, 0, c.length);
