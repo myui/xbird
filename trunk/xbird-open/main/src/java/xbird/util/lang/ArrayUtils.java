@@ -550,4 +550,29 @@ public final class ArrayUtils {
         array[i] = array[j];
         array[j] = o;
     }
+
+    public static double max(final double[] array) {
+        double d = Double.MIN_VALUE;
+        for(int i = 0; i < array.length; i++) {
+            d = Math.max(array[i], d);
+        }
+        return d;
+    }
+
+    public static <T> T max(final T[] array, final double[] scores) {
+        if(array.length != scores.length) {
+            throw new IllegalArgumentException("array.length(" + array.length
+                    + ") != scores.length(" + scores.length + ")");
+        }
+        T obj = null;
+        double d = Double.MIN_VALUE;
+        for(int i = 0; i < scores.length; i++) {
+            final double score = scores[i];
+            if(score > d) {
+                d = score;
+                obj = array[i];
+            }
+        }
+        return obj;
+    }
 }
