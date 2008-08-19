@@ -40,30 +40,38 @@ public class DaemonThread extends Thread {
     private final Object pauseLock = new Object();
     private boolean paused = false;
 
-    protected DaemonThread() {
-        this(null);
-    }
-
     public DaemonThread(Daemon task) {
         super();
+        if(task == null) {
+            throw new IllegalArgumentException();
+        }
         this.task = task;
         this.setDaemon(true);
     }
 
     public DaemonThread(String name, Daemon task) {
         super(name);
+        if(task == null) {
+            throw new IllegalArgumentException();
+        }
         this.task = task;
         this.setDaemon(true);
     }
 
     public DaemonThread(RunnableDaemon target, String name) {
         super(target, name);
+        if(target == null) {
+            throw new IllegalArgumentException();
+        }
         this.task = target;
         this.setDaemon(true);
     }
 
     public DaemonThread(RunnableDaemon target) {
         super(target);
+        if(target == null) {
+            throw new IllegalArgumentException();
+        }
         this.task = target;
         this.setDaemon(true);
     }
@@ -109,23 +117,14 @@ public class DaemonThread extends Thread {
     }
 
     protected boolean onStartup() {
-        if(task == null) {
-            throw new IllegalStateException();
-        }
         return task.runOnStartup();
     }
 
     protected long interval() {
-        if(task == null) {
-            throw new IllegalStateException();
-        }
         return task.getInterval();
     }
 
     protected void runDaemon() {
-        if(task == null) {
-            throw new IllegalStateException();
-        }
         task.run();
     }
 
