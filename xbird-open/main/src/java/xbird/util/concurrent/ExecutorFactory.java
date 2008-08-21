@@ -21,8 +21,8 @@
 package xbird.util.concurrent;
 
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,11 +41,11 @@ public final class ExecutorFactory {
 
     private ExecutorFactory() {}
 
-    public static ExecutorService newCachedThreadPool(String threadName) {
+    public static ThreadPoolExecutor newCachedThreadPool(String threadName) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
-    public static ExecutorService newCachedThreadPool(long keepAliveTimeInSec, String threadName) {
+    public static ThreadPoolExecutor newCachedThreadPool(long keepAliveTimeInSec, String threadName) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE, keepAliveTimeInSec, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
@@ -53,7 +53,7 @@ public final class ExecutorFactory {
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6458662
      */
     @Deprecated
-    public static ExecutorService newCachedThreadPool(int corePoolSize, long keepAliveTimeInSec, String threadName) {
+    public static ThreadPoolExecutor newCachedThreadPool(int corePoolSize, long keepAliveTimeInSec, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, Integer.MAX_VALUE, keepAliveTimeInSec, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
@@ -64,7 +64,7 @@ public final class ExecutorFactory {
      * @see ThreadPoolExecutor
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6458662
      */
-    public static ExecutorService newBoundedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTimeInSec, String threadName) {
+    public static ThreadPoolExecutor newBoundedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTimeInSec, String threadName) {
         final int taskQueueSize = Math.min(corePoolSize + ((maximumPoolSize - corePoolSize) >> 1), corePoolSize << 1);
         return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInSec, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(taskQueueSize), new NamedThreadFactory(threadName), new WaitPolicy());
     }
@@ -73,8 +73,8 @@ public final class ExecutorFactory {
         return Executors.newScheduledThreadPool(corePoolSize, new NamedThreadFactory(threadName));
     }
 
-    public static ExecutorService newFixedThreadPool(int nThreads, String threadName) {
-        return Executors.newFixedThreadPool(nThreads, new NamedThreadFactory(threadName));
+    public static ThreadPoolExecutor newFixedThreadPool(int nThreads, String threadName) {
+        return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
     /**
