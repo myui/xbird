@@ -40,6 +40,8 @@ public class Pair<X, Y> implements Serializable {
         this.second = y;
     }
 
+    public Pair() {}
+
     public void set(X x, Y y) {
         this.first = x;
         this.second = y;
