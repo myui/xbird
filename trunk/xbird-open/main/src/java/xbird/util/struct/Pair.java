@@ -55,6 +55,14 @@ public class Pair<X, Y> implements Serializable {
         return second;
     }
 
+    public void setFirst(X first) {
+        this.first = first;
+    }
+
+    public void setSecond(Y second) {
+        this.second = second;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(obj == this) {
