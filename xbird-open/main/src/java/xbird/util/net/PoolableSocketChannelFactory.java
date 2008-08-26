@@ -42,7 +42,7 @@ public class PoolableSocketChannelFactory
 
     private int sweepInterval = 60000;
     private int ttl = 30000;
-    private int soRcvBufSize = 4096;
+    private int soRcvBufSize = -1;
 
     private final boolean datagram;
     private final boolean blocking;
@@ -75,11 +75,12 @@ public class PoolableSocketChannelFactory
             throw new IllegalStateException(e);
         }
         final Socket sock = ch.socket();
-        try {
-            sock.setReceiveBufferSize(rcvbufSize);
-            //sock.setTcpNoDelay(true);
-        } catch (SocketException e) {
-            throw new IllegalStateException(e);
+        if(rcvbufSize != -1) {
+            try {
+                sock.setReceiveBufferSize(rcvbufSize);
+            } catch (SocketException e) {
+                throw new IllegalStateException(e);
+            }
         }
         try {
             ch.connect(sockAddr);

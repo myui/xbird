@@ -169,6 +169,7 @@ public final class ConcurrentKeyedStackObjectPool<K, V extends Closeable> implem
 
     public void close() throws IOException {
         _sweepTimer.cancel();
+        _poolMap.clear();
     }
 
 }
