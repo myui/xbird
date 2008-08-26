@@ -26,7 +26,6 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import xbird.config.Settings;
 import xbird.server.ServiceException;
 import xbird.storage.DbCollection;
 
