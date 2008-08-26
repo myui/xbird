@@ -28,7 +28,6 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SocketChannel;
 
-import xbird.config.Settings;
 import xbird.util.pool.PoolableObjectFactory;
 
 /**
@@ -41,17 +40,9 @@ import xbird.util.pool.PoolableObjectFactory;
 public class PoolableSocketChannelFactory
         implements PoolableObjectFactory<SocketAddress, ByteChannel> {
 
-    private static final int SWEEP_INTERVAL;
-    private static final int TIME_TO_LIVE;
-    private static final int SO_RCVBUF_SIZE;
-    static {
-        String sweep = Settings.get("xbird.remote.paging_serv.connection.sweep_interval", "60000");
-        String ttl = Settings.get("xbird.remote.paging_serv.connection.ttl", "30000");
-        String rcvbuf = Settings.get("xbird.remote.paging_serv.connection.so_rcvbufsize", "4096");
-        SWEEP_INTERVAL = Integer.parseInt(sweep);
-        TIME_TO_LIVE = Integer.parseInt(ttl);
-        SO_RCVBUF_SIZE = Integer.parseInt(rcvbuf);
-    }
+    private int sweepInterval = 60000;
+    private int ttl = 30000;
+    private int soRcvBufSize = 4096;
 
     private final boolean datagram;
     private final boolean blocking;
@@ -61,15 +52,21 @@ public class PoolableSocketChannelFactory
         this.blocking = blocking;
     }
 
+    public void configure(int sweepInterval, int ttl, int receiveBufferSize) {
+        this.sweepInterval = sweepInterval;
+        this.ttl = ttl;
+        this.soRcvBufSize = receiveBufferSize;
+    }
+
     public ByteChannel makeObject(SocketAddress sockAddr) {
         if(datagram) {
             return createDatagramChannel(sockAddr, blocking);
         } else {
-            return createSocketChannel(sockAddr, blocking);
+            return createSocketChannel(sockAddr, blocking, soRcvBufSize);
         }
     }
 
-    private static SocketChannel createSocketChannel(final SocketAddress sockAddr, final boolean blocking) {
+    private static SocketChannel createSocketChannel(final SocketAddress sockAddr, final boolean blocking, final int rcvbufSize) {
         final SocketChannel ch;
         try {
             ch = SocketChannel.open();
@@ -79,7 +76,7 @@ public class PoolableSocketChannelFactory
         }
         final Socket sock = ch.socket();
         try {
-            sock.setReceiveBufferSize(SO_RCVBUF_SIZE);
+            sock.setReceiveBufferSize(rcvbufSize);
             //sock.setTcpNoDelay(true);
         } catch (SocketException e) {
             throw new IllegalStateException(e);
@@ -121,11 +118,11 @@ public class PoolableSocketChannelFactory
     }
 
     public int getSweepInterval() {
-        return SWEEP_INTERVAL;
+        return sweepInterval;
     }
 
     public int geTimeToLive() {
-        return TIME_TO_LIVE;
+        return ttl;
     }
 
 }
