@@ -27,10 +27,14 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.WritableByteChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import xbird.util.io.IOUtils;
 import xbird.util.lang.SystemUtils;
 
 /**
@@ -96,6 +100,70 @@ public final class NIOUtils {
         while(dst.remaining() > 0) {
             channel.write(dst, position + dst.position());
         }
+    }
+
+    /**
+     * @link http://weblogs.java.net/blog/jfarcand/archive/2006/07/tricks_and_tips_4.html
+     */
+    public static int readWithTemporarySelector(final SelectableChannel channel, final ByteBuffer byteBuffer, final long readTimeout, final NioSelectorPool selectorPool)
+            throws IOException {
+        final int preBufPos = byteBuffer.position();
+        int byteRead = 0;
+        Selector readSelector = null;
+        SelectionKey tmpKey = null;
+
+        try {
+            ReadableByteChannel readableChannel = (ReadableByteChannel) channel;
+            int count = 1;
+            while(count > 0) {
+                count = readableChannel.read(byteBuffer);
+                if(count > -1) {
+                    byteRead += count;
+                } else {
+                    byteRead = count;
+                }
+            }
+
+            if(byteRead == 0 && byteBuffer.position() == preBufPos) {
+                readSelector = selectorPool.getSelector();
+                if(readSelector == null) {
+                    return 0;
+                }
+                count = 1;
+
+                tmpKey = channel.register(readSelector, SelectionKey.OP_READ);
+                tmpKey.interestOps(tmpKey.interestOps() | SelectionKey.OP_READ);
+                int code = readSelector.select(readTimeout);
+                tmpKey.interestOps(tmpKey.interestOps() & (~SelectionKey.OP_READ));
+
+                if(code == 0) {
+                    return 0; // Return on the main Selector and try again.
+                }
+
+                while(count > 0) {
+                    count = readableChannel.read(byteBuffer);
+                    if(count > -1) {
+                        byteRead += count;
+                    } else {
+                        byteRead = count;
+                    }
+                }
+            } else if(byteRead == 0 && byteBuffer.position() != preBufPos) {
+                byteRead += (byteBuffer.position() - preBufPos);
+            }
+        } finally {
+            if(tmpKey != null) {
+                tmpKey.cancel();
+            }
+            if(readSelector != null) {
+                selectorPool.selectNowAndReturnSelector(readSelector);
+            }
+        }
+        return byteRead;
+    }
+
+    public static void close(SelectionKey key) {
+        IOUtils.closeQuietly(key.channel()); // key is automatically removed with this call.
     }
 
     /**
