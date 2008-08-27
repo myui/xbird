@@ -20,7 +20,10 @@
  */
 package xbird.util.io;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -44,7 +47,11 @@ public final class FastByteArrayOutputStream extends OutputStream {
         if(size < 0) {
             throw new IllegalArgumentException("Negative initial size: " + size);
         }
-        buf = new byte[size];
+        this.buf = new byte[size];
+    }
+
+    public byte[] getInternalArray() {
+        return buf;
     }
 
     public byte[] toByteArray() {
@@ -57,7 +64,7 @@ public final class FastByteArrayOutputStream extends OutputStream {
             buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
         }
         buf[count] = (byte) b;
-        count = newcount;
+        this.count = newcount;
     }
 
     @Override
@@ -73,7 +80,20 @@ public final class FastByteArrayOutputStream extends OutputStream {
             buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
         }
         System.arraycopy(b, off, buf, count, len);
-        count = newcount;
+        this.count = newcount;
+    }
+
+    public void write(ByteBuffer b) {
+        write(b, b.remaining());
+    }
+
+    public void write(ByteBuffer b, int len) {
+        final int newcount = count + len;
+        if(newcount > buf.length) {
+            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+        }
+        b.get(buf, count, len);
+        this.count = newcount;
     }
 
     public void writeTo(OutputStream out) throws IOException {
@@ -81,7 +101,12 @@ public final class FastByteArrayOutputStream extends OutputStream {
     }
 
     public void reset() {
-        count = 0;
+        this.count = 0;
+    }
+    
+    public void reset(int size) {
+        this.buf = new byte[size];
+        this.count = 0;
     }
 
     public int size() {
