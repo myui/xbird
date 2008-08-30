@@ -37,7 +37,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  * @deprecated
  */
-public final class ScalableReadWriteLock implements ReadWriteLock {
+public final class FairReadWriteLock implements ReadWriteLock {
 
     private final ThreadLocal<QNode> myNode;
     private final AtomicReference<QNode> tail;
@@ -45,7 +45,7 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
     private final Lock readLock; // readers apply here
     private final Lock writeLock; // writers apply here 
 
-    public ScalableReadWriteLock() {
+    public FairReadWriteLock() {
         this.myNode = new ThreadLocal<QNode>() {
             protected QNode initialValue() {
                 return new QNode();
@@ -64,6 +64,10 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
         return writeLock;
     }
 
+    public IReadWriteLock asSpinLock() {
+        return new ReadWriteSpinLockAdapter(this);
+    }
+
     private static final class QNode {
         State state;
         boolean locked; // a local spin variable
@@ -79,11 +83,37 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
         reader, writer, active_reader
     }
 
+    private static final class ReadWriteSpinLockAdapter implements IReadWriteLock {
+
+        private final FairReadWriteLock delegate;
+
+        ReadWriteSpinLockAdapter(FairReadWriteLock lock) {
+            this.delegate = lock;
+        }
+
+        public void readLock() {
+            delegate.readLock().lock();
+        }
+
+        public void readUnlock() {
+            delegate.readLock().unlock();
+        }
+
+        public void writeLock() {
+            delegate.writeLock().lock();
+        }
+
+        public void writeUnlock() {
+            delegate.writeLock().unlock();
+        }
+
+    }
+
     private static final class WriteLock implements Lock {
 
-        private final ScalableReadWriteLock rwlock;
+        private final FairReadWriteLock rwlock;
 
-        WriteLock(ScalableReadWriteLock rwlock) {
+        WriteLock(FairReadWriteLock rwlock) {
             this.rwlock = rwlock;
         }
 
@@ -138,9 +168,9 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
 
     private static final class ReadLock implements Lock {
 
-        private final ScalableReadWriteLock rwlock;
+        private final FairReadWriteLock rwlock;
 
-        ReadLock(ScalableReadWriteLock rwlock) {
+        ReadLock(FairReadWriteLock rwlock) {
             this.rwlock = rwlock;
         }
 
