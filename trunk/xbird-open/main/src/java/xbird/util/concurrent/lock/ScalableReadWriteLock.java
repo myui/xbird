@@ -71,7 +71,6 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
         final ILock el; // a spin lock 
 
         QNode() {
-            next = prev = null;
             this.el = new AtomicBackoffLock();
         }
     }
@@ -89,31 +88,31 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
         }
 
         public void lock() {
-            QNode qnode = rwlock.myNode.get();
-            qnode.state = State.writer;
-            qnode.locked = true;
-            qnode.next = null;
-            QNode pred = rwlock.tail.getAndSet(qnode);
+            QNode i = rwlock.myNode.get();
+            i.state = State.writer;
+            i.locked = true;
+            i.next = null;
+            QNode pred = rwlock.tail.getAndSet(i);
             if(pred != null) {
-                pred.next = qnode;
-                // wait until predessor gives up the lock
+                pred.next = i;
+                // wait until predecessor gives up the lock
                 while(pred.locked)
                     ;
             }
         }
 
         public void unlock() {
-            QNode qnode = rwlock.myNode.get();
-            if(qnode.next == null) {
-                if(rwlock.tail.compareAndSet(qnode, null)) {
+            QNode i = rwlock.myNode.get();
+            if(i.next == null) {
+                if(rwlock.tail.compareAndSet(i, null)) {
                     return;
                 }
                 // wait until predecessor fills in its next fields
-                while(qnode.next == null)
+                while(i.next == null)
                     ;
             }
-            qnode.next.prev = null;
-            qnode.next.locked = false;
+            i.next.prev = null;
+            i.next.locked = false;
         }
 
         public boolean isLocked() {
@@ -146,70 +145,69 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
         }
 
         public void lock() {
-            QNode qnode = rwlock.myNode.get();
-            qnode.state = State.reader;
-            qnode.locked = true;
-            qnode.next = qnode.prev = null;
-            QNode pred = rwlock.tail.getAndSet(qnode);
+            QNode i = rwlock.myNode.get();
+            i.state = State.reader;
+            i.locked = true;
+            i.next = i.prev = null;
+            QNode pred = rwlock.tail.getAndSet(i);
             if(pred != null) {
-                qnode.prev = pred;
-                pred.next = qnode;
+                i.prev = pred;
+                pred.next = i;
                 if(pred.state != State.active_reader) {
-                    // wait until predessor gives up the lock
+                    // wait until predecessor gives up the lock
                     while(pred.locked)
                         ;
                 }
             }
-            if(qnode.next != null && qnode.next.state == State.reader) {
-                qnode.next.locked = false;
+            if(i.next != null && i.next.state == State.reader) {
+                i.next.locked = false;
             }
-            qnode.state = State.active_reader;
+            i.state = State.active_reader;
         }
 
         public void unlock() {
-            QNode qnode = rwlock.myNode.get();
-            QNode prev = qnode.prev;
+            QNode i = rwlock.myNode.get();
+            QNode prev = i.prev;
             if(prev != null) {
                 prev.el.lock();
-                while(prev != qnode.prev) {
+                while(prev != i.prev) {
                     prev.el.unlock();
-                    prev = qnode.prev;
+                    prev = i.prev;
                     if(prev == null) {
                         break;
                     }
                     prev.el.lock();
                 }
                 if(prev != null) {
-                    qnode.el.lock();
+                    i.el.lock();
                     prev.next = null;
-                    if(qnode.next == null) {
-                        if(!rwlock.tail.compareAndSet(qnode, qnode.prev)) {
-                            while(qnode.next == null)
+                    if(i.next == null) {
+                        if(!rwlock.tail.compareAndSet(i, i.prev)) {
+                            while(i.next == null)
                                 ;
                         }
                     }
-                    if(qnode.next != null) {
-                        qnode.next.prev = qnode.prev;
-                        qnode.prev.next = qnode.next;
+                    if(i.next != null) {
+                        i.next.prev = i.prev;
+                        i.prev.next = i.next;
                     }
-                    qnode.el.unlock();
+                    i.el.unlock();
                     prev.el.unlock();
                     return;
                 }
-                prev.el.unlock();
             }
-            qnode.el.lock();
-            if(qnode.next == null) {
-                if(!rwlock.tail.compareAndSet(qnode, null)) {
-                    while(qnode.next == null)
+            i.el.lock();
+            if(i.next == null) {
+                if(!rwlock.tail.compareAndSet(i, null)) {
+                    while(i.next == null)
                         ;
                 }
             }
-            if(qnode.next != null) {
-                qnode.next.locked = false;
-                qnode.prev.prev = null;
+            if(i.next != null) {
+                i.next.locked = false;
+                i.prev.prev = null;
             }
-            qnode.el.unlock();
+            i.el.unlock();
         }
 
         public boolean isLocked() {
@@ -231,6 +229,5 @@ public final class ScalableReadWriteLock implements ReadWriteLock {
         public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
             throw new UnsupportedOperationException();
         }
-
     }
 }
