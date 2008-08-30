@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
+ * @deprecated
  */
 public final class ScalableReadWriteLock implements ReadWriteLock {
 
