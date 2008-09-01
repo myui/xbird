@@ -36,6 +36,9 @@ public final class NamedThreadFactory implements ThreadFactory {
     private final ThreadGroup group;
     private final String namePrefix;
 
+    private boolean daemon = false;
+    private int threadPriority = Thread.NORM_PRIORITY;
+
     public NamedThreadFactory(String threadName) {
         if(threadName == null) {
             throw new IllegalArgumentException();
@@ -45,13 +48,32 @@ public final class NamedThreadFactory implements ThreadFactory {
         this.namePrefix = threadName + '-';
     }
 
+    public NamedThreadFactory(String threadName, ThreadGroup threadGroup) {
+        if(threadName == null) {
+            throw new IllegalArgumentException();
+        }
+        if(threadGroup == null) {
+            throw new IllegalArgumentException();
+        }
+        this.group = threadGroup;
+        this.namePrefix = threadName + '-';
+    }
+
+    public void setDaemon(boolean daemon) {
+        this.daemon = daemon;
+    }
+
+    public void setPriority(int priority) {
+        this.threadPriority = priority;
+    }
+
     public Thread newThread(Runnable r) {
         final Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-        if(t.isDaemon()) {
-            t.setDaemon(false);
+        if(t.isDaemon() != daemon) {
+            t.setDaemon(daemon);
         }
-        if(t.getPriority() != Thread.NORM_PRIORITY) {
-            t.setPriority(Thread.NORM_PRIORITY);
+        if(t.getPriority() != threadPriority) {
+            t.setPriority(threadPriority);
         }
         return t;
     }
