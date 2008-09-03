@@ -45,7 +45,7 @@ public final class PerfmonService extends ServiceBase {
     public static final String SRV_NAME = "PerfMon";
     private final int perfmonIntervalnMills;
 
-    private Timer timer = null;
+    private Timer _timer = null;
 
     public PerfmonService() {
         this(Integer.parseInt(Settings.get("xbird.perfmon.interval", "5000")));
@@ -63,13 +63,14 @@ public final class PerfmonService extends ServiceBase {
         PerfmonTask task = new PerfmonTask();
         Timer timer = new Timer(SRV_NAME, true);
         timer.scheduleAtFixedRate(task, 1000, perfmonIntervalnMills);
+        this._timer = timer;
         this._status = Status.started;
     }
 
     public void stop() throws ServiceException {
-        if(timer != null) {
-            timer.cancel();
-            this.timer = null;
+        if(_timer != null) {
+            _timer.cancel();
+            this._timer = null;
         }
         this._status = Status.stopped;
     }
@@ -88,9 +89,11 @@ public final class PerfmonService extends ServiceBase {
             CPUInfo newCpuInfo = SystemUtils.getCPUInfo(prevCpuInfo);
             float cpuUsage = newCpuInfo.getCpuUsage();
             long heapUsed = SystemUtils.getHeapUsedMemory();
-            String line = "cpuUsage: " + String.format("%.2f", cpuUsage) + " %, usedHeap: "
-                    + StringUtils.displayBytesSize(heapUsed);
-            LOG.info(line);
+            if(LOG.isDebugEnabled()) {
+                String line = "cpuUsage: " + String.format("%.2f", cpuUsage) + " %, usedHeap: "
+                        + StringUtils.displayBytesSize(heapUsed);
+                LOG.debug(line);
+            }
             this.prevCpuInfo = newCpuInfo;
         }
 
