@@ -575,4 +575,17 @@ public final class ArrayUtils {
         }
         return obj;
     }
+
+    public static int minIndex(final float[] scores) {
+        int index = -1;
+        float min = Float.MAX_VALUE;
+        for(int i = 0; i < scores.length; i++) {
+            final float f = scores[i];
+            if(f < min) {
+                min = f;
+                index = i;
+            }
+        }
+        return index;
+    }
 }
