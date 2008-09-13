@@ -66,6 +66,11 @@ public final class NonBlockingStack<T> {
         return oldHead.item;
     }
     
+    public void set(final T value) {
+        final Entry<T> newHead = new Entry<T>(value);
+        top.set(newHead);
+    }
+    
     public void clear() {
         top.set(null);
     }
