@@ -30,6 +30,11 @@ import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.expr.AbstractXQExpression;
 import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.ext.BDQExpr;
+import xbird.xquery.expr.flwr.Binding;
+import xbird.xquery.expr.flwr.FLWRExpr;
+import xbird.xquery.expr.func.DirectFunctionCall;
+import xbird.xquery.ext.grid.MapExpr;
+import xbird.xquery.func.doc.FnCollection;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.StaticContext;
 import xbird.xquery.meta.XQueryContext;
@@ -82,7 +87,29 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
                 for(Pragma p : pragmas) {
                     if("parallel".equals(p.getName().getLocalPart())) {
                         ((BDQExpr) expr).setParallel(true);
-                        break;
+                        return expr.staticAnalysis(statEnv);
+                    }
+                }
+            } else if(expr instanceof FLWRExpr) {
+                FLWRExpr flwrExpr = ((FLWRExpr) expr);
+                List<Binding> clauses = flwrExpr.getClauses();
+                if(!clauses.isEmpty()) {
+                    Binding firstClause = clauses.get(0);
+                    XQExpression bindingExpr = firstClause.getVariable().getValue();
+                    if(bindingExpr instanceof DirectFunctionCall) {
+                        DirectFunctionCall funcall = (DirectFunctionCall) bindingExpr;
+                        if(FnCollection.FUNC_NAME.equals(funcall.getFuncName())) {
+                            List<XQExpression> params = funcall.getParams();
+                            final String colpath;
+                            if(params.isEmpty()) {
+                                colpath = "/";
+                            } else {
+                                XQExpression argExpr = params.get(0);
+                                colpath = argExpr.eval(null, DynamicContext.DUMMY).toString();
+                            }
+                            MapExpr mapExpr = new MapExpr(colpath, flwrExpr);
+                            return mapExpr.staticAnalysis(statEnv);
+                        }
                     }
                 }
             }
