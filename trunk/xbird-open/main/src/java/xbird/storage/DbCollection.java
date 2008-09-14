@@ -321,6 +321,7 @@ public final class DbCollection implements Closeable {
         return _absolutePath;
     }
 
+    @Deprecated
     public String getRelativePath() {
         final int rootLength = _rootCol.getAbsolutePath().length();
         String rawRelativePath = _absolutePath.substring(rootLength);
