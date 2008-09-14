@@ -321,6 +321,12 @@ public final class DbCollection implements Closeable {
         return _absolutePath;
     }
 
+    public String getRelativePath() {
+        final int rootLength = _rootCol.getAbsolutePath().length();
+        String rawRelativePath = _absolutePath.substring(rootLength);
+        return rawRelativePath.replace(File.separatorChar, '/');
+    }
+
     public Symbols getSymbols() {
         return _symbols;
     }
