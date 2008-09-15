@@ -30,10 +30,12 @@ import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.expr.AbstractXQExpression;
 import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.ext.BDQExpr;
+import xbird.xquery.expr.ext.EmulateFnCollectionExpr;
+import xbird.xquery.expr.ext.MapExpr;
 import xbird.xquery.expr.flwr.Binding;
 import xbird.xquery.expr.flwr.FLWRExpr;
 import xbird.xquery.expr.func.DirectFunctionCall;
-import xbird.xquery.ext.grid.MapExpr;
+import xbird.xquery.expr.var.BindingVariable;
 import xbird.xquery.func.doc.FnCollection;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.StaticContext;
@@ -95,7 +97,8 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
                 List<Binding> clauses = flwrExpr.getClauses();
                 if(!clauses.isEmpty()) {
                     Binding firstClause = clauses.get(0);
-                    XQExpression bindingExpr = firstClause.getVariable().getValue();
+                    BindingVariable bindingVar = firstClause.getVariable();
+                    XQExpression bindingExpr = bindingVar.getValue();
                     if(bindingExpr instanceof DirectFunctionCall) {
                         DirectFunctionCall funcall = (DirectFunctionCall) bindingExpr;
                         if(FnCollection.FUNC_NAME.equals(funcall.getFuncName())) {
@@ -107,7 +110,9 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
                                 XQExpression argExpr = params.get(0);
                                 colpath = argExpr.eval(null, DynamicContext.DUMMY).toString();
                             }
-                            MapExpr mapExpr = new MapExpr(colpath, flwrExpr);
+                            EmulateFnCollectionExpr colExpr = new EmulateFnCollectionExpr();
+                            bindingVar.setValue(colExpr);
+                            MapExpr mapExpr = new MapExpr(colpath, colExpr, flwrExpr);
                             return mapExpr.staticAnalysis(statEnv);
                         }
                     }
