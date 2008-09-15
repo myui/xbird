@@ -20,6 +20,9 @@
  */
 package xbird.xquery.dm.value.sequence;
 
+import java.util.Arrays;
+import java.util.List;
+
 import xbird.util.io.IOUtils;
 import xbird.util.iterator.MultiplexingIterator;
 import xbird.xquery.XQueryException;
@@ -42,9 +45,13 @@ import xbird.xquery.type.Type;
 public final class PipelinedSequence extends AbstractSequence {
     private static final long serialVersionUID = -4626518122143252247L;
 
-    private final Sequence[] _sequences;
+    private final List<? extends Sequence> _sequences;
 
     public PipelinedSequence(DynamicContext dynEnv, Sequence... seqs) {
+        this(dynEnv, Arrays.asList(seqs));
+    }
+
+    public PipelinedSequence(DynamicContext dynEnv, List<? extends Sequence> seqs) {
         super(dynEnv);
         if(seqs == null) {
             throw new IllegalArgumentException();
@@ -55,10 +62,10 @@ public final class PipelinedSequence extends AbstractSequence {
     @SuppressWarnings("unchecked")
     @Override
     public IFocus iterator() {
-        final int seqlen = _sequences.length;
+        final int seqlen = _sequences.size();
         final IFocus[] focuz = new IFocus[seqlen];
         for(int i = 0; i < seqlen; i++) {
-            focuz[i] = _sequences[i].iterator();
+            focuz[i] = _sequences.get(i).iterator();
         }
         MultiplexingIterator<Item> itor = new MultiplexingIterator<Item>(focuz);
         return new Focus<Item>(this, itor, _dynEnv);
