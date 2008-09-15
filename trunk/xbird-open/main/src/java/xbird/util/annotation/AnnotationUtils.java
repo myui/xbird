@@ -21,6 +21,10 @@
 package xbird.util.annotation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * 
@@ -41,5 +45,25 @@ public final class AnnotationUtils {
             }
         }
         return null;
+    }
+
+    public static void injectFieldResource(@Nullable Object target, @Nonnull Class<? extends Annotation> annCls, @Nonnull ResourceInjector injector)
+            throws IllegalArgumentException, IllegalAccessException {
+        if(target == null) {
+            return;
+        }
+        for(Class<?> cls = target.getClass(); cls.equals(Object.class) == false; cls = cls.getSuperclass()) {
+            for(Field f : cls.getDeclaredFields()) {
+                if(f.getName().startsWith("this$")) {// for anonymous class
+                    f.setAccessible(true);
+                    injectFieldResource(f.get(target), annCls, injector); // recursion
+                } else {
+                    Annotation ann = f.getAnnotation(annCls);
+                    if(ann != null) {
+                        injector.inject(f, target, ann);
+                    }
+                }
+            }
+        }
     }
 }
