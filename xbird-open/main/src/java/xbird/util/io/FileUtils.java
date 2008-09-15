@@ -182,6 +182,15 @@ public final class FileUtils {
         }
     }
 
+    public static String dirName(String filepath, char separatorChar) {
+        final int index = filepath.lastIndexOf(separatorChar);
+        if(-1 == index) {
+            return new String(new char[] { separatorChar });
+        } else {
+            return filepath.substring(0, index);
+        }
+    }
+
     public static void truncateFile(File file) {
         final RandomAccessFile raf;
         try {
