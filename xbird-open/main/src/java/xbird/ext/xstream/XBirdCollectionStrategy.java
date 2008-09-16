@@ -144,7 +144,7 @@ public final class XBirdCollectionStrategy<K, V> implements StreamStrategy {
     }
 
     public int size() {
-        return collection.listDocumentFiles().size();
+        return collection.listDocumentFiles(false).size();
     }
 
     public Iterator<Map.Entry<String, V>> iterator() {
