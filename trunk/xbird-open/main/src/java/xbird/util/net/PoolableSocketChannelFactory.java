@@ -43,7 +43,7 @@ import xbird.util.pool.PoolableObjectFactory;
 public class PoolableSocketChannelFactory
         implements PoolableObjectFactory<SocketAddress, ByteChannel> {
     private static final Log LOG = LogFactory.getLog(PoolableSocketChannelFactory.class);
-            
+
     private int sweepInterval = 60000;
     private int ttl = 30000;
     private int soRcvBufSize = -1;
@@ -84,6 +84,7 @@ public class PoolableSocketChannelFactory
             try {
                 sock.setReceiveBufferSize(rcvbufSize);
             } catch (SocketException e) {
+                LOG.error(e.getMessage(), e);
                 throw new IllegalStateException(e);
             }
         }
@@ -102,6 +103,7 @@ public class PoolableSocketChannelFactory
             ch = DatagramChannel.open();
             ch.configureBlocking(blocking);
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         try {
