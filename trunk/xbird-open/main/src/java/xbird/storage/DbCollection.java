@@ -286,8 +286,8 @@ public final class DbCollection implements Closeable {
         return colls;
     }
 
-    public List<File> listDocumentFiles() {
-        return FileUtils.listFiles(getDirectory(), new String[] { IDocumentTable.DTM_SEGMENT_FILE_SUFFIX }, false);
+    public List<File> listDocumentFiles(boolean recursive) {
+        return FileUtils.listFiles(getDirectory(), new String[] { IDocumentTable.DTM_SEGMENT_FILE_SUFFIX }, recursive);
     }
 
     public boolean containsDocument(String docName) {
