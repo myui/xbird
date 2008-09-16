@@ -49,11 +49,6 @@ public class XQEngineClient implements XQEngine {
         this.remoteEndpoint = remoteEndpoint;
     }
 
-    public XQEngineClient() {
-        this.remoteEndpoint = "//localhost:" + XQEngineServer.exportPort + '/'
-                + XQEngineServer.bindName;
-    }
-
     public Object execute(Request request) throws RemoteException {
         final ReplyPattern replyPtn = request.getReplyPattern();
         if(replyPtn == ReplyPattern.CALLBACK) {
@@ -125,7 +120,7 @@ public class XQEngineClient implements XQEngine {
         handler.handleResult(result);
     }
 
-    private void prepare() {
+    private synchronized void prepare() {
         if(engineRef == null) {
             final XQEngine ref;
             try {
@@ -139,7 +134,6 @@ public class XQEngineClient implements XQEngine {
             }
             this.engineRef = ref;
         }
-        assert (engineRef != null);
     }
 
     private static void exportMe(final ResultHandler handler, final Request request)
