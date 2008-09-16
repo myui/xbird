@@ -76,7 +76,7 @@ public class PoolableSocketChannelFactory
             ch = SocketChannel.open();
             ch.configureBlocking(blocking);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to open SocketChannel.", e);
             throw new IllegalStateException(e);
         }
         final Socket sock = ch.socket();
@@ -84,14 +84,14 @@ public class PoolableSocketChannelFactory
             try {
                 sock.setReceiveBufferSize(rcvbufSize);
             } catch (SocketException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Failed to setReceiveBufferSize.", e);
                 throw new IllegalStateException(e);
             }
         }
         try {
             ch.connect(sockAddr);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to connect socket: " + sockAddr, e);
             throw new IllegalStateException(e);
         }
         return ch;
@@ -103,19 +103,19 @@ public class PoolableSocketChannelFactory
             ch = DatagramChannel.open();
             ch.configureBlocking(blocking);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to open DatagramChannel.", e);
             throw new IllegalStateException(e);
         }
         try {
             ch.socket().setBroadcast(false);
         } catch (SocketException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to configure socket.", e);
             throw new IllegalStateException(e);
         }
         try {
             ch.connect(sockAddr);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Failed to connect socket: " + sockAddr, e);
             throw new IllegalStateException(e);
         }
         return ch;
