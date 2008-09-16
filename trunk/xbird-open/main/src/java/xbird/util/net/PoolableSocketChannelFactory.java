@@ -28,6 +28,9 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SocketChannel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import xbird.util.pool.PoolableObjectFactory;
 
 /**
@@ -39,7 +42,8 @@ import xbird.util.pool.PoolableObjectFactory;
  */
 public class PoolableSocketChannelFactory
         implements PoolableObjectFactory<SocketAddress, ByteChannel> {
-
+    private static final Log LOG = LogFactory.getLog(PoolableSocketChannelFactory.class);
+            
     private int sweepInterval = 60000;
     private int ttl = 30000;
     private int soRcvBufSize = -1;
@@ -72,6 +76,7 @@ public class PoolableSocketChannelFactory
             ch = SocketChannel.open();
             ch.configureBlocking(blocking);
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         final Socket sock = ch.socket();
@@ -85,6 +90,7 @@ public class PoolableSocketChannelFactory
         try {
             ch.connect(sockAddr);
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         return ch;
@@ -101,11 +107,13 @@ public class PoolableSocketChannelFactory
         try {
             ch.socket().setBroadcast(false);
         } catch (SocketException e) {
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         try {
             ch.connect(sockAddr);
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         return ch;
