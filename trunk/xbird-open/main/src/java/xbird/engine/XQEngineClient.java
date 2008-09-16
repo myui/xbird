@@ -21,7 +21,9 @@
 package xbird.engine;
 
 import java.net.MalformedURLException;
-import java.rmi.*;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +47,11 @@ public class XQEngineClient implements XQEngine {
 
     public XQEngineClient(String remoteEndpoint) {
         this.remoteEndpoint = remoteEndpoint;
+    }
+
+    public XQEngineClient() {
+        this.remoteEndpoint = "//localhost:" + XQEngineServer.exportPort + '/'
+                + XQEngineServer.bindName;
     }
 
     public Object execute(Request request) throws RemoteException {
