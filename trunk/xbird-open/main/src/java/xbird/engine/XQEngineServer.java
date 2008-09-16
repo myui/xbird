@@ -44,8 +44,8 @@ public final class XQEngineServer extends RemoteBase implements XQEngine {
     private static final long serialVersionUID = 5410190251826182651L;
     private static final Log LOG = LogFactory.getLog(XQEngineServer.class);
 
-    public static final String bindName = Settings.get("xbird.rmi.engine.name");
-    public static final int exportPort = Integer.parseInt(Settings.get("xbird.rmi.engine.port", "0"));
+    private static final String bindName = Settings.get("xbird.rmi.engine.name");
+    private static final int exportPort = Integer.parseInt(Settings.get("xbird.rmi.engine.port", "0"));
 
     private final RequestManager requestManager;
 

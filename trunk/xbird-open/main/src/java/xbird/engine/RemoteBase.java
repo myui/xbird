@@ -22,7 +22,10 @@ package xbird.engine;
 
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.rmi.*;
+import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -52,11 +55,9 @@ public abstract class RemoteBase implements Remote, Serializable {
     public static final String RMI_PROTOCOL_JRMP = "jrmp";
     public static final String RMI_PROTOCOL_JRMP_SSL = "jrmp-ssl";
 
-    public static final String RMI_PROTOCOL_KEY = "xbird.rmi.protocol";
-    public static final String rmiProtocol = Settings.get(RMI_PROTOCOL_KEY, RMI_PROTOCOL_JRMP);
+    public static final String rmiProtocol = Settings.get("xbird.rmi.protocol", RMI_PROTOCOL_JRMP);
 
-    private static final String LOCAL_REGISTRY_PORT_KEY = "xbird.rmi.registry.local.port";
-    private static final int localRegistryPort = Integer.parseInt(Settings.get(LOCAL_REGISTRY_PORT_KEY));
+    public static final int localRegistryPort = Integer.parseInt(Settings.get("xbird.rmi.registry.local.port"));
 
     private final String endpointUrl;
     private final int exportPort;
@@ -116,7 +117,7 @@ public abstract class RemoteBase implements Remote, Serializable {
             LOG.warn("object is not registered: " + ObjectUtils.identityToString(this), e);
         }
         unbind();
-        if(forceExit) {            
+        if(forceExit) {
             System.exit(0);
         }
     }
