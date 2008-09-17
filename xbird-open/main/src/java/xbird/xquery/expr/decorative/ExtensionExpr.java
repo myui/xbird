@@ -110,9 +110,7 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
                                 XQExpression argExpr = params.get(0);
                                 colpath = argExpr.eval(null, DynamicContext.DUMMY).toString();
                             }
-                            EmulateFnCollectionExpr colExpr = new EmulateFnCollectionExpr();
-                            bindingVar.setValue(colExpr);
-                            MapExpr mapExpr = new MapExpr(colpath, colExpr, flwrExpr);
+                            MapExpr mapExpr = new MapExpr(colpath, bindingVar, flwrExpr);
                             return mapExpr.staticAnalysis(statEnv);
                         }
                     }
