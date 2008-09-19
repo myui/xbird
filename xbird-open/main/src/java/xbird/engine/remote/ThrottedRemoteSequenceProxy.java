@@ -22,6 +22,7 @@ package xbird.engine.remote;
 
 import java.util.concurrent.Semaphore;
 
+import xbird.config.Settings;
 import xbird.engine.request.QueryRequest;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
@@ -35,12 +36,18 @@ import xbird.xquery.dm.value.Sequence;
  */
 public final class ThrottedRemoteSequenceProxy extends RunnableRemoteSequenceProxy {
     private static final long serialVersionUID = 1525047704177311709L;
+    public static final int NUM_THROTTLE = Integer.parseInt(Settings.get("xbird.remote.async_producer.throttle", "32"));
 
     private final Semaphore _throttle;
 
     public ThrottedRemoteSequenceProxy(Semaphore throttle, Sequence<Item> delegate, QueryRequest request) {
         super(delegate, request);
         this._throttle = throttle;
+    }
+
+    public ThrottedRemoteSequenceProxy(Sequence<Item> delegate) {
+        super(delegate);
+        this._throttle = new Semaphore(NUM_THROTTLE);
     }
 
     @Override
