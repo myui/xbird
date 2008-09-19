@@ -30,7 +30,6 @@ import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.expr.AbstractXQExpression;
 import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.ext.BDQExpr;
-import xbird.xquery.expr.ext.EmulateFnCollectionExpr;
 import xbird.xquery.expr.ext.MapExpr;
 import xbird.xquery.expr.flwr.Binding;
 import xbird.xquery.expr.flwr.FLWRExpr;
