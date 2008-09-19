@@ -27,8 +27,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.CRC32;
 
-import javax.annotation.Nonnull;
-
 import xbird.util.string.StringUtils;
 
 /**
@@ -71,6 +69,10 @@ public enum HashAlgorithm {
      */
     FNV1A_32_HASH,
     /**
+     * SHA-1 hash
+     */
+    SHA1_HASH,
+    /**
      * MD5-based hash algorithm used by ketama.
      */
     MD5_HASH;
@@ -92,12 +94,13 @@ public enum HashAlgorithm {
             case NATIVE_HASH:
                 rv = k.hashCode();
                 break;
-            case CRC32_HASH:
+            case CRC32_HASH: {
                 // return (crc32(shift) >> 16) & 0x7fff;
                 final CRC32 crc32 = new CRC32();
                 crc32.update(StringUtils.getBytes(k));
                 rv = (crc32.getValue() >> 16) & 0x7fff;
                 break;
+            }
             case FNV1_64_HASH: {
                 // Thanks to pierre@demartines.com for the pointer
                 rv = FNV_64_INIT;
@@ -106,8 +109,8 @@ public enum HashAlgorithm {
                     rv *= FNV_64_PRIME;
                     rv ^= k.charAt(i);
                 }
-            }
                 break;
+            }
             case FNV1A_64_HASH: {
                 rv = FNV_64_INIT;
                 final int len = k.length();
@@ -115,8 +118,8 @@ public enum HashAlgorithm {
                     rv ^= k.charAt(i);
                     rv *= FNV_64_PRIME;
                 }
-            }
                 break;
+            }
             case FNV1_32_HASH: {
                 rv = FNV_32_INIT;
                 final int len = k.length();
@@ -124,8 +127,8 @@ public enum HashAlgorithm {
                     rv *= FNV_32_PRIME;
                     rv ^= k.charAt(i);
                 }
-            }
                 break;
+            }
             case FNV1A_32_HASH: {
                 rv = FNV_32_INIT;
                 final int len = k.length();
@@ -133,13 +136,20 @@ public enum HashAlgorithm {
                     rv ^= k.charAt(i);
                     rv *= FNV_32_PRIME;
                 }
-            }
                 break;
-            case MD5_HASH:
-                final byte[] bKey = computeMd5(k);
+            }
+            case SHA1_HASH: {
+                final byte[] bKey = computeMD(k, "SHA-1");
                 rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
                         | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
                 break;
+            }
+            case MD5_HASH: {
+                final byte[] bKey = computeMD(k, "MD5");
+                rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
+                        | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
+                break;
+            }
             default:
                 assert false;
         }
@@ -149,15 +159,16 @@ public enum HashAlgorithm {
     /**
      * Get the md5 of the given key.
      */
-    public static byte[] computeMd5(@Nonnull String k) {
-        final MessageDigest md5;
+    public static byte[] computeMD(final String k, final String algorithm) {
+        final MessageDigest md;
         try {
-            md5 = MessageDigest.getInstance("MD5");
+            md = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("MD5 not supported", e);
+            throw new RuntimeException(algorithm + " is not supported.", e);
         }
-        md5.reset();
-        md5.update(StringUtils.getBytes(k));
-        return md5.digest();
+        md.reset();
+        md.update(StringUtils.getBytes(k));
+        return md.digest();
     }
+
 }
