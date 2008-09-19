@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Sat Sep 20 00:32:36 JST 2008
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=target/xbird-full_fat.jar
+manifest.mergeall=true
+manifest.mainclass=xbird.server.Server
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<po|xbird-open>~.svn/;<po|xbird-open>~example/;<jar|junit-4.1.jar>;<jar|saxon8-dom.jar>;<jar|saxon8.jar>;<jar|servlet-api.jar>;<jar|testng-5.8-jdk15.jar>;<jar|xmlunit-1.2.jar>;<jar|icu4j_3_4_2.jar>;<jar|tagsoup-1.2.jar>;<jar|jdic-0.9.2.jar>;<jar|xpp3_min-1.1.4c.jar>
+includes=
