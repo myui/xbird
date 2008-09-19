@@ -20,7 +20,9 @@
  */
 package xbird.engine.request;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import xbird.xquery.expr.XQExpression;
 
@@ -31,7 +33,7 @@ import xbird.xquery.expr.XQExpression;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class PreparedQueryRequest extends QueryRequest {
+public class PreparedQueryRequest extends QueryRequest {
     private static final long serialVersionUID = -8880681218571760492L;
 
     private/* final */XQExpression _compiledExpr;
