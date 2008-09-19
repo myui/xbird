@@ -53,6 +53,12 @@ public class RunnableRemoteSequenceProxy extends RemoteSequenceProxy implements 
         this._exqueue = DisposableBlockingQueue.of(new BoundedTransferQueue<Item>(EXCHANGING_QUEUE_SIZE), ExchangingRemoteFocusProxy.SENTINEL);
     }
 
+    public RunnableRemoteSequenceProxy(Sequence<Item> delegate) {
+        super(delegate);
+        this._request = null;
+        this._exqueue = DisposableBlockingQueue.of(new BoundedTransferQueue<Item>(EXCHANGING_QUEUE_SIZE), ExchangingRemoteFocusProxy.SENTINEL);
+    }
+
     @Override
     public RemoteFocus iterator() throws RemoteException {
         final IRemoteFocusProxy proxy = new ExchangingRemoteFocusProxy(_delegate, _exqueue, this);

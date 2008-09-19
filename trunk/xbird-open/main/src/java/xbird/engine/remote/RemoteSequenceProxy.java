@@ -65,6 +65,13 @@ public class RemoteSequenceProxy implements IRemoteSequenceProxy, Serializable {
         this._fetchMethod = request.getFetchMethod();
     }
 
+    protected RemoteSequenceProxy(Sequence<Item> delegate) {
+        this._delegate = delegate;
+        this._fetchSize = RemoteFocus.DEFAULT_FETCH_SIZE;
+        this._fetchGrow = RemoteFocus.DEFAULT_FETCH_GROWFACTOR;
+        this._fetchMethod = FetchMethod.appropriateMethod();
+    }
+
     public Sequence<? extends Item> atomize(DynamicContext dynEnv) throws RemoteException {
         return _delegate.atomize(dynEnv);
     }
