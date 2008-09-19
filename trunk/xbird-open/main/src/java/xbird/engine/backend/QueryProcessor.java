@@ -31,7 +31,6 @@ import java.util.concurrent.Semaphore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import xbird.config.Settings;
 import xbird.engine.Request;
 import xbird.engine.RequestContext;
 import xbird.engine.ResponseListener;
@@ -81,8 +80,7 @@ public class QueryProcessor extends BackendProcessor {
 
     public QueryProcessor(ResponseListener handler) {
         super(handler);
-        final int num = Integer.parseInt(Settings.get("xbird.remote.async_producer.throttle", "32"));
-        this._throttle = new Semaphore(num);
+        this._throttle = new Semaphore(ThrottedRemoteSequenceProxy.NUM_THROTTLE);
     }
 
     public Signature associatedWith() {
