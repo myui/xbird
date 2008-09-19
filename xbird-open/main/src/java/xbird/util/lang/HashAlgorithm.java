@@ -73,7 +73,7 @@ public enum HashAlgorithm {
     /**
      * MD5-based hash algorithm used by ketama.
      */
-    KETAMA_HASH;
+    MD5_HASH;
 
     private static final long FNV_64_INIT = 0xcbf29ce484222325L;
     private static final long FNV_64_PRIME = 0x100000001b3L;
@@ -135,7 +135,7 @@ public enum HashAlgorithm {
                 }
             }
                 break;
-            case KETAMA_HASH:
+            case MD5_HASH:
                 final byte[] bKey = computeMd5(k);
                 rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
                         | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
