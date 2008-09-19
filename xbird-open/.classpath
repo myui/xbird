@@ -41,5 +41,7 @@
 	<classpathentry kind="lib" path="lib/optional/slf4j-api-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/optional/slf4j-log4j12-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/optional/ognl-2.6.9.jar"/>
+	<classpathentry kind="lib" path="lib/optional/mina-integration-ognl-2.0.0-M3.jar"/>
+	<classpathentry kind="lib" path="lib/optional/mina-integration-beans-2.0.0-M3.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

@@ -15,5 +15,7 @@
 
 XQEngine=xbird.server.services.XQEngineProxyService
 PerfMon=xbird.server.services.PerfmonService
+
+# The followings are experimental services. Dangerous :-)
 #RemotePaging=xbird.server.services.RemotePagingService
 #GridService=xbird.server.services.GridService
