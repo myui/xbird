@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.engine.Request.ReplyPattern;
+import xbird.util.net.NetUtils;
 import xbird.util.net.TimeoutSocketProdiver;
 
 /**
@@ -47,8 +48,8 @@ public class XQEngineClient implements XQEngine {
 
     public XQEngineClient(String remoteEndpoint) {
         if(remoteEndpoint == null) {
-            this.remoteEndpoint = "//localhost:" + RemoteBase.localRegistryPort + '/'
-                    + XQEngineServer.bindName;
+            this.remoteEndpoint = "//" + NetUtils.getLocalHostName() + ":"
+                    + RemoteBase.localRegistryPort + '/' + XQEngineServer.bindName;
         } else {
             this.remoteEndpoint = remoteEndpoint;
         }

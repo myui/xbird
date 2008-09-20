@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
 import xbird.util.lang.ObjectUtils;
+import xbird.util.net.NetUtils;
 import xbird.util.net.TimeoutSocketProdiver;
 
 /**
@@ -66,7 +67,8 @@ public abstract class RemoteBase implements Remote, Serializable {
         if(bindName == null) {
             throw new IllegalArgumentException();
         }
-        this.endpointUrl = "//localhost:" + localRegistryPort + '/' + bindName;
+        this.endpointUrl = "//" + NetUtils.getLocalHostName() + ":" + localRegistryPort + '/'
+                + bindName;
         this.exportPort = exportPort;
     }
 

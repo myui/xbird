@@ -49,6 +49,10 @@ public final class NetUtils {
         return getLocalHost().getHostName();
     }
 
+    public static String getLocalHostAddress() {
+        return getLocalHost().getHostAddress();
+    }
+
     public static URI toURI(URL url) {
         try {
             return url.toURI();
