@@ -22,7 +22,10 @@ package xbird.engine.sched;
 
 import xbird.config.Settings;
 import xbird.engine.ResponseListener;
-import xbird.engine.backend.*;
+import xbird.engine.backend.CommandProcessor;
+import xbird.engine.backend.DistributedCompiler;
+import xbird.engine.backend.PreparedQueryProcessor;
+import xbird.engine.backend.QueryProcessor;
 
 /**
  * 
@@ -58,7 +61,7 @@ public final class SchedulerFactory {
     }
 
     private static ScheduledEventListener[] createListeners(ResponseListener resHandler) {
-        final ScheduledEventListener[] listeners = new ScheduledEventListener[4];
+        final ScheduledEventListener[] listeners = new ScheduledEventListener[5];
         listeners[0] = new QueryProcessor(resHandler);
         listeners[1] = new DistributedCompiler(resHandler);
         listeners[2] = new PreparedQueryProcessor(resHandler);
