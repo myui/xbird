@@ -90,7 +90,6 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
         this._readOnly = true;
         this._transfered = true;
         this._mmfile = null; //dummy
-        this._pool = new ConcurrentLongCache<int[]>(CACHED_PAGES);
     }
 
     public MemoryMappedDocumentTable(final DbCollection coll, final String docName, final PropertyMap docProps, final boolean readOnly) {
@@ -123,11 +122,13 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
             if(!_readOnly) {
                 _pool.clear();
             }
+            /*
             if(_pool != null) {
                 this._pool = null;
             }
             _close();
             _mmfile.close();
+            */
         }
     }
 
