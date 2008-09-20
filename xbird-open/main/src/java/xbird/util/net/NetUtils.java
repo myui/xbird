@@ -53,6 +53,16 @@ public final class NetUtils {
         return getLocalHost().getHostAddress();
     }
 
+    public static String getHostNameWithoutDomain(InetAddress addr) {
+        final String hostName = addr.getHostName();
+        final int pos = hostName.indexOf('.');
+        if(pos == -1) {
+            return hostName;
+        } else {
+            return hostName.substring(0, pos);
+        }
+    }
+
     public static URI toURI(URL url) {
         try {
             return url.toURI();
