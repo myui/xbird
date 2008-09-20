@@ -151,6 +151,9 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
     }
 
     public void setBufferPool(final ILongCache<int[]> pool) {
+        if(pool == null) {
+            throw new IllegalArgumentException();
+        }
         this._pool = pool;
     }
 
