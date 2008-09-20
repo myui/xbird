@@ -37,7 +37,6 @@ import xbird.util.cache.ICacheEntry;
 import xbird.util.cache.ILongCache;
 import xbird.util.collections.LongQueue;
 import xbird.util.concurrent.cache.ConcurrentLongCache;
-import xbird.util.io.IOUtils;
 import xbird.util.lang.PrivilegedAccessor;
 import xbird.util.nio.CloseableMappedByteBuffer;
 import xbird.util.nio.IMemoryMappedFile;
@@ -91,6 +90,7 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
         this._readOnly = true;
         this._transfered = true;
         this._mmfile = null; //dummy
+        this._pool = new ConcurrentLongCache<int[]>(CACHED_PAGES);
     }
 
     public MemoryMappedDocumentTable(final DbCollection coll, final String docName, final PropertyMap docProps, final boolean readOnly) {
@@ -124,7 +124,6 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
                 _pool.clear();
             }
             if(_pool != null) {
-                IOUtils.closeQuietly(_pool);
                 this._pool = null;
             }
             _close();
