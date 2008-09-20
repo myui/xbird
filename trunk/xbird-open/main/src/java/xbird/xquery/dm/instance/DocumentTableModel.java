@@ -45,6 +45,7 @@ import org.xml.sax.XMLReader;
 import xbird.config.Settings;
 import xbird.storage.io.DiskPagedLongCache;
 import xbird.util.StopWatch;
+import xbird.util.cache.ICacheEntry;
 import xbird.util.cache.ILongCache;
 import xbird.util.codec.IntCodec;
 import xbird.util.concurrent.reference.ReferenceMap;
@@ -161,7 +162,10 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         }
         MemoryMappedDocumentTable prevDoctbl = cache.putIfAbsent(docId, mmDoctbl);
         if(prevDoctbl != null) {
-            mmDoctbl.setBufferPool(prevDoctbl.getBufferPool());
+            ILongCache<int[]> prevCache = prevDoctbl.getBufferPool();
+            if(prevCache!= null) {
+            mmDoctbl.setBufferPool(prevCache);
+            }
         } else {
             File tmpDir = (TMP_DATA_DIR == null) ? null : new File(TMP_DATA_DIR);
             String docname = FileUtils.basename(docId);
