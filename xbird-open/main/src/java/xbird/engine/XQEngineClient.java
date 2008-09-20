@@ -129,16 +129,19 @@ public class XQEngineClient implements XQEngine {
         handler.handleResult(result);
     }
 
-    public synchronized void prepare() {
+    private synchronized void prepare() {
         if(engineRef == null) {
             final XQEngine ref;
             try {
                 ref = (XQEngine) Naming.lookup(remoteEndpoint);
             } catch (MalformedURLException mue) {
+                LOG.error(mue);
                 throw new IllegalStateException("lookup failed: " + remoteEndpoint, mue);
             } catch (RemoteException re) {
+                LOG.error(re);
                 throw new IllegalStateException("lookup failed: " + remoteEndpoint, re);
             } catch (NotBoundException nbe) {
+                LOG.error(nbe);
                 throw new IllegalStateException("lookup failed: " + remoteEndpoint, nbe);
             }
             this.engineRef = ref;
