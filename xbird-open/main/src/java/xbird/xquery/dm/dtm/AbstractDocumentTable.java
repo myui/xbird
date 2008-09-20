@@ -47,7 +47,7 @@ import xbird.xquery.misc.QNameTable.QualifiedName;
  */
 public abstract class AbstractDocumentTable implements IDocumentTable {
     private static final long serialVersionUID = -7355233782454201238L;
-    
+
     /* for all nodes */
     /** @see NodeKind */
     private static final int KIND_BITS = 3; /* .....111 */
@@ -451,6 +451,12 @@ public abstract class AbstractDocumentTable implements IDocumentTable {
 
     public void close() throws IOException {
         if(_refcount.getAndDecrement() == 0) {
+            _close();
+        }
+    }
+
+    public void tryClose() throws IOException {
+        if(_refcount.get() < 1) {
             _close();
         }
     }
