@@ -127,5 +127,7 @@ public interface IDocumentTable extends IDocument, Closeable {
     public Segments getPaged(DbCollection coll, String docName);
 
     public long dataAt(long at);
+    
+    public void tryClose() throws IOException;
 
 }

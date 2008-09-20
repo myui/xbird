@@ -122,13 +122,25 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
             if(!_readOnly) {
                 _pool.clear();
             }
-            /*
             if(_pool != null) {
                 this._pool = null;
             }
             _close();
             _mmfile.close();
-            */
+        }
+    }
+
+    @Override
+    public void tryClose() throws IOException {
+        if(_refcount.get() < 1) {
+            if(!_readOnly) {
+                _pool.clear();
+            }
+            if(_pool != null) {
+                this._pool = null;
+            }
+            _close();
+            _mmfile.close();
         }
     }
 

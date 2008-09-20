@@ -50,7 +50,7 @@ public final class DocumentTableLoader {
         final Cleaner<String, IDocumentTable> cleaner = new Cleaner<String, IDocumentTable>() {
             public void cleanup(String key, IDocumentTable reclaimed) {
                 try {
-                    reclaimed.close();
+                    reclaimed.tryClose();
                 } catch (IOException e) {
                     ;
                 }
