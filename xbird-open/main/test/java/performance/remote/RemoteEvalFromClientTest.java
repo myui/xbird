@@ -54,11 +54,11 @@ public class RemoteEvalFromClientTest {
 
     @DataProvider(name = "scenario01")
     public Object[][] getSettings() {
-        return new Object[][] { { "//atom:1099/xbird/srv-01",
-                "D:/workspace/xbird/examples/crest/tmp/scenario01r.xq" } };
+        return new Object[][] { { "//localhost:1099/xbird/srv-01",
+                "/root/.eclipse/xbird-db/examples/grid/map01.xq" } };
     }
 
-    @Test(dataProvider = "scenario01", invocationCount = 20, threadPoolSize = 20)
+    @Test(dataProvider = "scenario01", invocationCount = 1, threadPoolSize = 1)
     public void scenario01(String remoteEndpoint, String fileName) throws FileNotFoundException,
             IOException, XQueryException {
         XQEngine engine = new XQEngineClient(remoteEndpoint);
