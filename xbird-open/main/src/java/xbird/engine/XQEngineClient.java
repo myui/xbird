@@ -129,7 +129,7 @@ public class XQEngineClient implements XQEngine {
         handler.handleResult(result);
     }
 
-    private synchronized void prepare() {
+    public synchronized void prepare() {
         if(engineRef == null) {
             final XQEngine ref;
             try {
