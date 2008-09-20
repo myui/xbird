@@ -150,7 +150,8 @@ public abstract class Request implements Externalizable {
 
     public enum Signature {
 
-        COMMAND("Command"), QUERY("Query"), PREPARED_QUERY("PreparedQuery"), COMPILE("Compile");
+        COMMAND("Command"), QUERY("Query"), PREPARED_QUERY("PreparedQuery"), COMPILE("Compile"), GRID_QTASK(
+                "GridQueryTask");
 
         final String name;
 
