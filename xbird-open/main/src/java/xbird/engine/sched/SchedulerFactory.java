@@ -26,6 +26,7 @@ import xbird.engine.backend.CommandProcessor;
 import xbird.engine.backend.DistributedCompiler;
 import xbird.engine.backend.PreparedQueryProcessor;
 import xbird.engine.backend.QueryProcessor;
+import xbird.engine.backend.GridQueryTaskProcessor;
 
 /**
  * 
@@ -66,6 +67,7 @@ public final class SchedulerFactory {
         listeners[1] = new DistributedCompiler(resHandler);
         listeners[2] = new PreparedQueryProcessor(resHandler);
         listeners[3] = new CommandProcessor(resHandler);
+        listeners[4] = new GridQueryTaskProcessor(resHandler);
         return listeners;
     }
 

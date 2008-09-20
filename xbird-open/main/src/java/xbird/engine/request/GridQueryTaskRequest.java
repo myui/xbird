@@ -21,11 +21,11 @@
 package xbird.engine.request;
 
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.List;
 
-import xbird.xquery.expr.XQExpression;
-import xbird.xquery.expr.ext.EmulateFnCollectionExpr;
+import xbird.engine.Request;
+import xbird.xquery.ext.grid.QueryTask;
 
 /**
  * 
@@ -34,26 +34,35 @@ import xbird.xquery.expr.ext.EmulateFnCollectionExpr;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class GridPreparedQueryRequest extends PreparedQueryRequest {
+public final class GridQueryTaskRequest extends Request {
 
-    private transient EmulateFnCollectionExpr colExpr;
-    private transient List<String> documentPaths;
+    private QueryTask queryTask;
 
-    public GridPreparedQueryRequest() {}
+    public GridQueryTaskRequest() {}// for Externalizable
 
-    public GridPreparedQueryRequest(XQExpression compiledExpr, ReturnType retType) {
-        super(compiledExpr, retType);
-    }
-
-    public void lazySetCollectionElements(EmulateFnCollectionExpr colExpr, List<String> documentPaths) {
-        this.colExpr = colExpr;
-        this.documentPaths = documentPaths;
+    public GridQueryTaskRequest(QueryTask queryTask) {
+        super(ReturnType.AUTO);
+        this.queryTask = queryTask;
     }
 
     @Override
-    protected void writeQuery(ObjectOutput out) throws IOException {
-        colExpr.setRelativePaths(documentPaths);
-        super.writeQuery(out);
+    public Signature getSignature() {
+        return Signature.GRID_QTASK;
     }
 
+    public QueryTask getTask() {
+        return queryTask;
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        super.readExternal(in);
+        this.queryTask = (QueryTask) in.readObject();
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        super.writeExternal(out);
+        out.writeObject(queryTask);
+    }
 }
