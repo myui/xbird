@@ -137,7 +137,6 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
 
                             FLWRExpr newFlwr = new FLWRExpr();
                             ForVariable forVar = new ForVariable();
-
                             forVar.setValue(funcall);
                             newFlwr.addClause(new ForClause(forVar));
                             VarRef varref = new VarRef(forVar);
