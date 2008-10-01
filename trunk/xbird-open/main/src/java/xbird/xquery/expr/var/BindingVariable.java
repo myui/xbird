@@ -166,11 +166,12 @@ public abstract class BindingVariable extends Variable {
             super(varName);
         }
 
+        public ForVariable() {
+            super(null);
+        }
+
         @Override
         public boolean isPathIndexAccessable(StaticContext statEnv, RewriteInfo info) {
-            if(_value == null) {
-                throw new IllegalStateException("value is not set.. bug?");
-            }
             if(info.isLookaheadRequired()) {
                 return false;
             }
@@ -181,6 +182,12 @@ public abstract class BindingVariable extends Variable {
             } else {
                 return false;
             }
+        }
+
+        @Override
+        public String getName() {
+            final String name = super.getName();
+            return name == null ? Integer.toString(System.identityHashCode(this)) : name;
         }
 
     }
