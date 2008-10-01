@@ -37,6 +37,7 @@ import xbird.xquery.expr.flwr.ForClause;
 import xbird.xquery.expr.func.DirectFunctionCall;
 import xbird.xquery.expr.path.PathExpr;
 import xbird.xquery.expr.var.BindingVariable;
+import xbird.xquery.expr.var.VarRef;
 import xbird.xquery.expr.var.BindingVariable.ForVariable;
 import xbird.xquery.func.doc.FnCollection;
 import xbird.xquery.meta.DynamicContext;
@@ -136,9 +137,11 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
 
                             FLWRExpr newFlwr = new FLWRExpr();
                             ForVariable forVar = new ForVariable();
+
                             forVar.setValue(funcall);
                             newFlwr.addClause(new ForClause(forVar));
-                            steps.remove(0);
+                            VarRef varref = new VarRef(forVar);
+                            steps.set(0, varref);
                             newFlwr.setReturnExpr(pathExpr);
 
                             MapExpr mapExpr = new MapExpr(colpath, forVar, newFlwr);
