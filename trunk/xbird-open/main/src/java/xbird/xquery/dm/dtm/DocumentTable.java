@@ -335,17 +335,6 @@ public class DocumentTable extends AbstractDocumentTable {
             }
         }
 
-        @Override
-        protected void finalize() throws Throwable {
-            if(_dirtyBuffer != null) {
-                _dirtyBuffer.clear();
-            }
-            _close();
-            if(_paged != null) {
-                _paged.close();
-            }
-        }
-
         private static FixedSegments loadSegments(final DbCollection coll, final String docName) {
             final File segFile = new File(coll.getDirectory(), docName + DTM_SEGMENT_FILE_SUFFIX);
             return new FixedSegments(segFile, PAGE_SIZE);
