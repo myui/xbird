@@ -37,7 +37,6 @@ import xbird.storage.indexer.ByteLikeIndexQuery;
 import xbird.storage.indexer.IndexMatch;
 import xbird.storage.indexer.IndexQuery;
 import xbird.util.collections.LongQueue;
-import xbird.util.io.IOUtils;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.struct.Pair;
 import xbird.xquery.XQRTException;
@@ -320,7 +319,12 @@ public class PathIndexAccessExpr extends AbstractXQExpression {
         }
 
         public void clear() {
-            IOUtils.closeQuietly(dtm.getDocumentTable());
+            final IDocumentTable table = dtm.getDocumentTable();
+            try {
+                table.close();
+            } catch (IOException e) {
+                LOG.warn(e.getMessage(), e);
+            }
             this.dtm = null;
             this.ptrsQueue = null;
         }
