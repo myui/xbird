@@ -85,15 +85,24 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
 
     private final boolean _transfered;
 
+    private transient final DbCollection coll;
+    private transient final String docName;
+
     public MemoryMappedDocumentTable() {//only for Externalizable
         super();
         this._readOnly = true;
         this._transfered = true;
         this._mmfile = null; //dummy
+
+        this.coll = null;
+        this.docName = null;
     }
 
     public MemoryMappedDocumentTable(final DbCollection coll, final String docName, final PropertyMap docProps, final boolean readOnly) {
         super(coll, docName, docProps);
+        this.coll = coll;
+        this.docName = docName;
+
         this._readOnly = readOnly;
         this._transfered = false;
         final boolean nativeByteOrder;
@@ -114,6 +123,18 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
             throw new IllegalStateException("file not found: " + segFile.getAbsolutePath(), e);
         }
         this._pool = readOnly ? new ConcurrentLongCache<int[]>(CACHED_PAGES) : null;
+    }
+
+    private synchronized void reset() {
+        this._nameTable = coll.getSymbols().getQnameTable();
+        try {
+            this._strChunk = coll.getStringChunk();
+        } catch (IOException e) {
+            throw new IllegalStateException("failed loading string chunk of the collection: "
+                    + coll.getCollectionName(), e);
+        }
+        this._pool = new ConcurrentLongCache<int[]>(CACHED_PAGES);
+        _mmfile.reopen();
     }
 
     @Override
@@ -163,6 +184,10 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
     }
 
     private long dataAt_RO(final long at) {
+        if(_pool == null) {
+            reset();
+        }
+
         final int offset = (int) (at & LOGICAL_PAGE_MASK);
         final long pageId = toPageId(at);
 
