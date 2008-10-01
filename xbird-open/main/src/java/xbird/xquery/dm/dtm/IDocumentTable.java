@@ -20,7 +20,6 @@
  */
 package xbird.xquery.dm.dtm;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +39,7 @@ import xbird.xquery.misc.QNameTable.QualifiedName;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public interface IDocumentTable extends IDocument, Closeable {
+public interface IDocumentTable extends IDocument {
 
     static final boolean ENV_USE_JNI = System.getProperty("xbird.use_jni") != null;
     static final boolean ENV_USE_2QCACHE = System.getProperty("xbird.cache.disable_2q") == null;
@@ -127,6 +126,8 @@ public interface IDocumentTable extends IDocument, Closeable {
     public Segments getPaged(DbCollection coll, String docName);
 
     public long dataAt(long at);
+
+    public void close() throws IOException;
 
     public void tryClose() throws IOException;
 

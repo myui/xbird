@@ -22,6 +22,7 @@ package xbird.xquery.dm.dtm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import xbird.config.Settings;
@@ -56,8 +57,8 @@ public final class DocumentTableLoader {
                 }
             }
         };
-        //_cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
-        _cache = new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner);
+        _cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
+        //_cache = new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner);
     }
 
     private DocumentTableLoader() {}
