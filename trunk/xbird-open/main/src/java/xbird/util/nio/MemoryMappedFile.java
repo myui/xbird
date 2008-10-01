@@ -144,6 +144,7 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
 
     public synchronized void close() throws IOException {
         _channel.close();
+        this._channel = null;
     }
 
     public synchronized void ensureOpen() {
