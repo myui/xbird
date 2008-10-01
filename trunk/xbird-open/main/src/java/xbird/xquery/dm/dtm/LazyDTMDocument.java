@@ -22,8 +22,10 @@ package xbird.xquery.dm.dtm;
 
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import xbird.storage.DbCollection;
-import xbird.util.io.IOUtils;
 import xbird.xquery.XQRTException;
 import xbird.xquery.dm.instance.DocumentTableModel;
 import xbird.xquery.dm.instance.DocumentTableModel.DTMDocument;
@@ -40,6 +42,7 @@ import xbird.xquery.meta.Profiler;
  */
 public final class LazyDTMDocument extends DTMDocument {
     private static final long serialVersionUID = 4796528791022117887L;
+    private static final Log LOG = LogFactory.getLog(LazyDTMDocument.class);
 
     private final String _fileName;
     private/* final */DbCollection _col;
@@ -80,7 +83,11 @@ public final class LazyDTMDocument extends DTMDocument {
     public void reclaim() {
         this._model = null;
         if(_store != null) {
-            IOUtils.closeQuietly(_store);
+            try {
+                _store.close();
+            } catch (IOException e) {
+                LOG.warn(e.getMessage(), e);
+            }
             this._store = null;
         }
     }
