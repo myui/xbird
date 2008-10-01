@@ -21,12 +21,19 @@
 package xbird.xquery.dm.value.sequence;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.dtm.LazyDTMDocument;
-import xbird.xquery.dm.value.*;
-import xbird.xquery.meta.*;
+import xbird.xquery.dm.value.AbstractSequence;
+import xbird.xquery.dm.value.Sequence;
+import xbird.xquery.dm.value.XQNode;
+import xbird.xquery.meta.DynamicContext;
+import xbird.xquery.meta.Focus;
+import xbird.xquery.meta.IFocus;
 import xbird.xquery.type.Type;
 import xbird.xquery.type.TypeRegistry;
 
@@ -70,13 +77,14 @@ public class NodeSequence<E extends XQNode> extends AbstractSequence<E>
     }
 
     public boolean next(IFocus<E> focus) throws XQueryException {
+        final ReclaimingFocus rfocus = (ReclaimingFocus) focus;
+        LazyDTMDocument toReclaim = rfocus.pollReclaim();
+        if(toReclaim != null) {
+            toReclaim.reclaim();
+        }
+
         final int pos = focus.getContextPosition();
         if(pos < src.size()) {
-            ReclaimingFocus rfocus = (ReclaimingFocus) focus;
-            LazyDTMDocument toReclaim = rfocus.pollReclaim();
-            if(toReclaim != null) {
-                toReclaim.reclaim();
-            }
             E item = src.get(pos);
             if(item instanceof LazyDTMDocument) {
                 LazyDTMDocument lazydoc = (LazyDTMDocument) item;
