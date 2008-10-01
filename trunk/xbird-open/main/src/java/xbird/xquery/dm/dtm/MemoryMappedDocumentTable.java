@@ -144,20 +144,6 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        if(_pool != null) {
-            if(!_readOnly) {
-                _pool.clear();
-            }
-            this._pool = null;
-        }
-        _close();
-        if(_mmfile != null) {
-            _mmfile.close();
-        }
-    }
-
     public ILongCache<int[]> getBufferPool() {
         return _pool;
     }
