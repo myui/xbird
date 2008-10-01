@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
@@ -45,11 +46,10 @@ import org.xml.sax.XMLReader;
 import xbird.config.Settings;
 import xbird.storage.io.DiskPagedLongCache;
 import xbird.util.StopWatch;
-import xbird.util.cache.ICacheEntry;
 import xbird.util.cache.ILongCache;
 import xbird.util.codec.IntCodec;
-import xbird.util.concurrent.reference.ReferenceMap;
-import xbird.util.concurrent.reference.ReferenceType;
+import xbird.util.concurrent.jsr166.ConcurrentReferenceHashMap;
+import xbird.util.concurrent.jsr166.ConcurrentReferenceHashMap.ReferenceType;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FileUtils;
 import xbird.util.lang.ClassResolver;
@@ -103,7 +103,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
     private/* final */IDocumentTable _store;
     private int _docid = -1;
 
-    private static ReferenceMap<String, MemoryMappedDocumentTable> _remoteDoctblCache = null;
+    private static ConcurrentMap<String, MemoryMappedDocumentTable> _remoteDoctblCache = null;
 
     /**
      * Only for {@link Externalizable}.
@@ -155,16 +155,16 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
 
     private static synchronized void setPool(MemoryMappedDocumentTable mmDoctbl, String docId)
             throws IOException {
-        ReferenceMap<String, MemoryMappedDocumentTable> cache = _remoteDoctblCache;
+        ConcurrentMap<String, MemoryMappedDocumentTable> cache = _remoteDoctblCache;
         if(cache == null) {
-            cache = new ReferenceMap<String, MemoryMappedDocumentTable>(ReferenceType.STRONG, ReferenceType.SOFT);
+            cache = new ConcurrentReferenceHashMap<String, MemoryMappedDocumentTable>(16, ReferenceType.STRONG, ReferenceType.SOFT);
             _remoteDoctblCache = cache;
         }
         MemoryMappedDocumentTable prevDoctbl = cache.putIfAbsent(docId, mmDoctbl);
         if(prevDoctbl != null) {
             ILongCache<int[]> prevCache = prevDoctbl.getBufferPool();
-            if(prevCache!= null) {
-            mmDoctbl.setBufferPool(prevCache);
+            if(prevCache != null) {
+                mmDoctbl.setBufferPool(prevCache);
             }
         } else {
             File tmpDir = (TMP_DATA_DIR == null) ? null : new File(TMP_DATA_DIR);
