@@ -35,7 +35,16 @@
  */
 package xbird.util.io;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -157,16 +166,6 @@ public final class IOUtils {
             ch[i] = in.readChar();
         }
         return new String(ch);
-    }
-
-    public static void closeQuietly(final Object toClose) {
-        if(toClose instanceof Closeable) {
-            try {
-                ((Closeable) toClose).close();
-            } catch (IOException e) {
-                ;
-            }
-        }
     }
 
     public static void closeQuietly(final Closeable channel) {

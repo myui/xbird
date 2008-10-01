@@ -166,6 +166,14 @@ public final class NIOUtils {
         IOUtils.closeQuietly(key.channel()); // key is automatically removed with this call.
     }
 
+    public static void close(Selector selector) {
+        try {
+            selector.close();
+        } catch (IOException e) {
+            ;
+        }
+    }
+
     /**
      * Overlapping mapped files cannot be unmapped on windows.
      * The process cannot access the file because another process has locked a portion of the file.

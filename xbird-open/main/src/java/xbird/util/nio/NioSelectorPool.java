@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 
 import xbird.util.concurrent.AtomicUtils;
 import xbird.util.concurrent.collections.NonBlockingStack;
-import xbird.util.io.IOUtils;
 
 /**
  * 
@@ -99,7 +98,7 @@ public final class NioSelectorPool implements Closeable {
                 pool.notify();
             }
         } else {
-            IOUtils.closeQuietly(s);
+            NIOUtils.close(s);
             active.decrementAndGet();
         }
     }
@@ -108,7 +107,7 @@ public final class NioSelectorPool implements Closeable {
         try {
             s.selectNow();
         } catch (IOException e) {
-            IOUtils.closeQuietly(s);
+            NIOUtils.close(s);
             active.decrementAndGet();
             return;
         }
