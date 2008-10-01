@@ -63,37 +63,41 @@ public final class DocumentTableLoader {
     private DocumentTableLoader() {}
 
     //TODO reduce synchronized block
-    public synchronized static IDocumentTable load(final DbCollection coll, final String docName, final DynamicContext dynEnv)
+    public static IDocumentTable load(final DbCollection coll, final String docName, final DynamicContext dynEnv)
             throws IOException {
         final String id = coll.getAbsolutePath() + File.separatorChar + docName;
-        final IDocumentTable cachedDoc = _cache.get(id);
-        if(cachedDoc != null) {
-            if(AtomicUtils.tryIncrementIfGreaterThan(cachedDoc.getReferenceCount(), 0)) {// may already be closed, thus assert not closed
-                return cachedDoc;
-            } else {
-                _cache.remove(id);
+        synchronized(_cache) {
+            final IDocumentTable cachedTable = _cache.get(id);
+            if(cachedTable != null) {
+                if(AtomicUtils.tryIncrementIfGreaterThan(cachedTable.getReferenceCount(), 0)) {// may already be closed, thus assert not closed
+                    return cachedTable;
+                } else {
+                    _cache.remove(id);
+                }
             }
         }
 
         final PropertyMap docProps = coll.getCollectionProperties();
         final String dtmClass = docProps.getProperty(IDocumentTable.KEY_DTM_CLASS + docName);
-        final IDocumentTable table;
+        final IDocumentTable newTable;
         if(MemoryMappedDocumentTable.MMDTM_CLASS.equals(dtmClass) || (dtmClass == null && USE_MMAP)) {
-            table = new MemoryMappedDocumentTable(coll, docName, docProps, true);
+            newTable = new MemoryMappedDocumentTable(coll, docName, docProps, true);
         } else if(DocumentTable.DTM_CLASS.equals(dtmClass)) {
             if(PROFILE_ACCESS_PATTERN != null) {
-                table = new ProfiledPersistentDocumentTable(PROFILE_ACCESS_PATTERN, coll, docName, docProps);
+                newTable = new ProfiledPersistentDocumentTable(PROFILE_ACCESS_PATTERN, coll, docName, docProps);
             } else {
-                table = DocumentTable.load(coll, docName, docProps);
+                newTable = DocumentTable.load(coll, docName, docProps);
             }
         } else if(BigDocumentTable.DTM_CLASS.equals(dtmClass)) {
-            table = BigDocumentTable.load(coll, docName, docProps);
+            newTable = BigDocumentTable.load(coll, docName, docProps);
         } else {
             throw new IllegalStateException("dtmp file format '" + dtmClass + "' is illegal: "
                     + docProps.getFile().getAbsolutePath());
         }
-        _cache.put(id, table); // intended that two or more DTM table are created concurrently.
-        return table;
+        synchronized(_cache) {
+            _cache.put(id, newTable); // intended that two or more DTM table are created concurrently.
+        }
+        return newTable;
     }
 
     public synchronized static IDocumentTable removeDocument(String docId) {
