@@ -134,7 +134,7 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
                     + coll.getCollectionName(), e);
         }
         this._pool = new ConcurrentLongCache<int[]>(CACHED_PAGES);
-        _mmfile.reopen();
+        _mmfile.ensureOpen();
     }
 
     @Override
