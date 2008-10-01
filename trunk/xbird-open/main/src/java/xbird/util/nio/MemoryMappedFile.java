@@ -48,8 +48,6 @@ import xbird.util.struct.MutableLongPair;
 public final class MemoryMappedFile implements IMemoryMappedFile {
     private static final int MAX_MAPPED_BUFS = Integer.parseInt(Settings.get("xbird.database.mmap.max_mapped", "2048"));
 
-    private transient final RandomAccessFile _raf;
-
     // controls
     private final boolean _readOnly;
     private final boolean _setAsLittleEndian;
@@ -81,7 +79,6 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
             throws FileNotFoundException {
         this._filepath = file.getAbsolutePath();
         RandomAccessFile raf = new RandomAccessFile(file, readOnly ? "r" : "rw");
-        this._raf = raf;
         this._channel = raf.getChannel();
         this._readOnly = readOnly;
         this._setAsLittleEndian = nativeByteOrder
@@ -110,7 +107,9 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4724038
      */
     private MappedByteBuffer map(final long page) {
+        if(_channel == null) {
             ensureOpen();
+        }
         MappedByteBuffer buf;
         try {
             buf = _channel.map(_readOnly ? MapMode.READ_ONLY : MapMode.READ_WRITE, page, _pageSize);
@@ -148,8 +147,14 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     public synchronized void ensureOpen() {
-        if(!_channel.isOpen()) {
-            this._channel = _raf.getChannel();
+        if(_channel == null) {
+            final RandomAccessFile raf;
+            try {
+                raf = new RandomAccessFile(_filepath, _readOnly ? "r" : "rw");
+            } catch (FileNotFoundException e) {
+                throw new IllegalStateException("File not found: " + _filepath, e);
+            }
+            this._channel = raf.getChannel();
         }
     }
 
