@@ -246,7 +246,13 @@ public final class DbCollection implements Closeable {
         // remove from cache
         String docPath = getAbsolutePath() + File.separatorChar + docName;
         IDocumentTable removedDoc = DocumentTableLoader.removeDocument(docPath);
-        IOUtils.closeQuietly(removedDoc);
+        if(removedDoc != null) {
+            try {
+                removedDoc.close();
+            } catch (IOException e) {
+                LOG.warn("Failed to close a document: " + docPath, e);
+            }
+        }
 
         // deletes indices and document itself.
         final List<File> files = FileUtils.listFiles(getDirectory(), new String[] { docName }, null, true);
