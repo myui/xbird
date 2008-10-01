@@ -48,6 +48,8 @@ import xbird.util.struct.MutableLongPair;
 public final class MemoryMappedFile implements IMemoryMappedFile {
     private static final int MAX_MAPPED_BUFS = Integer.parseInt(Settings.get("xbird.database.mmap.max_mapped", "2048"));
 
+    private transient final RandomAccessFile _raf;
+
     // controls
     private final boolean _readOnly;
     private final boolean _setAsLittleEndian;
@@ -56,7 +58,7 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
     private final long _oid;
 
     private transient final String _filepath;
-    private final FileChannel _channel;
+    private FileChannel _channel;
 
     private static final Map<MutableLongPair, CloseableMappedByteBuffer> _pool;
     static {
@@ -79,6 +81,7 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
             throws FileNotFoundException {
         this._filepath = file.getAbsolutePath();
         RandomAccessFile raf = new RandomAccessFile(file, readOnly ? "r" : "rw");
+        this._raf = raf;
         this._channel = raf.getChannel();
         this._readOnly = readOnly;
         this._setAsLittleEndian = nativeByteOrder
@@ -140,17 +143,11 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     public synchronized void close() throws IOException {
-        //        final long oid = _oid;
-        //        synchronized(_pool) {
-        //            final Iterator<MutableLongPair> itor = _pool.keySet().iterator();
-        //            while(itor.hasNext()) {
-        //                MutableLongPair pair = itor.next();
-        //                if(pair.getFirst() == oid) {
-        //                    itor.remove();
-        //                }
-        //            }
-        //        }
         _channel.close();
+    }
+
+    public void reopen() {
+        this._channel = _raf.getChannel();
     }
 
     public RemoteMemoryMappedFile externalize() {
