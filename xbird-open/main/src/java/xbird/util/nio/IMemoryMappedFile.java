@@ -37,7 +37,7 @@ public interface IMemoryMappedFile extends Closeable {
 
     public void flush();
 
-    public void reopen();
+    public void ensureOpen();
     
     public RemoteMemoryMappedFile externalize();
 }

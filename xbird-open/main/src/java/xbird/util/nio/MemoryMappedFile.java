@@ -110,9 +110,7 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4724038
      */
     private MappedByteBuffer map(final long page) {
-        if(_channel == null) {
-            reopen();
-        }
+            ensureOpen();
         MappedByteBuffer buf;
         try {
             buf = _channel.map(_readOnly ? MapMode.READ_ONLY : MapMode.READ_WRITE, page, _pageSize);
@@ -147,11 +145,10 @@ public final class MemoryMappedFile implements IMemoryMappedFile {
 
     public synchronized void close() throws IOException {
         _channel.close();
-        this._channel = null;
     }
 
-    public synchronized void reopen() {
-        if(_channel == null) {
+    public synchronized void ensureOpen() {
+        if(!_channel.isOpen()) {
             this._channel = _raf.getChannel();
         }
     }
