@@ -142,7 +142,7 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
                             newFlwr.addClause(new ForClause(forVar));
                             VarRef varref = new VarRef(forVar);
                             steps.set(0, varref);
-                            newFlwr.setReturnExpr(pathExpr);
+                            newFlwr.setFilteredReturnExpr(pathExpr);
 
                             MapExpr mapExpr = new MapExpr(colpath, forVar, newFlwr);
                             return mapExpr.staticAnalysis(statEnv);
