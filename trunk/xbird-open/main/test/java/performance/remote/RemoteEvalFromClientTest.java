@@ -23,6 +23,7 @@ package performance.remote;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.testng.TestListenerAdapter;
@@ -34,8 +35,8 @@ import xbird.engine.XQEngine;
 import xbird.engine.XQEngineClient;
 import xbird.engine.Request.ReturnType;
 import xbird.engine.request.QueryRequest;
+import xbird.util.io.FastBufferedWriter;
 import xbird.util.io.IOUtils;
-import xbird.util.io.NoopWriter;
 import xbird.util.xml.SAXWriter;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.ser.SAXSerializer;
@@ -65,10 +66,11 @@ public class RemoteEvalFromClientTest {
         String query = IOUtils.toString(new FileInputStream(fileName));
         QueryRequest request = new QueryRequest(query, ReturnType.ASYNC_REMOTE_SEQUENCE);
         Sequence<Item> resultSeq = (Sequence<Item>) engine.execute(request);
-        Writer writer = new NoopWriter();
+        Writer writer = new FastBufferedWriter(new OutputStreamWriter(System.out), 4096);
         SAXWriter saxwr = new SAXWriter(writer, "UTF-8");
         Serializer ser = new SAXSerializer(saxwr, writer);
         ser.emit(resultSeq);
+        writer.flush();
     }
 
     public static void main(String[] args) {
