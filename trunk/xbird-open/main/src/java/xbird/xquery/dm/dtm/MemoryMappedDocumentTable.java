@@ -133,8 +133,14 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
     @Override
     public void tryClose() throws IOException {
         if(_refcount.get() < 1) {
-            _pool.clear();
-            // TODO
+            if(_pool != null) {
+                if(!_readOnly) {
+                    _pool.clear();
+                }
+                this._pool = null;
+            }
+            _close();
+            _mmfile.close();
         }
     }
 
