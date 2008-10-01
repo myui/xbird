@@ -33,8 +33,11 @@ import xbird.xquery.expr.ext.BDQExpr;
 import xbird.xquery.expr.ext.MapExpr;
 import xbird.xquery.expr.flwr.Binding;
 import xbird.xquery.expr.flwr.FLWRExpr;
+import xbird.xquery.expr.flwr.ForClause;
 import xbird.xquery.expr.func.DirectFunctionCall;
+import xbird.xquery.expr.path.PathExpr;
 import xbird.xquery.expr.var.BindingVariable;
+import xbird.xquery.expr.var.BindingVariable.ForVariable;
 import xbird.xquery.func.doc.FnCollection;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.StaticContext;
@@ -110,6 +113,35 @@ public final class ExtensionExpr extends AbstractXQExpression implements Decorat
                                 colpath = argExpr.eval(null, DynamicContext.DUMMY).toString();
                             }
                             MapExpr mapExpr = new MapExpr(colpath, bindingVar, flwrExpr);
+                            return mapExpr.staticAnalysis(statEnv);
+                        }
+                    }
+                }
+            } else if(expr instanceof PathExpr) {
+                PathExpr pathExpr = (PathExpr) expr;
+                List<XQExpression> steps = pathExpr.getSteps();
+                if(steps.size() > 1) {
+                    XQExpression firstStep = steps.get(0);
+                    if(firstStep instanceof DirectFunctionCall) {
+                        DirectFunctionCall funcall = (DirectFunctionCall) firstStep;
+                        if(FnCollection.FUNC_NAME.equals(funcall.getFuncName())) {
+                            List<XQExpression> params = funcall.getParams();
+                            final String colpath;
+                            if(params.isEmpty()) {
+                                colpath = "/";
+                            } else {
+                                XQExpression argExpr = params.get(0);
+                                colpath = argExpr.eval(null, DynamicContext.DUMMY).toString();
+                            }
+
+                            FLWRExpr newFlwr = new FLWRExpr();
+                            ForVariable forVar = new ForVariable();
+                            forVar.setValue(funcall);
+                            newFlwr.addClause(new ForClause(forVar));
+                            steps.remove(0);
+                            newFlwr.setReturnExpr(pathExpr);
+
+                            MapExpr mapExpr = new MapExpr(colpath, forVar, newFlwr);
                             return mapExpr.staticAnalysis(statEnv);
                         }
                     }
