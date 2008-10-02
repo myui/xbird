@@ -138,6 +138,9 @@ public final class Server {
     }
 
     public static void main(String[] args) {
+        if(System.getSecurityManager() == null) {// needed by RMI client
+            System.setSecurityManager(new java.rmi.RMISecurityManager());
+        }
         Server server = new Server();
         server.start(args);
     }
