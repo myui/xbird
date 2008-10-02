@@ -101,7 +101,7 @@
 
 	<target name="makeall" depends="jar,war,makedist" />
 
-	<target name="fatjar">
+	<target name="fatjar" depends="jar">
 		<fatjar.build output="${target.dir}/xbird-full_fat.jar">
 			<fatjar.manifest mainclass="xbird.server.Server" />
 			<fatjar.jarsource file="${target.dir}/xbird-open-${version}.jar"
