@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NoSuchObjectException;
-import java.rmi.RMISecurityManager;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -97,10 +96,9 @@ public abstract class RemoteBase implements Remote, Serializable {
     }
 
     protected void bind() throws RemoteException, NamingException {
-        if(System.getSecurityManager() == null) {// create and install a security manager
-            System.setSecurityManager(new RMISecurityManager());
-        }
-
+        //if(System.getSecurityManager() == null) {// create and install a security manager
+        //    System.setSecurityManager(new RMISecurityManager());
+        //}
         final Remote stub;
         if(rmiProtocol.equals(RMI_PROTOCOL_JRMP_SSL)) {
             stub = UnicastRemoteObject.exportObject(this, exportPort, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
