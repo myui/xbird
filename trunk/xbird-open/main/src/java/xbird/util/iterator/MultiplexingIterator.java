@@ -76,11 +76,11 @@ public final class MultiplexingIterator<E> implements CloseableIterator<E> {
         assert (_itorIdx < numItors) : _itorIdx;
         final int firstIdx;
         for(int i = _itorIdx;;) {
-            if(itors[i++] != null) {
+            if(itors[i] != null) {
                 firstIdx = i;
                 break;
             }
-            if(i >= numItors) {
+            if(++i >= numItors) {
                 return null;
             }
         }
