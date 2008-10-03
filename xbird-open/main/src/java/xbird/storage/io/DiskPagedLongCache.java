@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
+import xbird.util.cache.CacheEntry;
 import xbird.util.cache.Cleaner;
 import xbird.util.cache.ICacheEntry;
 import xbird.util.cache.ILongCache;
@@ -101,7 +102,31 @@ public final class DiskPagedLongCache<V> implements ILongCache<V>, Cleaner<Long,
     }
 
     public ICacheEntry<Long, V> fixEntry(long key) {
-        throw new UnsupportedOperationException();
+        final V cached = get(key);
+        if(cached != null) {
+            return new DummyCacheEntry(key, cached);
+        } else {
+            return new DummyCacheEntry(key);
+        }
+    }
+
+    private final class DummyCacheEntry extends CacheEntry<Long, V> {
+        private static final long serialVersionUID = 1L;
+
+        DummyCacheEntry(long key, V value) {
+            super(key, value);
+        }
+
+        DummyCacheEntry(long key) {
+            super(key, null);
+        }
+
+        @Override
+        public void setValue(V newValue) {
+            put(_key.longValue(), newValue);
+            super.setValue(newValue);
+        }
+
     }
 
 }
