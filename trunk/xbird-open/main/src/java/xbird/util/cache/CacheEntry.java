@@ -81,7 +81,7 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
         //return <V> unsafe.getObjectVolatile(this, valueOffset);
     }
 
-    public final void setValue(final V newValue) {
+    public void setValue(final V newValue) {
         this._value = newValue;
     }
 
