@@ -20,11 +20,14 @@
  */
 package xbird.util.net;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.NoSuchElementException;
 
 /**
  * 
@@ -61,6 +64,53 @@ public final class NetUtils {
         } else {
             return hostName.substring(0, pos);
         }
+    }
+
+    public static int getAvailablePort() {
+        try {
+            ServerSocket s = new ServerSocket(0);
+            s.setReuseAddress(true);
+            s.close();
+            return s.getLocalPort();
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to find an available port", e);
+        }
+    }
+
+    public static int getAvialablePort(int basePort) {
+        if(basePort == 0) {
+            return getAvailablePort();
+        }
+        if(basePort < 0 || basePort > 65535) {
+            throw new IllegalArgumentException("Illegal port number: " + basePort);
+        }
+        for(int i = basePort; i <= 65535; i++) {
+            if(isPortAvailable(i)) {
+                return i;
+            }
+        }
+        throw new NoSuchElementException("Could not find available port greater than or equals to "
+                + basePort);
+    }
+
+    public static boolean isPortAvailable(int port) {
+        ServerSocket s = null;
+        try {
+            s = new ServerSocket(port);
+            s.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            if(s != null) {
+                try {
+                    s.close();
+                } catch (IOException e) {
+                    ;
+                }
+            }
+        }
+
     }
 
     public static URI toURI(URL url) {
