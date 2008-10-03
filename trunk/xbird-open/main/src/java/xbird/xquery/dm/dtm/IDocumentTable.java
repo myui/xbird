@@ -129,6 +129,7 @@ public interface IDocumentTable extends IDocument {
 
     public void close() throws IOException;
 
+    @Deprecated
     public void tryClose() throws IOException;
 
 }

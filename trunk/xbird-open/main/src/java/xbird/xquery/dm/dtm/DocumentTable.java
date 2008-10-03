@@ -317,7 +317,7 @@ public class DocumentTable extends AbstractDocumentTable {
 
         @Override
         public void close() throws IOException {
-            if(_refcount.getAndDecrement() == 0) {
+            if(_refcount.getAndDecrement() == 1) {
                 _dirtyBuffer.clear();
                 PrivilegedAccessor.unsafeSetField(this, PersistentDocumentTable.class, "_pageReadCache", null);
                 _close();

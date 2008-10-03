@@ -139,7 +139,7 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
 
     @Override
     public void close() throws IOException {
-        if(_refcount.getAndDecrement() == 0) {
+        if(_refcount.getAndDecrement() == 1) {
             if(_pool != null) {
                 if(!_readOnly) {
                     _pool.clear();

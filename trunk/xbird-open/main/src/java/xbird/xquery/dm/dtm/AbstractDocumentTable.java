@@ -450,7 +450,7 @@ public abstract class AbstractDocumentTable implements IDocumentTable {
     }
 
     public void close() throws IOException {
-        if(_refcount.getAndDecrement() == 0) {
+        if(_refcount.getAndDecrement() == 1) {
             _close();
         }
     }
