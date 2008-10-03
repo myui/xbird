@@ -455,6 +455,7 @@ public abstract class AbstractDocumentTable implements IDocumentTable {
         }
     }
 
+    @Deprecated
     public void tryClose() throws IOException {
         if(_refcount.get() < 1) {
             _close();
