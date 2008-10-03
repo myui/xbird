@@ -115,7 +115,6 @@ public final class LazyDTMDocument extends DTMDocument {
             }
             DocumentTableModel model = new DocumentTableModel(doctbl, true);
             setInternalTable(model);
-            this._model = model;
             return model;
         } else {
             return _model;

@@ -51,14 +51,14 @@ public final class DocumentTableLoader {
         final Cleaner<String, IDocumentTable> cleaner = new Cleaner<String, IDocumentTable>() {
             public void cleanup(String key, IDocumentTable reclaimed) {
                 try {
-                    reclaimed.close();
+                    reclaimed.tryClose();
                 } catch (IOException e) {
                     ;
                 }
             }
         };
-        _cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
-        //_cache = new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner);
+        //_cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
+        _cache = new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner);
     }
 
     private DocumentTableLoader() {}
