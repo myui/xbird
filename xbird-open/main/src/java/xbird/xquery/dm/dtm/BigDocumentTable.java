@@ -316,7 +316,7 @@ public class BigDocumentTable extends AbstractDocumentTable {
 
         @Override
         public void close() throws IOException {
-            if(_refcount.getAndDecrement() == 0) {
+            if(_refcount.getAndDecrement() == 1) {
                 _dirtyBuffer.clear();
                 PrivilegedAccessor.unsafeSetField(this, PersistentBigDocumentTable.class, "_pageReadCache", null);
                 _close();

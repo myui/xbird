@@ -26,8 +26,7 @@ import java.util.Map;
 
 import xbird.config.Settings;
 import xbird.storage.DbCollection;
-import xbird.util.collections.ObservableLRUMap;
-import xbird.util.collections.ObservableLRUMap.Cleaner;
+import xbird.util.collections.LRUMap;
 import xbird.util.concurrent.AtomicUtils;
 import xbird.util.resource.PropertyMap;
 import xbird.xquery.dm.dtm.hooked.ProfiledPersistentDocumentTable;
@@ -47,6 +46,7 @@ public final class DocumentTableLoader {
 
     private static final Map<String, IDocumentTable> _cache;
     static {
+        /*
         final Cleaner<String, IDocumentTable> cleaner = new Cleaner<String, IDocumentTable>() {
             public void cleanup(String key, IDocumentTable reclaimed) {
                 try {
@@ -56,8 +56,9 @@ public final class DocumentTableLoader {
                 }
             }
         };
+        */
         //_cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
-        _cache = new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner);
+        _cache = new LRUMap<String, IDocumentTable>(MAX_DOCS_CACHED);
     }
 
     private DocumentTableLoader() {}
