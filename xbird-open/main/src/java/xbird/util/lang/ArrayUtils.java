@@ -36,6 +36,7 @@
 package xbird.util.lang;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Random;
 
 /**
@@ -587,5 +588,24 @@ public final class ArrayUtils {
             }
         }
         return index;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T[]> getArrayClass(Class<T> clazz) {
+        Object array = Array.newInstance(clazz, 0);
+        return (Class<T[]>) array.getClass();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] toArray(final Collection<T> c, final Class<? extends T[]> newType) {
+        final int length = c.size();
+        final T[] array = (T[]) Array.newInstance(newType.getComponentType(), length);
+        if(length > 0) {
+            int i = 0;
+            for(T elem : c) {
+                array[i++] = elem;
+            }
+        }
+        return array;
     }
 }
