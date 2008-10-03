@@ -27,6 +27,8 @@ import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import xbird.util.lang.ArrayUtils;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -38,14 +40,10 @@ public final class IteratorUtils {
 
     private IteratorUtils() {}
 
-    @SuppressWarnings("unchecked")
     @Nonnull
-    public static <T> T[] toArray(@Nonnull Iterator<T> itor) {
-        if(!itor.hasNext()) {
-            return (T[]) new Object[0];
-        }
+    public static <T> T[] toArray(@Nonnull final Iterator<T> itor, @Nonnull final Class<? extends T[]> newType) {
         List<T> list = toList(itor);
-        return (T[]) list.toArray();
+        return ArrayUtils.toArray(list, newType);
     }
 
     @Nonnull
