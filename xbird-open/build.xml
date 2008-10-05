@@ -104,6 +104,18 @@
 	<target name="fatjar" depends="jar">
 		<fatjar.build output="${target.dir}/xbird-full_fat.jar">
 			<fatjar.manifest mainclass="xbird.server.Server" />
+            <fatjar.filesource path="${build.dir}" relpath="">
+                <fatjar.exclude relpath=".svn/"/>
+                <fatjar.exclude relpath="benchmark/"/>
+                <fatjar.exclude relpath="example/"/>
+                <fatjar.exclude relpath="javax/"/>
+                <fatjar.exclude relpath="scenario/"/>
+                <fatjar.exclude relpath="xbird/"/>
+                <fatjar.exclude relpath="xqts/"/>
+                <fatjar.exclude relpath="collection.catalog"/>
+                <fatjar.exclude relpath="log4j.properties"/>
+                <fatjar.exclude relpath="logging.properties"/>
+            </fatjar.filesource>
 			<fatjar.jarsource file="${target.dir}/xbird-open-${version}.jar"
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/xbird-db-${version}.jar"
