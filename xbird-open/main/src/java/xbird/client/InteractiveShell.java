@@ -20,22 +20,44 @@
  */
 package xbird.client;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.rmi.RemoteException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.kohsuke.args4j.*;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.ExampleMode;
+import org.kohsuke.args4j.Option;
 
+import xbird.engine.XQEngine;
+import xbird.engine.XQEngineClient;
+import xbird.engine.Request.ReturnType;
+import xbird.engine.request.QueryRequest;
 import xbird.server.ServiceException;
 import xbird.server.services.PerfmonService;
 import xbird.util.StopWatch;
 import xbird.util.io.FastBufferedWriter;
+import xbird.util.io.IOUtils;
 import xbird.util.lang.PrintUtils;
 import xbird.util.resource.ResourceUtils;
 import xbird.util.xml.SAXWriter;
-import xbird.xquery.*;
+import xbird.xquery.DynamicError;
+import xbird.xquery.XQueryException;
+import xbird.xquery.XQueryModule;
+import xbird.xquery.XQueryProcessor;
 import xbird.xquery.dm.ser.SAXSerializer;
 import xbird.xquery.dm.ser.Serializer;
 import xbird.xquery.dm.value.Item;
@@ -85,6 +107,9 @@ public final class InteractiveShell {
 
     @Option(name = "-wrap", usage = "Wrap result with dummy root node (default=false)")
     private boolean _wrap = false;
+
+    @Option(name = "-ep", usage = "Remote Endpoint", metaVar = "URI (e.g., //localhost:1099/xbird/srv-01)")
+    private String _remoteEndpoint = null;
 
     @Option(name = "-help", usage = "Show help (default=false)")
     private boolean _showHelp = false;
@@ -220,11 +245,6 @@ public final class InteractiveShell {
     }
 
     private void execute(Reader reader) throws XQueryException {
-        XQueryModule xqmod = new XQueryModule();
-        XQueryProcessor proc = new XQueryProcessor(xqmod);
-        XQueryModule module = proc.parse(reader, getBaseUri());
-
-        // print result
         final Writer writer;
         if(_out != null) {
             try {
@@ -235,10 +255,22 @@ public final class InteractiveShell {
         } else {
             writer = new FastBufferedWriter(new OutputStreamWriter(System.out, Charset.forName(_encoding)), 4096);
         }
-        if(_pull) {
-            executeWithPullMode(proc, module, writer);
+
+        if(_remoteEndpoint != null) {
+            try {
+                executeAt(reader, writer, _remoteEndpoint);
+            } catch (IOException e) {
+                throw new XQueryException("Caused an IO error", e);
+            }
         } else {
-            executeWithPushMode(proc, module, writer);
+            XQueryModule xqmod = new XQueryModule();
+            XQueryProcessor proc = new XQueryProcessor(xqmod);
+            XQueryModule module = proc.parse(reader, getBaseUri());
+            if(_pull) {
+                executeWithPullMode(proc, module, writer);
+            } else {
+                executeWithPushMode(proc, module, writer);
+            }
         }
         try {
             writer.flush();
@@ -251,9 +283,8 @@ public final class InteractiveShell {
         }
     }
 
-    public void executeWithPushMode(XQueryProcessor proc, XQueryModule module, Writer writer)
-            throws XQueryException {
-        SAXWriter saxwr = new SAXWriter(writer, _encoding);
+    private SAXWriter prepareSAXWriter(Writer writer) {
+        final SAXWriter saxwr = new SAXWriter(writer, _encoding);
         if(_prettyPrint) {
             saxwr.setPrettyPrint(true);
         }
@@ -265,6 +296,36 @@ public final class InteractiveShell {
                 throw new IllegalStateException(e);
             }
         }
+        return saxwr;
+    }
+
+    private void executeAt(Reader reader, Writer writer, String remoteEndpoint)
+            throws XQueryException, IOException {
+        XQEngine engine = new XQEngineClient(remoteEndpoint);
+        String query = IOUtils.toString(reader);
+        QueryRequest request = new QueryRequest(query, ReturnType.ASYNC_REMOTE_SEQUENCE);
+        final Sequence<Item> resultSeq;
+        try {
+            resultSeq = (Sequence<Item>) engine.execute(request);
+        } catch (RemoteException e) {
+            throw new XQueryException("failed to execute a query", e);
+        }
+
+        SAXWriter saxwr = prepareSAXWriter(writer);
+        Serializer ser = new SAXSerializer(saxwr, writer);
+        ser.emit(resultSeq);
+        if(_wrap) {
+            try {
+                writer.write("\n</root>\n");
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    public void executeWithPushMode(XQueryProcessor proc, XQueryModule module, Writer writer)
+            throws XQueryException {
+        SAXWriter saxwr = prepareSAXWriter(writer);
         Serializer ser = new SAXSerializer(saxwr, writer);
         proc.execute(module, ser);
         if(_wrap) {
@@ -278,18 +339,7 @@ public final class InteractiveShell {
 
     public void executeWithPullMode(XQueryProcessor proc, XQueryModule module, Writer writer)
             throws XQueryException {
-        SAXWriter saxwr = new SAXWriter(writer, _encoding);
-        if(_prettyPrint) {
-            saxwr.setPrettyPrint(true);
-        }
-        if(_wrap) {
-            saxwr.setXMLDeclaration(false);
-            try {
-                writer.write("<root>\n");
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        SAXWriter saxwr = prepareSAXWriter(writer);
         Serializer ser = new SAXSerializer(saxwr, writer);
         Sequence<? extends Item> result = proc.execute(module);
         if(_timing) {

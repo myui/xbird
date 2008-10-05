@@ -44,6 +44,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Timer;
@@ -137,6 +138,12 @@ public final class IOUtils {
         final FastMultiByteArrayOutputStream output = new FastMultiByteArrayOutputStream();
         copy(input, output);
         return output.toString(cs);
+    }
+
+    public static String toString(Reader input) throws IOException {
+        final StringWriter sw = new StringWriter();
+        copy(input, sw);
+        return sw.toString();
     }
 
     @Deprecated
