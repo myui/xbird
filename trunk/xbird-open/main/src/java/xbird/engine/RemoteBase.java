@@ -57,10 +57,9 @@ public abstract class RemoteBase implements Remote, Serializable {
     public static final String RMI_PROTOCOL_JRMP_SSL = "jrmp-ssl";
 
     public static final String rmiProtocol = Settings.get("xbird.rmi.protocol", RMI_PROTOCOL_JRMP);
-
     public static final int localRegistryPort = Integer.parseInt(Settings.get("xbird.rmi.registry.local.port"));
 
-    private final String endpointUrl;
+    protected final String endpointUrl;
     private final int exportPort;
 
     public RemoteBase(String bindName, int exportPort) {
