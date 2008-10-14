@@ -49,5 +49,6 @@ public interface BTreeCallback {
      */
     boolean indexInfo(Value value, long pointer);
     
-    boolean indexInfo(Value key, Value value);
+    boolean indexInfo(Value key, byte[] value);
+
 }

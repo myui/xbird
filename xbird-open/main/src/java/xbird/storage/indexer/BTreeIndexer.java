@@ -107,7 +107,7 @@ public class BTreeIndexer implements Indexer {
             return true;
         }
 
-        public boolean indexInfo(Value key, Value value) {
+        public boolean indexInfo(Value key, byte[] value) {
             throw new IllegalStateException();
         }
 
