@@ -31,6 +31,7 @@ import java.util.Map;
 
 import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
+import xbird.storage.indexer.IndexQuery;
 import xbird.util.collections.LRUMap;
 import xbird.util.collections.ObservableLongLRUMap;
 import xbird.util.collections.SoftHashMap;
@@ -54,7 +55,7 @@ public final class BIndexFile extends BTree {
 
     private final LongLRUMap<DataPage> dataCache;
     private final Map<Value, byte[]> resultCache = new SoftHashMap<Value, byte[]>(128);
-    private final Map<Value, Long> dataPageResolveCache = new LRUMap<Value, Long>(64);
+    private final Map<Value, Long> storeCache = new LRUMap<Value, Long>(64);
 
     public BIndexFile(File file) {
         this(file, true);
@@ -98,17 +99,26 @@ public final class BIndexFile extends BTree {
         if(ptr == KEY_NOT_FOUND) {
             return null;
         }
+        tuple = retrieveTuple(ptr);
+        resultCache.put(key, tuple);
+        return tuple;
+    }
+
+    private byte[] retrieveTuple(long ptr) throws DbException {
         long pageNum = getPageNumFromPointer(ptr);
         DataPage dataPage = getDataPage(pageNum);
         int tidx = getTidFromPointer(ptr);
-        tuple = dataPage.get(tidx);
-        resultCache.put(key, tuple);
-        return tuple;
+        return dataPage.get(tidx);
     }
 
     public Value getValue(Value key) throws DbException {
         final byte[] tuple = getValueBytes(key);
         return new Value(tuple);
+    }
+
+    @Override
+    public void search(IndexQuery query, BTreeCallback callback) throws DbException {
+        super.search(query, new BFileCallback(callback));
     }
 
     public long putValue(long key, byte[] value) throws DbException {
@@ -142,7 +152,7 @@ public final class BIndexFile extends BTree {
     }
 
     private long storeValue(Value value) throws DbException {
-        final Long cachedPtr = dataPageResolveCache.get(value);
+        final Long cachedPtr = storeCache.get(value);
         if(cachedPtr != null) {
             return cachedPtr.longValue();
         }
@@ -169,7 +179,7 @@ public final class BIndexFile extends BTree {
         saveFreeList(freeList, free, dataPage);
 
         long ptr = createPointer(pageNum, tid);
-        dataPageResolveCache.put(value, ptr);
+        storeCache.put(value, ptr);
         return ptr;
     }
 
@@ -233,6 +243,7 @@ public final class BIndexFile extends BTree {
         }
 
         public int add(Value value) {
+
             int idx = tuples.size();
             if(idx > Short.MAX_VALUE) {
                 throw new IllegalStateException("blocks length exceeds limit: " + idx);
@@ -378,6 +389,29 @@ public final class BIndexFile extends BTree {
             buf.putInt(tupleCount);
         }
 
+    }
+
+    private final class BFileCallback implements BTreeCallback {
+
+        final BTreeCallback handler;
+
+        public BFileCallback(BTreeCallback handler) {
+            this.handler = handler;
+        }
+
+        public boolean indexInfo(Value key, long pointer) {
+            final byte[] tuple;
+            try {
+                tuple = retrieveTuple(pointer);
+            } catch (DbException e) {
+                throw new IllegalStateException(e);
+            }
+            return handler.indexInfo(key, tuple);
+        }
+
+        public boolean indexInfo(Value key, byte[] value) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static long createPointer(long pageNum, int tid) {
