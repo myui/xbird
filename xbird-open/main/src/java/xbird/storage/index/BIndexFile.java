@@ -20,15 +20,23 @@
  */
 package xbird.storage.index;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
+import xbird.util.collections.LRUMap;
 import xbird.util.collections.ObservableLongLRUMap;
 import xbird.util.collections.SoftHashMap;
-import xbird.util.collections.LongHash.*;
+import xbird.util.collections.LongHash.BucketEntry;
+import xbird.util.collections.LongHash.Cleaner;
+import xbird.util.collections.LongHash.LongLRUMap;
 import xbird.util.lang.Primitives;
 
 /**
@@ -46,6 +54,7 @@ public final class BIndexFile extends BTree {
 
     private final LongLRUMap<DataPage> dataCache;
     private final Map<Value, byte[]> resultCache = new SoftHashMap<Value, byte[]>(128);
+    private final Map<Value, Long> dataPageResolveCache = new LRUMap<Value, Long>(64);
 
     public BIndexFile(File file) {
         this(file, true);
@@ -133,6 +142,11 @@ public final class BIndexFile extends BTree {
     }
 
     private long storeValue(Value value) throws DbException {
+        final Long cachedPtr = dataPageResolveCache.get(value);
+        if(cachedPtr != null) {
+            return cachedPtr.longValue();
+        }
+
         final BFileHeader fh = getFileHeader();
         final FreeList freeList = fh.getFreeList();
 
@@ -150,11 +164,13 @@ public final class BIndexFile extends BTree {
         }
 
         final long pageNum = dataPage.getPageNum();
-
         int tid = dataPage.add(value);
 
         saveFreeList(freeList, free, dataPage);
-        return createPointer(pageNum, tid);
+
+        long ptr = createPointer(pageNum, tid);
+        dataPageResolveCache.put(value, ptr);
+        return ptr;
     }
 
     private void saveFreeList(FreeList freeList, FreeSpace free, DataPage dataPage) {
