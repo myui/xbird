@@ -21,6 +21,7 @@
 package xbird.xquery.dm.dtm;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +48,9 @@ public final class LazyDTMDocument extends DTMDocument {
     private final String _fileName;
     private/* final */DbCollection _col;
     private final DynamicContext _dynEnv;
-
+    
+    private transient Lock _lock;
+    
     public LazyDTMDocument() {// for serialization
         this._fileName = null;
         this._col = null;
@@ -77,10 +80,18 @@ public final class LazyDTMDocument extends DTMDocument {
         return preload();
     }
 
+    public void setLock(Lock lock) {
+        this._lock = lock;
+    }
+
     /**
      * @see DocumentTableLoader#load(DbCollection, String, DynamicContext)
      */
     public void reclaim() {
+        if(_lock != null) {
+            _lock.unlock();
+            this._lock = null;
+        }        
         this._model = null;
         if(_store != null) {
             try {
