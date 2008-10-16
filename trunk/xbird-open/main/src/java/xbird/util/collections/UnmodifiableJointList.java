@@ -34,7 +34,7 @@ public final class UnmodifiableJointList<E> extends AbstractList<E> {
 
     private final List<E>[] _lists;
     private int _size;
-    
+
     public UnmodifiableJointList(List<E>... lists) {
         super();
         this._lists = lists;
