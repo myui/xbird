@@ -80,6 +80,11 @@ public final class Settings {
         return properties.getProperty(key, defaultValue);
     }
 
+    public static String getThroughSystemProperty(final String key) {
+        final String v = System.getProperty(key);
+        return (v == null) ? properties.getProperty(key) : v;
+    }
+
     /**
      * Puts configuration value.
      */
