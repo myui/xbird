@@ -33,7 +33,7 @@ import java.util.List;
 public final class UnmodifiableJointList<E> extends AbstractList<E> {
 
     private final List<E>[] _lists;
-    private int _size;
+    private final int _size;
 
     public UnmodifiableJointList(List<E>... lists) {
         super();
