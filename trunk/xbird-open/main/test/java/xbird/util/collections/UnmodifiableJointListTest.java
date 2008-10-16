@@ -80,5 +80,28 @@ public class UnmodifiableJointListTest {
         UnmodifiableJointList<Integer> jointList2 = new UnmodifiableJointList<Integer>(lists);
         jointList2.add(999);
     }
+    
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetInt2() {
+        final List<Integer>[] lists = new ArrayList[3];
+        final Random rand = new Random(444354534232L);
+        int i = 0;
+        for(int a = 0; a < lists.length; a++) {
+            final int size = rand.nextInt(1000);
+            List<Integer> list = new ArrayList<Integer>(size);
+            for(int j = 0; j < size; j++) {
+                list.add(i++);
+            }
+            lists[a] = list;
+        }
+
+        UnmodifiableJointList<Integer> jointList = new UnmodifiableJointList<Integer>(lists);
+        Assert.assertEquals(i, jointList.size());
+
+        for(int n = 0; n <= jointList.size(); n++) {
+            Assert.assertEquals(n, jointList.get(n).intValue());
+        }
+    }
+
 
 }
