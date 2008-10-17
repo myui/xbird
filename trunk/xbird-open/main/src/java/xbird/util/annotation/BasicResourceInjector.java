@@ -23,6 +23,9 @@ package xbird.util.annotation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -32,9 +35,20 @@ import java.lang.reflect.Field;
  */
 public class BasicResourceInjector implements ResourceInjector {
 
-    private final Object injectResource;
+    @Nonnull
+    private Object injectResource;
 
-    public BasicResourceInjector(Object injectResource) {
+    public BasicResourceInjector(@CheckForNull Object injectResource) {
+        if(injectResource == null) {
+            throw new IllegalArgumentException();
+        }
+        this.injectResource = injectResource;
+    }
+
+    public void setResource(@CheckForNull Object injectResource) {
+        if(injectResource == null) {
+            throw new IllegalArgumentException();
+        }
         this.injectResource = injectResource;
     }
 
