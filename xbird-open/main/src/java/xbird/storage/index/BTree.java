@@ -640,19 +640,19 @@ public class BTree extends Paged {
         }
 
         /** @return pointer of left-most matched item */
-        private synchronized long removeValue(Value value) throws IOException, DbException {
-            int leftIdx = searchLeftmostKey(keys, value, keys.length);
+        private synchronized long removeValue(Value searchKey) throws IOException, DbException {
+            int leftIdx = searchLeftmostKey(keys, searchKey, keys.length);
             switch(ph.getStatus()) {
                 case BRANCH:
                     leftIdx = (leftIdx < 0) ? -(leftIdx + 1) : leftIdx + 1;
-                    return getChildNode(leftIdx).removeValue(value);
+                    return getChildNode(leftIdx).removeValue(searchKey);
                 case LEAF:
                     if(leftIdx < 0) {
                         return KEY_NOT_FOUND;
                     } else {
                         long oldPtr = ptrs[leftIdx];
                         set(ArrayUtils.remove(keys, leftIdx), ArrayUtils.remove(ptrs, leftIdx));
-                        decrDataLength(value);
+                        decrDataLength(searchKey);
                         return oldPtr;
                     }
                 default:
@@ -663,16 +663,16 @@ public class BTree extends Paged {
 
         /** @return pointer of matched items */
         @Deprecated
-        private synchronized long[] removeValue(Value value, long pointer) throws IOException,
+        private synchronized long[] removeValue(Value searchKey, long pointer) throws IOException,
                 DbException {
-            int leftIdx = searchLeftmostKey(keys, value, keys.length);
-            int rightIdx = isDuplicateAllowed() ? searchRightmostKey(keys, value, keys.length)
+            int leftIdx = searchLeftmostKey(keys, searchKey, keys.length);
+            int rightIdx = isDuplicateAllowed() ? searchRightmostKey(keys, searchKey, keys.length)
                     : leftIdx;
             switch(ph.getStatus()) {
                 case BRANCH:
                     leftIdx = (leftIdx < 0) ? -(leftIdx + 1) : leftIdx + 1;
                     //FIXME keys may be separated nodes
-                    return getChildNode(leftIdx).removeValue(value, pointer);
+                    return getChildNode(leftIdx).removeValue(searchKey, pointer);
                 case LEAF:
                     if(leftIdx < 0) {
                         return new long[0];
@@ -683,7 +683,7 @@ public class BTree extends Paged {
                             long p = ptrs[i];
                             if(p == pointer) {
                                 set(ArrayUtils.remove(keys, i), ArrayUtils.remove(ptrs, i));
-                                decrDataLength(value);
+                                decrDataLength(searchKey);
                                 matched[founds++] = p;
                             }
                         }
