@@ -45,6 +45,14 @@ public final class CollectionUtils {
         }
     }
 
+    public static <T> Set<T> asSet(T[] array) {
+        final Set<T> set = new HashSet<T>(array.length);
+        for(T e: array) {
+            set.add(e);
+        }
+        return set;
+    }
+    
     private static <T> List<T> _eliminateDuplicationForSmall(final List<T> list, final boolean equalsByIdentity) {
         int size = list.size();
         final List<T> newList = equalsByIdentity ? new TinyIdentityList<T>(size)
