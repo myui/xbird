@@ -35,7 +35,11 @@
  */
 package xbird.storage.index;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -1291,6 +1295,9 @@ public class BTree extends Paged {
                 case LEAF:
                     switch(searchType) {
                         case LEFT: {
+                            if(keys.length == 0) {
+                                break;
+                            }
                             BTreeNode leftmostNode = this;
                             if(keys[0].equals(key)) {
                                 int lookup = ph.getLeftLookup();
