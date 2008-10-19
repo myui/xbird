@@ -1102,8 +1102,8 @@ public class BTree extends Paged {
                     if(idx < 0) {
                         return KEY_NOT_FOUND;
                     } else {
-                        int lookup = ph.getLeftLookup();
-                        if(lookup > 0) {
+                        int lookup;
+                        if(idx == 0 && ((lookup = ph.getLeftLookup()) > 0)) {
                             BTreeNode leftmostNode = this;
                             while(true) {
                                 final BTreeNode prevNode = getBTreeNode(root, leftmostNode._prev, parent);
