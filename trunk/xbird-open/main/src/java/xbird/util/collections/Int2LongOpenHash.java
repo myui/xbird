@@ -23,7 +23,7 @@ package xbird.util.collections;
 import java.io.*;
 import java.util.Arrays;
 
-import xbird.util.Primes;
+import xbird.util.math.Primes;
 
 /**
  * 
