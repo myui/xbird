@@ -1116,7 +1116,8 @@ public class BTree extends Paged {
                                     break;
                                 }
                             }
-                            final int lmIdx = leftmostNode.searchLeftmostKey(keys, serarchKey, keys.length);
+                            final Value[] lmKeys = leftmostNode.keys;
+                            final int lmIdx = leftmostNode.searchLeftmostKey(lmKeys, serarchKey, lmKeys.length);
                             if(lmIdx < 0) {
                                 throw new BTreeCorruptException("Duplicated key was not found: "
                                         + serarchKey);
