@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.lang;
+package xbird.util.math;
 
 /**
  * 

@@ -24,7 +24,7 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import xbird.util.Primes;
+import xbird.util.math.Primes;
 
 /**
  * ChainedHash implementation for int to int hash.

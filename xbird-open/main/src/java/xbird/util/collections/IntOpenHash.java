@@ -26,7 +26,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
-import xbird.util.Primes;
+import xbird.util.math.Primes;
 
 /**
  * 
