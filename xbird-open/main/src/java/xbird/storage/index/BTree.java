@@ -1106,12 +1106,11 @@ public class BTree extends Paged {
                         if(idx == 0 && ((lookup = ph.getLeftLookup()) > 0)) {
                             BTreeNode leftmostNode = this;
                             while(true) {
-                                final BTreeNode prevNode = getBTreeNode(root, leftmostNode._prev, parent);
-                                final int prevLookup = prevNode.ph.getLeftLookup();
+                                leftmostNode = getBTreeNode(root, leftmostNode._prev, parent);
+                                final int prevLookup = leftmostNode.ph.getLeftLookup();
                                 if(prevLookup == 0) {
                                     break;
                                 }
-                                leftmostNode = prevNode;
                                 lookup = prevLookup;
                             }
                             final long[] leftmostPtrs = leftmostNode.ptrs;
