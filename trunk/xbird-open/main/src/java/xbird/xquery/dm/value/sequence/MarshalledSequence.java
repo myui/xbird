@@ -311,7 +311,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
                 inputBuf.setCleanable(true);
             }
             final ObjectInputStream objInput = new AppendedObjectInputStream(inputBuf);
-            this._decoder = new XQEventDecoder(objInput); // replace Old Decoder with fresh Decoder
+            this._decoder = new XQEventDecoder(objInput); // replace old Decoder with fresh Decoder
         }
 
         private void incrBulkOut(final ObjectOutput out) throws IOException {
@@ -328,7 +328,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             if(_reaccessable) {
                 final FastByteArrayInputStream inputBuf = new FastByteArrayInputStream(buf);
                 final ObjectInputStream objectInput = new ObjectInputStream(inputBuf);
-                this._decoder = new XQEventDecoder(objectInput); // replace Old Decoder with fresh Decoder
+                this._decoder = new XQEventDecoder(objectInput); // replace old Decoder with fresh Decoder
             }
 
             final int buflen = buf.length;
@@ -424,7 +424,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             inputBuf.setCleanable(true);
         }
         final ObjectInputStream objectInput = new ObjectInputStream(inputBuf);
-        final XQEventDecoder newDecoder = new XQEventDecoder(objectInput); // replace Old Decoder with fresh Decoder
+        final XQEventDecoder newDecoder = new XQEventDecoder(objectInput); // replace old Decoder with fresh Decoder
         return newDecoder;
     }
 
