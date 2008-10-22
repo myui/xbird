@@ -95,7 +95,7 @@ public final class NIOUtils {
         } while(buf.hasRemaining());
     }
 
-    public static int countWriteFully(final WritableByteChannel channel, final ByteBuffer buf)
+    public static int countingWriteFully(final WritableByteChannel channel, final ByteBuffer buf)
             throws IOException {
         int written = 0;
         do {
