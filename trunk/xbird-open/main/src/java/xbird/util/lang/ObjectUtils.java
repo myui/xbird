@@ -157,10 +157,10 @@ public final class ObjectUtils {
     }
 
     public static <T> T readObject(final byte[] obj) {
-        return ObjectUtils.<T> readObject(new FastByteArrayInputStream(obj));
+        return ObjectUtils.<T> readObjectQuietly(new FastByteArrayInputStream(obj));
     }
 
-    public static <T> T readObject(final InputStream is) {
+    public static <T> T readObjectQuietly(final InputStream is) {
         try {
             final ObjectInputStream ois = new ObjectInputStream(is);
             return (T) ois.readObject();
@@ -171,6 +171,11 @@ public final class ObjectUtils {
             IOUtils.closeQuietly(is);
             throw new IllegalStateException(ce);
         }
+    }
+
+    public static <T> T readObject(final InputStream is) throws IOException, ClassNotFoundException {
+        final ObjectInputStream ois = new ObjectInputStream(is);
+        return (T) ois.readObject();
     }
 
     public static String readString(final ObjectInput in) throws IOException {

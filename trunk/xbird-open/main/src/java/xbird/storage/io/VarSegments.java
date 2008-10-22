@@ -312,7 +312,7 @@ public final class VarSegments implements Segments {
                     throw new IllegalStateException();
                 }
                 final FastBufferedInputStream bis = new FastBufferedInputStream(fis, 4096);
-                this.recordMap = ObjectUtils.readObject(bis);
+                this.recordMap = ObjectUtils.readObjectQuietly(bis);
                 IOUtils.closeQuietly(bis);
             } else {
                 this.recordMap = new Long2LongOpenHash(cacheSize, 0.7f, 1.9f);
