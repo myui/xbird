@@ -95,6 +95,19 @@ public final class NIOUtils {
         } while(buf.hasRemaining());
     }
 
+    public static int countWriteFully(final WritableByteChannel channel, final ByteBuffer buf)
+            throws IOException {
+        int written = 0;
+        do {
+            final int n = channel.write(buf);
+            if(n < 0) {
+                throw new EOFException();
+            }
+            written += n;
+        } while(buf.hasRemaining());
+        return written;
+    }
+
     public static void writeFully(final FileChannel channel, final ByteBuffer dst, final long position)
             throws IOException {
         while(dst.remaining() > 0) {
