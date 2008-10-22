@@ -192,7 +192,7 @@ public final class PagedStringChunk2 implements IStringChunk {
             throw new IllegalStateException(e);
         }
         final FastBufferedInputStream bis = new FastBufferedInputStream(fis);
-        Object obj = ObjectUtils.readObject(bis);
+        Object obj = ObjectUtils.readObjectQuietly(bis);
         return (Map<MutableString, Long>) obj;
     }
 

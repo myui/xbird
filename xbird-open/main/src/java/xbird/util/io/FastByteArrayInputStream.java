@@ -63,6 +63,9 @@ public final class FastByteArrayInputStream extends InputStream {
         if((pos + len) > count) {
             len = (count - pos);
         }
+        if(len <= 0) {
+            return 0;
+        }
         System.arraycopy(buf, pos, b, off, len);
         pos += len;
         return len;
