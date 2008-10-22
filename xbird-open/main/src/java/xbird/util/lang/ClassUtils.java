@@ -21,6 +21,7 @@
 package xbird.util.lang;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * 
@@ -34,7 +35,10 @@ public final class ClassUtils {
     private ClassUtils() {}
 
     @Nonnull
-    public static String getSimpleClassName(@Nonnull Object obj) {
+    public static String getSimpleClassName(@Nullable Object obj) {
+        if(obj == null) {
+            return "null";
+        }
         return getSimpleClassName(obj.getClass());
     }
 
