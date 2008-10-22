@@ -88,11 +88,15 @@ public class PoolableSocketChannelFactory
                 throw new IllegalStateException(e);
             }
         }
+        final boolean connected;
         try {
-            ch.connect(sockAddr);
+            connected = ch.connect(sockAddr);
         } catch (IOException e) {
             LOG.error("Failed to connect socket: " + sockAddr, e);
             throw new IllegalStateException(e);
+        }
+        if(!connected) {
+            throw new IllegalStateException("Failed to connect: " + sockAddr);
         }
         return ch;
     }
