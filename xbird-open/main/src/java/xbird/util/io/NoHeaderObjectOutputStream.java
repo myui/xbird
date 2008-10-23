@@ -1,5 +1,5 @@
 /*
- * @(#)$Id: codetemplate_xbird.xml 943 2006-09-13 07:03:37Z yui $
+ * @(#)$Id$
  *
  * Copyright 2006-2008 Makoto YUI
  *
@@ -30,24 +30,15 @@ import java.io.OutputStream;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
- * @link http://java.sun.com/javase/technologies/core/basic/serializationFAQ.jsp#appendSerialStream
  */
-public final class AppendingObjectOutputStream extends ObjectOutputStreamAdapter {
+public final class NoHeaderObjectOutputStream extends ObjectOutputStream {
 
-    public AppendingObjectOutputStream(ObjectOutputStream out) throws IOException {
+    public NoHeaderObjectOutputStream(OutputStream out) throws IOException {
         super(out);
     }
 
-    public AppendingObjectOutputStream(OutputStream out) throws IOException {
-        super(wrapStream(out));
+    @Override
+    protected void writeStreamHeader() throws IOException {
+        this.reset(); // Reset the stream, do not write headers.
     }
-
-    private static ObjectOutputStream wrapStream(OutputStream out) throws IOException {
-        if(out instanceof ObjectOutputStream) {
-            return (ObjectOutputStream) out;
-        } else {
-            return new NoHeaderObjectOutputStream(out);
-        }
-    }
-
 }

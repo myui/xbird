@@ -1,5 +1,5 @@
 /*
- * @(#)$Id: codetemplate_xbird.xml 943 2006-09-13 07:03:37Z yui $
+ * @(#)$Id$
  *
  * Copyright 2006-2008 Makoto YUI
  *
@@ -21,8 +21,9 @@
 package xbird.util.io;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 
 /**
  * 
@@ -30,24 +31,15 @@ import java.io.OutputStream;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
- * @link http://java.sun.com/javase/technologies/core/basic/serializationFAQ.jsp#appendSerialStream
  */
-public final class AppendingObjectOutputStream extends ObjectOutputStreamAdapter {
+public final class NoHeaderObjectInputStream extends ObjectInputStream {
 
-    public AppendingObjectOutputStream(ObjectOutputStream out) throws IOException {
-        super(out);
+    public NoHeaderObjectInputStream(InputStream in) throws IOException {
+        super(in);
     }
 
-    public AppendingObjectOutputStream(OutputStream out) throws IOException {
-        super(wrapStream(out));
-    }
-
-    private static ObjectOutputStream wrapStream(OutputStream out) throws IOException {
-        if(out instanceof ObjectOutputStream) {
-            return (ObjectOutputStream) out;
-        } else {
-            return new NoHeaderObjectOutputStream(out);
-        }
+    @Override
+    protected void readStreamHeader() throws IOException, StreamCorruptedException {        
     }
 
 }
