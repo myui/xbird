@@ -37,8 +37,8 @@ import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.FastByteArrayOutputStream;
 import xbird.util.io.FastMultiByteArrayInputStream;
 import xbird.util.io.FastMultiByteArrayOutputStream;
+import xbird.util.io.NoHeaderObjectInputStream;
 import xbird.util.io.TeeOutputStream;
-import xbird.util.io.AppendingObjectOutputStream.AppendedObjectInputStream;
 import xbird.util.lang.PrintUtils;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.coder.XDMTreeBuilder;
@@ -243,7 +243,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
                     this._piped = true;
                     // avoid readStreamHeader()
                     ObjectInputStream ois = (ObjectInputStream) in; //TODO REVIEWME too hacky
-                    this._decoder = pipedIn(new AppendedObjectInputStream(ois), _reaccessable);
+                    this._decoder = pipedIn(new NoHeaderObjectInputStream(ois), _reaccessable);
                 } else {
                     this._piped = false;
                     this._decoder = bulkIn(in);
@@ -310,7 +310,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             if(!_reaccessable) {
                 inputBuf.setCleanable(true);
             }
-            final ObjectInputStream objInput = new AppendedObjectInputStream(inputBuf);
+            final ObjectInputStream objInput = new NoHeaderObjectInputStream(inputBuf);
             this._decoder = new XQEventDecoder(objInput); // replace old Decoder with fresh Decoder
         }
 
