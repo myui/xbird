@@ -156,6 +156,19 @@ public final class ObjectUtils {
         }
     }
 
+    public static void toStreamVerbose(final Object obj, final OutputStream out) throws IOException {
+        try {
+            final ObjectOutputStream oos = new ObjectOutputStream(out);
+            oos.writeObject(obj);
+            oos.flush();
+            oos.close();
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Throwable e) {
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+
     public static <T> T readObject(final byte[] obj) {
         return ObjectUtils.<T> readObjectQuietly(new FastByteArrayInputStream(obj));
     }
