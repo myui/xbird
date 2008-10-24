@@ -28,6 +28,7 @@ import java.util.Random;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
+ * @link http://0xcc.net/ruby-progressbar/
  */
 public class TextProgressBar {
 
