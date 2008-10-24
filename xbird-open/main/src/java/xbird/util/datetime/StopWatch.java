@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util;
+package xbird.util.datetime;
 
 /**
  * StopWatch provides a API for timings.
