@@ -32,12 +32,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
-import xbird.util.io.AppendingObjectOutputStream;
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.FastByteArrayOutputStream;
 import xbird.util.io.FastMultiByteArrayInputStream;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.io.NoHeaderObjectInputStream;
+import xbird.util.io.NoHeaderObjectOutputStream;
 import xbird.util.io.TeeOutputStream;
 import xbird.util.lang.PrintUtils;
 import xbird.xquery.XQueryException;
@@ -246,8 +246,9 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
                 if(piped) {
                     this._piped = true;
                     // avoid readStreamHeader()
-                    ObjectInputStream ois = (ObjectInputStream) in; //TODO REVIEWME too hacky
-                    this._decoder = pipedIn(new NoHeaderObjectInputStream(ois), _reaccessable);
+                    //ObjectInputStream ois = (ObjectInputStream) in; //TODO REVIEWME too hacky
+                    //this._decoder = pipedIn(new NoHeaderObjectInputStream(ois), _reaccessable);
+                    this._decoder = pipedIn(in, _reaccessable);
                 } else {
                     this._piped = false;
                     this._decoder = bulkIn(in);
@@ -300,7 +301,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             assert (_reaccessable);
             final FastMultiByteArrayOutputStream bufOut = new FastMultiByteArrayOutputStream(BUFFERING_BLOCK_SIZE);
             final TeeOutputStream tee = new TeeOutputStream(out, bufOut);
-            final ObjectOutputStream objectOut = new AppendingObjectOutputStream(tee);
+            final ObjectOutputStream objectOut = new NoHeaderObjectOutputStream(tee);
             final XQEventDecoder decoder = _decoder;
             decoder.redirectTo(objectOut);
             decoder.close();
