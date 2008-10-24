@@ -193,8 +193,7 @@ public final class VarSegments implements Segments {
     /**
      * reads persistent record
      */
-    public byte[] read(final long idx) throws IOException {
-        ensureOpen();
+    public byte[] read(final long idx) throws IOException {        
         final long ptr = directory.getRecordAddr(idx);
         if(ptr == -1) {
             return null;
@@ -203,7 +202,6 @@ public final class VarSegments implements Segments {
     }
 
     public byte[][] readv(long[] idx) throws IOException {
-        ensureOpen();
         final int len = idx.length;
         final byte[][] pages = new byte[len][];
         for(int i = 0; i < len; i++) {
@@ -248,7 +246,7 @@ public final class VarSegments implements Segments {
         }
     }
 
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if(raf != null) {
             raf.close();
         }
