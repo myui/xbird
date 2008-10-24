@@ -94,6 +94,10 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
         this._redirectable = redirectable;
     }
 
+    public boolean isRedirectable() {
+        return _redirectable;
+    }
+
     public void setPiped(boolean piped) {
         this._piped = piped;
     }
