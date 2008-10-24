@@ -35,8 +35,8 @@ import xbird.xquery.dm.value.Item;
  */
 public abstract class AbstractFocus<T extends Item> implements IFocus<T> {
 
-    private T citem = null;
-    private int cpos = 0;
+    protected T _citem = null;
+    protected int _cpos = 0;
 
     private int pos = 0;
     private int last = -1;
@@ -57,19 +57,19 @@ public abstract class AbstractFocus<T extends Item> implements IFocus<T> {
     // ------------------------------------------------------
 
     public T setContextItem(T item) {
-        return citem;
+        return _citem;
     }
 
     public T getContextItem() {
-        return citem;
+        return _citem;
     }
 
     public void setContextPosition(int pos) {
-        this.cpos = pos;
+        this._cpos = pos;
     }
 
     public int getContextPosition() {
-        return cpos;
+        return _cpos;
     }
 
     // ------------------------------------------------------
