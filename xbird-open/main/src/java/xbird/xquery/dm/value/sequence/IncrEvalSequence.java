@@ -112,6 +112,9 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
         }
 
         public boolean hasNext() {
+            if(reachedEnd) {
+                return false;
+            }
             if(seeked != null) {
                 return true;
             }
@@ -132,10 +135,18 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
                 LOG.error(PrintUtils.prettyPrintStackTrace(e));
                 throw new IllegalStateException(e);
             }
-            return item == null ? SENTINEL : item;
+            if(item == null) {
+                this.reachedEnd = true;
+                return SENTINEL;
+            } else {
+                return item;
+            }
         }
 
         public Item next() {
+            if(reachedEnd) {
+                throw new NoSuchElementException("Already reached end");
+            }
             if(seeked != null) {
                 Item curr = seeked;
                 this.seeked = null;
