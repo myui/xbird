@@ -180,10 +180,15 @@ public final class NIOUtils {
     }
 
     public static void close(Selector selector) {
-        try {
-            selector.close();
-        } catch (IOException e) {
-            ;
+        if(selector != null && selector.isOpen()) {
+            for(SelectionKey key : selector.keys()) {
+                close(key);
+            }
+            try {
+                selector.close();
+            } catch (IOException e) {
+                ;
+            }
         }
     }
 
