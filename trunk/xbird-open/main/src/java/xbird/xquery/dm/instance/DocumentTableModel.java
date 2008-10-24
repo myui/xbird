@@ -45,11 +45,11 @@ import org.xml.sax.XMLReader;
 
 import xbird.config.Settings;
 import xbird.storage.io.DiskPagedLongCache;
-import xbird.util.StopWatch;
 import xbird.util.cache.ILongCache;
 import xbird.util.codec.IntCodec;
 import xbird.util.concurrent.jsr166.ConcurrentReferenceHashMap;
 import xbird.util.concurrent.jsr166.ConcurrentReferenceHashMap.ReferenceType;
+import xbird.util.datetime.StopWatch;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FileUtils;
 import xbird.util.lang.ClassResolver;

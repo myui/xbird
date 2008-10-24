@@ -28,7 +28,7 @@ import org.kohsuke.args4j.*;
 
 import xbird.storage.DbCollection;
 import xbird.storage.DbException;
-import xbird.util.StopWatch;
+import xbird.util.datetime.StopWatch;
 
 /**
  * 

@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.engine.remote.RemoteSequence;
-import xbird.util.StopWatch;
+import xbird.util.datetime.StopWatch;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.XQEventReceiver;
 import xbird.xquery.dm.coder.XQEventDecoder;
