@@ -50,18 +50,16 @@ import xbird.xquery.type.Type;
 public final class IncrEvalSequence extends AbstractSequence<Item> implements Runnable {
     private static final long serialVersionUID = 1542706549802213098L;
     private static final Log LOG = LogFactory.getLog(IncrEvalSequence.class);
-
     public static final Item SENTINEL = new ValueSequence(Collections.<Item> emptyList(), DynamicContext.DUMMY);
-    private static final int STOCK_SIZE = 512;
 
     private final Sequence<Item> _delegate;
     private final IDisposableBlockingQueue<Item> _exqueue;
 
     @SuppressWarnings("unchecked")
-    public IncrEvalSequence(Sequence delegate, DynamicContext dynEnv) {
+    public IncrEvalSequence(Sequence delegate, int stockSize, DynamicContext dynEnv) {
         super(dynEnv);
         this._delegate = delegate;
-        this._exqueue = DisposableBlockingQueue.of(new BoundedTransferQueue<Item>(STOCK_SIZE), SENTINEL);
+        this._exqueue = DisposableBlockingQueue.of(new BoundedTransferQueue<Item>(stockSize), SENTINEL);
     }
 
     @Override
