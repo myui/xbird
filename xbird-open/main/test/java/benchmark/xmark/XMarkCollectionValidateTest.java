@@ -30,7 +30,8 @@ import net.sf.saxon.trans.XPathException;
 
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
-import xbird.util.StopWatch;
+
+import xbird.util.datetime.StopWatch;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.io.IOUtils;
 import xbird.util.xml.SAXWriter;
