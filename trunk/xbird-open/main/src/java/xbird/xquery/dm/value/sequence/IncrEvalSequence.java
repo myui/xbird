@@ -27,7 +27,6 @@ import java.util.NoSuchElementException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import xbird.engine.remote.ExchangingRemoteFocusProxy;
 import xbird.util.concurrent.collections.BoundedTransferQueue;
 import xbird.util.concurrent.collections.DisposableBlockingQueue;
 import xbird.util.concurrent.collections.IDisposableBlockingQueue;
@@ -62,7 +61,7 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
     public IncrEvalSequence(Sequence delegate, DynamicContext dynEnv) {
         super(dynEnv);
         this._delegate = delegate;
-        this._exqueue = DisposableBlockingQueue.of(new BoundedTransferQueue<Item>(STOCK_SIZE), ExchangingRemoteFocusProxy.SENTINEL);
+        this._exqueue = DisposableBlockingQueue.of(new BoundedTransferQueue<Item>(STOCK_SIZE), SENTINEL);
     }
 
     @Override
