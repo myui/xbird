@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,7 +53,6 @@ import xbird.util.io.FastBufferedOutputStream;
 import xbird.util.lang.MutableString;
 import xbird.util.lang.ObjectUtils;
 import xbird.util.lang.Primitives;
-import xbird.util.lang.PrivilegedAccessor;
 import xbird.util.resource.PropertyMap;
 import xbird.util.string.StringUtils;
 import xbird.xquery.dm.coder.SerializationContext;
@@ -119,8 +117,7 @@ public final class PagedStringChunk2 implements IStringChunk {
     //--------------------------------------------
     // persistent stuff
 
-    private final Segments paged_;
-    private final Field _pagedField = PrivilegedAccessor.getField(PagedStringChunk2.class, "paged_");
+    private Segments paged_;
     private transient int strBlockPtr_;
     private transient long ccPointer_;
 
@@ -177,7 +174,7 @@ public final class PagedStringChunk2 implements IStringChunk {
 
     private Map<MutableString, Long> reconstruct(VarSegments paged) {
         String fileName = paged.getFile().getAbsolutePath() + CACHE_FILE_SUFFIX;
-        Map<MutableString, Long> map = _constructMapCache.get(fileName);
+        final Map<MutableString, Long> map = _constructMapCache.get(fileName);
         if(map != null) {
             return map;
         }
@@ -254,7 +251,7 @@ public final class PagedStringChunk2 implements IStringChunk {
     }
 
     private char[] getCharChunkInternal(final long addr) {
-        long page = addr >> BLOCK_SHIFT;
+        final long page = addr >> BLOCK_SHIFT;
         char[] c = _referenceMap.get(page);
         if(c != null) {
             return c;
@@ -385,27 +382,9 @@ public final class PagedStringChunk2 implements IStringChunk {
         pendings.clear();
     }
 
-    //    private void flushPendingPages() {
-    //        final PairList<Long, byte[]> pendings = _pendingFlushPages;
-    //        this._pendingFlushPages = new PairList<Long, byte[]>(FLUSH_THRESHOLD);
-    //        new Thread("PageoutPendingStrChunks") {
-    //            public void run() {
-    //                final int size = pendings.size();
-    //                for(int i = 0; i < size; i++) {
-    //                    try {
-    //                        paged_.write(pendings.getKey(i), pendings.getValue(i));
-    //                    } catch (IOException ioe) {
-    //                        throw new IllegalStateException(ioe);
-    //                    }
-    //                }
-    //                pendings.clear();
-    //            }
-    //        }.start();
-    //    }
-
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         RemoteVarSegments paged = RemoteVarSegments.read(in);
-        PrivilegedAccessor.unsafeSetField(this, _pagedField, paged);
+        this.paged_ = paged;
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -448,10 +427,10 @@ public final class PagedStringChunk2 implements IStringChunk {
 
     private void forseClose() throws IOException {
         this._constructionMap = null;
-        this._referenceMap = null;
+        _referenceMap.clear(); // TODO REVIEWME
         if(paged_ != null) {
             paged_.close();
-            PrivilegedAccessor.unsafeSetField(this, _pagedField, null);
+            this.paged_ = null;
         }
     }
 
