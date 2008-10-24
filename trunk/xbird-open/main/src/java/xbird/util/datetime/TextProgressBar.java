@@ -182,9 +182,11 @@ public class TextProgressBar {
     // user customizable points
 
     protected String formatTime(long t) {
-        final int sec = (int) (t % 60);
-        final int min = (int) ((t / 60) % 60);
-        final int hour = (int) (t / 3600);
+        long hour = t / 3600000;
+        t %= 3600000;
+        long min = t / 60000;
+        t %= 60000;
+        long sec = t / 1000;
         return String.format("%02d:%02d:%02d", hour, min, sec);
     }
 
