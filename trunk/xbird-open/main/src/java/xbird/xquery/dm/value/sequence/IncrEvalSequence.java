@@ -135,9 +135,9 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
                 LOG.error(PrintUtils.prettyPrintStackTrace(e));
                 throw new IllegalStateException(e);
             }
-            if(item == null) {
+            if(item == SENTINEL) {
                 this.reachedEnd = true;
-                return SENTINEL;
+                return null;
             } else {
                 return item;
             }
