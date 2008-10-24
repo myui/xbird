@@ -31,8 +31,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import xbird.client.InteractiveShell;
-import xbird.util.StopWatch;
 import xbird.util.concurrent.ExecutorUtils;
+import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.lang.ArrayUtils;
 import xbird.xquery.XQueryException;
