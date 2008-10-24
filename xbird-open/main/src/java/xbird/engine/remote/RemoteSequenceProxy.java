@@ -47,9 +47,9 @@ import xbird.xquery.type.Type;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class RemoteSequenceProxy implements IRemoteSequenceProxy, Serializable {
-    private static final Log LOG = LogFactory.getLog("xbird.rmi");
+public class RemoteSequenceProxy implements IRemoteSequenceProxy, Serializable {   
     private static final long serialVersionUID = 4914765810212489042L;
+    private static final Log LOG = LogFactory.getLog("xbird.rmi");
 
     protected final Sequence<Item> _delegate;
     protected final int _fetchSize;
