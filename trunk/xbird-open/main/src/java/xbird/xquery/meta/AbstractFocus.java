@@ -40,7 +40,7 @@ public abstract class AbstractFocus<T extends Item> implements IFocus<T> {
 
     private int pos = 0;
     private int last = -1;
-    private boolean reachedEnd = false;
+    protected boolean reachedEnd = false;
 
     private LinkedList<T> pendings = null;
 
