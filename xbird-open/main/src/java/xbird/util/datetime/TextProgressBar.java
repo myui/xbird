@@ -22,6 +22,8 @@ package xbird.util.datetime;
 
 import java.util.Random;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -30,6 +32,7 @@ import java.util.Random;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  * @link http://0xcc.net/ruby-progressbar/
  */
+@NotThreadSafe
 public class TextProgressBar {
 
     protected final String title;
