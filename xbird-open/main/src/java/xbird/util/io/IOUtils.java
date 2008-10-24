@@ -176,10 +176,12 @@ public final class IOUtils {
     }
 
     public static void closeQuietly(final Closeable channel) {
-        try {
-            channel.close();
-        } catch (IOException e) {
-            ;
+        if(channel != null) {
+            try {
+                channel.close();
+            } catch (IOException e) {
+                ;
+            }
         }
     }
 
