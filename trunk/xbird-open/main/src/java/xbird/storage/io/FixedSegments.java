@@ -149,7 +149,7 @@ public final class FixedSegments implements Segments {
         }
     }
 
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if(raf != null) {
             raf.close();
             this.raf = null;
