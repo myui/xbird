@@ -462,4 +462,20 @@ public abstract class AbstractDocumentTable implements IDocumentTable {
             this._strChunk = null;
         }
     }
+
+    public void ensureOpen() {}
+
+    protected synchronized void ensureOpen(DbCollection coll) {
+        if(_strChunk == null) {
+            this._nameTable = coll.getSymbols().getQnameTable();
+            try {
+                this._strChunk = coll.getStringChunk();
+            } catch (IOException e) {
+                throw new IllegalStateException("failed loading string chunk of the collection: "
+                        + coll.getCollectionName(), e);
+            }
+            _refcount.compareAndSet(-1, 1);
+        }
+    }
+
 }

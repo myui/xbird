@@ -73,6 +73,8 @@ public interface IDocumentTable extends IDocument {
 
     // --------------------------------------------
 
+    public void ensureOpen();
+    
     public AtomicInteger getReferenceCount();
 
     public QNameTable getNameTable();
