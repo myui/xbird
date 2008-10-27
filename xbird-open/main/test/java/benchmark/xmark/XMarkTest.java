@@ -20,10 +20,19 @@
  */
 package benchmark.xmark;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.stream.StreamResult;
 
@@ -31,23 +40,27 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.event.SaxonOutputKeys;
-import net.sf.saxon.query.*;
+import net.sf.saxon.query.DynamicQueryContext;
+import net.sf.saxon.query.StaticQueryContext;
+import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
-import xbird.util.*;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import xbird.util.datetime.StopWatch;
 import xbird.util.io.IOUtils;
 import xbird.util.string.StringUtils;
 import xbird.util.system.SystemUtils;
 import xbird.util.xml.SAXWriter;
-import xbird.xquery.*;
+import xbird.xquery.XQueryException;
+import xbird.xquery.XQueryModule;
+import xbird.xquery.XQueryProcessor;
 import xbird.xquery.dm.ser.SAXSerializer;
 import xbird.xquery.dm.ser.Serializer;
 import xbird.xquery.dm.value.Sequence;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 public class XMarkTest extends TestCase {
 
@@ -68,11 +81,11 @@ public class XMarkTest extends TestCase {
         stdbuf.append(" - free(init): " + StringUtils.displayBytesSize(free));
         final StopWatch sw = new StopWatch("[Xbird] " + queryFile);
         queryFile = XMARK_HOME + '/' + queryFile;
-        final XQueryProcessor processor = new XQueryProcessor();        
+        final XQueryProcessor processor = new XQueryProcessor();
         XQueryModule mod = processor.parse(new FileInputStream(queryFile), new File(queryFile).toURI());
         Sequence result = processor.execute(mod);
         StringWriter res_sw = new StringWriter();
-        final Serializer ser = new SAXSerializer(new SAXWriter(res_sw), res_sw);        
+        final Serializer ser = new SAXSerializer(new SAXWriter(res_sw), res_sw);
         ser.emit(result);
         String swresult = sw.toString();
         long used = SystemUtils.getHeapUsedMemory();
@@ -148,7 +161,7 @@ public class XMarkTest extends TestCase {
     }
 
     private static Document buildDocument(InputStream is) {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();        
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         final Document doc;
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
