@@ -429,8 +429,8 @@ public final class PagedStringChunk2 implements IStringChunk {
         this._constructionMap = null;
         _referenceMap.clear(); // TODO REVIEWME
         if(paged_ != null) {
-            paged_.close();
-            this.paged_ = null;
+            paged_.flush(true);
+            //this.paged_ = null;
         }
     }
 
