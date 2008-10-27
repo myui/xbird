@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 import org.cliffc.high_scale_lib.NonBlockingHashMapLong;
 
-import xbird.util.lang.SystemUtils;
+import xbird.util.system.SystemUtils;
 
 /**
  * 

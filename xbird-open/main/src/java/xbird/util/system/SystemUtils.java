@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.lang;
+package xbird.util.system;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -26,6 +26,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
+import java.security.AccessController;
 import java.util.List;
 
 /**
@@ -111,6 +112,31 @@ public final class SystemUtils {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+    public static boolean isEpollEnabled() {
+        final String osname = AccessController.doPrivileged(new GetPropertyAction("os.name"));
+        if("SunOS".equals(osname)) {
+            return true;
+        }
+
+        // use EPollSelectorProvider for Linux kernels >= 2.6
+        if("Linux".equals(osname)) {
+            String osversion = AccessController.doPrivileged(new GetPropertyAction("os.version"));
+            final String[] vers = osversion.split("\\.", 0);
+            if(vers.length >= 2) {
+                try {
+                    final int major = Integer.parseInt(vers[0]);
+                    final int minor = Integer.parseInt(vers[1]);
+                    if(major > 2 || (major == 2 && minor >= 6)) {
+                        return true;
+                    }
+                } catch (NumberFormatException x) {
+                    // format not recognized
+                }
+            }
+        }
+        return false;
     }
 
     public static int availableProcessors() {

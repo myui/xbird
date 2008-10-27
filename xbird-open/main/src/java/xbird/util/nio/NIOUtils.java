@@ -35,7 +35,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import xbird.util.io.IOUtils;
-import xbird.util.lang.SystemUtils;
+import xbird.util.system.SystemUtils;
 
 /**
  * 

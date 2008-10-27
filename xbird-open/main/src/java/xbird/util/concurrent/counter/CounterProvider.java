@@ -21,7 +21,7 @@
 package xbird.util.concurrent.counter;
 
 import xbird.config.Settings;
-import xbird.util.lang.SystemUtils;
+import xbird.util.system.SystemUtils;
 
 /**
  * 
