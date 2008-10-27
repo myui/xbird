@@ -53,6 +53,7 @@ import xbird.xquery.misc.QNameTable;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
+ * @deprecated
  */
 public class DocumentTable extends AbstractDocumentTable {
     private static final long serialVersionUID = 7981239598106003024L;
