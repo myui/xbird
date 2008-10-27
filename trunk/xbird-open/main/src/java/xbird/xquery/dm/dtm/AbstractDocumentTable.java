@@ -450,13 +450,7 @@ public abstract class AbstractDocumentTable implements IDocumentTable {
     }
 
     public void close() throws IOException {
-        if(_refcount.getAndDecrement() == 1) {
-            _close();
-        }
-    }
-
-    public void tryClose() throws IOException {
-        if(_refcount.get() < 1) {
+        if(_refcount.decrementAndGet() == -1) {
             _close();
         }
     }
@@ -466,19 +460,6 @@ public abstract class AbstractDocumentTable implements IDocumentTable {
         if(_strChunk != null) {
             _strChunk.close();
             this._strChunk = null;
-        }
-    }
-
-    protected void ensureOpen(final DbCollection coll) {
-        if(_strChunk == null) {
-            this._nameTable = coll.getSymbols().getQnameTable();
-            try {
-                this._strChunk = coll.getStringChunk();
-            } catch (IOException e) {
-                throw new IllegalStateException("failed loading string chunk of the collection: "
-                        + coll.getCollectionName(), e);
-            }
-            _refcount.getAndIncrement();
         }
     }
 }
