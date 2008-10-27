@@ -126,7 +126,7 @@ public class TextProgressBar {
         }
         this.endTime = System.currentTimeMillis();
         this.stepCount = totalSteps;
-        showIfNeeded();
+        show();
     }
 
     public final float getProgress() {
