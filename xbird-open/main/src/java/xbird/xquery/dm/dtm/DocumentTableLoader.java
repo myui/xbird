@@ -22,11 +22,13 @@ package xbird.xquery.dm.dtm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import xbird.config.Settings;
 import xbird.storage.DbCollection;
-import xbird.util.collections.LRUMap;
+import xbird.util.collections.ObservableLRUMap;
+import xbird.util.collections.ObservableLRUMap.Cleaner;
 import xbird.util.concurrent.AtomicUtils;
 import xbird.util.resource.PropertyMap;
 import xbird.xquery.dm.dtm.hooked.ProfiledPersistentDocumentTable;
@@ -46,19 +48,16 @@ public final class DocumentTableLoader {
 
     private static final Map<String, IDocumentTable> _cache;
     static {
-        /*
         final Cleaner<String, IDocumentTable> cleaner = new Cleaner<String, IDocumentTable>() {
             public void cleanup(String key, IDocumentTable reclaimed) {
                 try {
-                    reclaimed.tryClose();
+                    reclaimed.close();
                 } catch (IOException e) {
                     ;
                 }
             }
         };
-        */
-        //_cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
-        _cache = new LRUMap<String, IDocumentTable>(MAX_DOCS_CACHED);
+        _cache = Collections.synchronizedMap(new ObservableLRUMap<String, IDocumentTable>(MAX_DOCS_CACHED, cleaner));
     }
 
     private DocumentTableLoader() {}
@@ -70,7 +69,7 @@ public final class DocumentTableLoader {
         synchronized(_cache) {
             final IDocumentTable cachedTable = _cache.get(id);
             if(cachedTable != null) {
-                if(AtomicUtils.tryIncrementIfGreaterThan(cachedTable.getReferenceCount(), 0)) {// may already be closed, thus assert not closed
+                if(AtomicUtils.tryIncrementIfGreaterThan(cachedTable.getReferenceCount(), -1)) {// may already be closed, thus assert not closed
                     return cachedTable;
                 } else {
                     _cache.remove(id);

@@ -121,33 +121,9 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
         this._pool = readOnly ? new ConcurrentLongCache<int[]>(CACHED_PAGES) : null;
     }
 
-    protected void ensureOpen(final DbCollection coll) {
-        if(_pool == null) {
-            synchronized(this) {
-                this._pool = new ConcurrentLongCache<int[]>(CACHED_PAGES);
-                super.ensureOpen(coll);
-                _mmfile.ensureOpen();
-            }
-        }
-    }
-
     @Override
     public void close() throws IOException {
-        if(_refcount.getAndDecrement() == 1) {
-            if(_pool != null) {
-                if(!_readOnly) {
-                    _pool.clear();
-                }
-                this._pool = null;
-            }
-            _close();
-            _mmfile.close();
-        }
-    }
-
-    @Override
-    public void tryClose() throws IOException {
-        if(_refcount.get() < 1) {
+        if(_refcount.decrementAndGet() == -1) {
             if(_pool != null) {
                 if(!_readOnly) {
                     _pool.clear();
@@ -178,8 +154,6 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
     }
 
     private long dataAt_RO(final long at) {
-        ensureOpen(_coll);
-
         final int offset = (int) (at & LOGICAL_PAGE_MASK);
         final long pageId = toPageId(at);
 
