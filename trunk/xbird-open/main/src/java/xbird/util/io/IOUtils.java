@@ -38,6 +38,7 @@ package xbird.util.io;
 import java.io.Closeable;
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -78,12 +79,44 @@ public final class IOUtils {
         out.write((v >>> 0) & 0xFF);
     }
 
-    public static int readInt(InputStream in) throws IOException {
+    public static int readInt(final InputStream in) throws IOException {
         int ch1 = in.read();
         int ch2 = in.read();
         int ch3 = in.read();
         int ch4 = in.read();
         return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
+    }
+
+    public static void readFully(final InputStream in, final byte[] b, int offset, int len)
+            throws IOException {
+        do {
+            final int bytesRead = in.read(b, offset, len);
+            if(bytesRead < 0) {
+                throw new EOFException();
+            }
+            len -= bytesRead;
+            offset += bytesRead;
+        } while(len != 0);
+    }
+
+    public static void readFully(final InputStream in, final byte[] b) throws IOException {
+        readFully(in, b, 0, b.length);
+    }
+
+    public static int readLoop(final InputStream in, final byte[] b, final int off, final int len)
+            throws IOException {
+        int total = 0;
+        for(;;) {
+            final int got = in.read(b, off + total, len - total);
+            if(got < 0) {
+                return (total == 0) ? -1 : total;
+            } else {
+                total += got;
+                if(total == len) {
+                    return total;
+                }
+            }
+        }
     }
 
     /**
