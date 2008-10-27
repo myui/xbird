@@ -135,6 +135,22 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
         }
     }
 
+    @Override
+    public void ensureOpen() {
+        if(_coll != null) {
+            ensureOpen(_coll);
+        }
+    }
+
+    @Override
+    protected synchronized void ensureOpen(final DbCollection coll) {
+        if(_pool == null) {
+            super.ensureOpen(coll);
+            _mmfile.ensureOpen();
+            this._pool = new ConcurrentLongCache<int[]>(CACHED_PAGES);
+        }
+    }
+
     public ILongCache<int[]> getBufferPool() {
         return _pool;
     }
@@ -256,8 +272,8 @@ public final class MemoryMappedDocumentTable extends AbstractDocumentTable
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        // super members
         this._blockPtr = in.readLong();
+        // super members
         this._nameTable = QNameTable.read(in);
         this._strChunk = (IStringChunk) in.readObject();
         // this members

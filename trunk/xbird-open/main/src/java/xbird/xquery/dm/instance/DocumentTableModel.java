@@ -266,6 +266,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
             profile.setStrategy(Strategy.serialization);
         }
         final IDocumentTable doctbl = _store;
+        doctbl.ensureOpen();
         switch(doctbl.getNodeKindAt(nodeid)) {
             case NodeKind.DOCUMENT:
                 receiver.evStartDocument();
