@@ -193,7 +193,7 @@ public final class VarSegments implements Segments {
     /**
      * reads persistent record
      */
-    public byte[] read(final long idx) throws IOException {        
+    public byte[] read(final long idx) throws IOException {
         final long ptr = directory.getRecordAddr(idx);
         if(ptr == -1) {
             return null;
@@ -225,30 +225,27 @@ public final class VarSegments implements Segments {
         return b;
     }
 
-    private void ensureOpen() throws IOException {
+    private synchronized void ensureOpen() throws IOException {
         if(open) {
             return;
         }
-        synchronized(this) {
-            if(!open) {
-                if(raf == null) {
-                    if(!file.exists()) {
-                        boolean created = file.createNewFile();
-                        if(!created) {
-                            throw new IllegalStateException("could'nt create file: "
-                                    + file.getAbsolutePath());
-                        }
-                    }
-                    this.raf = new RandomAccessFile(file, "rw");
+        if(raf == null) {
+            if(!file.exists()) {
+                boolean created = file.createNewFile();
+                if(!created) {
+                    throw new IllegalStateException("could'nt create file: "
+                            + file.getAbsolutePath());
                 }
-                this.open = true;
             }
+            this.raf = new RandomAccessFile(file, "rw");
         }
+        this.open = true;
     }
 
     public synchronized void close() throws IOException {
         if(raf != null) {
             raf.close();
+            this.raf = null;
         }
         directory.close();
         this.open = false;
