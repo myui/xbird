@@ -31,7 +31,7 @@ import xbird.config.Settings;
 import xbird.engine.*;
 import xbird.engine.Request.Signature;
 import xbird.util.concurrent.ExecutorFactory;
-import xbird.util.lang.SystemUtils;
+import xbird.util.system.SystemUtils;
 
 /**
  * Scheduler runs in a thread.

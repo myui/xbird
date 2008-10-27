@@ -16,8 +16,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import xbird.util.lang.HashUtils;
-import xbird.util.lang.SystemUtils;
 import xbird.util.lang.UnsafeUtils;
+import xbird.util.system.SystemUtils;
 
 /**
  * 

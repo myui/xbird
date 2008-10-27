@@ -169,8 +169,12 @@ public final class ObjectUtils {
         }
     }
 
-    public static <T> T readObject(final byte[] obj) {
+    public static <T> T readObjectQuietly(final byte[] obj) {
         return ObjectUtils.<T> readObjectQuietly(new FastByteArrayInputStream(obj));
+    }
+
+    public static <T> T readObject(final byte[] obj) throws IOException, ClassNotFoundException {
+        return ObjectUtils.<T> readObject(new FastByteArrayInputStream(obj));
     }
 
     public static <T> T readObjectQuietly(final InputStream is) {

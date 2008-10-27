@@ -28,9 +28,9 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
 import xbird.server.ServiceException;
-import xbird.util.lang.SystemUtils;
-import xbird.util.lang.SystemUtils.CPUInfo;
 import xbird.util.string.StringUtils;
+import xbird.util.system.SystemUtils;
+import xbird.util.system.SystemUtils.CPUInfo;
 
 /**
  * 
