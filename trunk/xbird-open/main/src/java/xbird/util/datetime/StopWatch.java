@@ -63,7 +63,7 @@ public final class StopWatch {
     }
 
     public long elapsed() {
-        if (end != 0) {
+        if(end != 0) {
             return end - begin;
         } else {
             return System.currentTimeMillis() - begin;
@@ -73,49 +73,49 @@ public final class StopWatch {
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
-        if (label != null) {
+        if(label != null) {
             buf.append(label + ": ");
         }
         long t = elapsed();
         long hour = t / 3600000;
-        if (hour > 0) {
+        if(hour > 0) {
             buf.append(hour + "h ");
             t = t % 3600000;
         }
         long min = t / 60000;
-        if (min > 0) {
+        if(min > 0) {
             buf.append(min + "m ");
             t = t % 60000;
         }
         long sec = t / 1000;
-        if (sec > 0) {
+        if(sec > 0) {
             buf.append(sec + "s ");
             t = t % 1000;
         }
-        if (t > 0) {
+        if(t > 0) {
             buf.append(t + "ms");
         }
         return buf.toString();
     }
-    
+
     public static String elapsedTime(long t) {
         final StringBuilder buf = new StringBuilder();
         long hour = t / 3600000;
-        if (hour > 0) {
+        if(hour > 0) {
             buf.append(hour + "h ");
             t = t % 3600000;
         }
         long min = t / 60000;
-        if (min > 0) {
+        if(min > 0) {
             buf.append(min + "m ");
             t = t % 60000;
         }
         long sec = t / 1000;
-        if (sec > 0) {
+        if(sec > 0) {
             buf.append(sec + "s ");
             t = t % 1000;
         }
-        if (t > 0) {
+        if(t > 0) {
             buf.append(t + "ms");
         }
         return buf.toString();
