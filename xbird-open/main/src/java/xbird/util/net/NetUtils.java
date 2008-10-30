@@ -23,6 +23,7 @@ package xbird.util.net;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -56,7 +57,7 @@ public final class NetUtils {
         return getLocalHost().getHostAddress();
     }
 
-    public static String getHostNameWithoutDomain(InetAddress addr) {
+    public static String getHostNameWithoutDomain(final InetAddress addr) {
         final String hostName = addr.getHostName();
         final int pos = hostName.indexOf('.');
         if(pos == -1) {
@@ -77,7 +78,7 @@ public final class NetUtils {
         }
     }
 
-    public static int getAvialablePort(int basePort) {
+    public static int getAvialablePort(final int basePort) {
         if(basePort == 0) {
             return getAvailablePort();
         }
@@ -93,7 +94,7 @@ public final class NetUtils {
                 + basePort);
     }
 
-    public static boolean isPortAvailable(int port) {
+    public static boolean isPortAvailable(final int port) {
         ServerSocket s = null;
         try {
             s = new ServerSocket(port);
@@ -113,11 +114,19 @@ public final class NetUtils {
 
     }
 
-    public static URI toURI(URL url) {
+    public static URI toURI(final URL url) {
         try {
             return url.toURI();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static void closeQuietly(final Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            ;
         }
     }
 }

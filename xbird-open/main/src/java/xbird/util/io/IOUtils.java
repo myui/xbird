@@ -79,11 +79,25 @@ public final class IOUtils {
         out.write((v >>> 0) & 0xFF);
     }
 
+    /**
+     * @return may be negative value when EOF is detected.
+     */
     public static int readInt(final InputStream in) throws IOException {
-        int ch1 = in.read();
-        int ch2 = in.read();
-        int ch3 = in.read();
-        int ch4 = in.read();
+        final int ch1 = in.read();
+        final int ch2 = in.read();
+        final int ch3 = in.read();
+        final int ch4 = in.read();
+        return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
+    }
+
+    public static int readUnsignedIntOrEOF(final InputStream in) throws IOException {
+        final int ch1 = in.read();
+        if(ch1 == -1) {
+            return -1;
+        }
+        final int ch2 = in.read();
+        final int ch3 = in.read();
+        final int ch4 = in.read();
         return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
     }
 
