@@ -77,6 +77,14 @@ public final class ExecutorFactory {
         return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
+    public static ThreadPoolExecutor newFixedThreadPool(int corePoolSize, int maxPoolSize, String threadName) {
+        return new ThreadPoolExecutor(corePoolSize, maxPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
+    }
+
+    public static ThreadPoolExecutor newFixedThreadPool(int corePoolSize, int maxPoolSize, long keepAliveInSec, String threadName) {
+        return new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveInSec, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
+    }
+
     /**
      * A handler for unexecutable tasks that waits until task can be submitted for execution.
      */
