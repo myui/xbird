@@ -112,7 +112,6 @@ public final class NetUtils {
                 }
             }
         }
-
     }
 
     public static URI toURI(final URL url) {
