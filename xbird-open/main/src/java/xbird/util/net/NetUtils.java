@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.channels.SocketChannel;
 import java.util.NoSuchElementException;
 
 /**
@@ -128,5 +129,20 @@ public final class NetUtils {
         } catch (IOException e) {
             ;
         }
+    }
+
+    public static void closeQuietly(final SocketChannel channel) {
+        final Socket socket = channel.socket();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            ;
+        }
+        try {
+            channel.close();
+        } catch (IOException e) {
+            ;
+        }
+
     }
 }
