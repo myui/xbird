@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.collections;
+package xbird.util.collections.ints;
 
 import java.util.Arrays;
 
@@ -51,7 +51,7 @@ public class IntQueue {
         this._array = array;
         this._arraySize = array.length;
     }
-    
+
     public IntQueue(int[] array, int cur, int last) {
         this._array = array;
         this._arraySize = array.length;

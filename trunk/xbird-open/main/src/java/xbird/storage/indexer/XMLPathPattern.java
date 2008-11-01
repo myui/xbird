@@ -22,7 +22,7 @@ package xbird.storage.indexer;
 
 import java.util.Stack;
 
-import xbird.util.collections.IntStack;
+import xbird.util.collections.ints.IntStack;
 import xbird.util.string.StringUtils;
 import xbird.util.xml.NamespaceBinder;
 import xbird.xquery.misc.QNameUtil;

@@ -21,7 +21,7 @@
 package xbird.xquery.dm.labeling;
 
 import xbird.util.codec.UTF8Codec;
-import xbird.util.collections.IntArrayList;
+import xbird.util.collections.ints.IntArrayList;
 
 /**
  * 

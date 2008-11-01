@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.collections;
+package xbird.util.collections.longs;
 
 /**
  * 

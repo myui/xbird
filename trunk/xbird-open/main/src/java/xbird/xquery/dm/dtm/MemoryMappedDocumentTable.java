@@ -35,7 +35,7 @@ import xbird.storage.DbException;
 import xbird.storage.io.Segments;
 import xbird.util.cache.ICacheEntry;
 import xbird.util.cache.ILongCache;
-import xbird.util.collections.LongQueue;
+import xbird.util.collections.longs.LongQueue;
 import xbird.util.concurrent.cache.ConcurrentLongCache;
 import xbird.util.lang.PrivilegedAccessor;
 import xbird.util.nio.CloseableMappedByteBuffer;

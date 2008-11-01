@@ -18,9 +18,9 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.collections;
+package xbird.util.collections.longs;
 
-import xbird.util.collections.LongHash.LongLRUMap;
+import xbird.util.collections.longs.LongHash.LongLRUMap;
 
 /**
  * 
@@ -53,7 +53,7 @@ public final class ObservableLongLRUMap<V> extends LongLRUMap<V> {
     }
 
     @Override
-    protected void addEntry(int bucket, long key, V value, xbird.util.collections.LongHash.BucketEntry<V> next) {
+    protected void addEntry(int bucket, long key, V value, xbird.util.collections.longs.LongHash.BucketEntry<V> next) {
         final ChainedEntry<V> newEntry = new ChainedEntry<V>(key, value, next);
         this._buckets[bucket] = newEntry;
         newEntry.addBefore(entryChainHeader);

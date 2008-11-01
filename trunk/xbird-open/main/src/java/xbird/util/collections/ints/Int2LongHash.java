@@ -1,5 +1,5 @@
 /*
- * @(#)$Id: Int2IntHash.java 3619 2008-03-26 07:23:03Z yui $
+ * @(#)$Id: Int2LongHash.java 3619 2008-03-26 07:23:03Z yui $
  *
  * Copyright 2006-2008 Makoto YUI
  *
@@ -18,9 +18,8 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.collections;
+package xbird.util.collections.ints;
 
-import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -38,7 +37,7 @@ import xbird.util.math.Primes;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEntry>, Closeable {
+public class Int2LongHash implements Serializable, Iterable<Int2LongHash.BucketEntry> {
     private static final long serialVersionUID = 1L;
 
     private static final float DEFAULT_LOAD_FACTOR = 0.7f;
@@ -48,7 +47,7 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
     protected int _threshold;
     protected int _size = 0;
 
-    public Int2IntHash(int size) {
+    public Int2LongHash(int size) {
         this(size, DEFAULT_LOAD_FACTOR);
     }
 
@@ -56,16 +55,16 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
      * Create a hash table that can comfortably hold the specified number of entries.
      * The actual table created to be is the smallest prime greater than size * 2.
      */
-    public Int2IntHash(int size, float loadFactor) {
+    public Int2LongHash(int size, float loadFactor) {
         assert (size > 0) : size;
-        final int bucketSize = Primes.findLeastPrimeNumber(size * 2);
+        int bucketSize = Primes.findLeastPrimeNumber(size * 2);
         this._buckets = new BucketEntry[bucketSize];
         this._loadFactor = loadFactor;
         this._threshold = (int) (size * loadFactor);
     }
 
     public boolean contains(int key) {
-        final int bucket = indexFor(key, _buckets.length);
+        int bucket = indexFor(key, _buckets.length);
         for(BucketEntry e = _buckets[bucket]; e != null; e = e.next) {
             if(key == e.key) {
                 return true;
@@ -74,8 +73,8 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
         return false;
     }
 
-    public int get(int key) {
-        final int bucket = indexFor(key, _buckets.length);
+    public long get(int key) {
+        int bucket = indexFor(key, _buckets.length);
         for(BucketEntry e = _buckets[bucket]; e != null; e = e.next) {
             if(key == e.key) {
                 e.recordAccess(this);
@@ -91,14 +90,14 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
      * 
      * @return old value for the given key. if not found, return -1.
      */
-    public int put(int key, int value) {
-        assert (value != -1);
-        final int bucket = indexFor(key, _buckets.length);
+    public long put(int key, long value) {
+        assert (value != -1L);
+        int bucket = indexFor(key, _buckets.length);
         // find an entry
         BucketEntry e;
         for(e = _buckets[bucket]; e != null; e = e.next) {
             if(key == e.key) {
-                final int replaced = e.value;
+                long replaced = e.value;
                 e.value = value;
                 e.recordAccess(this);
                 return replaced; // found
@@ -106,18 +105,18 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
         }
         // if not found, create a new entry.
         addEntry(bucket, key, value, _buckets[bucket]);
-        return -1;
+        return -1L;
     }
 
-    protected void addEntry(int bucket, int key, int value, BucketEntry next) {
-        final BucketEntry entry = new BucketEntry(key, value, next);
+    protected void addEntry(int bucket, int key, long value, BucketEntry next) {
+        BucketEntry entry = new BucketEntry(key, value, next);
         this._buckets[bucket] = entry;
         if(++_size > _threshold) {
             resize(2 * _buckets.length);
         }
     }
 
-    public int remove(int key) {
+    public long remove(int key) {
         final int bucket = indexFor(key, _buckets.length);
         // find an entry
         BucketEntry e, prev = null;
@@ -141,57 +140,54 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
     }
 
     protected void resize(int newCapacity) {
-        final BucketEntry[] newTable = new BucketEntry[newCapacity];
+        BucketEntry[] newTable = new BucketEntry[newCapacity];
         rehash(newTable);
         this._buckets = newTable;
         this._threshold = (int) (newCapacity * _loadFactor);
     }
 
     private void rehash(BucketEntry[] newTable) {
-        final int oldsize = _buckets.length;
-        final int newsize = newTable.length;
+        int oldsize = _buckets.length;
+        int newsize = newTable.length;
         for(int i = 0; i < oldsize; i++) {
             BucketEntry oldEntry = _buckets[i];
             while(oldEntry != null) {
                 BucketEntry e = oldEntry;
                 oldEntry = oldEntry.next;
-                final int bucket = indexFor(e.key, newsize);
+                int bucket = indexFor(e.key, newsize);
                 e.next = newTable[bucket];
                 newTable[bucket] = e;
             }
         }
     }
 
-    private static int indexFor(final int key, final int length) {
+    private static int indexFor(int key, int length) {
         return (key & 0x7fffffff) % (length - 1);
     }
 
     public static class BucketEntry implements Externalizable {
-        private static final long serialVersionUID = 1L;
 
         int key;
-
+        long value;
         BucketEntry next;
 
-        int value;
+        BucketEntry() {}
 
-        public BucketEntry() {}
-
-        BucketEntry(int key, int value, BucketEntry next) {
+        BucketEntry(int key, long value, BucketEntry next) {
             this.key = key;
             this.value = value;
             this.next = next;
         }
 
-        private BucketEntry(int key, int value) {
+        BucketEntry(int key, long value) {
             this(key, value, null);
         }
 
-        public int getKey() {
+        public final int getKey() {
             return key;
         }
 
-        public int getValue() {
+        public final long getValue() {
             return value;
         }
 
@@ -204,18 +200,18 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
             return new StringBuilder(48).append(key).append('/').append(value).toString();
         }
 
-        protected void recordAccess(Int2IntHash m) {}
+        void recordAccess(Int2LongHash m) {}
 
-        protected void recordRemoval(Int2IntHash m) {}
+        void recordRemoval(Int2LongHash m) {}
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             this.key = in.readInt();
-            this.value = in.readInt();
+            this.value = in.readLong();
             boolean hasNext = in.readBoolean();
             BucketEntry cur = this;
             while(hasNext) {
-                final int k = in.readInt();
-                final int v = in.readInt();
+                int k = in.readInt();
+                long v = in.readLong();
                 BucketEntry n = new BucketEntry(k, v);
                 cur.next = n;
                 cur = n;
@@ -227,7 +223,7 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
             BucketEntry cur = this;
             while(true) {
                 out.writeInt(cur.key);
-                out.writeInt(cur.value);
+                out.writeLong(cur.value);
                 if(cur.next != null) {// hasNext
                     out.writeBoolean(true);
                     cur = cur.next;
@@ -243,6 +239,7 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
         return new IntIterator();
     }
 
+    @Override
     public String toString() {
         final int len = size() * 10 + 2;
         final StringBuilder buf = new StringBuilder(len);
@@ -300,14 +297,13 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
         }
     }
 
-    public static final class Int2IntLRUMap extends Int2IntHash {
+    public static final class Int2LongLRUMap extends Int2LongHash {
         private static final long serialVersionUID = 1L;
 
         private final int maxCapacity;
-
         private final transient ChainedEntry entryChainHeader;
 
-        public Int2IntLRUMap(int limit) {
+        public Int2LongLRUMap(int limit) {
             super(limit, 1.0f);
             this.maxCapacity = limit;
             this.entryChainHeader = initEntryChain();
@@ -320,13 +316,13 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
         }
 
         @Override
-        protected void addEntry(final int bucket, final int key, final int value, final BucketEntry next) {
-            final ChainedEntry newEntry = new ChainedEntry(key, value, next);
+        protected void addEntry(int bucket, int key, long value, BucketEntry next) {
+            ChainedEntry newEntry = new ChainedEntry(key, value, next);
             this._buckets[bucket] = newEntry;
             newEntry.addBefore(entryChainHeader);
             ++_size;
-            ChainedEntry eldest = entryChainHeader.next;
-            if(removeEldestEntry(eldest)) {
+            if(removeEldestEntry()) {
+                ChainedEntry eldest = entryChainHeader.next;
                 remove(eldest.key);
             } else {
                 if(_size > _threshold) {
@@ -335,29 +331,34 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
             }
         }
 
-        private final boolean removeEldestEntry(BucketEntry eldest) {
+        private boolean removeEldestEntry() {
             return size() > maxCapacity;
         }
 
+        @Override
+        public Iterator<BucketEntry> iterator() {
+            return new OrderIterator(entryChainHeader);
+        }
+
         private static final class ChainedEntry extends BucketEntry {
-            private static final long serialVersionUID = -8782644116023761439L;
+            private static final long serialVersionUID = -4864620734808326464L;
 
             private ChainedEntry prev, next;
 
-            ChainedEntry(int key, int value, BucketEntry next) {
+            ChainedEntry(int key, long value, BucketEntry next) {
                 super(key, value, next);
             }
 
             @Override
-            protected void recordAccess(Int2IntHash m) {
-                remove();
-                Int2IntLRUMap lm = (Int2IntLRUMap) m;
+            void recordAccess(Int2LongHash m) {
+                this.remove();
+                Int2LongLRUMap lm = (Int2LongLRUMap) m;
                 addBefore(lm.entryChainHeader);
             }
 
             @Override
-            protected void recordRemoval(Int2IntHash m) {
-                remove();
+            void recordRemoval(Int2LongHash m) {
+                this.remove();
             }
 
             /**
@@ -381,16 +382,11 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
             }
         }
 
-        @Override
-        public Iterator<BucketEntry> iterator() {
-            return new OrderIterator(entryChainHeader);
-        }
-
         private final class OrderIterator implements Iterator<BucketEntry> {
 
             private ChainedEntry entry;
 
-            public OrderIterator(final ChainedEntry e) {
+            public OrderIterator(ChainedEntry e) {
                 assert (e != null);
                 this.entry = e;
             }
@@ -410,12 +406,7 @@ public class Int2IntHash implements Serializable, Iterable<Int2IntHash.BucketEnt
             public void remove() {
                 throw new UnsupportedOperationException();
             }
-
         }
-    }
-
-    public void close() throws IOException {
-        this._buckets = null;
     }
 
 }

@@ -36,7 +36,7 @@ import xbird.storage.indexer.BasicIndexQuery;
 import xbird.storage.indexer.ByteLikeIndexQuery;
 import xbird.storage.indexer.IndexMatch;
 import xbird.storage.indexer.IndexQuery;
-import xbird.util.collections.LongQueue;
+import xbird.util.collections.longs.LongQueue;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.struct.Pair;
 import xbird.xquery.XQRTException;

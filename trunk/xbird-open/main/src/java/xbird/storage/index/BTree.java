@@ -50,10 +50,10 @@ import xbird.storage.DbException;
 import xbird.storage.indexer.BasicIndexQuery;
 import xbird.storage.indexer.IndexQuery;
 import xbird.util.codec.VariableByteCodec;
-import xbird.util.collections.LongHash;
-import xbird.util.collections.ObservableLongLRUMap;
-import xbird.util.collections.LongHash.BucketEntry;
-import xbird.util.collections.LongHash.Cleaner;
+import xbird.util.collections.longs.LongHash;
+import xbird.util.collections.longs.ObservableLongLRUMap;
+import xbird.util.collections.longs.LongHash.BucketEntry;
+import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.lang.ArrayUtils;
 
