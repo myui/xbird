@@ -28,10 +28,13 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
 import xbird.storage.indexer.IndexQuery;
+import xbird.util.collections.IntArrayList;
 import xbird.util.collections.LRUMap;
 import xbird.util.collections.ObservableLongLRUMap;
 import xbird.util.collections.SoftHashMap;
@@ -400,6 +403,34 @@ public final class BIndexFile extends BTree {
         }
 
         public boolean indexInfo(Value key, long pointer) {
+            final byte[] tuple;
+            try {
+                tuple = retrieveTuple(pointer);
+            } catch (DbException e) {
+                throw new IllegalStateException(e);
+            }
+            return handler.indexInfo(key, tuple);
+        }
+
+        public boolean indexInfo(Value key, byte[] value) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    
+    private final class IOScheduledBFileCallback implements BTreeCallback {
+
+        final BTreeCallback handler;
+        final SortedMap<Long, IntArrayList> sink = new TreeMap<Long, IntArrayList>();
+
+        public IOScheduledBFileCallback(BTreeCallback handler) {
+            this.handler = handler;
+        }
+
+        public boolean indexInfo(Value key, long pointer) {
+            long pageNum = getPageNumFromPointer(pointer);
+            int tidx = getTidFromPointer(pointer);
+            
+            
             final byte[] tuple;
             try {
                 tuple = retrieveTuple(pointer);

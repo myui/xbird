@@ -36,6 +36,7 @@
 package xbird.util.lang;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 
@@ -56,6 +57,14 @@ public final class ArrayUtils {
     public static final int INDEX_NOT_FOUND = -1;
 
     private ArrayUtils() {}
+
+    public static <T> T[] copy(final T[] original) {
+        return Arrays.copyOf(original, original.length);
+    }
+
+    public static int[] copy(final int[] original) {
+        return Arrays.copyOf(original, original.length);
+    }
 
     /**
      * <p>Returns the length of the specified array.
@@ -538,6 +547,14 @@ public final class ArrayUtils {
         }
     }
 
+    public static void shuffle(final int[] array) {
+        final Random r = new Random();
+        final int limit = array.length;
+        for(int i = 0; i < limit; ++i) {
+            swap(array, i, r.nextInt(limit));
+        }
+    }
+
     public static void shuffle(final Object[] array, final long seed) {
         final Random r = new Random(seed);
         final int limit = array.length;
@@ -548,6 +565,12 @@ public final class ArrayUtils {
 
     public static void swap(final Object[] array, final int i, final int j) {
         Object o = array[i];
+        array[i] = array[j];
+        array[j] = o;
+    }
+
+    public static void swap(final int[] array, final int i, final int j) {
+        int o = array[i];
         array[i] = array[j];
         array[j] = o;
     }
