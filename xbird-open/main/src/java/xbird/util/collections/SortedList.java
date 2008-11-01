@@ -43,4 +43,16 @@ public interface SortedList<E> extends List<E>/* ,Iterable<E> */{
     //public E get(int i);
     //public int size();
 
+    public E get(E probe);
+
+    /**
+     * An efficient version of {@link #contains(Object)}
+     */
+    public boolean contains2(E o);
+
+    /**
+     * An efficient version of {@link #indexOf(Object)}
+     */
+    public int indexOf2(E o);
+
 }

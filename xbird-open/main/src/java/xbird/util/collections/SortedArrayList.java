@@ -91,6 +91,29 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
         return true;
     }
 
+    public E get(E probe) {
+        final int idx = Collections.binarySearch(this, probe, cmp);
+        if(idx >= 0) {
+            return get(idx);
+        }
+        return null;
+    }
+
+    /**
+     * An efficient version of {@link #contains(Object)}
+     */
+    public boolean contains2(E o) {
+        return indexOf2(o) >= 0;
+    }
+
+    /**
+     * An efficient version of {@link #indexOf(Object)}
+     */
+    public int indexOf2(E o) {
+        final int idx = Collections.binarySearch(this, o, cmp);
+        return idx < 0 ? -1 : idx;
+    }
+
     // ------------------------------------------
     // Unsupported Operations
 
