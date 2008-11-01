@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import xbird.storage.DbException;
 import xbird.storage.index.BTree;
 import xbird.storage.index.Value;
-import xbird.util.collections.Long2LongOpenHash;
+import xbird.util.collections.longs.Long2LongOpenHash;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FastBufferedOutputStream;
 import xbird.util.io.IOUtils;

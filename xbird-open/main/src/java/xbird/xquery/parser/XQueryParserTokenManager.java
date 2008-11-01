@@ -23,7 +23,7 @@ package xbird.xquery.parser;
 
 import java.io.IOException;
 
-import xbird.util.collections.IntStack;
+import xbird.util.collections.ints.IntStack;
 
 /** Token Manager. */
 public class XQueryParserTokenManager implements XQueryParserConstants {

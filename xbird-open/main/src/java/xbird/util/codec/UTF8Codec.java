@@ -20,7 +20,7 @@
  */
 package xbird.util.codec;
 
-import xbird.util.collections.IntArrayList;
+import xbird.util.collections.ints.IntArrayList;
 
 /**
  * This is a utility class encode/decode UTF-8.

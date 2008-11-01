@@ -18,23 +18,20 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.collections;
+package xbird.util.collections.longs;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Implementation of a cache with the full two-queue page replacement policy.
- * <DIV lang="en">
- * Get detail on the following paper.
- * Theodore Johnson, Dennis Shasha: 2Q: A Low Overhead High Performance Buffer Management Replacement Algorithm.
- * In Proc. VLDB, pp.439-450, 1994.
- * </DIV>
- * <DIV lang="ja"></DIV>
+ * 
+ * <DIV lang="en"> Get detail on the following paper. Theodore Johnson, Dennis
+ * Shasha: 2Q: A Low Overhead High Performance Buffer Management Replacement
+ * Algorithm. In Proc. VLDB, pp.439-450, 1994. </DIV> <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class Int2QCache<V> extends IntHash<V> {
+public class Long2QCache<V> extends LongHash<V> {
     private static final long serialVersionUID = 7811241071141908561L;
 
     public static final int MAIN = 1, IN = 2, OUT = 3, NIL = 0;
@@ -49,7 +46,7 @@ public class Int2QCache<V> extends IntHash<V> {
     protected int sizeMain, sizeIn, sizeOut;
     protected int maxMain, maxIn, maxOut;
 
-    public Int2QCache(int limit) {
+    public Long2QCache(int limit) {
         super(limit, 1.0f);
         this.maxCapacity = limit;
         this.headIn = new ChainedEntry<V>(-1, null, null);
@@ -83,7 +80,7 @@ public class Int2QCache<V> extends IntHash<V> {
     }
 
     @Override
-    protected void addEntry(int bucket, int key, V value, BucketEntry<V> next) {
+    protected void addEntry(int bucket, long key, V value, BucketEntry<V> next) {
         final ChainedEntry<V> newEntry = new ChainedEntry<V>(key, value, next);
         this._buckets[bucket] = newEntry;
 
@@ -99,15 +96,14 @@ public class Int2QCache<V> extends IntHash<V> {
             if(sizeOut > maxOut) {
                 ChainedEntry<V> tailOut = headOut.next;
                 if(tailOut != headOut) {
-                    purge(tailOut.key);
+                    remove(tailOut.key);
                     sizeOut--;
                 }
             }
-        } else if(isFull()) {
-            // remove coldest
+        } else if(isFull()) { // remove coldest
             ChainedEntry<V> tailMain = headMain.next;
             if(tailMain != headMain) {
-                purge(tailMain.key);
+                remove(tailMain.key);
                 sizeMain--;
             }
         }
@@ -115,9 +111,16 @@ public class Int2QCache<V> extends IntHash<V> {
         addToFront(headIn, newEntry);
         sizeIn++;
         _size++;
+
+        // int total = sizeIn + sizeOut + sizeMain;
+        // if(total > maxCapacity) {
+        // System.out.println("total: " + total + ", capacity: " + maxCapacity +
+        // ", sizeIn: "
+        // + sizeIn + ", sizeOut: " + sizeOut + ", sizeMain: " + sizeMain);
+        // }
     }
 
-    private static final <V> void addToFront(final ChainedEntry<V> head, final ChainedEntry<V> e) {
+    protected static final <V> void addToFront(ChainedEntry<V> head, ChainedEntry<V> e) {
         e.addBefore(head);
     }
 
@@ -126,11 +129,7 @@ public class Int2QCache<V> extends IntHash<V> {
     }
 
     protected final boolean isInQueueFull() {
-        return sizeIn > maxIn;
-    }
-
-    protected final boolean isMainQueueFull() {
-        return sizeMain > maxMain;
+        return sizeIn >= maxIn;
     }
 
     @Override
@@ -144,28 +143,30 @@ public class Int2QCache<V> extends IntHash<V> {
         return new EntriesIterator();
     }
 
-    private static final class ChainedEntry<V> extends BucketEntry<V> {
+    protected static final class ChainedEntry<V> extends BucketEntry<V> {
         private static final long serialVersionUID = -2234150049934401324L;
 
-        private ChainedEntry<V> prev, next;
-        private int type = NIL;
+        protected ChainedEntry<V> prev, next;
+        protected int type = NIL;
 
-        ChainedEntry(int key, V value, BucketEntry<V> next) {
+        ChainedEntry(long key, V value, BucketEntry<V> next) {
             super(key, value, next);
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        protected void recordAccess(final IntHash m) {
-            final Int2QCache lm = (Int2QCache) m;
+        protected void recordAccess(LongHash m) {
+            final Long2QCache lm = (Long2QCache) m;
             switch(type) {
                 case MAIN: // move tail entry to head of Am
                     remove();
                     addToFront(lm.headMain, this);
                     break;
                 case OUT: // move from A1out to Am
-                    if(lm.sizeMain >= lm.maxMain) {// workaround for a bug in full-2Q algorithm
-                        // move the coldest entry in Am to the tail of A1out (likely to be removed) 
+                    if(lm.sizeMain >= lm.maxMain) {// workaround for a bug in
+                        // full-2Q algorithm
+                        // move the coldest entry in Am to the tail of A1out
+                        // (likely to be removed)
                         ChainedEntry<V> tailMain = lm.headMain.next;
                         assert (tailMain != lm.headMain);
                         tailMain.remove();
@@ -181,22 +182,22 @@ public class Int2QCache<V> extends IntHash<V> {
                     addToFront(lm.headMain, this);
                     lm.sizeMain++;
                     break;
-                case IN: // do nothing                    
+                case IN: // do nothing
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected type: " + type);
+                    throw new IllegalStateException();
             }
         }
 
         @Override
-        protected void recordRemoval(final IntHash m) {
+        protected void recordRemoval(LongHash m) {
             remove();
         }
 
         /**
          * Removes this entry from the linked list.
          */
-        private void remove() {
+        protected void remove() {
             prev.next = next;
             next.prev = prev;
             prev = null;
@@ -205,9 +206,10 @@ public class Int2QCache<V> extends IntHash<V> {
 
         /**
          * Inserts this entry before the specified existing entry in the list.
+         * 
          * <pre>existingEntry.PREV <-> this <-> existingEntry - existingEntry.NEXT</pre>
          */
-        private void addBefore(ChainedEntry<V> existingEntry) {
+        protected void addBefore(ChainedEntry<V> existingEntry) {
             next = existingEntry;
             prev = existingEntry.prev;
             prev.next = this;
@@ -252,20 +254,23 @@ public class Int2QCache<V> extends IntHash<V> {
                     }
                     this.curQueue = MAIN;
                     this.entry = headMain;
+                    break;
                 case MAIN:
                     if(entry != headMain) {
                         break;
                     }
                     this.curQueue = OUT;
                     this.entry = headOut;
+                    break;
                 case OUT:
                     if(entry != headOut) {
                         break;
                     }
                     this.curQueue = NIL;
                     this.entry = null;
+                    break;
                 default:
-                    throw new NoSuchElementException();
+                    throw new NoSuchElementException("curQueue state: " + curQueue);
             }
             return entry;
         }
@@ -274,4 +279,5 @@ public class Int2QCache<V> extends IntHash<V> {
             throw new UnsupportedOperationException();
         }
     }
+
 }

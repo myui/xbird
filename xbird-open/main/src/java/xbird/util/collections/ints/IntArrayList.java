@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.collections;
+package xbird.util.collections.ints;
 
 import java.io.Serializable;
 import java.util.Arrays;

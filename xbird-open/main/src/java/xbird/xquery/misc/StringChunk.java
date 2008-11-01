@@ -39,7 +39,7 @@ import xbird.storage.io.Segments;
 import xbird.storage.io.VarSegments;
 import xbird.storage.io.VarSegments.DescriptorType;
 import xbird.util.cache.ILongCache;
-import xbird.util.collections.Int2LongOpenHash.Int2LongOpenLRUMap;
+import xbird.util.collections.ints.Int2LongOpenHash.Int2LongOpenLRUMap;
 import xbird.util.compress.CompressionCodec;
 import xbird.util.compress.CompressorFactory;
 import xbird.util.concurrent.cache.ConcurrentLongCache;

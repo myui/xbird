@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import xbird.storage.index.Value;
 import xbird.storage.indexer.BasicIndexQuery.IndexConditionSW;
-import xbird.util.collections.IntStack;
+import xbird.util.collections.ints.IntStack;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.string.StringUtils;

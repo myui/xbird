@@ -34,7 +34,7 @@ import xbird.storage.DbCollection;
 import xbird.storage.io.Segments;
 import xbird.storage.io.VarSegments;
 import xbird.storage.io.VarSegments.DescriptorType;
-import xbird.util.collections.Int2IntHash.Int2IntLRUMap;
+import xbird.util.collections.ints.Int2IntHash.Int2IntLRUMap;
 import xbird.util.compress.CompressionCodec;
 import xbird.util.compress.CompressorFactory;
 import xbird.util.lang.ArrayUtils;

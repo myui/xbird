@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import xbird.util.collections.LongQueue;
+import xbird.util.collections.longs.LongQueue;
 
 /**
  * 
