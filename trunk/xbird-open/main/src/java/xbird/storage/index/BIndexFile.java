@@ -131,7 +131,7 @@ public final class BIndexFile extends BTree {
         if(query.isIoScheduled()) {
             final IOScheduledBFileCallback cb = new IOScheduledBFileCallback(callback);
             super.search(query, cb);
-            cb.reportAll();
+            cb.flushReporting();
         } else {
             super.search(query, new BFileCallback(callback));
         }
@@ -430,9 +430,10 @@ public final class BIndexFile extends BTree {
     }
 
     private final class IOScheduledBFileCallback implements BTreeCallback {
+        private static final int FLUSH_INTERVAL = 1024;
 
         final BTreeCallback handler;
-        final SortedList<KeyValue<Long, Value>> reportedEntries = new SortedArrayList<KeyValue<Long, Value>>(128, true);
+        final SortedList<KeyValue<Long, Value>> reportedEntries = new SortedArrayList<KeyValue<Long, Value>>(FLUSH_INTERVAL, true);
 
         public IOScheduledBFileCallback(BTreeCallback handler) {
             this.handler = handler;
@@ -440,6 +441,9 @@ public final class BIndexFile extends BTree {
 
         public boolean indexInfo(Value key, long pointer) {
             reportedEntries.add(new KeyValue<Long, Value>(pointer, key));
+            if(reportedEntries.size() > FLUSH_INTERVAL) {
+                flushReporting();
+            }
             return true;
         }
 
@@ -447,7 +451,7 @@ public final class BIndexFile extends BTree {
             throw new UnsupportedOperationException();
         }
 
-        public void reportAll() {
+        public void flushReporting() {
             int readDataPages = 0;
             long startTime = System.currentTimeMillis();
             long prevPageNum = -1L;
@@ -475,11 +479,12 @@ public final class BIndexFile extends BTree {
                 Value key = entry.getValue();
                 handler.indexInfo(key, tuple);
             }
-            if(LOG.isInfoEnabled()) {
+            if(LOG.isDebugEnabled()) {
                 long elapsedTime = System.currentTimeMillis() - startTime;
-                LOG.info("BIndexFile[" + FileUtils.getFileName(getFile()) + "] Read "
+                LOG.debug("BIndexFile[" + FileUtils.getFileName(getFile()) + "] Read "
                         + readDataPages + " data pages in " + StopWatch.elapsedTime(elapsedTime));
             }
+            reportedEntries.clear();
         }
     }
 

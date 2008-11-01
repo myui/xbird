@@ -98,7 +98,7 @@ public class BasicIndexQuery implements IndexQuery {
 
     protected final int _operator;
     protected final Value[] _operands;
-    private boolean ioScheduling = true;
+    private boolean ioScheduling = false;
 
     // ---------------------------------------
 
@@ -124,7 +124,7 @@ public class BasicIndexQuery implements IndexQuery {
     public boolean isIoScheduled() {
         return ioScheduling;
     }
-    
+
     public void setIoScheduling(boolean enable) {
         this.ioScheduling = enable;
     }
@@ -167,7 +167,7 @@ public class BasicIndexQuery implements IndexQuery {
     }
 
     public static final class IndexConditionANY extends BasicIndexQuery {
-        
+
         public IndexConditionANY() {
             super(ANY);
         }
