@@ -32,6 +32,8 @@ import xbird.storage.index.Value;
  */
 public interface IndexQuery {
 
+    public boolean isIoScheduled();
+
     public int getOperator();
 
     public Value[] getOperands();

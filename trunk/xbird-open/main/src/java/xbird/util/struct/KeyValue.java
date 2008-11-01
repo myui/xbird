@@ -20,6 +20,10 @@
  */
 package xbird.util.struct;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 
 /**
@@ -30,11 +34,13 @@ import java.io.Serializable;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public final class KeyValue<K extends Comparable<K> & Serializable, V extends Serializable>
-        implements Comparable<K>, Serializable {
+        implements Comparable<K>, Externalizable {
     private static final long serialVersionUID = -2404017844476627950L;
 
-    private final K key;
-    private V value;
+    private transient K key;
+    private transient V value;
+
+    public KeyValue() {}
 
     public KeyValue(K key) {
         this.key = key;
@@ -49,6 +55,10 @@ public final class KeyValue<K extends Comparable<K> & Serializable, V extends Se
         return key;
     }
 
+    public void setKey(K key) {
+        this.key = key;
+    }
+
     public V getValue() {
         return value;
     }
@@ -59,6 +69,17 @@ public final class KeyValue<K extends Comparable<K> & Serializable, V extends Se
 
     public int compareTo(K o) {
         return key.compareTo(o);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        this.key = (K) in.readObject();
+        this.value = (V) in.readObject();
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(key);
+        out.writeObject(value);
     }
 
 }

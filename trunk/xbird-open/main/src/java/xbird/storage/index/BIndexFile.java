@@ -28,20 +28,24 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
 import xbird.storage.indexer.IndexQuery;
-import xbird.util.collections.IntArrayList;
 import xbird.util.collections.LRUMap;
 import xbird.util.collections.ObservableLongLRUMap;
 import xbird.util.collections.SoftHashMap;
+import xbird.util.collections.SortedArrayList;
+import xbird.util.collections.SortedList;
 import xbird.util.collections.LongHash.BucketEntry;
 import xbird.util.collections.LongHash.Cleaner;
 import xbird.util.collections.LongHash.LongLRUMap;
 import xbird.util.lang.Primitives;
+import xbird.util.lang.PrintUtils;
+import xbird.util.struct.KeyValue;
 
 /**
  * 
@@ -51,6 +55,7 @@ import xbird.util.lang.Primitives;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public final class BIndexFile extends BTree {
+    private static final Log LOG = LogFactory.getLog(BIndexFile.class);
 
     private static final byte DATA_RECORD = 10;
     public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 64);
@@ -121,7 +126,13 @@ public final class BIndexFile extends BTree {
 
     @Override
     public void search(IndexQuery query, BTreeCallback callback) throws DbException {
-        super.search(query, new BFileCallback(callback));
+        if(query.isIoScheduled()) {
+            final IOScheduledBFileCallback cb = new IOScheduledBFileCallback(callback);
+            super.search(query, cb);
+            cb.reportAll();
+        } else {
+            super.search(query, new BFileCallback(callback));
+        }
     }
 
     public long putValue(long key, byte[] value) throws DbException {
@@ -246,13 +257,12 @@ public final class BIndexFile extends BTree {
         }
 
         public int add(Value value) {
-
-            int idx = tuples.size();
+            final int idx = tuples.size();
             if(idx > Short.MAX_VALUE) {
                 throw new IllegalStateException("blocks length exceeds limit: " + idx);
             }
 
-            byte[] b = value.getData();
+            final byte[] b = value.getData();
             tuples.add(b);
 
             // update controls
@@ -416,32 +426,50 @@ public final class BIndexFile extends BTree {
             throw new UnsupportedOperationException();
         }
     }
-    
+
     private final class IOScheduledBFileCallback implements BTreeCallback {
 
         final BTreeCallback handler;
-        final SortedMap<Long, IntArrayList> sink = new TreeMap<Long, IntArrayList>();
+        final SortedList<KeyValue<Long, Value>> reportedEntries = new SortedArrayList<KeyValue<Long, Value>>(128, true);
 
         public IOScheduledBFileCallback(BTreeCallback handler) {
             this.handler = handler;
         }
 
         public boolean indexInfo(Value key, long pointer) {
-            long pageNum = getPageNumFromPointer(pointer);
-            int tidx = getTidFromPointer(pointer);
-            
-            
-            final byte[] tuple;
-            try {
-                tuple = retrieveTuple(pointer);
-            } catch (DbException e) {
-                throw new IllegalStateException(e);
-            }
-            return handler.indexInfo(key, tuple);
+            reportedEntries.add(new KeyValue<Long, Value>(pointer, key));
+            return true;
         }
 
         public boolean indexInfo(Value key, byte[] value) {
             throw new UnsupportedOperationException();
+        }
+
+        public void reportAll() {
+            long prevPageNum = -1L;
+            DataPage prevPage = null;
+            for(KeyValue<Long, Value> entry : reportedEntries) {
+                long ptr = entry.getKey().longValue();
+                final long pageNum = getPageNumFromPointer(ptr);
+                final DataPage page;
+                if(pageNum == prevPageNum) {
+                    page = prevPage;
+                } else {
+                    try {
+                        page = getDataPage(pageNum);
+                    } catch (DbException e) {
+                        LOG.error(PrintUtils.prettyPrintStackTrace(e));
+                        throw new IllegalStateException(e);
+                    }
+                    prevPageNum = pageNum;
+                    prevPage = page;
+                }
+                int tidx = getTidFromPointer(ptr);
+                byte[] tuple = page.get(tidx);
+
+                Value key = entry.getValue();
+                handler.indexInfo(key, tuple);
+            }
         }
     }
 

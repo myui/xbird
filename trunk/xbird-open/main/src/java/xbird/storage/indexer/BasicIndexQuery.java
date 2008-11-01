@@ -98,6 +98,7 @@ public class BasicIndexQuery implements IndexQuery {
 
     protected final int _operator;
     protected final Value[] _operands;
+    private boolean ioScheduling = true;
 
     // ---------------------------------------
 
@@ -118,6 +119,14 @@ public class BasicIndexQuery implements IndexQuery {
         assert (index >= 0) : index;
         assert (index < _operands.length) : "operand[" + index + "] not found: " + _operands;
         return _operands[index];
+    }
+
+    public boolean isIoScheduled() {
+        return ioScheduling;
+    }
+    
+    public void setIoScheduling(boolean enable) {
+        this.ioScheduling = enable;
     }
 
     public boolean testValue(Value value) {
