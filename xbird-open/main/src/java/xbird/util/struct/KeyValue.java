@@ -26,6 +26,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -34,19 +37,26 @@ import java.io.Serializable;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public final class KeyValue<K extends Comparable<K> & Serializable, V extends Serializable>
-        implements Comparable<K>, Externalizable {
+        implements Comparable<KeyValue<K, V>>, Externalizable {
     private static final long serialVersionUID = -2404017844476627950L;
 
+    @Nonnull
     private transient K key;
     private transient V value;
 
     public KeyValue() {}
 
-    public KeyValue(K key) {
+    public KeyValue(@CheckForNull K key) {
+        if(key == null) {
+            throw new IllegalArgumentException();
+        }
         this.key = key;
     }
 
-    public KeyValue(K key, V value) {
+    public KeyValue(@CheckForNull K key, V value) {
+        if(key == null) {
+            throw new IllegalArgumentException();
+        }
         this.key = key;
         this.value = value;
     }
@@ -55,7 +65,10 @@ public final class KeyValue<K extends Comparable<K> & Serializable, V extends Se
         return key;
     }
 
-    public void setKey(K key) {
+    public void setKey(@CheckForNull K key) {
+        if(key == null) {
+            throw new IllegalArgumentException();
+        }
         this.key = key;
     }
 
@@ -67,8 +80,9 @@ public final class KeyValue<K extends Comparable<K> & Serializable, V extends Se
         this.value = value;
     }
 
-    public int compareTo(K o) {
-        return key.compareTo(o);
+    public int compareTo(KeyValue<K, V> o) {
+        K otherKey = o.getKey();
+        return key.compareTo(otherKey);
     }
 
     @SuppressWarnings("unchecked")
