@@ -43,6 +43,8 @@ import xbird.util.collections.longs.ObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.collections.longs.LongHash.LongLRUMap;
+import xbird.util.datetime.StopWatch;
+import xbird.util.io.FileUtils;
 import xbird.util.lang.Primitives;
 import xbird.util.lang.PrintUtils;
 import xbird.util.struct.KeyValue;
@@ -446,6 +448,8 @@ public final class BIndexFile extends BTree {
         }
 
         public void reportAll() {
+            int readDataPages = 0;
+            long startTime = System.currentTimeMillis();
             long prevPageNum = -1L;
             DataPage prevPage = null;
             for(KeyValue<Long, Value> entry : reportedEntries) {
@@ -463,12 +467,18 @@ public final class BIndexFile extends BTree {
                     }
                     prevPageNum = pageNum;
                     prevPage = page;
+                    readDataPages++;
                 }
                 int tidx = getTidFromPointer(ptr);
                 byte[] tuple = page.get(tidx);
 
                 Value key = entry.getValue();
                 handler.indexInfo(key, tuple);
+            }
+            if(LOG.isInfoEnabled()) {
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                LOG.info("BIndexFile[" + FileUtils.getFileName(getFile()) + "] Read "
+                        + readDataPages + " data pages in " + StopWatch.elapsedTime(elapsedTime));
             }
         }
     }
