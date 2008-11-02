@@ -52,7 +52,6 @@ public final class ExecutorFactory {
     /**
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6458662
      */
-    @Deprecated
     public static ThreadPoolExecutor newCachedThreadPool(int corePoolSize, long keepAliveTimeInSec, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, Integer.MAX_VALUE, keepAliveTimeInSec, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
