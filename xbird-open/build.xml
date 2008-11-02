@@ -158,6 +158,8 @@
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/ognl-2.6.9.jar"
 			                  relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/tokyocabinet-1.14.jar"
+			                  relpath="" />
 		</fatjar.build>
 	</target>
 
