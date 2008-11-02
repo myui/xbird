@@ -142,6 +142,26 @@ public final class NetUtils {
         } catch (IOException e) {
             ;
         }
+    }
 
+    public static void shotdownAndCloseQuietly(final Socket socket) {
+        try {
+            socket.shutdownOutput();
+        } catch (IOException e) {
+            ;
+        }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            ;
+        }
+    }
+
+    public static void shotdownOutput(final Socket sock) {
+        try {
+            sock.shutdownOutput();
+        } catch (IOException e) {
+            ;
+        }
     }
 }
