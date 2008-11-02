@@ -157,7 +157,7 @@ public final class NetUtils {
         }
     }
 
-    public static void shutdownOutput(final Socket sock) {
+    public static void shutdownOutputQuietly(final Socket sock) {
         try {
             sock.shutdownOutput();
         } catch (IOException e) {
