@@ -144,7 +144,7 @@ public final class NetUtils {
         }
     }
 
-    public static void shotdownAndCloseQuietly(final Socket socket) {
+    public static void shutdownAndCloseQuietly(final Socket socket) {
         try {
             socket.shutdownOutput();
         } catch (IOException e) {
@@ -157,7 +157,7 @@ public final class NetUtils {
         }
     }
 
-    public static void shotdownOutput(final Socket sock) {
+    public static void shutdownOutput(final Socket sock) {
         try {
             sock.shutdownOutput();
         } catch (IOException e) {
