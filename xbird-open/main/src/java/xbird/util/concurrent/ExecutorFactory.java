@@ -63,7 +63,7 @@ public final class ExecutorFactory {
      * @see ThreadPoolExecutor
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6458662
      */
-    public static ThreadPoolExecutor newBoundedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTimeInSec, String threadName) {
+    public static ThreadPoolExecutor newBoundedWorkQueueThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTimeInSec, String threadName) {
         final int taskQueueSize = Math.min(corePoolSize + ((maximumPoolSize - corePoolSize) >> 1), corePoolSize << 1);
         return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInSec, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(taskQueueSize), new NamedThreadFactory(threadName), new WaitPolicy());
     }
@@ -76,11 +76,11 @@ public final class ExecutorFactory {
         return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
-    public static ThreadPoolExecutor newFixedThreadPool(int corePoolSize, int maxPoolSize, String threadName) {
+    public static ThreadPoolExecutor newThreadPool(int corePoolSize, int maxPoolSize, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, maxPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
-    public static ThreadPoolExecutor newFixedThreadPool(int corePoolSize, int maxPoolSize, long keepAliveInSec, String threadName) {
+    public static ThreadPoolExecutor newThreadPool(int corePoolSize, int maxPoolSize, long keepAliveInSec, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveInSec, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 

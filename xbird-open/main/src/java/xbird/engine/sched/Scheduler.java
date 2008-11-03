@@ -59,7 +59,7 @@ public abstract class Scheduler implements Runnable {
     Scheduler(ResponseListener resHandler) {
         this._resHandler = resHandler;
         this._listeners = new ArrayList<ScheduledEventListener>(4);
-        this._executors = ExecutorFactory.newBoundedThreadPool(4, MAX_BACKENDS, 60L, "BackendProc"); // TODO REVIEWME max threads
+        this._executors = ExecutorFactory.newBoundedWorkQueueThreadPool(4, MAX_BACKENDS, 60L, "BackendProc"); // TODO REVIEWME max threads
     }
 
     Scheduler(ResponseListener resHandler, ScheduledEventListener... listeners) {
@@ -69,7 +69,7 @@ public abstract class Scheduler implements Runnable {
             list.add(listener);
         }
         this._listeners = list;
-        this._executors = ExecutorFactory.newBoundedThreadPool(4, MAX_BACKENDS, 60L, "BackendProc"); // TODO REVIEWME max threads
+        this._executors = ExecutorFactory.newBoundedWorkQueueThreadPool(4, MAX_BACKENDS, 60L, "BackendProc"); // TODO REVIEWME max threads
     }
 
     public final void addListener(ScheduledEventListener listener) {

@@ -76,30 +76,42 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
     }
 
     public void run() {
-        compute();
+        try {
+            compute();
+        } catch (Throwable e) {
+            LOG.fatal(PrintUtils.prettyPrintStackTrace(e, -1));
+        }
     }
 
     protected final void compute() {
         final IDisposableBlockingQueue<Item> exqueue = _exqueue;
         final IFocus<Item> itor = _delegate.iterator();
-        for(Item e : itor) {
-            try {
-                if(!exqueue.putIfAvailable(e)) {
-                    itor.closeQuietly();
-                    if(LOG.isInfoEnabled()) {
-                        LOG.info("IncrEvalSequence is disposed");
+        try {
+            for(Item e : itor) {
+                try {
+                    if(!exqueue.putIfAvailable(e)) {
+                        exqueue.dispose();
+                        if(LOG.isInfoEnabled()) {
+                            LOG.info("IncrEvalSequence is disposed");
+                        }
+                        return;
                     }
+                } catch (InterruptedException ie) {
+                    exqueue.dispose();
+                    LOG.warn(PrintUtils.prettyPrintStackTrace(ie));
                     return;
                 }
-            } catch (InterruptedException ie) {
-                itor.closeQuietly();
-                LOG.warn(PrintUtils.prettyPrintStackTrace(ie));
             }
+        } finally {
+            itor.closeQuietly();
         }
-        itor.closeQuietly();
         try {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("put SENTINEL");
+            }
             exqueue.put(SENTINEL);
         } catch (InterruptedException ie) {
+            exqueue.dispose();
             LOG.warn(PrintUtils.prettyPrintStackTrace(ie));
         }
     }
@@ -131,6 +143,8 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
         }
 
         private Item emurateNext() {
+            assert (!reachedEnd);
+            assert (seeked == null);
             final Item item;
             try {
                 item = exqueue_.take();
@@ -139,6 +153,9 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
                 throw new IllegalStateException(e);
             }
             if(item == SENTINEL) {
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("SENTINEL is found and reached end.");
+                }
                 this.reachedEnd = true;
                 return null;
             } else {
@@ -167,7 +184,7 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
         }
 
         public void close() throws IOException {
-            exqueue_.dispose(false);
+            exqueue_.dispose();
         }
     }
 
