@@ -94,7 +94,7 @@ public class RunnableRemoteSequenceProxy extends RemoteSequenceProxy implements 
 
     @Override
     public void close(boolean force) throws RemoteException {
-        _exqueue.dispose();
+        _exqueue.dispose(false);
         super.close(force);
     }
 

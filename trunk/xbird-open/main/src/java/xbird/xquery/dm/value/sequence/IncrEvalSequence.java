@@ -86,6 +86,9 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
             try {
                 if(!exqueue.putIfAvailable(e)) {
                     itor.closeQuietly();
+                    if(LOG.isInfoEnabled()) {
+                        LOG.info("IncrEvalSequence is disposed");
+                    }
                     return;
                 }
             } catch (InterruptedException ie) {
@@ -164,7 +167,7 @@ public final class IncrEvalSequence extends AbstractSequence<Item> implements Ru
         }
 
         public void close() throws IOException {
-            exqueue_.dispose();
+            exqueue_.dispose(false);
         }
     }
 

@@ -48,9 +48,11 @@ public final class DisposableBlockingQueue<E> implements IDisposableBlockingQueu
         return new DisposableBlockingQueue<E>(delegate, sentinel);
     }
 
-    public void dispose() {
-        if(!_disposed) {//REVIEWME should release all put
+    public void dispose(boolean close) {
+        if(!_disposed) {
             this._disposed = true;
+        }
+        if(close) {
             _delegate.clear();
         }
     }
