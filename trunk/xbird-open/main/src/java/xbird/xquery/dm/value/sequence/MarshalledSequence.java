@@ -472,13 +472,12 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
         }
         try {
             encoder.emit(entity);
+            objOut.flush();
         } catch (XQueryException xqe) {
             throw new IllegalStateException("failed encoding", xqe);
         } catch (Throwable e) {
             LOG.fatal(e);
             throw new IllegalStateException("failed encoding", e);
-        } finally {
-            objOut.flush();
         }
         final byte[] buf = bufOut.toByteArray();
         bufOut.clear();

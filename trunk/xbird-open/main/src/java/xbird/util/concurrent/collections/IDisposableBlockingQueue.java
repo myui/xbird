@@ -31,7 +31,9 @@ import java.util.concurrent.BlockingQueue;
  */
 public interface IDisposableBlockingQueue<E> extends BlockingQueue<E> {
 
-    public void dispose(boolean close);
+    public boolean isDisposed();
+    
+    public void dispose();
 
     public boolean putIfAvailable(E e) throws InterruptedException;
 

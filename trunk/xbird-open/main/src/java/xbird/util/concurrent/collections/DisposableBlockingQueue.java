@@ -48,11 +48,13 @@ public final class DisposableBlockingQueue<E> implements IDisposableBlockingQueu
         return new DisposableBlockingQueue<E>(delegate, sentinel);
     }
 
-    public void dispose(boolean close) {
+    public boolean isDisposed() {
+        return _disposed;
+    }
+
+    public void dispose() {
         if(!_disposed) {
             this._disposed = true;
-        }
-        if(close) {
             _delegate.clear();
         }
     }
