@@ -27,7 +27,7 @@ set optlib=%libdir%\optional
 
 REM You can customize the option for JavaVM externally via setting VMOPTS
 set VMOPTS=-Xmx256m -da -server %VMOPTS%
-REM set VMOPTS=%VMOPTS% -Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl
+set VMOPTS=%VMOPTS% -Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl
 
 set JARS=%distdir%\xbird-open-1.0.jar
 REM set JARS=..\build

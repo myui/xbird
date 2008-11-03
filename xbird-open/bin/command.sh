@@ -24,7 +24,7 @@ optlib=$libdir/optional
 
 # You can customize the option for JavaVM externally via setting VMOPTS
 VMOPTS="-Xmx256m -da -server $VMOPTS"
-#VMOPTS="$VMOPTS -Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl"
+VMOPTS="$VMOPTS -Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl"
 
 JARS=$distdir/xbird-open-1.0.jar
 #JARS=../build
