@@ -16,7 +16,7 @@
  * limitations under the License.
  * 
  * Contributors:
- *     Makoto YUI - ported from Apache Xindice with some modification
+ *     Makoto YUI - ported from Apache Xindice and various modifications are made
  */
 /*
  * Copyright 1999-2004 The Apache Software Foundation.
