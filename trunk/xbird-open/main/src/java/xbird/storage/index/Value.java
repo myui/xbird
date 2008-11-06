@@ -20,7 +20,12 @@
  */
 package xbird.storage.index;
 
-import java.io.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.OutputStream;
 
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.lang.HashUtils;
@@ -75,7 +80,7 @@ public class Value implements Comparable, Cloneable, Externalizable {
     /**
      * getData retrieves the data being stored by the Value as a byte array.
      */
-    public final byte[] getData() {
+    public byte[] getData() {
         if(_len != _data.length) {
             byte[] b = new byte[_len];
             System.arraycopy(_data, _pos, b, 0, _len);
@@ -219,7 +224,7 @@ public class Value implements Comparable, Cloneable, Externalizable {
         out.writeInt(_len);
         out.write(_data, _pos, _len);
     }
-    
+
     public int size() {
         return 8 + _len;
     }
