@@ -67,16 +67,28 @@ public final class BIndexFile extends BTree {
     private final Map<Value, byte[]> resultCache = new SoftHashMap<Value, byte[]>(128);
     private final Map<Value, Long> storeCache = new LRUMap<Value, Long>(64);
 
+    private final boolean multiValue;
+
     public BIndexFile(File file) {
         this(file, true);
     }
 
     public BIndexFile(File file, boolean duplicateAllowed) {
-        this(file, DEFAULT_PAGESIZE, DEFAULT_IN_MEMORY_NODES, duplicateAllowed);
+        this(file, DEFAULT_PAGESIZE, DEFAULT_IN_MEMORY_NODES, duplicateAllowed, false);
     }
 
-    public BIndexFile(File file, int pageSize, int caches, boolean duplicateAllowed) {
+    public BIndexFile(File file, int pageSize, int caches, boolean duplicateAllowed, boolean multiValue) {
         super(file, pageSize, caches, duplicateAllowed);
+        if(multiValue) {
+            if(!duplicateAllowed) {
+                throw new IllegalArgumentException("Duplicate disallowed while multi-value mode is set");
+            }
+            BFileHeader fh = getFileHeader();
+            fh.multiValue = multiValue;
+            this.multiValue = true;
+        } else {
+            this.multiValue = false;
+        }
         final Synchronizer sync = new Synchronizer();
         this.dataCache = new ObservableLongLRUMap<DataPage>(DATA_CACHE_SIZE, DATA_CACHE_PURGE_UNIT, sync);
     }
@@ -100,12 +112,12 @@ public final class BIndexFile extends BTree {
         return getValueBytes(new Value(key));
     }
 
-    public byte[] getValueBytes(Value key) throws DbException {
+    public synchronized byte[] getValueBytes(Value key) throws DbException {
         byte[] tuple = resultCache.get(key);
         if(tuple != null) {
             return tuple;
         }
-        long ptr = findValue(key);
+        final long ptr = findValue(key);
         if(ptr == KEY_NOT_FOUND) {
             return null;
         }
@@ -114,7 +126,7 @@ public final class BIndexFile extends BTree {
         return tuple;
     }
 
-    private byte[] retrieveTuple(long ptr) throws DbException {
+    private synchronized byte[] retrieveTuple(long ptr) throws DbException {
         long pageNum = getPageNumFromPointer(ptr);
         DataPage dataPage = getDataPage(pageNum);
         int tidx = getTidFromPointer(ptr);
@@ -145,13 +157,21 @@ public final class BIndexFile extends BTree {
         return putValue(key, new Value(value));
     }
 
-    public long putValue(Value key, Value value) throws DbException {
+    public synchronized long putValue(Value key, Value value) throws DbException {
         long ptr = findValue(key);
         if(ptr != KEY_NOT_FOUND) {// key found
             // update the page
             if(!isDuplicateAllowed()) {
                 updateValue(value, ptr);
                 return ptr;
+            }
+            if(multiValue) {
+                byte[] tuple = retrieveTuple(ptr);
+                LinkedValue oldValue = LinkedValue.readFrom(tuple);
+                long newPtr = storeValue(value);
+                oldValue.setNextPointer(newPtr);
+                updateValue(oldValue, ptr);
+                return newPtr;
             }
         }
         // insert a new key
@@ -190,7 +210,7 @@ public final class BIndexFile extends BTree {
         }
 
         final long pageNum = dataPage.getPageNum();
-        int tid = dataPage.add(value);
+        int tid = dataPage.add(new LinkedValue(value));
 
         saveFreeList(freeList, free, dataPage);
 
@@ -258,13 +278,13 @@ public final class BIndexFile extends BTree {
             return totalDataLen;
         }
 
-        public int add(Value value) {
+        public int add(LinkedValue value) {
             final int idx = tuples.size();
             if(idx > Short.MAX_VALUE) {
                 throw new IllegalStateException("blocks length exceeds limit: " + idx);
             }
 
-            final byte[] b = value.getData();
+            final byte[] b = value.toBytes();
             tuples.add(b);
 
             // update controls
@@ -354,6 +374,7 @@ public final class BIndexFile extends BTree {
     private final class BFileHeader extends BTreeFileHeader {
 
         private final FreeList freeList = new FreeList(128);
+        private boolean multiValue = false;
 
         public BFileHeader(int pageSize) {
             super(pageSize);
@@ -366,12 +387,14 @@ public final class BIndexFile extends BTree {
         @Override
         public synchronized void read(RandomAccessFile raf) throws IOException {
             super.read(raf);
+            this.multiValue = raf.readBoolean();
             freeList.read(raf);
         }
 
         @Override
         public synchronized void write(RandomAccessFile raf) throws IOException {
             super.write(raf);
+            raf.writeBoolean(multiValue);
             freeList.write(raf);
         }
     }
@@ -421,7 +444,25 @@ public final class BIndexFile extends BTree {
             } catch (DbException e) {
                 throw new IllegalStateException(e);
             }
-            return handler.indexInfo(key, tuple);
+            LinkedValue v = LinkedValue.readFrom(tuple);
+            for(;;) {
+                final byte[] b = v.getData();
+                if(handler.indexInfo(key, b)) {
+                    break;
+                }
+                final long np = v.getNextPointer();
+                if(np == -1L) {
+                    break;
+                }
+                final byte[] nextTuple;
+                try {
+                    nextTuple = retrieveTuple(np);
+                } catch (DbException e) {
+                    throw new IllegalStateException(e);
+                }
+                v = LinkedValue.readFrom(nextTuple);
+            }
+            return true;
         }
 
         public boolean indexInfo(Value key, byte[] value) {
@@ -429,6 +470,7 @@ public final class BIndexFile extends BTree {
         }
     }
 
+    @Deprecated
     private final class IOScheduledBFileCallback implements BTreeCallback {
         private static final int FLUSH_INTERVAL = 1024;
 
