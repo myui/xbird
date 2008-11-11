@@ -49,8 +49,8 @@ import xbird.util.lang.Primitives;
 public class BIndexFile extends BTree {
 
     private static final byte DATA_RECORD = 10;
-    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 64);
-    public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 8);
+    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 512);  // 8k * 512 = 4m
+    public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 12);
 
     private final LongLRUMap<DataPage> dataCache;
     private final Map<Value, Long> storeCache = new LRUMap<Value, Long>(64);

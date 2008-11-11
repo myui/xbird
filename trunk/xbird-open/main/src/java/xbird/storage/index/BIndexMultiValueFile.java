@@ -41,7 +41,7 @@ import xbird.util.lang.PrintUtils;
 public final class BIndexMultiValueFile extends BIndexFile {
     private static final Log LOG = LogFactory.getLog(BIndexMultiValueFile.class);
 
-    private final LongLRUMap<MultiPtrs> ptrsCache = new LongLRUMap<MultiPtrs>(256);
+    private final LongLRUMap<MultiPtrs> ptrsCache = new LongLRUMap<MultiPtrs>(512);
 
     public BIndexMultiValueFile(File file) {
         super(file, false);
@@ -62,9 +62,10 @@ public final class BIndexMultiValueFile extends BIndexFile {
         if(ptr != KEY_NOT_FOUND) {// key found
             // update the page
             MultiPtrs ptrs = ptrsCache.get(ptr);
-            if(ptrs == null) {
+            if(ptrs == null) {//TODO concurrent insertion is too slow..
                 byte[] ptrTuple = retrieveTuple(ptr);
                 ptrs = MultiPtrs.readFrom(ptrTuple);
+                ptrsCache.put(ptr, ptrs);
             }
             ptrs.addPointer(valuePtr);
             updateValue(ptrs, ptr);
