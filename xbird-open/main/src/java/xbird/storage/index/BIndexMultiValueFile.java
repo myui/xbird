@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.storage.DbException;
 import xbird.util.collections.longs.LongArrayList;
+import xbird.util.collections.longs.LongHash.LongLRUMap;
 import xbird.util.lang.Primitives;
 import xbird.util.lang.PrintUtils;
 
@@ -40,7 +41,7 @@ import xbird.util.lang.PrintUtils;
 public final class BIndexMultiValueFile extends BIndexFile {
     private static final Log LOG = LogFactory.getLog(BIndexMultiValueFile.class);
 
-    //private final LongLRUMap<MultiPtrs> ptrsCache = new LongLRUMap<MultiPtrs>(256);
+    private final LongLRUMap<MultiPtrs> ptrsCache = new LongLRUMap<MultiPtrs>(256);
 
     public BIndexMultiValueFile(File file) {
         super(file, false);
@@ -55,20 +56,25 @@ public final class BIndexMultiValueFile extends BIndexFile {
     }
 
     @Override
-    public synchronized long putValue(Value key, Value value) throws DbException {
+    public synchronized long putValue(final Value key, final Value value) throws DbException {
         final long valuePtr = storeValue(value);
         final long ptr = findValue(key);
         if(ptr != KEY_NOT_FOUND) {// key found
             // update the page
-            byte[] ptrTuple = retrieveTuple(ptr);
-            MultiPtrs ptrs = MultiPtrs.readFrom(ptrTuple);
+            MultiPtrs ptrs = ptrsCache.get(ptr);
+            if(ptrs == null) {
+                byte[] ptrTuple = retrieveTuple(ptr);
+                ptrs = MultiPtrs.readFrom(ptrTuple);
+            }
             ptrs.addPointer(valuePtr);
             updateValue(ptrs, ptr);
             return ptr;
         } else {
             // insert a new key           
-            long newPtr = storeValue(new MultiPtrs(valuePtr));
+            MultiPtrs ptrs = new MultiPtrs(valuePtr);
+            long newPtr = storeValue(ptrs);
             addValue(key, newPtr);
+            ptrsCache.put(newPtr, ptrs);
             return newPtr;
         }
     }
@@ -87,13 +93,16 @@ public final class BIndexMultiValueFile extends BIndexFile {
         }
 
         public boolean indexInfo(Value key, long pointer) {
-            final byte[] ptrTuple;
-            try {
-                ptrTuple = retrieveTuple(pointer);
-            } catch (DbException e) {
-                throw new IllegalStateException(e);
+            MultiPtrs ptrs = ptrsCache.get(pointer);
+            if(ptrs == null) {
+                final byte[] ptrTuple;
+                try {
+                    ptrTuple = retrieveTuple(pointer);
+                } catch (DbException e) {
+                    throw new IllegalStateException(e);
+                }
+                ptrs = MultiPtrs.readFrom(ptrTuple);
             }
-            MultiPtrs ptrs = MultiPtrs.readFrom(ptrTuple);
             final LongArrayList lptrs = ptrs.getPointers();
             final int size = lptrs.size();
             for(int i = 0; i < size; i++) {
