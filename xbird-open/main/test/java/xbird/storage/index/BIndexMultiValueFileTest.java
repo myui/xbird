@@ -61,7 +61,7 @@ public class BIndexMultiValueFileTest extends TestCase {
         BIndexMultiValueFile btree = new BIndexMultiValueFile(tmpFile);
         btree.init(false);
 
-        final int repeat = 100000;
+        final int repeat = 1000000;
         final int max = 1000;
         final Random rand = new Random(3232328098123L);
         final int[] keys = new int[repeat];

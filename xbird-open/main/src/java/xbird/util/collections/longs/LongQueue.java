@@ -33,7 +33,7 @@ public class LongQueue {
 
     public static final int DEFAULT_ARY_SIZE = 16;
 
-    private int _index = 0;
+    private transient int _index = 0;
     private int _lastIndex = 0;
 
     private int _arraySize;
@@ -58,6 +58,10 @@ public class LongQueue {
         this._arraySize = array.length;
         this._index = cur;
         this._lastIndex = last;
+    }
+
+    public final long get(int i) {
+        return _array[i];
     }
 
     public final void add(long i) {
