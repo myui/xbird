@@ -36,7 +36,7 @@ public final class Primitives {
     public static final int TINY_INT_SIZE = 256;
 
     private Primitives() {}
-    
+
     public static int parseInt(final String v, final int defaultValue) {
         if(v == null || v.length() == 0) {
             return defaultValue;
@@ -255,6 +255,13 @@ public final class Primitives {
         return c;
     }
 
+    public static long getInt(final byte[] b) {
+        if(b.length != 4) {
+            throw new IllegalArgumentException("Illegal byte size as a int value: " + b.length);
+        }
+        return getInt(b, 0);
+    }
+
     public static int getInt(final byte[] b, final int off) {
         return ((b[off + 3] & 0xFF) << 0) + ((b[off + 2] & 0xFF) << 8)
                 + ((b[off + 1] & 0xFF) << 16) + ((b[off + 0]) << 24);
@@ -271,7 +278,7 @@ public final class Primitives {
         return getLong(b, 0);
     }
 
-    private static long getLong(final byte[] ary, final int offset) {
+    public static long getLong(final byte[] ary, final int offset) {
         return ((long) (ary[offset] & 0xff) << 56) | ((long) (ary[offset + 1] & 0xFF) << 48)
                 | ((long) (ary[offset + 2] & 0xFF) << 40) | ((long) (ary[offset + 3] & 0xFF) << 32)
                 | ((long) (ary[offset + 4] & 0xFF) << 24) | ((long) (ary[offset + 5] & 0xFF) << 16)
