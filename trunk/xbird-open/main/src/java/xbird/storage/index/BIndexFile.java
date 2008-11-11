@@ -49,7 +49,7 @@ import xbird.util.lang.Primitives;
 public class BIndexFile extends BTree {
 
     private static final byte DATA_RECORD = 10;
-    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 256);  // 8k * 256 = 2m
+    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 512);  // 4k * 512 = 2m
     public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 12);
 
     private final LongLRUMap<DataPage> dataCache;
@@ -60,7 +60,7 @@ public class BIndexFile extends BTree {
     }
 
     public BIndexFile(File file, boolean duplicateAllowed) {
-        this(file, DEFAULT_PAGESIZE, DEFAULT_IN_MEMORY_NODES, duplicateAllowed);
+        this(file, DEFAULT_PAGESIZE, 1024, duplicateAllowed);
     }
 
     public BIndexFile(File file, int pageSize, int caches, boolean duplicateAllowed) {
