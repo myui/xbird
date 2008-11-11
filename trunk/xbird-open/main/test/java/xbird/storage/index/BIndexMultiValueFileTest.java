@@ -49,10 +49,10 @@ import xbird.util.lang.Primitives;
  */
 public class BIndexMultiValueFileTest extends TestCase {
 
-    public void testSearch() throws IOException, DbException {
+    public void testBIndexMultiValueFile() throws IOException, DbException {
         File tmpDir = FileUtils.getTempDir();
         Assert.assertTrue(tmpDir.exists());
-        File tmpFile = new File(tmpDir, "test1.bidx");
+        File tmpFile = new File(tmpDir, "test1.bmidx");
         tmpFile.deleteOnExit();
         if(tmpFile.exists()) {
             Assert.assertTrue(tmpFile.delete());
@@ -61,6 +61,25 @@ public class BIndexMultiValueFileTest extends TestCase {
         BIndexMultiValueFile btree = new BIndexMultiValueFile(tmpFile);
         btree.init(false);
 
+        invokeTest(btree);
+    }
+
+    public void testBIndexFile() throws IOException, DbException {
+        File tmpDir = FileUtils.getTempDir();
+        Assert.assertTrue(tmpDir.exists());
+        File tmpFile = new File(tmpDir, "test1.bfidx");
+        tmpFile.deleteOnExit();
+        if(tmpFile.exists()) {
+            Assert.assertTrue(tmpFile.delete());
+        }
+        System.out.println("Use index file: " + tmpFile.getAbsolutePath());
+        BIndexFile btree = new BIndexFile(tmpFile, true);
+        btree.init(false);
+
+        invokeTest(btree);
+    }
+
+    private static void invokeTest(BIndexFile btree) throws DbException {
         final int repeat = 1000000;
         final int max = 1000;
         final Random rand = new Random(3232328098123L);
@@ -114,7 +133,6 @@ public class BIndexMultiValueFileTest extends TestCase {
             Set<Integer> vsetActual = actual.get(key);
             Assert.assertEquals(vsetActual, vsetExpected);
         }
-
     }
 
 }
