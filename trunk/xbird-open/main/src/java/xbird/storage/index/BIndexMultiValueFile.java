@@ -150,7 +150,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
             return _ptrs;
         }
 
-        public void addPointer(long ptr) {
+        public void addPointer(final long ptr) {
             _ptrs.add(ptr);
 
             final byte[] oldData = _data;
@@ -158,7 +158,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
             final int newLen = oldLen + 8;
             final byte[] newData = new byte[newLen];
 
-            int newSize = _ptrs.size();
+            final int newSize = _ptrs.size();
             assert (newSize > 0) : newSize;
             Primitives.putInt(oldData, 0, newSize);
             System.arraycopy(oldData, 0, newData, 0, oldLen);
