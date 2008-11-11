@@ -56,6 +56,11 @@ public final class FileUtils {
 
     private FileUtils() {}
 
+    public static File getTempDir() {
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        return new File(tmpdir);
+    }
+
     /**
      * Finds files within a given directory (and optionally its
      * subdirectories). All files found are filtered by an IOFileFilter.

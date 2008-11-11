@@ -36,18 +36,11 @@ import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
 import xbird.storage.indexer.IndexQuery;
 import xbird.util.collections.LRUMap;
-import xbird.util.collections.SoftHashMap;
-import xbird.util.collections.SortedArrayList;
-import xbird.util.collections.SortedList;
 import xbird.util.collections.longs.ObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.collections.longs.LongHash.LongLRUMap;
-import xbird.util.datetime.StopWatch;
-import xbird.util.io.FileUtils;
 import xbird.util.lang.Primitives;
-import xbird.util.lang.PrintUtils;
-import xbird.util.struct.KeyValue;
 
 /**
  * 
@@ -56,7 +49,7 @@ import xbird.util.struct.KeyValue;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class BIndexFile extends BTree {
+public class BIndexFile extends BTree {
     private static final Log LOG = LogFactory.getLog(BIndexFile.class);
 
     private static final byte DATA_RECORD = 10;
@@ -64,7 +57,6 @@ public final class BIndexFile extends BTree {
     public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 8);
 
     private final LongLRUMap<DataPage> dataCache;
-    private final Map<Value, byte[]> resultCache = new SoftHashMap<Value, byte[]>(128);
     private final Map<Value, Long> storeCache = new LRUMap<Value, Long>(64);
 
     public BIndexFile(File file) {
@@ -82,7 +74,7 @@ public final class BIndexFile extends BTree {
     }
 
     @Override
-    public FileHeader createFileHeader(int pageSize) {
+    public BFileHeader createFileHeader(int pageSize) {
         return new BFileHeader(pageSize);
     }
 
@@ -96,25 +88,19 @@ public final class BIndexFile extends BTree {
         return new BFilePageHeader();
     }
 
-    public byte[] getValueBytes(long key) throws DbException {
+    public final byte[] getValueBytes(long key) throws DbException {
         return getValueBytes(new Value(key));
     }
 
-    public byte[] getValueBytes(Value key) throws DbException {
-        byte[] tuple = resultCache.get(key);
-        if(tuple != null) {
-            return tuple;
-        }
-        long ptr = findValue(key);
+    public synchronized byte[] getValueBytes(Value key) throws DbException {
+        final long ptr = findValue(key);
         if(ptr == KEY_NOT_FOUND) {
             return null;
         }
-        tuple = retrieveTuple(ptr);
-        resultCache.put(key, tuple);
-        return tuple;
+        return retrieveTuple(ptr);
     }
 
-    private byte[] retrieveTuple(long ptr) throws DbException {
+    protected synchronized final byte[] retrieveTuple(long ptr) throws DbException {
         long pageNum = getPageNumFromPointer(ptr);
         DataPage dataPage = getDataPage(pageNum);
         int tidx = getTidFromPointer(ptr);
@@ -127,25 +113,23 @@ public final class BIndexFile extends BTree {
     }
 
     @Override
-    public void search(IndexQuery query, BTreeCallback callback) throws DbException {
-        if(query.isIoScheduled()) {
-            final IOScheduledBFileCallback cb = new IOScheduledBFileCallback(callback);
-            super.search(query, cb);
-            cb.flushReporting();
-        } else {
-            super.search(query, new BFileCallback(callback));
-        }
+    public final void search(IndexQuery query, BTreeCallback callback) throws DbException {
+        super.search(query, getHandler(callback));
     }
 
-    public long putValue(long key, byte[] value) throws DbException {
+    protected BTreeCallback getHandler(BTreeCallback handler) {
+        return new BFileCallback(handler);
+    }
+
+    public final long putValue(long key, byte[] value) throws DbException {
         return putValue(new Value(key), new Value(value));
     }
 
-    public long putValue(Value key, byte[] value) throws DbException {
+    public final long putValue(Value key, byte[] value) throws DbException {
         return putValue(key, new Value(value));
     }
 
-    public long putValue(Value key, Value value) throws DbException {
+    public synchronized long putValue(Value key, Value value) throws DbException {
         long ptr = findValue(key);
         if(ptr != KEY_NOT_FOUND) {// key found
             // update the page
@@ -160,14 +144,14 @@ public final class BIndexFile extends BTree {
         return ptr;
     }
 
-    private void updateValue(Value value, long ptr) throws DbException {
+    protected final void updateValue(Value value, long ptr) throws DbException {
         long pageNum = getPageNumFromPointer(ptr);
         DataPage dataPage = getDataPage(pageNum);
         int tidx = getTidFromPointer(ptr);
         dataPage.set(tidx, value);
     }
 
-    private long storeValue(Value value) throws DbException {
+    protected final long storeValue(Value value) throws DbException {
         final Long cachedPtr = storeCache.get(value);
         if(cachedPtr != null) {
             return cachedPtr.longValue();
@@ -190,7 +174,7 @@ public final class BIndexFile extends BTree {
         }
 
         final long pageNum = dataPage.getPageNum();
-        int tid = dataPage.add(value);
+        final int tid = dataPage.add(value);
 
         saveFreeList(freeList, free, dataPage);
 
@@ -264,12 +248,12 @@ public final class BIndexFile extends BTree {
                 throw new IllegalStateException("blocks length exceeds limit: " + idx);
             }
 
-            final byte[] b = value.getData();
-            tuples.add(b);
+            final byte[] tuple = value.getData();
+            tuples.add(tuple);
 
             // update controls
             ph.setTupleCount(idx + 1);
-            totalDataLen += (b.length + 4);
+            totalDataLen += (tuple.length + 4);
             //ph.setDataLength(totalDataLen);
             setDirty();
 
@@ -281,10 +265,10 @@ public final class BIndexFile extends BTree {
                 throw new IllegalStateException("Illegal tid for DataPage#" + page.getPageNum()
                         + ": " + tidx);
             }
-            final byte[] newTuple = value.getData();
-            byte[] oldTuple = tuples.set(tidx, newTuple);
+            final byte[] tuple = value.getData();
+            final byte[] oldTuple = tuples.set(tidx, tuple);
             if(oldTuple != null) {
-                int diff = newTuple.length - oldTuple.length;
+                int diff = tuple.length - oldTuple.length;
                 totalDataLen += diff;
                 //ph.setDataLength(totalDataLen);
             }
@@ -351,9 +335,10 @@ public final class BIndexFile extends BTree {
         }
     }
 
-    private final class BFileHeader extends BTreeFileHeader {
+    protected final class BFileHeader extends BTreeFileHeader {
 
         private final FreeList freeList = new FreeList(128);
+        private boolean multiValue = false;
 
         public BFileHeader(int pageSize) {
             super(pageSize);
@@ -363,15 +348,21 @@ public final class BIndexFile extends BTree {
             return freeList;
         }
 
+        public void setMultiValue(boolean multi) {
+            this.multiValue = multi;
+        }
+
         @Override
         public synchronized void read(RandomAccessFile raf) throws IOException {
             super.read(raf);
+            this.multiValue = raf.readBoolean();
             freeList.read(raf);
         }
 
         @Override
         public synchronized void write(RandomAccessFile raf) throws IOException {
             super.write(raf);
+            raf.writeBoolean(multiValue);
             freeList.write(raf);
         }
     }
@@ -426,65 +417,6 @@ public final class BIndexFile extends BTree {
 
         public boolean indexInfo(Value key, byte[] value) {
             throw new UnsupportedOperationException();
-        }
-    }
-
-    private final class IOScheduledBFileCallback implements BTreeCallback {
-        private static final int FLUSH_INTERVAL = 1024;
-
-        final BTreeCallback handler;
-        final SortedList<KeyValue<Long, Value>> reportedEntries = new SortedArrayList<KeyValue<Long, Value>>(FLUSH_INTERVAL, true);
-
-        public IOScheduledBFileCallback(BTreeCallback handler) {
-            this.handler = handler;
-        }
-
-        public boolean indexInfo(Value key, long pointer) {
-            reportedEntries.add(new KeyValue<Long, Value>(pointer, key));
-            if(reportedEntries.size() > FLUSH_INTERVAL) {
-                flushReporting();
-            }
-            return true;
-        }
-
-        public boolean indexInfo(Value key, byte[] value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void flushReporting() {
-            int readDataPages = 0;
-            long startTime = System.currentTimeMillis();
-            long prevPageNum = -1L;
-            DataPage prevPage = null;
-            for(KeyValue<Long, Value> entry : reportedEntries) {
-                long ptr = entry.getKey().longValue();
-                final long pageNum = getPageNumFromPointer(ptr);
-                final DataPage page;
-                if(pageNum == prevPageNum) {
-                    page = prevPage;
-                } else {
-                    try {
-                        page = getDataPage(pageNum);
-                    } catch (DbException e) {
-                        LOG.error(PrintUtils.prettyPrintStackTrace(e));
-                        throw new IllegalStateException(e);
-                    }
-                    prevPageNum = pageNum;
-                    prevPage = page;
-                    readDataPages++;
-                }
-                int tidx = getTidFromPointer(ptr);
-                byte[] tuple = page.get(tidx);
-
-                Value key = entry.getValue();
-                handler.indexInfo(key, tuple);
-            }
-            if(LOG.isDebugEnabled()) {
-                long elapsedTime = System.currentTimeMillis() - startTime;
-                LOG.debug("BIndexFile[" + FileUtils.getFileName(getFile()) + "] Read "
-                        + readDataPages + " data pages in " + StopWatch.elapsedTime(elapsedTime));
-            }
-            reportedEntries.clear();
         }
     }
 
