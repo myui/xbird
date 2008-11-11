@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
 import xbird.storage.indexer.IndexQuery;
@@ -50,7 +47,6 @@ import xbird.util.lang.Primitives;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public class BIndexFile extends BTree {
-    private static final Log LOG = LogFactory.getLog(BIndexFile.class);
 
     private static final byte DATA_RECORD = 10;
     public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 64);

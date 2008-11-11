@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.storage.DbException;
-import xbird.util.lang.ArrayUtils;
+import xbird.util.collections.longs.LongArrayList;
 import xbird.util.lang.Primitives;
 import xbird.util.lang.PrintUtils;
 
@@ -39,6 +39,8 @@ import xbird.util.lang.PrintUtils;
  */
 public final class BIndexMultiValueFile extends BIndexFile {
     private static final Log LOG = LogFactory.getLog(BIndexMultiValueFile.class);
+
+    //private final LongLRUMap<MultiPtrs> ptrsCache = new LongLRUMap<MultiPtrs>(256);
 
     public BIndexMultiValueFile(File file) {
         super(file, false);
@@ -92,9 +94,10 @@ public final class BIndexMultiValueFile extends BIndexFile {
                 throw new IllegalStateException(e);
             }
             MultiPtrs ptrs = MultiPtrs.readFrom(ptrTuple);
-            final long[] lptrs = ptrs.getPointers();
-            for(int i = 0; i < lptrs.length; i++) {
-                final long lptr = lptrs[i];
+            final LongArrayList lptrs = ptrs.getPointers();
+            final int size = lptrs.size();
+            for(int i = 0; i < size; i++) {
+                final long lptr = lptrs.get(i);
                 final byte[] value;
                 try {
                     value = retrieveTuple(lptr);
@@ -116,40 +119,51 @@ public final class BIndexMultiValueFile extends BIndexFile {
 
     private static final class MultiPtrs extends Value {
 
-        private long[] ptrs;
+        private LongArrayList _ptrs;
 
         public MultiPtrs() {
             super();
         }
 
-        public MultiPtrs(long... ptrs) {
-            super(toBytes(ptrs));
-            this.ptrs = ptrs;
+        public MultiPtrs(long ptr) {
+            super(toBytes(ptr));
+            this._ptrs = new LongArrayList(4);
+            _ptrs.add(ptr);
         }
 
-        public long[] getPointers() {
-            return ptrs;
+        private MultiPtrs(byte[] b, long[] ptrs) {
+            super(b);
+            this._ptrs = new LongArrayList(ptrs.length + 2);
+            _ptrs.add(ptrs);
+        }
+
+        public LongArrayList getPointers() {
+            return _ptrs;
         }
 
         public void addPointer(long ptr) {
-            this.ptrs = ArrayUtils.insert(ptrs, ptr);
-            byte[] b = toBytes(ptrs);
-            this._data = b;
+            _ptrs.add(ptr);
+
+            final byte[] oldData = _data;
+            final int oldLen = oldData.length;
+            final int newLen = oldLen + 8;
+            final byte[] newData = new byte[newLen];
+
+            int newSize = _ptrs.size();
+            assert (newSize > 0) : newSize;
+            Primitives.putInt(oldData, 0, newSize);
+            System.arraycopy(oldData, 0, newData, 0, oldLen);
+            Primitives.putLong(newData, oldLen, ptr);
+
+            this._data = newData;
             this._pos = 0;
-            this._len = b.length;
+            this._len = newLen;
         }
 
-        private static byte[] toBytes(long[] ptrs) {
-            final int len = ptrs.length;
-            final int size = 4 + (8 * len);
-            final byte[] b = new byte[size];
-            Primitives.putInt(b, 0, len);
-            int idx = 4;
-            for(int i = 0; i < len; i++) {
-                long ptr = ptrs[i];
-                Primitives.putLong(b, idx, ptr);
-                idx += 8;
-            }
+        private static byte[] toBytes(long ptr) {
+            final byte[] b = new byte[12];
+            Primitives.putInt(b, 0, 1);
+            Primitives.putLong(b, 4, ptr);
             return b;
         }
 
@@ -162,7 +176,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
                 ptrs[i] = ptr;
                 idx += 8;
             }
-            return new MultiPtrs(ptrs);
+            return new MultiPtrs(b, ptrs);
         }
 
     }
