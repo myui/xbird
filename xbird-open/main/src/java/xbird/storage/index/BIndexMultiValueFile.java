@@ -71,7 +71,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
             updateValue(ptrs, ptr);
             return ptr;
         } else {
-            // insert a new key           
+            // insert a new key           .
             MultiPtrs ptrs = new MultiPtrs(valuePtr);
             long newPtr = storeValue(ptrs);
             addValue(key, newPtr);
@@ -130,21 +130,26 @@ public final class BIndexMultiValueFile extends BIndexFile {
     private static final class MultiPtrs extends Value {
 
         private LongArrayList _ptrs;
+        private int _used;
+        private int _free;
 
         public MultiPtrs() {
             super();
         }
 
         public MultiPtrs(long ptr) {
-            super(toBytes(ptr));
+            super(initData(ptr));
             this._ptrs = new LongArrayList(4);
             _ptrs.add(ptr);
+            this._used = 1;
+            this._free = 3;
         }
 
-        private MultiPtrs(byte[] b, long[] ptrs) {
+        private MultiPtrs(byte[] b, long[] ptrs, int used, int free) {
             super(b);
-            this._ptrs = new LongArrayList(ptrs.length + 2);
-            _ptrs.add(ptrs);
+            this._ptrs = new LongArrayList(ptrs, used);
+            this._used = used;
+            this._free = free;
         }
 
         public LongArrayList getPointers() {
@@ -152,41 +157,48 @@ public final class BIndexMultiValueFile extends BIndexFile {
         }
 
         public void addPointer(final long ptr) {
-            _ptrs.add(ptr);
-
             final byte[] oldData = _data;
-            final int oldLen = oldData.length;
-            final int newLen = oldLen + 8;
-            final byte[] newData = new byte[newLen];
+            final int offset = (_used + 1) << 3; //8 + (_used * 8);
+            _ptrs.add(ptr);
+            _used++;
+            if((_free--) > 0) {
+                Primitives.putInt(oldData, 0, _used);
+                Primitives.putLong(oldData, offset, ptr);
+            } else {
+                this._free = _used; // doubling spaces
+                int newLen = 8 + (_used << 4); //8 + ((_used + _free) << 3);
+                final byte[] newData = new byte[newLen];
 
-            final int newSize = _ptrs.size();
-            assert (newSize > 0) : newSize;
-            Primitives.putInt(oldData, 0, newSize);
-            System.arraycopy(oldData, 0, newData, 0, oldLen);
-            Primitives.putLong(newData, oldLen, ptr);
+                System.arraycopy(oldData, 0, newData, 0, oldData.length);
+                Primitives.putInt(newData, 0, _used);
+                Primitives.putInt(newData, 4, _free);
+                Primitives.putLong(newData, offset, ptr);
 
-            this._data = newData;
-            this._pos = 0;
-            this._len = newLen;
+                this._data = newData;
+                this._pos = 0;
+                this._len = newLen;
+            }
         }
 
-        private static byte[] toBytes(long ptr) {
-            final byte[] b = new byte[12];
+        private static byte[] initData(long ptr) {
+            final byte[] b = new byte[40]; // 8 + (8 * (3 + 1))
             Primitives.putInt(b, 0, 1);
-            Primitives.putLong(b, 4, ptr);
+            Primitives.putInt(b, 4, 3);
+            Primitives.putLong(b, 8, ptr);
             return b;
         }
 
         public static MultiPtrs readFrom(byte[] b) {
-            final int len = Primitives.getInt(b, 0);
-            final long[] ptrs = new long[len];
-            int idx = 4;
-            for(int i = 0; i < len; i++) {
+            final int used = Primitives.getInt(b, 0);
+            final int free = Primitives.getInt(b, 4);
+            final long[] ptrs = new long[(used * 3) / 2];
+            int idx = 8;
+            for(int i = 0; i < used; i++) {
                 long ptr = Primitives.getLong(b, idx);
                 ptrs[i] = ptr;
                 idx += 8;
             }
-            return new MultiPtrs(b, ptrs);
+            return new MultiPtrs(b, ptrs, used, free);
         }
 
     }
