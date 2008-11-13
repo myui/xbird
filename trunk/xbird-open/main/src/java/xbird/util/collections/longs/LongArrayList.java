@@ -51,9 +51,9 @@ public final class LongArrayList implements Serializable {
         this.used = 0;
     }
 
-    public LongArrayList(long[] initValues) {
-        this(initValues.length);
-        add(initValues);
+    public LongArrayList(long[] initValues, int used) {
+        this.data = initValues;
+        this.used = used;
     }
 
     public void add(long value) {

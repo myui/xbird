@@ -64,7 +64,7 @@ public class BIndexMultiValueFileTest extends TestCase {
         invokeTest(btree);
     }
 
-    public void testBIndexFile() throws IOException, DbException {
+    public void xtestBIndexFile() throws IOException, DbException {
         File tmpDir = FileUtils.getTempDir();
         Assert.assertTrue(tmpDir.exists());
         File tmpFile = new File(tmpDir, "test1.bfidx");
