@@ -194,8 +194,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
             final long[] ptrs = new long[(used * 3) / 2];
             int idx = 8;
             for(int i = 0; i < used; i++) {
-                long ptr = Primitives.getLong(b, idx);
-                ptrs[i] = ptr;
+                ptrs[i] = Primitives.getLong(b, idx);
                 idx += 8;
             }
             return new MultiPtrs(b, ptrs, used, free);
