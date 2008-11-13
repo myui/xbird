@@ -20,7 +20,10 @@
  */
 package xbird.util.lang;
 
+import java.io.File;
 import java.io.PrintStream;
+
+import xbird.util.io.FileUtils;
 
 /**
  * Miscellaneous print utilities.
@@ -165,6 +168,33 @@ public final class PrintUtils {
         out.println("[MemoryUsage] " + new java.util.Date(System.currentTimeMillis()).toString()
                 + " - Total: " + Runtime.getRuntime().totalMemory() + "byte , " + "Free: "
                 + Runtime.getRuntime().freeMemory() + "byte");
+    }
+
+    public static String prettyFileSize(long size) {
+        if(size < 0) {
+            return "N/A";
+        } else {
+            if(size < 1024) {
+                return size + " bytes";
+            } else {
+                float kb = size / 1024f;
+                if(kb < 1024f) {
+                    return String.format("%.1f KB", kb);
+                } else {
+                    float mb = kb / 1024f;
+                    if(mb < 1024f) {
+                        return String.format("%.1f MB", mb);
+                    } else {
+                        float gb = mb / 1024f;
+                        return String.format("%.2f GB", gb);
+                    }
+                }
+            }
+        }
+    }
+
+    public static String prettyFileSize(File file) {
+        return prettyFileSize(FileUtils.getFileSize(file));
     }
 
 }

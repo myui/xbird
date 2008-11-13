@@ -61,6 +61,24 @@ public final class FileUtils {
         return new File(tmpdir);
     }
 
+    public static long getFileSize(File file) {
+        if(!file.exists()) {
+            return -1L;
+        }
+        long size = 0;
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null && files.length > 0) {
+                for(File f : files) {
+                    size += getFileSize(f);
+                }
+            }
+        } else {
+            size += file.length();
+        }
+        return size;
+    }
+
     /**
      * Finds files within a given directory (and optionally its
      * subdirectories). All files found are filtered by an IOFileFilter.
