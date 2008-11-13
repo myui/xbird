@@ -36,9 +36,11 @@ import org.junit.Assert;
 
 import xbird.storage.DbException;
 import xbird.storage.indexer.BasicIndexQuery.IndexConditionANY;
+import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.lang.Primitives;
+import xbird.util.lang.PrintUtils;
 
 /**
  * 
@@ -64,7 +66,7 @@ public class BIndexMultiValueFileTest extends TestCase {
         invokeTest(btree);
     }
 
-    public void xtestBIndexFile() throws IOException, DbException {
+    public void testBIndexFile() throws IOException, DbException {
         File tmpDir = FileUtils.getTempDir();
         Assert.assertTrue(tmpDir.exists());
         File tmpFile = new File(tmpDir, "test1.bfidx");
@@ -80,7 +82,7 @@ public class BIndexMultiValueFileTest extends TestCase {
     }
 
     private static void invokeTest(BIndexFile btree) throws DbException {
-        final int repeat = 1000000;
+        final int repeat = 10000000;
         final int max = 1000;
         final Random rand = new Random(3232328098123L);
         final int[] keys = new int[repeat];
@@ -90,6 +92,8 @@ public class BIndexMultiValueFileTest extends TestCase {
         Arrays.sort(keys);
         final int[] values = ArrayUtils.copy(keys);
         ArrayUtils.shuffle(values);
+
+        final StopWatch watchdog1 = new StopWatch("Construction of " + repeat + " objects");
         final SortedMap<Integer, Set<Integer>> expected = new TreeMap<Integer, Set<Integer>>();
         for(int i = 0; i < repeat; i++) {
             int k = keys[i];
@@ -102,7 +106,9 @@ public class BIndexMultiValueFileTest extends TestCase {
             vset.add(v);
             btree.putValue(new Value(k), new Value(v));
         }
+        System.err.println(watchdog1);
 
+        final StopWatch watchdog2 = new StopWatch("Searching " + repeat + " objects");
         final SortedMap<Integer, Set<Integer>> actual = new TreeMap<Integer, Set<Integer>>();
         btree.search(new IndexConditionANY(), new BTreeCallback() {
             public boolean indexInfo(Value value, long pointer) {
@@ -123,6 +129,7 @@ public class BIndexMultiValueFileTest extends TestCase {
                 return true;
             }
         });
+        System.err.println(watchdog2);
 
         Assert.assertEquals(actual.size(), max);
         Assert.assertEquals(actual.size(), expected.size());
@@ -133,6 +140,12 @@ public class BIndexMultiValueFileTest extends TestCase {
             Set<Integer> vsetActual = actual.get(key);
             Assert.assertEquals(vsetActual, vsetExpected);
         }
+
+        btree.flush();
+        
+        File file = btree.getFile();
+        System.err.println("File size of '" + FileUtils.getFileName(file) + "': "
+                + PrintUtils.prettyFileSize(file));
     }
 
 }
