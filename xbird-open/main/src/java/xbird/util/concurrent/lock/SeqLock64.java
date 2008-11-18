@@ -32,14 +32,14 @@ package xbird.util.concurrent.lock;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class SeqLock {
-    
+public final class SeqLock64 {
+
     private long counter;
     private volatile int mfence;
-    
+
     private final ILock spin;
-    
-    public SeqLock() {
+
+    public SeqLock64() {
         this.counter = 0;
         this.spin = new AtomicBackoffLock();
         // must perform at least one volatile write to conform to JMM
@@ -49,28 +49,28 @@ public final class SeqLock {
     @SuppressWarnings("unused")
     public long readBegin() {
         long ret = counter;
-        long lfence = mfence;   // lfence
+        int lfence = mfence; // lfence
         return ret;
     }
 
     @SuppressWarnings("unused")
-    public boolean readRetry(long v) {        
-        long lfence = mfence;   // lfence
+    public boolean readRetry(long v) {
+        int lfence = mfence; // lfence
         return (v & 1) == 1 || counter != v; // v is odd or sequence number is changed
     }
-    
+
     public void writeLock() {
         spin.lock();
         ++counter;
         mfence = 0; // sfence
     }
-    
+
     public void writeUnlock() {
         mfence = 0; // sfence
         counter++;
         spin.unlock();
     }
-    
+
     /**
      * assumes only one writer
      */
@@ -78,7 +78,7 @@ public final class SeqLock {
         ++counter;
         mfence = 0; // sfence
     }
-    
+
     /**
      * assumes only one writer
      */
@@ -86,5 +86,5 @@ public final class SeqLock {
         mfence = 0; // sfence
         counter++;
     }
-    
+
 }
