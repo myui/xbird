@@ -46,7 +46,6 @@ import xbird.xquery.type.xs.StringType;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
- * @deprecated
  */
 public final class DynamicImport extends BuiltInFunction {
     private static final long serialVersionUID = -9069069603653503384L;
