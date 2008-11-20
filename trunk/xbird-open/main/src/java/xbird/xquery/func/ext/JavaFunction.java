@@ -55,6 +55,7 @@ import xbird.xquery.type.*;
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
+ * @deprecated
  */
 public final class JavaFunction extends BuiltInFunction {
     private static final long serialVersionUID = 4172568702626131690L;
