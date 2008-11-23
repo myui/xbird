@@ -46,7 +46,7 @@ import xbird.xquery.type.Type;
  */
 public abstract class BuiltInFunction extends AbstractFunction {
     public static final String EXT_NSPREFIX = "ext";
-    public static final String EXT_NAMESPACE_URI = "http://metabrick.org/xbird";
+    public static final String EXT_NAMESPACE_URI = "http://code.google.com/p/xbird/";
 
     protected/* final */FunctionSignature[] _signs;
 

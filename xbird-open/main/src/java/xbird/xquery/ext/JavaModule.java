@@ -33,6 +33,7 @@ import xbird.xquery.parser.XQueryParserVisitor;
  * <DIV lang="ja"></DIV>
  *
  * @author Makoto YUI (yuin405+xbird@gmail.com)
+ * @deprecated
  */
 public class JavaModule extends AbstractModule {
     private static final long serialVersionUID = -2204259902044080355L;
