@@ -134,7 +134,7 @@
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/high-scale-lib-0.8.1.jar"
 			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/resolver.jar"
+			<fatjar.jarsource file="${lib.dir}/optional/resolver-1.2.jar"
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/nekohtml-1.9.7.jar"
 			                  relpath="" />

@@ -23,7 +23,6 @@
 	<classpathentry kind="lib" path="lib/optional/high-scale-lib-0.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/optional/xmlunit-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/optional/icu4j_3_4_2.jar"/>
-	<classpathentry kind="lib" path="lib/optional/resolver.jar"/>
 	<classpathentry kind="lib" path="lib/optional/nekohtml-1.9.7.jar"/>
 	<classpathentry kind="lib" path="lib/optional/tagsoup-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/optional/jdic-0.9.2.jar">
@@ -43,5 +42,6 @@
 	<classpathentry kind="lib" path="lib/optional/ognl-2.6.9.jar"/>
 	<classpathentry kind="lib" path="lib/optional/mina-integration-ognl-2.0.0-M3.jar"/>
 	<classpathentry kind="lib" path="lib/optional/mina-integration-beans-2.0.0-M3.jar"/>
+	<classpathentry kind="lib" path="lib/optional/resolver-1.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

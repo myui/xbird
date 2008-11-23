@@ -20,16 +20,24 @@
  */
 package xbird.servlet.xqsp;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import xbird.util.cache.*;
+import xbird.util.cache.Cache;
+import xbird.util.cache.CacheException;
+import xbird.util.cache.CacheFactory;
 import xbird.util.lang.PrintUtils;
 import xbird.util.xml.SAXWriter;
 import xbird.xquery.XQueryException;
@@ -41,7 +49,7 @@ import xbird.xquery.dm.value.Sequence;
 import xbird.xquery.dm.value.literal.XString;
 import xbird.xquery.expr.XQExpression;
 import xbird.xquery.expr.var.Variable;
-import xbird.xquery.expr.var.Variable.GlobalVariable;
+import xbird.xquery.expr.var.Variable.ExternalVariable;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.StaticContext;
 import xbird.xquery.misc.QNameUtil;
@@ -57,7 +65,6 @@ import xbird.xquery.parser.XQueryParser;
  */
 public class XQueryServlet extends HttpServlet {
     private static final long serialVersionUID = -4576560807978002697L;
-
     public static final String XQSP_NSURI = "xbird://xqsp";
 
     private final ReadWriteLock _lock = new ReentrantReadWriteLock();
@@ -110,13 +117,9 @@ public class XQueryServlet extends HttpServlet {
             String name = paramNames.nextElement();
             String value = req.getParameter(name);
             QualifiedName qname = QNameUtil.parse(name, XQSP_NSURI);
-            Variable var = new GlobalVariable(qname, null);
-            var.setResult(XString.valueOf(value));
-            try {
-                loadedModule.putVariable(qname, var);
-            } catch (XQueryException e) {
-                reportError("Setting parameter failed: " + qname, e, out);
-                return;
+            Variable var = loadedModule.getVariable(qname);
+            if(var != null && (var instanceof ExternalVariable)) {
+                var.setResult(XString.valueOf(value));
             }
         }
         // execute
@@ -138,10 +141,20 @@ public class XQueryServlet extends HttpServlet {
         }
     }
 
-    private CachedQuery loadQuery(String path) throws IOException, XQueryException, CacheException {
-        URL url = getServletContext().getResource(path);
-        assert (url != null);
-        long lastModified = url.openConnection().getLastModified();
+    private CachedQuery loadQuery(String path) throws CacheException, IOException, XQueryException {
+        final URL url;
+        final long lastModified;
+        final InputStream is;
+        try {
+            url = getServletContext().getResource(path);
+            assert (url != null);
+            lastModified = url.openConnection().getLastModified();
+            is = url.openStream();
+        } catch (IOException e) {
+            log(PrintUtils.prettyPrintStackTrace(e, -1));
+            throw e;
+        }
+
         _lock.readLock().lock();
         CachedQuery cached = _caches.get(path);
         if(cached == null || cached.loadTimeStamp < lastModified) {
@@ -149,11 +162,22 @@ public class XQueryServlet extends HttpServlet {
                 cached = new CachedQuery();
             }
             // parse XQuery expression
-            InputStream is = url.openStream();
             XQueryParser parser = new XQueryParser(is);
             StaticContext staticEnv = parser.getStaticContext();
-            staticEnv.setBaseURI(path);
-            XQueryModule module = parser.parse();
+            try {
+                URI baseUri = url.toURI();
+                staticEnv.setBaseURI(baseUri);
+            } catch (URISyntaxException e) {
+                log(PrintUtils.prettyPrintStackTrace(e, -1));
+            }
+            final XQueryModule module;
+            try {
+                module = parser.parse();
+            } catch (XQueryException e) {
+                log(PrintUtils.prettyPrintStackTrace(e, -1));
+                _lock.readLock().unlock();
+                throw e;
+            }
             _lock.readLock().unlock();
             _lock.writeLock().lock();
             // set query cache
@@ -164,7 +188,13 @@ public class XQueryServlet extends HttpServlet {
             _lock.writeLock().unlock();
             _lock.readLock().lock();
             // static analysis
-            module.staticAnalysis(staticEnv);
+            try {
+                module.staticAnalysis(staticEnv);
+            } catch (XQueryException e) {
+                log(PrintUtils.prettyPrintStackTrace(e, -1));
+                _lock.readLock().unlock();
+                throw e;
+            }
         }
         _lock.readLock().unlock();
         return cached;

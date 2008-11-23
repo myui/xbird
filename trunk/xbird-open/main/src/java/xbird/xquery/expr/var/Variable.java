@@ -305,7 +305,7 @@ public abstract class Variable extends AbstractXQExpression {
                 throws XQueryException {
             Sequence result = _result;
             if(result == null) {
-                throw new DynamicError("External variable is not set");
+                throw new DynamicError("External variable '$" + getName() + "' is not set");
             }
             if(checkType) {
                 final Type resultType = result.getType();

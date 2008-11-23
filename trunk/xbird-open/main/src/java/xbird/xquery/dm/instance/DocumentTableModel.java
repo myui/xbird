@@ -96,6 +96,11 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
     private static final String HTML_PARSER_CLASS = Settings.get("xbird.xml.html_saxparser", "xbird.util.xml.HTMLSAXParser");
     private static final String TMP_DATA_DIR = Settings.get("xbird.database.tmpdir");
 
+    private static final boolean hasSunXerces;
+    static {
+        hasSunXerces = ClassResolver.isPresent("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+    }
+
     private transient final DocumentTableBuilder _handler;
     private transient final XMLReader _reader;
     private transient boolean _mmapedStore;
@@ -114,18 +119,22 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
     }
 
     public DocumentTableModel(boolean parseAsHtml) {
-        this(profileAccessPattern != null ? getProfiledDocumentTable() : new DocumentTable(), false, parseAsHtml);
+        this(parseAsHtml, resolveEntity);
+    }
+
+    public DocumentTableModel(boolean parseAsHtml, boolean resolveEntity) {
+        this(profileAccessPattern != null ? getProfiledDocumentTable() : new DocumentTable(), false, parseAsHtml, resolveEntity);
     }
 
     public DocumentTableModel(IDocumentTable store) {
-        this(store, false, false);
+        this(store, false, false, resolveEntity);
     }
 
     public DocumentTableModel(IDocumentTable store, boolean loaded) {
-        this(store, loaded, false);
+        this(store, loaded, false, resolveEntity);
     }
 
-    private DocumentTableModel(IDocumentTable store, boolean loaded, boolean parseAsHtml) {
+    private DocumentTableModel(IDocumentTable store, boolean loaded, boolean parseAsHtml, boolean resolveEntity) {
         super();
         this._mmapedStore = (store instanceof MemoryMappedDocumentTable);
         this._store = store;
@@ -135,7 +144,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
             this._docid = nextDocumentId();
         } else {
             this._handler = new DocumentTableBuilder(store);
-            this._reader = getXMLReader(_handler, parseAsHtml);
+            this._reader = getXMLReader(_handler, parseAsHtml, resolveEntity);
         }
     }
 
@@ -364,7 +373,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         this.loadDocument(is);
     }
 
-    private static final XMLReader getXMLReader(final DocumentTableBuilder handler, final boolean parseAsHtml) {
+    private static final XMLReader getXMLReader(final DocumentTableBuilder handler, final boolean parseAsHtml, final boolean resolveEntity) {
         final XMLReader myReader;
         try {
             if(parseAsHtml) {
@@ -372,7 +381,12 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
                 assert (clazz != null);
                 myReader = ObjectUtils.<XMLReader> instantiate(clazz);
             } else {
-                SAXParserFactory factory = SAXParserFactory.newInstance();
+                final SAXParserFactory factory;
+                if(hasSunXerces) {
+                    factory = SAXParserFactory.newInstance("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl", null);
+                } else {
+                    factory = SAXParserFactory.newInstance();
+                }
                 factory.setNamespaceAware(true);
                 SAXParser parser = factory.newSAXParser();
                 myReader = parser.getXMLReader();
@@ -384,10 +398,10 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         myReader.setContentHandler(handler);
         try {
             myReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
-            myReader.setFeature("http://xml.org/sax/features/validation", true);
+            myReader.setFeature("http://xml.org/sax/features/validation", true); // Validate the document and report validity errors.
             if(!parseAsHtml) {
-                myReader.setFeature("http://apache.org/xml/features/validation/dynamic", true);
-                myReader.setFeature("http://apache.org/xml/features/validation/schema", true);
+                myReader.setFeature("http://apache.org/xml/features/validation/dynamic", true); // The parser will validate the document only if a grammar is specified.   
+                myReader.setFeature("http://apache.org/xml/features/validation/schema", true); // Turn on XML Schema validation by inserting an XML Schema validator into the pipeline.   
             }
         } catch (Exception e) {
             throw new XQRTException("Configuaring SAX XMLReader failed.", e);
@@ -396,6 +410,8 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         if(resolveEntity) {
             org.apache.xml.resolver.CatalogManager catalog = org.apache.xml.resolver.CatalogManager.getStaticManager();
             catalog.setIgnoreMissingProperties(true);
+            catalog.setPreferPublic(true);
+            catalog.setUseStaticCatalog(false);
             EntityResolver resolver = new org.apache.xml.resolver.tools.CatalogResolver(catalog);
             myReader.setEntityResolver(resolver);
         }
