@@ -357,33 +357,7 @@ public final class PredefinedFunctions {
         r.put(UnionAll.SYMBOL, UnionAll.class.getName());
         r.put(Hostname.SYMBOL, Hostname.class.getName());
 
-        final String providerClazz = Settings.get("xbird.xquery.func.provider");
-        if(providerClazz != null && providerClazz.length() > 0) {
-            Object obj = ObjectUtils.instantiateSafely(providerClazz);
-            if(obj != null && (obj instanceof FunctionProvider)) {
-                FunctionProvider provider = (FunctionProvider) obj;
-                final List<? extends BuiltInFunction> funcs = provider.injectedFunctions();
-                if(funcs != null) {
-                    final Log LOG = LogFactory.getLog(PredefinedFunctions.class);
-                    for(BuiltInFunction f : funcs) {
-                        QualifiedName qname = f.getName();
-                        String name = QNameUtil.toLexicalForm(qname);
-                        String prefix = qname.getPrefix();
-                        if(BuiltInFunction.EXT_NSPREFIX.equals(prefix)) {
-                            table.put(name, f);
-                            String clazzName = f.getClass().getName();
-                            r.put(name, clazzName);
-                        } else {
-                            LOG.warn("loading a BuiltInFunction is discarded: " + name);
-                        }
-
-                    }
-                }
-            } else {
-                Log LOG = LogFactory.getLog(PredefinedFunctions.class);
-                LOG.warn("Illegal FunctionProvider: " + providerClazz);
-            }
-        }
+        activateUserExtentions(r);
 
         resolver = r;
     }
@@ -435,6 +409,36 @@ public final class PredefinedFunctions {
             table.put(fname, f);
         }
         return f;
+    }
+
+    private static void activateUserExtentions(final Map<String, String> r) {
+        final String providerClazz = Settings.get("xbird.xquery.func.provider");
+        if(providerClazz != null && providerClazz.length() > 0) {
+            Object obj = ObjectUtils.instantiateSafely(providerClazz);
+            if(obj != null && (obj instanceof FunctionProvider)) {
+                FunctionProvider provider = (FunctionProvider) obj;
+                final List<? extends BuiltInFunction> funcs = provider.injectedFunctions();
+                if(funcs != null) {
+                    final Log LOG = LogFactory.getLog(PredefinedFunctions.class);
+                    for(BuiltInFunction f : funcs) {
+                        QualifiedName qname = f.getName();
+                        String name = QNameUtil.toLexicalForm(qname);
+                        String prefix = qname.getPrefix();
+                        if(BuiltInFunction.EXT_NSPREFIX.equals(prefix)) {
+                            table.put(name, f);
+                            String clazzName = f.getClass().getName();
+                            r.put(name, clazzName);
+                        } else {
+                            LOG.warn("loading a BuiltInFunction is discarded: " + name);
+                        }
+
+                    }
+                }
+            } else {
+                Log LOG = LogFactory.getLog(PredefinedFunctions.class);
+                LOG.warn("Illegal FunctionProvider: " + providerClazz);
+            }
+        }
     }
 
 }
