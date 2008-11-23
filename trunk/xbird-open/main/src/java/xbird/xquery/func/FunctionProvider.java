@@ -24,7 +24,12 @@ import java.util.List;
 
 /**
  * 
- * <DIV lang="en"></DIV>
+ * <DIV lang="en">
+ * Caution: 
+ *  - Provided function must have a default constructor.
+ *  - Provided function must have a namespace prefix "ext:".
+ *  - Provided function must be stateless. Don't override {@link BuiltInFunction#isReusable()}.
+ * </DIV>
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
