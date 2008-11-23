@@ -66,6 +66,22 @@ public final class ObjectUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T instantiateSafely(final String className) {
+        try {
+            Class clazz = Class.forName(className);
+            return (T) clazz.newInstance();
+        } catch (ClassNotFoundException cne) {
+            return null;
+        } catch (InstantiationException ie) {
+            return null;
+        } catch (IllegalAccessException iae) {
+            return null;
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
     public static <T> T instantiate(final String clazz, final Class[] parameterTypes, final Object... args) {
         try {
             return (T) instantiate(Class.forName(clazz), parameterTypes, args);

@@ -21,8 +21,13 @@
 package xbird.xquery.func;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import xbird.config.Settings;
 import xbird.util.collections.SoftHashMap;
 import xbird.util.lang.ObjectUtils;
 import xbird.xquery.XQueryConstants;
@@ -77,13 +82,89 @@ import xbird.xquery.func.qname.NamespaceUriForPrefix;
 import xbird.xquery.func.qname.NamespaceUriFromQName;
 import xbird.xquery.func.qname.PrefixFromQName;
 import xbird.xquery.func.qname.ResolveQName;
-import xbird.xquery.func.seq.*;
-import xbird.xquery.func.string.*;
+import xbird.xquery.func.seq.DeepEqual;
+import xbird.xquery.func.seq.DistinctValues;
+import xbird.xquery.func.seq.Empty;
+import xbird.xquery.func.seq.ExactlyOne;
+import xbird.xquery.func.seq.Exists;
+import xbird.xquery.func.seq.FnBoolean;
+import xbird.xquery.func.seq.Id;
+import xbird.xquery.func.seq.IdRef;
+import xbird.xquery.func.seq.IndexOf;
+import xbird.xquery.func.seq.InsertBefore;
+import xbird.xquery.func.seq.OneOrMore;
+import xbird.xquery.func.seq.Remove;
+import xbird.xquery.func.seq.Reverse;
+import xbird.xquery.func.seq.Subsequence;
+import xbird.xquery.func.seq.Unordered;
+import xbird.xquery.func.seq.ZeroOrOne;
+import xbird.xquery.func.string.CodepointEqual;
+import xbird.xquery.func.string.CodepointsToString;
+import xbird.xquery.func.string.Compare;
+import xbird.xquery.func.string.Concat;
+import xbird.xquery.func.string.EncodeForUri;
+import xbird.xquery.func.string.EscapeHtmlUri;
+import xbird.xquery.func.string.IriToUri;
+import xbird.xquery.func.string.LowerCase;
+import xbird.xquery.func.string.Matches;
+import xbird.xquery.func.string.NormalizeSpace;
+import xbird.xquery.func.string.NormalizeUnicode;
+import xbird.xquery.func.string.Replace;
+import xbird.xquery.func.string.StringJoin;
+import xbird.xquery.func.string.StringLength;
+import xbird.xquery.func.string.StringToCodepoint;
+import xbird.xquery.func.string.Substring;
+import xbird.xquery.func.string.SubstringMatch;
+import xbird.xquery.func.string.Tokenize;
+import xbird.xquery.func.string.Translate;
+import xbird.xquery.func.string.UpperCase;
 import xbird.xquery.func.time.AdjustTimezone;
 import xbird.xquery.func.time.ExtractFromDateTime;
 import xbird.xquery.func.time.ExtractFromDuration;
+import xbird.xquery.misc.QNameUtil;
 import xbird.xquery.misc.QNameTable.QualifiedName;
-import xbird.xquery.type.xs.*;
+import xbird.xquery.type.xs.AnyURIType;
+import xbird.xquery.type.xs.Base64BinaryType;
+import xbird.xquery.type.xs.BooleanType;
+import xbird.xquery.type.xs.ByteType;
+import xbird.xquery.type.xs.DateTimeType;
+import xbird.xquery.type.xs.DateType;
+import xbird.xquery.type.xs.DayTimeDurationType;
+import xbird.xquery.type.xs.DecimalType;
+import xbird.xquery.type.xs.DoubleType;
+import xbird.xquery.type.xs.DurationType;
+import xbird.xquery.type.xs.ENTITYType;
+import xbird.xquery.type.xs.FloatType;
+import xbird.xquery.type.xs.GDayType;
+import xbird.xquery.type.xs.GMonthDayType;
+import xbird.xquery.type.xs.GMonthType;
+import xbird.xquery.type.xs.GYearMonthType;
+import xbird.xquery.type.xs.GYearType;
+import xbird.xquery.type.xs.HexBinaryType;
+import xbird.xquery.type.xs.IDREFType;
+import xbird.xquery.type.xs.IDType;
+import xbird.xquery.type.xs.IntType;
+import xbird.xquery.type.xs.IntegerType;
+import xbird.xquery.type.xs.LanguageType;
+import xbird.xquery.type.xs.LongType;
+import xbird.xquery.type.xs.NCNameType;
+import xbird.xquery.type.xs.NMTokenType;
+import xbird.xquery.type.xs.NameType;
+import xbird.xquery.type.xs.NegativeIntegerType;
+import xbird.xquery.type.xs.NonNegativeIntegerType;
+import xbird.xquery.type.xs.NonPositiveIntegerType;
+import xbird.xquery.type.xs.NormalizedStringType;
+import xbird.xquery.type.xs.PositiveIntegerType;
+import xbird.xquery.type.xs.ShortType;
+import xbird.xquery.type.xs.StringType;
+import xbird.xquery.type.xs.TimeType;
+import xbird.xquery.type.xs.TokenType;
+import xbird.xquery.type.xs.UnsignedByteType;
+import xbird.xquery.type.xs.UnsignedIntType;
+import xbird.xquery.type.xs.UnsignedLongType;
+import xbird.xquery.type.xs.UnsignedShortType;
+import xbird.xquery.type.xs.UntypedAtomicType;
+import xbird.xquery.type.xs.YearMonthDurationType;
 
 /**
  * 
@@ -275,6 +356,35 @@ public final class PredefinedFunctions {
         r.put(VirtualView.SYMBOL, VirtualView.class.getName());
         r.put(UnionAll.SYMBOL, UnionAll.class.getName());
         r.put(Hostname.SYMBOL, Hostname.class.getName());
+
+        final String providerClazz = Settings.get("xbird.xquery.func.provider");
+        if(providerClazz != null && providerClazz.length() > 0) {
+            Object obj = ObjectUtils.instantiateSafely(providerClazz);
+            if(obj != null && (obj instanceof FunctionProvider)) {
+                FunctionProvider provider = (FunctionProvider) obj;
+                final List<? extends BuiltInFunction> funcs = provider.injectedFunctions();
+                if(funcs != null) {
+                    final Log LOG = LogFactory.getLog(PredefinedFunctions.class);
+                    for(BuiltInFunction f : funcs) {
+                        QualifiedName qname = f.getName();
+                        String name = QNameUtil.toLexicalForm(qname);
+                        String prefix = qname.getPrefix();
+                        if(BuiltInFunction.EXT_NSPREFIX.equals(prefix)) {
+                            table.put(name, f);
+                            String clazzName = f.getClass().getName();
+                            r.put(name, clazzName);
+                        } else {
+                            LOG.warn("loading a BuiltInFunction is discarded: " + name);
+                        }
+
+                    }
+                }
+            } else {
+                Log LOG = LogFactory.getLog(PredefinedFunctions.class);
+                LOG.warn("Illegal FunctionProvider: " + providerClazz);
+            }
+        }
+
         resolver = r;
     }
 
