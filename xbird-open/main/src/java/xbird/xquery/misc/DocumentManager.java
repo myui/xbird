@@ -111,18 +111,23 @@ public final class DocumentManager {
             boolean parseAsHtml = false;
             try {
                 final URLConnection conn = docurl.openConnection();
-                // TODO REVIEWME workaround code
+                // TODO REVIEWME workaround code                
                 final String contentType = conn.getContentType();
                 if(unescaped.endsWith(".html")
                         || (contentType != null && contentType.contains("html"))) {
                     parseAsHtml = true;
-                    conn.setRequestProperty("User-agent", "Mozilla/5.0");
+                    try {
+                        conn.setRequestProperty("User-agent", "Mozilla/5.0");
+                    } catch (IllegalStateException ace) {// already connected                        
+                        ;
+                    }
                 }
                 is = conn.getInputStream();
             } catch (IOException e) {
                 throw new DynamicError("Openning a document failed: " + unescaped, e);
             }
-            final DocumentTableModel dtm = new DocumentTableModel(parseAsHtml);
+            final boolean resolveEntity = unescaped.startsWith("http");
+            final DocumentTableModel dtm = new DocumentTableModel(parseAsHtml, resolveEntity);
             try {
                 dtm.loadDocument(is, dynEnv);
             } catch (XQueryException e) {

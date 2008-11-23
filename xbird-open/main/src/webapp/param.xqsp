@@ -1,0 +1,8 @@
+(:
+ 	http://localhost:8080/param.xqp?x=3
+:)
+
+declare namespace req = "xbird://xqsp";
+declare variable $req:x external;
+
+$req:x 

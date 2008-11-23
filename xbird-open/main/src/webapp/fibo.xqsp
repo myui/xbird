@@ -1,4 +1,4 @@
-declare function local:fib($i as xs:integer)
+declare function local:fib($i as xs:integer) as xs:integer
 {
   if($i <= 1) then 1
   else 

@@ -6,7 +6,7 @@
 	<description>Settings for XQuery Servlet Pages</description>
 	<servlet>
 		<servlet-name>XQueryServlet</servlet-name>
-		<servlet-class>xbird.xqsp.XQueryServlet</servlet-class>
+		<servlet-class>xbird.servlet.xqsp.XQueryServlet</servlet-class>
 	</servlet>	
 	<servlet-mapping>
 		<servlet-name>XQueryServlet</servlet-name>
