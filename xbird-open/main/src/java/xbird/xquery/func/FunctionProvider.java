@@ -27,7 +27,7 @@ import java.util.List;
  * <DIV lang="en">
  * <pre>
  * Caution:
- *  - Provided function must be publicly accessible and loadable by the classloader.
+ *  - Provided function must be publicly accessible (public class) and loadable by the classloader (put in the classpath).
  *  - Provided function must have a default constructor.
  *  - Provided function must have a namespace prefix "ext:".
  *  - Provided function must be state-less. Don't override {@link BuiltInFunction#isReusable()}.
