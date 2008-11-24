@@ -25,10 +25,13 @@ import java.util.List;
 /**
  * 
  * <DIV lang="en">
- * Caution: 
+ * <pre>
+ * Caution:
+ *  - Provided function must be publicly accessible and loadable by the classloader.
  *  - Provided function must have a default constructor.
  *  - Provided function must have a namespace prefix "ext:".
- *  - Provided function must be stateless. Don't override {@link BuiltInFunction#isReusable()}.
+ *  - Provided function must be state-less. Don't override {@link BuiltInFunction#isReusable()}.
+ * </pre>
  * </DIV>
  * <DIV lang="ja"></DIV>
  * 
