@@ -1,0 +1,7 @@
+#summary Recording download counts of past archives
+#labels Phase-Support
+
+|| *Version* || *count* ||
+|| 1.0r1 || 5 ||
+|| 1.0r2 || 503 ||
+|| 1.0r3 || ? ||
