@@ -1,7 +1,7 @@
 #summary Recording download counts of past archives
 #labels Phase-Support
 
-|| *No* || *Version* || *Count* || *Create* || *Deleted* || Changes ||
+|| *No* || *Version* || *Count* || *Create* || *Deleted* || *Changes* ||
 || 1 || 1.0r1 || 5 || 2008/7/20|| 2008/11/26 || Initial version ||
 || 2 || 1.0r2 || 503 || 2008/7/23 || ? || t.b.d. ||
 || 3 || 1.0r3 || ? || 2008/11/26 || ? || t.b.d ||
