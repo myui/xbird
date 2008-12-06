@@ -72,7 +72,6 @@ public final class UnsafeIntCounter implements ICounter {
         return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
     }
 
-    @Deprecated
     public void set(final int x) {
         //unsafe.putOrderedInt(this, valueOffset, x);
         this._cnt = x;

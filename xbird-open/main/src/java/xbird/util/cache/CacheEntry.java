@@ -52,10 +52,14 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
     private volatile int _macguffin;
 
     public CacheEntry(K key, V value) {
+        this(key, value, true);
+    }
+
+    public CacheEntry(K key, V value, boolean pin) {
         this._key = key;
         this._value = value;
         this._hash = (key == null) ? -1 : _key.hashCode();
-        this._pinning = new UnsafeIntCounter(1);
+        this._pinning = new UnsafeIntCounter(pin ? 1 : 0);
         this._macguffin = 0;
     }
 
@@ -138,7 +142,6 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
         return _pinning.get();
     }
 
-    @Deprecated
     public final void setEvicted() {
         _pinning.set(-1);
     }
