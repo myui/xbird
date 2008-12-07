@@ -35,11 +35,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import xbird.config.Settings;
 import xbird.engine.request.QueryRequest.FetchMethod;
 import xbird.util.compress.LZFInputStream;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.RemoteInputStream;
+import xbird.util.lang.Primitives;
 import xbird.xquery.XQRTException;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.sequence.SingleCollection;
@@ -56,8 +58,12 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
     private static final long serialVersionUID = 6866110139682464788L;
     private static final Log LOG = LogFactory.getLog(RemoteFocus.class);
 
-    public static final int DEFAULT_FETCH_SIZE = 256;
-    public static final float DEFAULT_FETCH_GROWFACTOR = 1.3f;
+    public static final int DEFAULT_FETCH_SIZE;
+    public static final float DEFAULT_FETCH_GROWFACTOR;
+    static {
+        DEFAULT_FETCH_SIZE = Primitives.parseInt(Settings.get("xbird.remote.fetchsize"), 256);
+        DEFAULT_FETCH_GROWFACTOR = Primitives.parseFloat(Settings.get("xbird.remote.fetchgrow"), 1.3f);
+    }
 
     //--------------------------------------------
     // shipped stuffs
