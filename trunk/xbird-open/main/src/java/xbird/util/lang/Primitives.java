@@ -44,6 +44,13 @@ public final class Primitives {
         return Integer.parseInt(v);
     }
 
+    public static float parseFloat(final String v, final float defaultValue) {
+        if(v == null || v.length() == 0) {
+            return defaultValue;
+        }
+        return Float.parseFloat(v);
+    }
+
     public static byte[] toBytes(final char[] c) {
         return toBytes(c, 0, c.length);
     }
