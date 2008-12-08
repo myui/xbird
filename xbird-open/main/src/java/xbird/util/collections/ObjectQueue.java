@@ -58,11 +58,6 @@ public class ObjectQueue<T> {
         this._lastIndex = last;
     }
 
-    @SuppressWarnings("unchecked")
-    public final T get(int i) {
-        return (T) _array[i];
-    }
-
     public final void offer(T x) {
         if(_lastIndex >= _arraySize) {
             growArray();
@@ -72,7 +67,14 @@ public class ObjectQueue<T> {
 
     @SuppressWarnings("unchecked")
     public final T poll() {
-        return (_index < _lastIndex) ? (T) _array[_index++] : null;
+        if(_index < _lastIndex) {
+            T obj = (T) _array[_index++];
+            if(_index == _lastIndex) {
+                clear();
+            }
+            return obj;
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
