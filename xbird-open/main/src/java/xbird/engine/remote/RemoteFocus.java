@@ -28,8 +28,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.rmi.RemoteException;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
 import xbird.engine.request.QueryRequest.FetchMethod;
+import xbird.util.collections.ObjectQueue;
 import xbird.util.compress.LZFInputStream;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FastByteArrayInputStream;
@@ -78,7 +77,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
     //--------------------------------------------
     // prefetch items
 
-    private final Queue<Item> _fetchedQueue;
+    private final ObjectQueue<Item> _fetchedQueue;
     private boolean _nomoreFetch = false;
 
     //--------------------------------------------
@@ -97,7 +96,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
     private final AtomicBoolean _closed = new AtomicBoolean(false);
 
     public RemoteFocus() {//Externalizable
-        this._fetchedQueue = new LinkedList<Item>();
+        this._fetchedQueue = new ObjectQueue<Item>(512);
     }
 
     public RemoteFocus(IRemoteFocusProxy proxy, int fetchSize, float fetchGrow, FetchMethod fetchMethod) {
@@ -108,7 +107,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
         this._fetchSize = fetchSize;
         this._fetchGrow = fetchGrow;
         this._fetchWatermark = (int) (fetchSize * Math.pow(fetchGrow, 19)); // 256*1.3^20=48652.7073, 256*1.3^19=37425.1594
-        this._fetchedQueue = new LinkedList<Item>();
+        this._fetchedQueue = new ObjectQueue<Item>(512);
         this._fetchMethod = fetchMethod;
     }
 
@@ -295,7 +294,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
     }
 
     public void offerItem(Item item) {
-        _fetchedQueue.add(item);
+        _fetchedQueue.offer(item);
     }
 
     public Item pollItem() {
