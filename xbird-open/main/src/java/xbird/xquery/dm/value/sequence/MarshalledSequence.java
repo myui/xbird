@@ -27,6 +27,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -205,7 +207,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
         private static final long serialVersionUID = 5692780446373650820L;
         private static final float DECODE_UNIT_GROWTH = 1.4f;
 
-        private final ArrayList<Item> _decodedItems = new ArrayList<Item>(256);
+        private List<Item> _decodedItems = new ArrayList<Item>(256);
         private final XDMTreeBuilder _treeBuilder;
 
         private/* final */XQEventDecoder _decoder; // may be null if decoding is already finished
@@ -213,7 +215,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
 
         private transient boolean _decodeFinished = false;
         private transient boolean _piped = false;
-        private transient boolean _reaccessable = true;
+        private transient boolean _reaccessable;
 
         private transient int _decodeUnit = 32;
 
@@ -222,16 +224,18 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             this._treeBuilder = new XDMTreeBuilder();
             this._decoder = decoder;
             this._type = type;
+            this._reaccessable = false; // TODO REVIEWME
         }
 
         public IncrDecodedSequnece() {
             super(DynamicContext.DUMMY);
             this._treeBuilder = new XDMTreeBuilder();
+            this._reaccessable = true;
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             //this._type = (Type) in.readObject();
-            final ArrayList<Item> decodedItems = _decodedItems;
+            final List<Item> decodedItems = _decodedItems;
             final int numDecoded = in.readInt();
             for(int i = 0; i < numDecoded; i++) {
                 Item item = (Item) in.readObject();
@@ -258,7 +262,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
 
         public void writeExternal(ObjectOutput out) throws IOException {
             //out.writeObject(_type);
-            final ArrayList<Item> decodedItems = _decodedItems;
+            final List<Item> decodedItems = _decodedItems;
             final int numDecoded = decodedItems.size();
             out.writeInt(numDecoded);
             for(int i = 0; i < numDecoded; i++) {
@@ -349,11 +353,11 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
                 return false;
             }
 
-            final ArrayList<Item> decodedItems = _decodedItems;
+            final List<Item> decodedItems = _decodedItems;
             final int decodedCount = decodedItems.size();
             final int curPos = focus.getContextPosition();
             if(curPos < decodedCount) {
-                Item it = decodedItems.get(curPos);
+                final Item it = decodedItems.get(curPos);
                 if(it == null) {
                     throw new IllegalStateException();
                 }
@@ -364,6 +368,9 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             if(_decodeFinished) {
                 focus.setReachedEnd(true);
                 focus.closeQuietly();
+                if(!_reaccessable) {
+                    this._decodedItems = Collections.emptyList();
+                }
                 return false;
             }
             final XDMTreeBuilder treeBuilder = _treeBuilder;
