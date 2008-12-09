@@ -20,14 +20,18 @@
  */
 package xbird.engine.remote;
 
-import java.io.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.rmi.RemoteException;
 import java.util.List;
 
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
-import xbird.xquery.meta.*;
+import xbird.xquery.meta.DynamicContext;
+import xbird.xquery.meta.IFocus;
 import xbird.xquery.type.Type;
 
 /**
@@ -47,7 +51,7 @@ public final class RemoteSequence implements Sequence<Item>, Externalizable {
     // local cache entries
 
     private Boolean _isEmpty = null;
-    private CachedFocus _cachedFocus = null;
+    //private CachedFocus _cachedFocus = null;
 
     public RemoteSequence() {}//for Externalizable
 
@@ -91,9 +95,9 @@ public final class RemoteSequence implements Sequence<Item>, Externalizable {
     }
 
     public IFocus<Item> iterator() {
-        if(_cachedFocus != null) {
-            return _cachedFocus.clone();
-        }
+        //if(_cachedFocus != null) {
+        //    return _cachedFocus.clone();
+        //}
         checkOpen();
         final IFocus<Item> focus;
         try {
@@ -101,9 +105,9 @@ public final class RemoteSequence implements Sequence<Item>, Externalizable {
         } catch (RemoteException e) {
             throw new XQRemoteException(e);
         }
-        final CachedFocus cached = new CachedFocus(focus);
-        this._cachedFocus = cached;
-        return cached;
+        //final CachedFocus cached = new CachedFocus(focus);
+        //this._cachedFocus = cached;
+        return focus;
     }
 
     public List<Item> materialize() {
