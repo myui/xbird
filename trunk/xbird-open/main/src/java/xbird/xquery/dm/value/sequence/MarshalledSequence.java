@@ -215,7 +215,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
 
         private transient boolean _decodeFinished = false;
         private transient boolean _piped = false;
-        private transient boolean _reaccessable;
+        private transient boolean _reaccessable = true;
 
         private transient int _decodeUnit = 32;
 
@@ -224,13 +224,11 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             this._treeBuilder = new XDMTreeBuilder();
             this._decoder = decoder;
             this._type = type;
-            this._reaccessable = false; // TODO REVIEWME
         }
 
         public IncrDecodedSequnece() {
             super(DynamicContext.DUMMY);
             this._treeBuilder = new XDMTreeBuilder();
-            this._reaccessable = true;
         }
 
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -368,7 +366,7 @@ public final class MarshalledSequence extends AbstractSequence<Item> implements 
             if(_decodeFinished) {
                 focus.setReachedEnd(true);
                 focus.closeQuietly();
-                if(!_reaccessable) {
+                if(!_reaccessable) {//TODO
                     this._decodedItems = Collections.emptyList();
                 }
                 return false;
