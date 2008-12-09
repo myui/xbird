@@ -45,7 +45,7 @@ public final class CachedFocus<T extends Item> extends AbstractFocus<T> implemen
     public CachedFocus(IFocus<T> delegate) {
         super();
         this.delegate = delegate;
-        this.queue = new ArrayList<T>(12);
+        this.queue = new ArrayList<T>(32);
     }
 
     protected CachedFocus(IFocus<T> delegate, List<T> queue) {
