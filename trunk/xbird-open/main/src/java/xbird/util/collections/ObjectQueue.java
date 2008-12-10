@@ -83,7 +83,7 @@ public class ObjectQueue<T> {
     }
 
     public final boolean isEmpty() {
-        return _index > _lastIndex;
+        return _index >= _lastIndex;
     }
 
     public final void clear() {
