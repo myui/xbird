@@ -23,6 +23,8 @@ package xbird.util.collections.ints;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import xbird.util.lang.ArrayUtils;
+
 /**
  * Stack implementation for primitive integer.
  * <DIV lang="en"></DIV>
@@ -111,7 +113,7 @@ public final class IntStack implements Serializable, Cloneable {
 
     @Override
     public IntStack clone() {
-        IntStack cloned = new IntStack(Arrays.copyOf(data, data.length));
+        final IntStack cloned = new IntStack(ArrayUtils.copyOf(data, data.length));
         cloned.size = this.size;
         return cloned;
     }

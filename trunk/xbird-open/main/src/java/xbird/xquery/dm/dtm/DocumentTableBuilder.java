@@ -20,15 +20,25 @@
  */
 package xbird.xquery.dm.dtm;
 
-import static xbird.xquery.dm.NodeKind.*;
+import static xbird.xquery.dm.NodeKind.ATTRIBUTE;
+import static xbird.xquery.dm.NodeKind.CDATA;
+import static xbird.xquery.dm.NodeKind.COMMENT;
+import static xbird.xquery.dm.NodeKind.DOCUMENT;
+import static xbird.xquery.dm.NodeKind.ELEMENT;
+import static xbird.xquery.dm.NodeKind.NAMESPACE;
+import static xbird.xquery.dm.NodeKind.PROCESSING_INSTRUCTION;
+import static xbird.xquery.dm.NodeKind.TEXT;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 import javax.xml.XMLConstants;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.dm.IDocument;
 import xbird.xquery.misc.BaseDocumentHandler;
 
@@ -191,7 +201,7 @@ public final class DocumentTableBuilder extends BaseDocumentHandler {
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
         assert (prefix != null && uri != null);
-        final String lname = prefix.length() == 0 ? XMLConstants.NULL_NS_URI : prefix;
+        final String lname = prefix.length() == 0 ? XMLUtils.NULL_NS_URI : prefix;
         _pendingNsDecl.push(lname);
         _pendingNsDecl.push(uri);
         _nsMap.put(lname, uri);

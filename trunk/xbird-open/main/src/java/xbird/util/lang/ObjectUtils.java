@@ -98,6 +98,15 @@ public final class ObjectUtils {
         }
     }
 
+    public static <T> T instantiate(final String className, final ClassLoader cl) {
+        try {
+            Class c = ClassResolver.loadClass(className, cl);
+            return (T) c.newInstance();
+        } catch (Exception e) {
+            throw new IllegalStateException("Object could not instantiate for class.. " + className, e);
+        }
+    }
+
     public static <T> T instantiate(final Class clazz, final Class[] parameterTypes, final Object... args) {
         try {
             final Constructor<T> constructor = clazz.getConstructor(parameterTypes);
@@ -181,7 +190,7 @@ public final class ObjectUtils {
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
-            throw new IOException(e.getMessage(), e);
+            throw new IOException(PrintUtils.prettyPrintStackTrace(e));
         }
     }
 

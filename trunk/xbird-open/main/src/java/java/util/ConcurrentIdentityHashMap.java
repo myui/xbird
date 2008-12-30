@@ -28,7 +28,7 @@
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
  */
-package xbird.util.concurrent.collections;
+package java.util;
 
 import java.io.IOException;
 import java.io.Serializable;

@@ -20,11 +20,12 @@
  */
 package xbird.xquery.func.qname;
 
-import javax.xml.XMLConstants;
-
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.DynamicError;
 import xbird.xquery.XQueryException;
-import xbird.xquery.dm.value.*;
+import xbird.xquery.dm.value.Item;
+import xbird.xquery.dm.value.Sequence;
+import xbird.xquery.dm.value.XQNode;
 import xbird.xquery.dm.value.literal.XString;
 import xbird.xquery.dm.value.sequence.ValueSequence;
 import xbird.xquery.dm.value.xsi.QNameValue;
@@ -79,7 +80,7 @@ public final class ResolveQName extends BuiltInFunction {
             // If the $qname has no prefix, and there is no namespace binding for $element 
             // corresponding to the default (unnamed) namespace, then the resulting expanded-QName 
             // has no namespace part.
-            nsuri = XMLConstants.NULL_NS_URI;
+            nsuri = XMLUtils.NULL_NS_URI;
         } else {
             final String prefix = qnameStr.substring(0, pos - 1);
             Item secondItem = argv.getItem(1);

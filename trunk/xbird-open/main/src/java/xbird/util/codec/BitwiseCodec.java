@@ -28,6 +28,7 @@ import java.util.Arrays;
 import xbird.util.io.BitInputStream;
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.IOUtils;
+import xbird.util.lang.ArrayUtils;
 import xbird.util.lang.BitUtils;
 import xbird.util.string.StringUtils;
 
@@ -59,7 +60,7 @@ public final class BitwiseCodec implements Cloneable {
 
     private BitwiseCodec(BitwiseCodec toClone) {
         byte[] origCodes = toClone.codes;
-        this.codes = Arrays.copyOf(origCodes, origCodes.length);
+        this.codes = ArrayUtils.copyOf(origCodes, origCodes.length);
         this.pos = toClone.pos;
         this.pendingBits = toClone.pendingBits;
         this.curByte = toClone.curByte;

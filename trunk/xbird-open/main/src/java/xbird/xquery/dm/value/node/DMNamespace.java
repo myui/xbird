@@ -20,8 +20,7 @@
  */
 package xbird.xquery.dm.value.node;
 
-import javax.xml.XMLConstants;
-
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.dm.NodeKind;
 import xbird.xquery.misc.QNameTable;
 import xbird.xquery.misc.QNameTable.QualifiedName;
@@ -40,7 +39,7 @@ public class DMNamespace extends DMAttribute {
     public DMNamespace() {//for serialization
         super();
     }
-    
+
     public DMNamespace(QualifiedName name, String content) {
         super(name, content);
     }
@@ -62,10 +61,10 @@ public class DMNamespace extends DMAttribute {
      * in the local-name and an empty namespace name, otherwise returns the empty sequence.
      */
     @Override
-    public QualifiedName nodeName() { 
+    public QualifiedName nodeName() {
         final String prefix = _name.getPrefix();
         if(prefix == null || prefix.length() == 0) {
-            return QNameTable.instantiate(XMLConstants.NULL_NS_URI, prefix);
+            return QNameTable.instantiate(XMLUtils.NULL_NS_URI, prefix);
         }
         return _name;
     }

@@ -23,6 +23,7 @@ package xbird.xquery.misc;
 import javax.xml.XMLConstants;
 
 import xbird.util.xml.NamespaceBinder;
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.XQueryException;
 import xbird.xquery.misc.QNameTable.QualifiedName;
 
@@ -123,7 +124,7 @@ public final class QNameUtil {
     public static boolean isSame(QualifiedName qname, String nsuri, String name) {
         assert (qname != null && name != null);
         if(nsuri == null) {
-            nsuri = XMLConstants.NULL_NS_URI;
+            nsuri = XMLUtils.NULL_NS_URI;
         }
         if(nsuri.equals(qname.getNamespaceURI()) && name.equals(qname.getLocalPart())) {
             return true;

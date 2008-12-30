@@ -20,9 +20,12 @@
  */
 package xbird.xquery.dm.value.xsi;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import xbird.util.lang.ObjectUtils;
+import xbird.util.lang.PrintUtils;
 import xbird.util.string.StringUtils;
 import xbird.xquery.DynamicError;
 import xbird.xquery.XQueryException;
@@ -59,7 +62,7 @@ public final class HexBinaryValue extends BinaryValue {
         try {
             this._binaryValue = decodeHex(literal);
         } catch (DynamicError e) {
-            throw new IOException(e);
+            throw new IOException(PrintUtils.prettyPrintStackTrace(e));
         }
         this._type = HexBinaryType.HEXBINARY;
     }

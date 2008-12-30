@@ -21,6 +21,8 @@
 package xbird.util.lang;
 
 import java.lang.reflect.Array;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Map;
 
 import xbird.util.collections.SoftHashMap;
@@ -95,6 +97,34 @@ public final class ClassResolver {
             cl = ClassResolver.class.getClassLoader();
         }
         return cl;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static ClassLoader getContextClassLoader() throws SecurityException {
+        return (ClassLoader) AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                ClassLoader cl = null;
+                cl = Thread.currentThread().getContextClassLoader();
+                if(cl == null) {
+                    cl = ClassLoader.getSystemClassLoader();
+                }
+                return cl;
+            }
+        });
+    }
+
+    public static Class<?> loadClass(String className, ClassLoader cl)
+            throws ClassNotFoundException {
+        if(cl == null) {
+            cl = getContextClassLoader();
+            if(cl == null) {
+                throw new ClassNotFoundException();
+            } else {
+                return cl.loadClass(className);
+            }
+        } else {
+            return cl.loadClass(className);
+        }
     }
 
 }

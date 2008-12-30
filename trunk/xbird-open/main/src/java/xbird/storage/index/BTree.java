@@ -586,7 +586,7 @@ public class BTree extends Paged {
         /** search the leftmost key for duplicate allowed index */
         private int searchLeftmostKey(final Value[] ary, final Value key, final int to) {
             if(!_fileHeader._duplicateAllowed) {
-                return Arrays.binarySearch(keys, 0, to, key);
+                return ArrayUtils.binarySearch(keys, 0, to, key);
             }
             int low = 0;
             int high = to - 1;
@@ -616,7 +616,7 @@ public class BTree extends Paged {
         /** search the rightmost key for duplicate allowed index */
         private int searchRightmostKey(final Value[] ary, final Value key, final int to) {
             if(!_fileHeader._duplicateAllowed) {
-                return Arrays.binarySearch(keys, 0, to, key);
+                return ArrayUtils.binarySearch(keys, 0, to, key);
             }
             int low = 0;
             int high = to - 1;

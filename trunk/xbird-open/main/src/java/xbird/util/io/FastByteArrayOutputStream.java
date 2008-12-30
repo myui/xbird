@@ -24,7 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+
+import xbird.util.lang.ArrayUtils;
 
 /**
  * Unsynchronized version of {@link ByteArrayOutputStream}.
@@ -55,13 +56,13 @@ public final class FastByteArrayOutputStream extends OutputStream {
     }
 
     public byte[] toByteArray() {
-        return Arrays.copyOf(buf, count);
+        return ArrayUtils.copyOf(buf, count);
     }
 
     public void write(int b) {
         int newcount = count + 1;
         if(newcount > buf.length) {
-            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+            buf = ArrayUtils.copyOf(buf, Math.max(buf.length << 1, newcount));
         }
         buf[count] = (byte) b;
         this.count = newcount;
@@ -77,7 +78,7 @@ public final class FastByteArrayOutputStream extends OutputStream {
         }
         int newcount = count + len;
         if(newcount > buf.length) {
-            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+            buf = ArrayUtils.copyOf(buf, Math.max(buf.length << 1, newcount));
         }
         System.arraycopy(b, off, buf, count, len);
         this.count = newcount;
@@ -90,7 +91,7 @@ public final class FastByteArrayOutputStream extends OutputStream {
     public void write(ByteBuffer b, int len) {
         final int newcount = count + len;
         if(newcount > buf.length) {
-            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+            buf = ArrayUtils.copyOf(buf, Math.max(buf.length << 1, newcount));
         }
         b.get(buf, count, len);
         this.count = newcount;
@@ -103,7 +104,7 @@ public final class FastByteArrayOutputStream extends OutputStream {
     public void reset() {
         this.count = 0;
     }
-    
+
     public void reset(int size) {
         this.buf = new byte[size];
         this.count = 0;

@@ -104,7 +104,7 @@ public final class QNameTable implements Externalizable {
     }
 
     public QualifiedName find(String nsuri, String name) {
-        probe.nsuri = (nsuri == null) ? XMLConstants.NULL_NS_URI : nsuri;
+        probe.nsuri = (nsuri == null) ? XMLUtils.NULL_NS_URI : nsuri;
         assert (name != null);
         probe.localName = name;
         return nameMap.get(probe);
@@ -113,7 +113,7 @@ public final class QNameTable implements Externalizable {
     @Deprecated
     public boolean remove(QualifiedName qname) {
         String nsuri = qname.getNamespaceURI();
-        probe.nsuri = (nsuri == null) ? XMLConstants.NULL_NS_URI : nsuri;
+        probe.nsuri = (nsuri == null) ? XMLUtils.NULL_NS_URI : nsuri;
         probe.localName = qname.getLocalPart();
         QualifiedName removed = nameMap.remove(probe);
         return qname == removed;
@@ -122,7 +122,7 @@ public final class QNameTable implements Externalizable {
     @Deprecated
     public boolean contains(QualifiedName qname) {
         String nsuri = qname.getNamespaceURI();
-        probe.nsuri = (nsuri == null) ? XMLConstants.NULL_NS_URI : nsuri;
+        probe.nsuri = (nsuri == null) ? XMLUtils.NULL_NS_URI : nsuri;
         probe.localName = qname.getLocalPart();
         return nameMap.containsKey(probe);
     }
@@ -131,11 +131,11 @@ public final class QNameTable implements Externalizable {
         final String nsuri = qname.getNamespaceURI();
         final String lpart = qname.getLocalPart();
         assert (lpart != null);
-        return regist((nsuri == null) ? XMLConstants.NULL_NS_URI : nsuri, lpart);
+        return regist((nsuri == null) ? XMLUtils.NULL_NS_URI : nsuri, lpart);
     }
 
     public int regist(String nsuri, String name) {
-        probe.nsuri = (nsuri == null) ? XMLConstants.NULL_NS_URI : nsuri;
+        probe.nsuri = (nsuri == null) ? XMLUtils.NULL_NS_URI : nsuri;
         assert (name != null);
         probe.localName = name;
         final QualifiedName predefined = pendings.remove(probe);

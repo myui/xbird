@@ -54,6 +54,7 @@ import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FileUtils;
 import xbird.util.lang.ClassResolver;
 import xbird.util.lang.ObjectUtils;
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.DynamicError;
 import xbird.xquery.XQRTException;
 import xbird.xquery.XQueryConstants;
@@ -383,7 +384,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
             } else {
                 final SAXParserFactory factory;
                 if(hasSunXerces) {
-                    factory = SAXParserFactory.newInstance("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl", null);
+                    factory = ObjectUtils.instantiate("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl", null);
                 } else {
                     factory = SAXParserFactory.newInstance();
                 }
@@ -1027,7 +1028,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
         @Override
         public QualifiedName nodeName() {
             final String target = getTarget();
-            return QNameTable.instantiate(XMLConstants.NULL_NS_URI, target);
+            return QNameTable.instantiate(XMLUtils.NULL_NS_URI, target);
         }
     }
 

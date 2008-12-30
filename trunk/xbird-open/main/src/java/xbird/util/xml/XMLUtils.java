@@ -40,6 +40,28 @@ import com.ibm.icu.text.Normalizer;
  */
 public final class XMLUtils {
 
+    /**
+     * <p>Namespace URI to use to represent that there is no Namespace.</p>
+     *
+     * <p>Defined by the Namespace specification to be "".</p>
+     *
+     * @see <a href="http://www.w3.org/TR/REC-xml-names/#defaulting">
+     * Namespaces in XML, 5.2 Namespace Defaulting</a>
+     */
+    public static final String NULL_NS_URI = "";
+
+    /**
+     * <p>W3C XML Schema Namespace URI.</p>
+     * 
+     * <p>Defined to be "<code>http://www.w3.org/2001/XMLSchema</code>".
+     * 
+     * @see <a href=
+     *  "http://www.w3.org/TR/xmlschema-1/#Instance_Document_Constructions">
+     *  XML Schema Part 1:
+     *  Structures, 2.6 Schema-Related Markup in Documents Being Validated</a>
+     */
+    public static final String W3C_XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
+
     /** Character flags. */
     private static final byte[] CHARS = new byte[1 << 16];
 
@@ -927,5 +949,4 @@ public final class XMLUtils {
         }
         return true;
     }
-
 }

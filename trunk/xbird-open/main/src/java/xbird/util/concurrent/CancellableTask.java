@@ -21,7 +21,7 @@
 package xbird.util.concurrent;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.FutureTask;
 
 /**
  * 
@@ -34,6 +34,6 @@ public interface CancellableTask<T> extends Callable<T> {
 
     void cancel();
 
-    RunnableFuture<T> newTask();
+    FutureTask<T> newTask();
 
 }
