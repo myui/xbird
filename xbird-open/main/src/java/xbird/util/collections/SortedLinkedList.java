@@ -158,17 +158,14 @@ public class SortedLinkedList<E> extends LinkedList<E> implements SortedList<E> 
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public boolean offerFirst(E e) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public boolean offerLast(E e) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public void push(E e) {
         throw new UnsupportedOperationException();
     }

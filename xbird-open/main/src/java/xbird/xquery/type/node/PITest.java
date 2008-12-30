@@ -20,8 +20,7 @@
  */
 package xbird.xquery.type.node;
 
-import javax.xml.XMLConstants;
-
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.dm.NodeKind;
 import xbird.xquery.misc.QNameTable;
 import xbird.xquery.misc.QNameTable.QualifiedName;
@@ -83,7 +82,7 @@ public class PITest extends NodeType {
         if(name == null) {
             return null;
         }
-        return QNameTable.instantiate(XMLConstants.NULL_NS_URI, name);
+        return QNameTable.instantiate(XMLUtils.NULL_NS_URI, name);
     }
 
 }

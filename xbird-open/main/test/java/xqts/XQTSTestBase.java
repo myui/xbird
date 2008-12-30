@@ -20,32 +20,56 @@
  */
 package xqts;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.WeakHashMap;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.xpath.*;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Assert;
 import org.junit.ComparisonFailure;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import xbird.util.collections.SoftHashMap;
 import xbird.util.io.IOUtils;
 import xbird.util.lang.PrintUtils;
-import xbird.util.xml.*;
+import xbird.util.xml.NamespaceBinder;
+import xbird.util.xml.SAXWriter;
 import xbird.util.xml.XMLUtils;
-import xbird.xquery.*;
+import xbird.xquery.XQRTException;
+import xbird.xquery.XQueryException;
+import xbird.xquery.XQueryModule;
+import xbird.xquery.XQueryProcessor;
 import xbird.xquery.dm.instance.DocumentTableModel;
 import xbird.xquery.dm.instance.DocumentTableModel.DTMDocument;
 import xbird.xquery.dm.ser.SAXSerializer;
@@ -58,7 +82,9 @@ import xbird.xquery.dm.value.xsi.DateTimeValue;
 import xbird.xquery.expr.var.Variable;
 import xbird.xquery.meta.DynamicContext;
 import xbird.xquery.meta.StaticContext;
-import xbird.xquery.misc.*;
+import xbird.xquery.misc.ModuleManager;
+import xbird.xquery.misc.QNameTable;
+import xbird.xquery.misc.SimpleModuleResolver;
 import xbird.xquery.misc.QNameTable.QualifiedName;
 import xbird.xquery.type.xs.DateType;
 
@@ -654,7 +680,7 @@ public class XQTSTestBase {
 
     private static final DocumentBuilderFactory getDocumentBuilderFactory(File schemaFile) {
         final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        final SchemaFactory sf = SchemaFactory.newInstance(XMLUtils.W3C_XML_SCHEMA_NS_URI);
         final Schema schema;
         try {
             schema = sf.newSchema(schemaFile);

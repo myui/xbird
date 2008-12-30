@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.FastByteArrayOutputStream;
+import xbird.util.lang.PrintUtils;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.coder.XQEventDecoder;
 import xbird.xquery.dm.coder.XQEventEncoder;
@@ -84,10 +85,10 @@ public final class EncodedSequence extends AbstractSequence<Item> implements Ext
                 encoder.emit(actualSequence);
                 objOut.flush();
             } catch (XQueryException xqe) {
-                throw new IOException("failed encoding", xqe);
+                throw new IOException(PrintUtils.prettyPrintStackTrace(xqe));
             } catch (Throwable e) {
                 LOG.fatal(e);
-                throw new IOException("failed encoding", e);
+                throw new IOException(PrintUtils.prettyPrintStackTrace(e));
             }
             this.encodedSequence = bufOut.toByteArray();
         }
@@ -100,7 +101,7 @@ public final class EncodedSequence extends AbstractSequence<Item> implements Ext
         try {
             return decoder.decode();
         } catch (XQueryException e) {
-            throw new IOException("failed decoding a sequence", e);
+            throw new IOException(PrintUtils.prettyPrintStackTrace(e));
         }
     }
 

@@ -22,6 +22,7 @@ package xbird.engine.backend;
 
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.ConcurrentIdentityHashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -32,7 +33,6 @@ import xbird.engine.*;
 import xbird.engine.Request.Signature;
 import xbird.engine.request.CommandRequest;
 import xbird.storage.DbCollection;
-import xbird.util.concurrent.collections.ConcurrentIdentityHashMap;
 
 /**
  * 

@@ -4036,7 +4036,7 @@ public class XQueryParser implements XQueryParserConstants {
                                     //"*" ":" NCName
                                     currentToken = jj_consume_token(StarColonNCName);
                                     String ncname = currentToken.image.substring(currentToken.image.indexOf(':') + 1);
-                                    name = QNameTable.instantiate(XMLConstants.NULL_NS_URI, ncname, NodeTest.ANY);
+                                    name = QNameTable.instantiate(XMLUtils.NULL_NS_URI, ncname, NodeTest.ANY);
                                     nt = new NodeTest(axis, name);
                                     break;
                                 default:

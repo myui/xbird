@@ -20,8 +20,7 @@
  */
 package xbird.xquery.func.qname;
 
-import javax.xml.XMLConstants;
-
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.DynamicError;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.value.Item;
@@ -76,7 +75,7 @@ public final class FnQName extends BuiltInFunction {
             if(qname.indexOf(':') != -1) {
                 throw new DynamicError("err:FOCA0002", "Invalid qname: " + qname);
             }
-            paramUri = XMLConstants.NULL_NS_URI;
+            paramUri = XMLUtils.NULL_NS_URI;
         } else {
             paramUri = ((XString) firstItem).getValue();
         }

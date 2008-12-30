@@ -33,6 +33,7 @@ import javax.xml.XMLConstants;
 
 import xbird.util.resource.ResourceUtils;
 import xbird.util.xml.NamespaceBinder;
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.StaticError;
 import xbird.xquery.XQueryConstants;
 import xbird.xquery.XQueryException;
@@ -159,7 +160,7 @@ public class StaticContext implements XQueryContext {
         staticalyKnownNamespaces.declarePrefix(XQueryConstants.FN, XQueryConstants.FN_URI);
         staticalyKnownNamespaces.declarePrefix(XQueryConstants.XDT, XQueryConstants.XDT_URI);
         staticalyKnownNamespaces.declarePrefix(XQueryConstants.LOCAL, XQueryConstants.LOCAL_URI);
-        staticalyKnownNamespaces.declarePrefix(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI);
+        staticalyKnownNamespaces.declarePrefix(XMLConstants.DEFAULT_NS_PREFIX, XMLUtils.NULL_NS_URI);
         staticalyKnownNamespaces.declarePrefix(JavaFunction.PROTOCOL, JavaFunction.PROTOCOL);
         staticalyKnownNamespaces.declarePrefix(BuiltInFunction.EXT_NSPREFIX, BuiltInFunction.EXT_NAMESPACE_URI);
     }

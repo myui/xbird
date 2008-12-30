@@ -31,6 +31,7 @@ import xbird.util.collections.CharArrayList;
 import xbird.util.io.BitInputStream;
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.FastByteArrayOutputStream;
+import xbird.util.lang.ArrayUtils;
 
 /**
  * 
@@ -262,7 +263,7 @@ public final class PFOR {
     }
 
     public final static int estimateAdequateBitWidth(final char[] v, final int s) {
-        final char[] sorted = Arrays.copyOf(v, s);
+        final char[] sorted = ArrayUtils.copyOf(v, s);
         Arrays.sort(sorted, 0, s);
 
         float minEst = Float.MAX_VALUE;

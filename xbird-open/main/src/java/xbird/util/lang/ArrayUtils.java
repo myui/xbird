@@ -36,7 +36,6 @@
 package xbird.util.lang;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 
@@ -59,11 +58,11 @@ public final class ArrayUtils {
     private ArrayUtils() {}
 
     public static <T> T[] copy(final T[] original) {
-        return Arrays.copyOf(original, original.length);
+        return ArrayUtils.copyOf(original, original.length);
     }
 
     public static int[] copy(final int[] original) {
-        return Arrays.copyOf(original, original.length);
+        return ArrayUtils.copyOf(original, original.length);
     }
 
     /**
@@ -395,6 +394,37 @@ public final class ArrayUtils {
         final T[] copy = ((Object) newType == (Object) Object[].class) ? (T[]) new Object[newLength]
                 : (T[]) Array.newInstance(newType.getComponentType(), newLength);
         System.arraycopy(original, from, copy, 0, Math.min(original.length - from, newLength));
+        return copy;
+    }
+
+    public static byte[] copyOf(final byte[] original, final int newLength) {
+        final byte[] copy = new byte[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+
+    public static int[] copyOf(final int[] original, final int newLength) {
+        final int[] copy = new int[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+
+    public static char[] copyOf(final char[] original, final int newLength) {
+        final char[] copy = new char[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] copyOf(T[] original, int newLength) {
+        return (T[]) copyOf(original, newLength, original.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T, U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
+        final T[] copy = ((Object) newType == (Object) Object[].class) ? (T[]) new Object[newLength]
+                : (T[]) Array.newInstance(newType.getComponentType(), newLength);
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
     }
 

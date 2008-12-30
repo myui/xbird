@@ -20,8 +20,7 @@
  */
 package xbird.xquery.dm.value.node;
 
-import javax.xml.XMLConstants;
-
+import xbird.util.xml.XMLUtils;
 import xbird.xquery.dm.NodeKind;
 import xbird.xquery.misc.QNameTable;
 import xbird.xquery.misc.QNameTable.QualifiedName;
@@ -36,14 +35,14 @@ import xbird.xquery.misc.QNameTable.QualifiedName;
  */
 public class DMProcessingInstruction extends DMNode {
     private static final long serialVersionUID = 6723015424684439431L;
-    
+
     private final String _target;
 
     public DMProcessingInstruction() {
         super();
         this._target = null;
     }
-    
+
     public DMProcessingInstruction(String target, String content) {
         super();
         this._target = target;
@@ -69,7 +68,7 @@ public class DMProcessingInstruction extends DMNode {
 
     @Override
     public QualifiedName nodeName() {
-        return QNameTable.instantiate(XMLConstants.NULL_NS_URI, _target);
+        return QNameTable.instantiate(XMLUtils.NULL_NS_URI, _target);
     }
 
 }
