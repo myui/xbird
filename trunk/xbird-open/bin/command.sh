@@ -18,8 +18,12 @@
 #   exit 1
 #fi
 
-libdir=../lib
-distdir=../target
+if [ -z $XBIRD_HOME ]; then
+  XBIRD_HOME=".."
+fi
+
+libdir=$XBIRD_HOME/lib
+distdir=$XBIRD_HOME/target
 optlib=$libdir/optional
 
 # You can customize the option for JavaVM externally via setting VMOPTS

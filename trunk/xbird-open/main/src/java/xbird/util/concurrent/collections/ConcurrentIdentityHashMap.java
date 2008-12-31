@@ -28,13 +28,24 @@
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
  */
-package java.util;
+package xbird.util.concurrent.collections;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+
+import xbird.util.collections.SimpleEntry;
 
 /**
  * This extends the public domain version of java.util.concurrent.ConcurrentHashMap
@@ -1095,7 +1106,7 @@ public class ConcurrentIdentityHashMap<K, V> extends AbstractMap<K, V>
      * Custom Entry class used by EntryIterator.next(), that relays
      * setValue changes to the underlying map.
      */
-    final class WriteThroughEntry extends AbstractMap.SimpleEntry<K, V> {
+    final class WriteThroughEntry extends SimpleEntry<K, V> {
         WriteThroughEntry(K k, V v) {
             super(k, v);
         }

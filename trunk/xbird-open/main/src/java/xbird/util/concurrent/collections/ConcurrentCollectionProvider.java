@@ -20,7 +20,6 @@
  */
 package xbird.util.concurrent.collections;
 
-import java.util.ConcurrentHashMapLong;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 

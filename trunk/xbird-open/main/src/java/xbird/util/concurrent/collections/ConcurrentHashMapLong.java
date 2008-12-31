@@ -24,13 +24,24 @@
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
  */
-package java.util;
+package xbird.util.concurrent.collections;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+
+import xbird.util.collections.SimpleEntry;
 
 /**
  * A specialized version of {@link java.util.concurrent.ConcurrentHashMap} which takes <strong>primitive long keys</strong>.
@@ -1120,7 +1131,7 @@ public final class ConcurrentHashMapLong<V> extends AbstractMap<Long, V>
      * Custom Entry class used by EntryIterator.next(), that relays
      * setValue changes to the underlying map.
      */
-    final class WriteThroughEntry extends AbstractMap.SimpleEntry<Long, V> {
+    final class WriteThroughEntry extends SimpleEntry<Long, V> {
         private static final long serialVersionUID = -2253291053596279574L;
 
         WriteThroughEntry(Long k, V v) {
