@@ -29,6 +29,9 @@ import java.lang.management.RuntimeMXBean;
 import java.security.AccessController;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -65,7 +68,14 @@ public final class SystemUtils {
             if(System.getProperty("xbird.use_jni") != null) {
                 throw new IllegalStateException("Please set `xbird.use_jni' system property");
             }
-            System.loadLibrary("xbird_util_lang_SystemUtils");
+            try {
+                System.loadLibrary("xbird_util_lang_SystemUtils");
+            } catch (UnsatisfiedLinkError le) {
+                final Log log = LogFactory.getLog(SystemUtils.class);
+                if(log.isWarnEnabled()) {
+                    log.warn("Performance monitoring is not supported for this JVM. Please ensure that 'xbird.profiling' property is not enabled in your 'xbird.properties'");
+                }
+            }
         }
         USE_SUN_MXBEAN = useSunMx;
     }

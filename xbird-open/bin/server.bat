@@ -17,8 +17,14 @@ goto :eof
 
 :gotJavaHome
 
-set libdir=..\lib
-set distdir=..\target
+if not "%XBIRD_HOME%" == "" goto gotXbirdHome
+set XBIRD_HOME=..
+:gotXbirdHome
+
+echo XBIRD_HOME=%XBIRD_HOME%
+
+set libdir=%XBIRD_HOME%\lib
+set distdir=%XBIRD_HOME%\target
 set optlib=%libdir%\optional
 
 REM You can customize the option for JavaVM externally via setting VMOPTS
