@@ -1,4 +1,4 @@
-#summary Recording download counts of past archives
+#summary Recording download counts of past archives (ChangeLog)
 #labels Phase-Support
 
 || *No* || *Version* || *Count* || *Create* || *Deleted* || *Changes* ||
