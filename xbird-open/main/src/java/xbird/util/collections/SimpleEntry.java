@@ -1,29 +1,22 @@
 /*
- * Copyright 1997-2007 Sun Microsystems, Inc.  All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ * @(#)$Id$$
  *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Sun in the LICENSE file that accompanied this code.
+ * Copyright 2006-2008 Makoto YUI
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  * Contributors:
- *     Makoto YUI - stolen from openjdk
+ *     Makoto YUI - initial implementation
  */
 package xbird.util.collections;
 
@@ -38,8 +31,8 @@ import java.util.Map.Entry;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public class SimpleEntry<K, V> implements Entry<K, V> {
-    K key;
-    V value;
+    private K key;
+    private V value;
 
     public SimpleEntry(K key, V value) {
         this.key = key;
@@ -65,22 +58,27 @@ public class SimpleEntry<K, V> implements Entry<K, V> {
         return oldValue;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public boolean equals(Object o) {
-        if(!(o instanceof Map.Entry))
+        if(!(o instanceof Map.Entry)) {
             return false;
+        }
         Map.Entry e = (Map.Entry) o;
         return eq(key, e.getKey()) && eq(value, e.getValue());
     }
 
+    @Override
     public int hashCode() {
         return ((key == null) ? 0 : key.hashCode()) ^ ((value == null) ? 0 : value.hashCode());
     }
 
+    @Override
     public String toString() {
         return key + "=" + value;
     }
 
-    private static boolean eq(Object o1, Object o2) {
+    private static final boolean eq(final Object o1, final Object o2) {
         return (o1 == null ? o2 == null : o1.equals(o2));
     }
 
