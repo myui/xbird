@@ -364,6 +364,7 @@
    <xsl:template match="test:test-case">
       <xsl:variable name="FilePath" select="@FilePath" />
       <table width="80%" bgcolor="tan">
+         <a name="{@name}"/>
          <tr>
             <td>
                <b>
@@ -539,10 +540,6 @@
                   </A>
                </td>
                <td>
-                  <xsl:if test="@context">
-                     Context:
-                        <xsl:value-of select="@context"/>
-                  </xsl:if>
                </td>
             </tr>
          </xsl:for-each>
@@ -564,6 +561,48 @@
                </td>
                <td>
 	          <xsl:text>(as input URI)</xsl:text>
+               </td>
+            </tr>
+         </xsl:for-each>
+         <xsl:for-each select="test:defaultCollection">
+            <tr>
+               <td>
+                  Role:
+                  <A>
+                     <xsl:attribute name="href">#<xsl:value-of select="@role"/></xsl:attribute>
+                     <xsl:value-of select="@role"/>
+                  </A>
+               </td>
+               <td>
+                  Source ID:
+                  <A>
+                     <xsl:attribute name="href">#<xsl:value-of select="."/></xsl:attribute>
+                     <xsl:value-of select="."/>
+                  </A>
+               </td>
+               <td>
+	          <xsl:text>(as default collection)</xsl:text>
+               </td>
+            </tr>
+         </xsl:for-each>
+         <xsl:for-each select="test:contextItem">
+            <tr>
+               <td>
+                  Role:
+                  <A>
+                     <xsl:attribute name="href">#<xsl:value-of select="@role"/></xsl:attribute>
+                     <xsl:value-of select="@role"/>
+                  </A>
+               </td>
+               <td>
+                  Source ID:
+                  <A>
+                     <xsl:attribute name="href">#<xsl:value-of select="."/></xsl:attribute>
+                     <xsl:value-of select="."/>
+                  </A>
+               </td>
+               <td>
+	          <xsl:text>(as context item)</xsl:text>
                </td>
             </tr>
          </xsl:for-each>

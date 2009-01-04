@@ -706,10 +706,7 @@
                            </xs:documentation>
                         </xs:annotation>
                      </xs:attribute>
-                     <xs:attribute name="variable" type="xs:string"/>
-<!--
-                     <xs:attribute name="context" type="test:context-enum" />
--->
+                     <xs:attribute name="variable" type="xs:string" use="required"/>
                   </xs:extension>
                </xs:simpleContent>
             </xs:complexType>
@@ -735,6 +732,54 @@
                         </xs:annotation>
                      </xs:attribute>
                      <xs:attribute name="variable" type="xs:string" use="required" />
+                  </xs:extension>
+               </xs:simpleContent>
+            </xs:complexType>
+         </xs:element>
+         
+         <!-- Zero or one default collections that will be used by this query -->
+         
+         <xs:element name="defaultCollection" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>
+                  Zero or one default collection that will be used by this query.
+               </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+               <xs:simpleContent>
+                  <xs:extension base="xs:IDREF">
+                     <!-- this attribute contains only principal-data -->
+                     <xs:attribute name="role" type="test:role-enum" use="required" >
+                        <xs:annotation>
+                           <xs:documentation>
+                              this attribute contains only principal-data
+                           </xs:documentation>
+                        </xs:annotation>
+                     </xs:attribute>
+                  </xs:extension>
+               </xs:simpleContent>
+            </xs:complexType>
+         </xs:element>
+         
+         <!-- Zero or one context nodes that will be used by this query -->
+         
+         <xs:element name="contextItem" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>
+                  Zero or one context item that will be used by this query.
+               </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+               <xs:simpleContent>
+                  <xs:extension base="xs:IDREF">
+                     <!-- this attribute contains only principal-data -->
+                     <xs:attribute name="role" type="test:role-enum" use="required" >
+                        <xs:annotation>
+                           <xs:documentation>
+                              this attribute contains only principal-data
+                           </xs:documentation>
+                        </xs:annotation>
+                     </xs:attribute>
                   </xs:extension>
                </xs:simpleContent>
             </xs:complexType>
@@ -936,70 +981,6 @@
          <xs:enumeration value="parse-error" />
          <xs:enumeration value="runtime-error" />
          <xs:enumeration value="trivial" />
-      </xs:restriction>
-   </xs:simpleType>
-   
-   
-   <!-- context-enum type                                                    -->
-   <!--     Identify a specific type of transformation of the query.         -->
-   
-   <xs:simpleType name="context-enum">
-      <xs:annotation>
-         <xs:documentation>
-            Identify a specific type of transformation of the query.
-         </xs:documentation>
-      </xs:annotation>
-      <xs:restriction base="xs:string">
-         
-         <!-- external variable references become "."                -->
-         <xs:enumeration value="implicit" >
-            <xs:annotation>
-               <xs:documentation>
-                  external variable references become "."
-               </xs:documentation>
-            </xs:annotation>
-         </xs:enumeration>         
-         
-         <!-- external variable are unchanged                        -->
-         <xs:enumeration value="external" >
-            <xs:annotation>
-               <xs:documentation>
-                  external variable references are unchanged
-               </xs:documentation>
-            </xs:annotation>
-         </xs:enumeration>         
-         
-         
-         <!-- external variable references become fn:doc(...)        -->
-         <xs:enumeration value="doc" >
-            <xs:annotation>
-               <xs:documentation>
-                  external variable references become fn:doc(...)
-               </xs:documentation>
-            </xs:annotation>
-         </xs:enumeration>         
-         
-         
-         <!-- external variable references become fn:collection(...) -->
-         <xs:enumeration value="collection" >
-            <xs:annotation>
-               <xs:documentation>
-                  external variable references become fn:collection(...)
-               </xs:documentation>
-            </xs:annotation>
-         </xs:enumeration>         
-         
-         
-         <!-- external variable references become fn:collection()    -->
-         <xs:enumeration value="default collection" >
-            <xs:annotation>
-               <xs:documentation>
-                  external variable references become fn:collection()
-               </xs:documentation>
-            </xs:annotation>
-         </xs:enumeration>         
-         
-         
       </xs:restriction>
    </xs:simpleType>
    
