@@ -31,7 +31,9 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import xbird.MultithreadedTestSuite;
 import xbird.util.lang.ClassResolver;
+import xbird.util.lang.Primitives;
 
 /**
  * -Dxqts.report_on -Duser.timezone=America/New_York
@@ -56,9 +58,9 @@ public class XQTSAllTests {
     }
 
     public static Test suite() {
-        //int nthreads = Primitives.parseInt(XQTSTestBase.XQTS_PROP.getProperty("test.nthreads"), 8);
-        final TestSuite suite = new TestSuite("Test-suite for XQTS version "
-                + XQTSTestBase.xqtsVersion);
+        int nthreads = Primitives.parseInt(XQTSTestBase.XQTS_PROP.getProperty("test.nthreads"), 8);
+        final TestSuite suite = new MultithreadedTestSuite("Test-suite for XQTS version "
+                + XQTSTestBase.xqtsVersion, nthreads);
         final List<Class<? extends TestCase>> clazzList;
         try {
             clazzList = testCases();

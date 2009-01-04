@@ -20,10 +20,19 @@
  */
 package xqts;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 
-import javax.xml.xpath.*;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -71,6 +80,7 @@ public class TestCodeGenerator {
     }
 
     private static void generate() throws Exception {
+        final Document catalog = XQTSTestBase.catalogPool.borrowObject();
         final XPath xpath = XPathFactory.newInstance().newXPath();
         NamespaceBinder resolver = new NamespaceBinder();
         resolver.declarePrefix(XQTSTestBase.CATALONG_URI_PREFIX, XQTSTestBase.CATALONG_URI);
@@ -80,7 +90,7 @@ public class TestCodeGenerator {
         assert (testDestDir.exists()) : testDestDir.getAbsolutePath();
         File destFile = new File(testDestDir, "TestCase.list");
         PrintWriter pw = new PrintWriter(destFile);
-        NodeList rs = (NodeList) xpath.evaluate(ADDR_TEST_GROUPS, XQTSTestBase.catalog, XPathConstants.NODESET);
+        NodeList rs = (NodeList) xpath.evaluate(ADDR_TEST_GROUPS, catalog, XPathConstants.NODESET);
         final int rslen = rs.getLength();
         for(int i = 0; i < rslen; i++) {
             final String ADDR_TEST_GROUP = '(' + ADDR_TEST_GROUPS + ")[" + (i + 1) + ']';
@@ -123,11 +133,11 @@ public class TestCodeGenerator {
                 final StringBuilder codeBuf = new StringBuilder(512);
                 assert (code.length() > 0);
                 codeBuf.append(code, 0, code.lastIndexOf('}') - 1);
-                final int count = countTests(TEST_PATH);
+                final int count = countTests(TEST_PATH, catalog);
                 assert (count >= 1) : count;
                 String methodTmpl = IOUtils.toString(TestCodeGenerator.class.getResourceAsStream("TestMethod.template"));
                 methodTmpl = methodTmpl.replace("$TIMEOUT", XQTSTestBase.XQTS_PROP.getProperty("test.timeout")).replace("$TESTPATH", TEST_PATH);
-                NodeList methods = (NodeList) xpath.evaluate(TEST_PATH + "/@name", XQTSTestBase.catalog, XPathConstants.NODESET);
+                NodeList methods = (NodeList) xpath.evaluate(TEST_PATH + "/@name", catalog, XPathConstants.NODESET);
                 assert (count == methods.getLength());
                 for(int j = 0; j < count; j++) {
                     String methodName = methods.item(j).getTextContent();
@@ -154,6 +164,7 @@ public class TestCodeGenerator {
         System.out.println("Generation successfully done.");
         System.out.println("Total testCases: " + tcCount + ", generated in this session: "
                 + tcGenCount);
+        //XQTSTestBase.catalogPool.returnObject(catalog);
     }
 
     private static void addToTestSuite(PrintWriter pw, String packageName, String className)
@@ -164,14 +175,15 @@ public class TestCodeGenerator {
         pw.write(line);
     }
 
-    protected static int countTests(String testPath) throws XPathExpressionException {
+    protected static int countTests(String testPath, Document catalog)
+            throws XPathExpressionException {
         final XPath xpath = XPathFactory.newInstance().newXPath();
         NamespaceBinder resolver = new NamespaceBinder();
         resolver.declarePrefix(XQTSTestBase.CATALONG_URI_PREFIX, XQTSTestBase.CATALONG_URI);
         xpath.setNamespaceContext(resolver);
         final String count = "count(" + testPath + ")";
         XPathExpression expr = xpath.compile(count);
-        final Double d = (Double) expr.evaluate(XQTSTestBase.catalog, XPathConstants.NUMBER);
+        final Double d = (Double) expr.evaluate(catalog, XPathConstants.NUMBER);
         return d.intValue();
     }
 

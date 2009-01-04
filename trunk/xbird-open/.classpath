@@ -9,7 +9,6 @@
 	<classpathentry kind="src" path="main/conf"/>
 	<classpathentry kind="src" path="main/test/resources"/>
 	<classpathentry kind="src" path="main/src/resources"/>
-	<classpathentry kind="lib" path="lib/xbird-db-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/optional/args4j-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/optional/junit-4.1.jar"/>
@@ -44,5 +43,6 @@
 	<classpathentry kind="lib" path="lib/optional/stax-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/optional/parallel-junit.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/xbird-db-1.0.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

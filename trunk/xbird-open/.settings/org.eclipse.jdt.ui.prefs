@@ -1,4 +1,4 @@
-#Mon Jan 05 02:15:29 JST 2009
+#Mon Jan 05 06:02:33 JST 2009
 cleanup.add_default_serial_version_id=false
 cleanup.add_generated_serial_version_id=true
 cleanup.add_missing_annotations=true
@@ -12,10 +12,10 @@ cleanup.always_use_this_for_non_static_field_access=false
 cleanup.always_use_this_for_non_static_method_access=false
 cleanup.convert_to_enhanced_for_loop=false
 cleanup.format_source_code=false
-cleanup.make_local_variable_final=true
-cleanup.make_parameters_final=false
+cleanup.make_local_variable_final=false
+cleanup.make_parameters_final=true
 cleanup.make_private_fields_final=true
-cleanup.make_variable_declarations_final=false
+cleanup.make_variable_declarations_final=true
 cleanup.never_use_blocks=false
 cleanup.never_use_parentheses_in_expressions=true
 cleanup.organize_imports=true
