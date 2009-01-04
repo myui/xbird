@@ -641,6 +641,8 @@ public class XQTSTestBase {
 
     private static Document buildDocument(InputStream is) {
         final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setExpandEntityReferences(true);
         final Document doc;
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -653,6 +655,8 @@ public class XQTSTestBase {
 
     private static Document buildFragment(String frag) {
         final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setExpandEntityReferences(true);
         String input = "<doc>" + frag + "</doc>";
         final Document doc;
         try {
