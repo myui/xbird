@@ -60,7 +60,7 @@ public class XQTSAllTests {
 
     public static Test suite() {
         int nthreads = Primitives.parseInt(XQTSTestBase.XQTS_PROP.getProperty("test.nthreads"), 8);
-        TestSuite suite = new ParallelTestSuite("Test-suite for XQTS version " + XQTSTestBase.xqtsVersion, nthreads);
+        final TestSuite suite = new ParallelTestSuite("Test-suite for XQTS version " + XQTSTestBase.xqtsVersion, nthreads);
         final List<Class<? extends TestCase>> clazzList;
         try {
             clazzList = testCases();
