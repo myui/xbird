@@ -20,17 +20,7 @@
  */
 package xqts;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -42,8 +32,6 @@ import java.util.WeakHashMap;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -58,7 +46,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import xbird.util.collections.SoftHashMap;
 import xbird.util.io.IOUtils;
@@ -117,7 +104,6 @@ public class XQTSTestBase {
     private static final String xqtsReportFile;
     private static final File xqtsQueryPath;
     private static final File xqtsResultPath;
-    private static final DocumentBuilderFactory dbf;
 
     private static final boolean ispect;
     private static final boolean doPrint;
@@ -131,8 +117,6 @@ public class XQTSTestBase {
         System.setProperty(SAX_PARSER_FACTORY, XQTS_PROP.getProperty(SAX_PARSER_FACTORY)); // workaround for a xerces bug
         xqtsDir = XQTS_PROP.getProperty("xqts_dir");
         xqtsReportFile = XQTS_PROP.getProperty("xqts.report.destfile");
-        File schemaFile = new File(xqtsDir, "XQTSCatalog.xsd");
-        dbf = getDocumentBuilderFactory(schemaFile);
         catalog = buildDocument(xqtsDir + "/XQTSCatalog.xml");
         // show XQTS version
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -656,6 +640,7 @@ public class XQTSTestBase {
     }
 
     private static Document buildDocument(InputStream is) {
+        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         final Document doc;
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -667,6 +652,7 @@ public class XQTSTestBase {
     }
 
     private static Document buildFragment(String frag) {
+        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         String input = "<doc>" + frag + "</doc>";
         final Document doc;
         try {
@@ -676,21 +662,6 @@ public class XQTSTestBase {
             throw new IllegalStateException("buildDocument failed", e);
         }
         return doc;
-    }
-
-    private static final DocumentBuilderFactory getDocumentBuilderFactory(File schemaFile) {
-        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        final SchemaFactory sf = SchemaFactory.newInstance(XMLUtils.W3C_XML_SCHEMA_NS_URI);
-        final Schema schema;
-        try {
-            schema = sf.newSchema(schemaFile);
-        } catch (SAXException e) {
-            throw new IllegalStateException(e);
-        }
-        dbf.setSchema(schema);
-        dbf.setNamespaceAware(true);
-        dbf.setExpandEntityReferences(true);
-        return dbf;
     }
 
     private static void println(String msg) {
