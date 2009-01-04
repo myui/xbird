@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird;
+package xbird.ext.junit;
 
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
@@ -62,7 +62,6 @@ public class MultithreadedTestSuite extends TestSuite {
                 }
             });
         }
-        exec.shutdown();
         ExecutorUtils.shutdownAndAwaitTermination(exec);
     }
 
