@@ -31,7 +31,7 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import xbird.MultithreadedTestSuite;
+import xbird.ext.junit.MultithreadedTestSuite;
 import xbird.util.lang.ClassResolver;
 import xbird.util.lang.Primitives;
 
