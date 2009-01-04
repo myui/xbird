@@ -28,11 +28,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.kohsuke.junit.ParallelTestSuite;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import xbird.MultithreadedTestSuite;
 import xbird.util.lang.ClassResolver;
 import xbird.util.lang.Primitives;
 
@@ -60,7 +59,8 @@ public class XQTSAllTests {
 
     public static Test suite() {
         int nthreads = Primitives.parseInt(XQTSTestBase.XQTS_PROP.getProperty("test.nthreads"), 8);
-        final TestSuite suite = new ParallelTestSuite("Test-suite for XQTS version " + XQTSTestBase.xqtsVersion, nthreads);
+        final TestSuite suite = new MultithreadedTestSuite("Test-suite for XQTS version "
+                + XQTSTestBase.xqtsVersion, nthreads);
         final List<Class<? extends TestCase>> clazzList;
         try {
             clazzList = testCases();
