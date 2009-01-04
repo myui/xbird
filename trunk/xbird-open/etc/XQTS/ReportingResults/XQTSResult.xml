@@ -162,6 +162,7 @@
       </otherComments>     
    </test-run>
 
+   <!-- <import file="test-reports_wf.xml"/> -->
    &test-reports;
 
 </test-suite-result>

@@ -19,6 +19,19 @@
 <!--                                                                         -->
 <!--   2005-12-15    Change summary table entries to "pass/fail/total"       -->
 <!--                 Fill in some missing "not specified" in the report      -->
+<!--                                                                         -->
+<!--   2006-09-22    Add links from test cases to catalog entries and        -->
+<!--                 query text                                              -->
+<!--                                                                         -->
+<!--   2006-10-24    Generate % passed for Minimal Conformance line of       -->
+<!--                 summary                                                 -->
+<!--                                                                         -->
+<!--   2006-10-26    Adjust total tests for XQueryX implementations          -->
+<!--                 (XQueryX isn't generated for parse errors)              -->
+<!--                                                                         -->
+<!--   2006-11-08    Add light green coloring for "almost perfect".          -->
+<!--                 Add a legend.                                           -->
+
 
 <!-- Columns and organizatons can be marked with anonymous true or false.    -->
 <!-- If absent, then false is assumed.                                       -->
@@ -95,18 +108,30 @@
    
    <xsl:variable name="XQTSversion" select="xqts:test-suite/@version"/>
    
+   
+   <xsl:variable name="TargetLanguage" select="xqts:test-suite/@targetLanguage" />
+   <xsl:variable name="XQueryQueryOffsetPath" select="xqts:test-suite/@XQueryQueryOffsetPath" />
+   <xsl:variable name="XQueryXQueryOffsetPath" select="xqts:test-suite/@XQueryXQueryOffsetPath" />
+   <xsl:variable name="ResultOffsetPath" select="xqts:test-suite/@ResultOffsetPath" />
+   <xsl:variable name="XQueryFileExtension" select="xqts:test-suite/@XQueryFileExtension" />
+   <xsl:variable name="XQueryXFileExtension" select="xqts:test-suite/@XQueryXFileExtension" />
+   <xsl:variable name="SourceOffsetPath" select="xqts:test-suite/@SourceOffsetPath" />
+   
    <xsl:variable name="xquery" select="count($results//xqtsr:syntax[text()='XQuery'])"/>
    <xsl:variable name="xqueryx" select="count($results//xqtsr:syntax[text()='XQueryX'])"/>
    
    <!-- colors -->
    
-   <xsl:variable name="passcolor" select='"lightgreen"'/>
+   <xsl:variable name="perfectcolor" select='"mediumseagreen"'/>
+   <xsl:variable name="passcolor" select='"palegreen"'/>
    <xsl:variable name="failcolor" select='"coral"'/>
-   <xsl:variable name="untestedcolor" select='"snow"'/>
+   <xsl:variable name="untestedcolor" select='"white"'/>
    <xsl:variable name="backgroundcolor" select='"lightcyan"'/>
    <xsl:variable name="groupcolor" select='"paleturquoise"'/>
    
    <xsl:key name='byname' match='xqtsr:test-case' use='@name'/>
+   
+   <xsl:key name='byscenario' match='xqts:test-case' use='@scenario'/>
    
    
    
@@ -165,6 +190,13 @@
                <p>
                   When results are listed as number/number/number, then indicate passed/failed/total.
                   Passed and failed together may not equal total, due to tests not run or not reported.
+               </p>
+               
+               <p>The latest version of our files is available at
+                  <a href="http://dev.w3.org/cvsweb/2006/xquery-test-suite/">http://dev.w3.org/cvsweb/2006/xquery-test-suite/</a>.
+                  <xsl:if test='$details="true"'>
+                     The "catalog" and "query" links found with each test case are links to this version.                     
+                  </xsl:if>
                </p>
                
                <xsl:apply-templates>
@@ -368,13 +400,9 @@
             <xsl:if test='$details = "true"'>            
                <h2><a name='details'/>Detailed Results:</h2>
                
-               <blockquote>
-                  
-                  <xsl:apply-templates>
-                     <xsl:with-param name='detail'>true</xsl:with-param>
-                  </xsl:apply-templates>
-                  
-               </blockquote>
+               <xsl:apply-templates>
+                  <xsl:with-param name='detail'>true</xsl:with-param>
+               </xsl:apply-templates>
                
             </xsl:if>            
             
@@ -423,93 +451,144 @@
       <xsl:param name='detail'/>
       <xsl:param name='summary' select="'no'"/>
       
-      <table
-         frame="hsides"
-         rules="groups"
-         border="1"
-         bordercolor="black"
-         bgcolor="{$backgroundcolor}"
-         cellpadding="2">
-         
-         <colgroup align="left"/>
-         <colgroup align="center" span="{$xquery}"/>
-         <colgroup align="center"  span="{$xqueryx}"/>
-         <xsl:if test='$summaryColumns = 1'>            
-            <colgroup align="left"/>
-         </xsl:if>
-         
-         <thead>
-            <!-- Generate column heads for XQuery and XQueryX groups -->
-            
-            <tr>
-               <th></th> <!-- empty column over "features" -->
-               <xsl:if test="$xquery != 0 and ($xquery + $xqueryx) != 1">
-                  <th colspan="{$xquery}">XQuery<br/><hr/></th>
-               </xsl:if>
-               <xsl:if test="$xqueryx != 0 and ($xquery + $xqueryx) != 1">
-                  <th colspan="{$xqueryx}">XQueryX<br/><hr/></th>
-               </xsl:if>
-               <xsl:if test='$summaryColumns = 1'>
-                  <th></th>
-               </xsl:if>
-            </tr>
-            
-            <tr>
-               
-               <th>Feature</th>
-               
-               <!-- Generate a column head for each result report -->
-               
-               <xsl:for-each select="$results">
-                  <xsl:sort select="./xqtsr:test-suite-result/xqtsr:syntax"/>
-                  <xsl:sort select="./xqtsr:test-suite-result/xqtsr:implementation/@name"/>
-                  <th valign="top">
-                     <xsl:choose>
-                        <xsl:when test="./xqtsr:test-suite-result/xqtsr:implementation/@anonymous-result-column = 'true'">
-                           <xsl:text>Anonymous</xsl:text>
-                        </xsl:when>
-                        <xsl:otherwise>
-                           <xsl:value-of select="./xqtsr:test-suite-result/xqtsr:implementation/@name"/>
-                        </xsl:otherwise>
-                     </xsl:choose>
-                     <xsl:if test="./xqtsr:test-suite-result/xqtsr:test-run/xqtsr:test-suite/@version != $XQTSversion">
-                        <br/>
-                        <font size="-1">
-                           <xsl:text>(XQTS </xsl:text>
-                           <xsl:value-of select="./xqtsr:test-suite-result/xqtsr:test-run/xqtsr:test-suite/@version" />
-                           <xsl:text>)</xsl:text>
-                        </font>
-                     </xsl:if>
-                  </th>
-               </xsl:for-each>
-               
-               <xsl:if test='$summaryColumns = 1'>
-                  <th>Summary</th>
-               </xsl:if>
-            </tr>
-            
-         </thead>
-         
-         <tbody>         
-            <xsl:choose> 
-               <xsl:when test="$summary='yes'">
-                  <xsl:apply-templates
-                     select='xqts:test-group[xqts:GroupInfo/xqts:title="Minimal Conformance"
-                     or xqts:GroupInfo/xqts:title="Optional Features"]'>
-                     <xsl:with-param name='levels' select="1"/>
-                     <xsl:with-param name='grandSummary' select="'true'"/>
-                  </xsl:apply-templates>
-               </xsl:when>
-               <xsl:otherwise>        
-                  <xsl:apply-templates select='xqts:test-group'>
-                     <xsl:with-param name='detail'><xsl:value-of select="$detail"/></xsl:with-param>
-                  </xsl:apply-templates>
-                  
-               </xsl:otherwise> 
-            </xsl:choose>        
-            
-         </tbody>
+      <!-- Generate the legent -->
+      
+      <table border="0" width="100%">
+         <tr>
+            <td>
+                  <table align="right">
+                     <tr>
+                        <td>Legend:&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                        <td>
+                           <table frame="border">
+                              <tr>
+                                 <td bgcolor="{$perfectcolor}">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                              </tr>
+                           </table>
+                        </td>
+                        <td>passed</td>
+                        <td>&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                        <td>
+                           <table frame="border">
+                              <tr>
+                                 <td bgcolor="{$passcolor}">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                              </tr>
+                           </table>
+                        </td>
+                        <td>almost passed<br/>(&#x2265; 98%)</td>
+                        <td>&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                        <td>
+                           <table frame="border">
+                              <tr>
+                                 <td bgcolor="{$failcolor}">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                              </tr>
+                           </table>
+                        </td>
+                        <td>failed</td>
+                        <td>&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                        <td>
+                           <table frame="border">
+                              <tr>
+                                 <td bgcolor="{$untestedcolor}">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</td>
+                              </tr>
+                           </table>
+                        </td>
+                        <td>untested</td>
+                     </tr>
+                  </table>
+            </td>
+         </tr>
       </table>
+      
+      <blockquote>      
+         <table
+            frame="hsides"
+            rules="groups"
+            border="1"
+            bordercolor="black"
+            bgcolor="{$backgroundcolor}"
+            cellpadding="2">
+            
+            <colgroup align="left"/>
+            <colgroup align="center" span="{$xquery}"/>
+            <colgroup align="center"  span="{$xqueryx}"/>
+            <xsl:if test='$summaryColumns = 1'>            
+               <colgroup align="left"/>
+            </xsl:if>
+            
+            <thead>
+               <!-- Generate column heads for XQuery and XQueryX groups -->
+               
+               <tr>
+                  <th></th> <!-- empty column over "features" -->
+                  <xsl:if test="$xquery != 0 and ($xquery + $xqueryx) != 1">
+                     <th colspan="{$xquery}">XQuery<br/><hr/></th>
+                  </xsl:if>
+                  <xsl:if test="$xqueryx != 0 and ($xquery + $xqueryx) != 1">
+                     <th colspan="{$xqueryx}">XQueryX<br/><hr/></th>
+                  </xsl:if>
+                  <xsl:if test='$summaryColumns = 1'>
+                     <th></th>
+                  </xsl:if>
+               </tr>
+               
+               <tr>
+                  
+                  <th>Feature</th>
+                  
+                  <!-- Generate a column head for each result report -->
+                  
+                  <xsl:for-each select="$results">
+                     <xsl:sort select="./xqtsr:test-suite-result/xqtsr:syntax"/>
+                     <xsl:sort select="./xqtsr:test-suite-result/xqtsr:implementation/@name"/>
+                     <th valign="top">
+                        <xsl:choose>
+                           <xsl:when test="./xqtsr:test-suite-result/xqtsr:implementation/@anonymous-result-column = 'true'">
+                              <xsl:text>Anonymous</xsl:text>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <xsl:value-of select="./xqtsr:test-suite-result/xqtsr:implementation/@name"/>
+                           </xsl:otherwise>
+                        </xsl:choose>
+                        <xsl:if test="./xqtsr:test-suite-result/xqtsr:test-run/xqtsr:test-suite/@version != $XQTSversion">
+                           <br/>
+                           <font size="-1">
+                              <xsl:text>(XQTS </xsl:text>
+                              <xsl:value-of select="./xqtsr:test-suite-result/xqtsr:test-run/xqtsr:test-suite/@version" />
+                              <xsl:text>)</xsl:text>
+                           </font>
+                        </xsl:if>
+                     </th>
+                  </xsl:for-each>
+                  
+                  <xsl:if test='$summaryColumns = 1'>
+                     <th>Summary</th>
+                  </xsl:if>
+               </tr>
+               
+            </thead>
+            
+            <tbody>         
+               <xsl:choose> 
+                  <xsl:when test="$summary='yes'">
+                     <xsl:apply-templates
+                        select='xqts:test-group[xqts:GroupInfo/xqts:title="Minimal Conformance"
+                        or xqts:GroupInfo/xqts:title="Optional Features"]'>
+                        <xsl:with-param name='levels' select="1"/>
+                        <xsl:with-param name='grandSummary' select="'true'"/>
+                     </xsl:apply-templates>
+                  </xsl:when>
+                  <xsl:otherwise>        
+                     <xsl:apply-templates select='xqts:test-group'>
+                        <xsl:with-param name='detail'><xsl:value-of select="$detail"/></xsl:with-param>
+                     </xsl:apply-templates>
+                     
+                  </xsl:otherwise> 
+               </xsl:choose>        
+               
+            </tbody>
+         </table>
+      </blockquote>
       
    </xsl:template>
    
@@ -530,7 +609,12 @@
       
       <xsl:variable name="immediate-tests" select="./xqts:test-case"/>
       <xsl:variable name="tests" select=".//xqts:test-case"/>
-      <xsl:variable name="total" select="count($tests)"/>
+      <xsl:variable name="rawtotal" select="count($tests)"/>
+      <xsl:variable name="title" select="xqts:GroupInfo/xqts:title"/>
+      <xsl:variable
+         name='parseErrors'
+         select="key('byscenario', 'parse-error')"/>
+      <xsl:variable name='totalNotPE' select="count($tests[.=$parseErrors])"/>
       
       
       <!-- If the feature group does not immediately contain any tests, then -->
@@ -558,7 +642,7 @@
          
          <xsl:otherwise>            
             <tr>
-               <td>
+               <td valign='top'>
                   <xsl:for-each select="ancestor::xqts:test-group">&#xA0;&#xA0;&#xA0;&#xA0;</xsl:for-each>
                   <xsl:value-of select="xqts:GroupInfo/xqts:title"/>
                </td>
@@ -568,6 +652,7 @@
                <xsl:for-each select="$results">
                   <xsl:sort select="./xqtsr:test-suite-result/xqtsr:syntax"/>
                   <xsl:sort select="./xqtsr:test-suite-result/xqtsr:implementation/@name"/>
+                  <xsl:variable name='syntax' select='./xqtsr:test-suite-result/xqtsr:syntax'/>
                   <td align="center">
                      <xsl:variable
                         name='results'
@@ -580,14 +665,27 @@
                         name='failed'
                         select="count($results[@result='fail'])"
                         />
+                     <xsl:variable name="total">
+                        <xsl:choose>
+                           <xsl:when test="$syntax='XQueryX'">
+                              <xsl:value-of select='$rawtotal - $totalNotPE'/>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <xsl:value-of select='$rawtotal'/>
+                           </xsl:otherwise>
+                        </xsl:choose>
+                     </xsl:variable>
                      
                      <xsl:attribute name="bgcolor">
                         <xsl:choose>
                            <xsl:when test='$passed=$total and $passed != 0'>
+                              <xsl:value-of select="$perfectcolor"/>
+                           </xsl:when>
+                           <xsl:when test='(100 * $passed) &gt; (98 * $total)'>
                               <xsl:value-of select="$passcolor"/>
                            </xsl:when>
                            <xsl:when test='$passed = 0'>
-                              <xsl:value-of select="white"/>
+                              <xsl:value-of select="$untestedcolor"/>
                            </xsl:when>
                            <xsl:otherwise>
                               <xsl:value-of select="$failcolor"/>
@@ -603,6 +701,10 @@
                            <xsl:text>&#xA0;/&#xA0;</xsl:text>
                            <xsl:value-of select="$total"/>                           
                            <xsl:text>&#xA0;</xsl:text>
+                           <xsl:if test="$title='Minimal Conformance'">
+                              <br/>
+                              <xsl:value-of select="concat(round((1000*$passed) div $total) div 10, '%')"/>
+                           </xsl:if>
                         </xsl:when>
                         <xsl:otherwise>
                            <xsl:value-of select="$passed"/>
@@ -621,6 +723,17 @@
                            <xsl:variable
                               name='results'
                               select="key('byname', $tests/@name)"/>                        
+                           <xsl:variable name='syntax' select='./xqtsr:test-suite-result/xqtsr:syntax'/>
+                           <xsl:variable name="total">
+                              <xsl:choose>
+                                 <xsl:when test="$syntax='XQueryX'">
+                                    <xsl:value-of select='$rawtotal - $totalNotPE'/>
+                                 </xsl:when>
+                                 <xsl:otherwise>
+                                    <xsl:value-of select='$rawtotal'/>
+                                 </xsl:otherwise>
+                              </xsl:choose>
+                           </xsl:variable>
                            <xsl:if test="$total = count($results[@result='pass']) and $total != 0">
                               <xsl:value-of select="1"/>
                            </xsl:if>
@@ -634,7 +747,7 @@
                      <xsl:attribute name="bgcolor">
                         <xsl:choose>
                            <xsl:when test='($totalresults="1" and $passed="1") or $passed >= 2'>
-                              <xsl:value-of select="$passcolor"/>
+                              <xsl:value-of select="$perfectcolor"/>
                            </xsl:when>
                            <xsl:otherwise>
                               <xsl:value-of select="$failcolor"/>
@@ -687,6 +800,7 @@
    <xsl:template match="xqts:test-case">
       <xsl:variable name='test-name' select="@name" />
       <xsl:variable name='creator' select="@Creator" />
+      <xsl:variable name="FilePath" select="@FilePath" />
       
       <xsl:variable name="failedresults">
          <xsl:for-each select="$results">
@@ -709,6 +823,22 @@
             <td valign="top">
                <xsl:for-each select="ancestor::xqts:test-group">&#xA0;&#xA0;&#xA0;&#xA0;</xsl:for-each>
                <xsl:value-of select="$test-name"/>
+               
+               <!-- generate links to catalog and query, if appropriate -->
+               
+               <xsl:if test='not(starts-with($test-name, "K-")) and not(starts-with($test-name, "K2-"))'>
+                  <br>
+                     <xsl:for-each select="ancestor::xqts:test-group">&#xA0;&#xA0;&#xA0;&#xA0;</xsl:for-each>
+                     <font size="-2">
+                        <xsl:text>&#xA0;&#xA0;&#xA0;&#xA0;(</xsl:text>
+                        <a href='{concat("http://dev.w3.org/cvsweb/~checkout~/2006/xquery-test-suite/TestSuiteStagingArea/XQTSCatalog.xml#", $test-name)}'>catalog</a>
+                        <xsl:text>, </xsl:text>
+                        <a href='{concat("http://dev.w3.org/cvsweb/~checkout~/2006/xquery-test-suite/TestSuiteStagingArea/",$XQueryQueryOffsetPath, $FilePath, @name, $XQueryFileExtension)}'>query</a>
+                        <xsl:text>)</xsl:text>
+                     </font>
+                  </br>
+               </xsl:if>
+               
                <xsl:if test='$failures = "true"'>
                   <br>
                      <xsl:for-each select="ancestor::xqts:test-group">&#xA0;&#xA0;&#xA0;&#xA0;</xsl:for-each>
@@ -733,11 +863,11 @@
                <!-- Another solution is to add <wbr> tags inside the text           -->
                   <!-- Some suggest  style="overflow-x:hidden;"                        -->
                   
-                  <td>
+                  <td valign="top">
                      <xsl:attribute name="bgcolor">
                         <xsl:choose>
                            <xsl:when test='$test/@result="pass"'>
-                              <xsl:value-of select="$passcolor"/>
+                              <xsl:value-of select="$perfectcolor"/>
                            </xsl:when>
                            <xsl:when test='$test/@result="fail"'>
                               <xsl:value-of select="$failcolor"/>

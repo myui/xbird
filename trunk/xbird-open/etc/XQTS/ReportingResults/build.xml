@@ -2,86 +2,53 @@
 <!-- for more information, see http://ant.apache.org                         -->
 
 <project name="Build XQTS Result Summary" default="createboth">
-   
-   <property name="catalog" location="../XQTSCatalog.xml" />
-   
-   <property name="schema" location="XQTSResult.xsd" />
-   
-   <property
-      name="schemaLocation"
-      value="http://www.w3.org/2005/02/query-test-XQTSResult ${schema}" />
-   
-   <property name="results" location="Results.xml" />
-   
-   
-   
-   
-   <target name="createboth">
-      <antcall target="create"/>
-      <antcall target="createsimple"/>
-   </target>
-   
-   
-   
-   
-   <target name="create">
-      <tstamp>
-         <format property="now" pattern="MM/dd/yyyy HH:mm" />
-      </tstamp>
-      
-      <style
-         in="${catalog}"
-         out="XQTSReport.html"
-         destdir="."
-         basedir="."
-         style="XQTSResults.xsl"
-         force="yes">
-         <param name="creationDate" expression="${now}"/> 
-         <param name="documentAuthor" expression="${user.name}"/> 
-         <param name="resultFiles" expression="${results}"/> 
-      </style>     
-   </target>
-   
-   
-   
-   
-   <target name="createsimple">
-      <tstamp>
-         <format property="now" pattern="MM/dd/yyyy HH:mm" />
-      </tstamp>
-      
-      <style
-         in="${catalog}"
-         out="XQTSReportSimple.html"
-         destdir="."
-         basedir="."
-         style="XQTSResults.xsl"
-         force="yes">
-         <param name="now" expression="${now}"/> 
-         <param name="resultFiles" expression="${results}"/> 
-         <param name="summary" expression="true"/>
-         <param name="impdef" expression="false"/>
-         <param name="details" expression="false"/>
-         <param name="failures" expression="false"/> 
-         <param name="test-run-details" expression="false"/>
-      </style>     
-   </target>
-   
-   
-   
-   
-   <target name='validate'>
-      <xmlvalidate
-         failonerror="yes"
-         lenient="no"
-         warn="yes"
-         >
-         <fileset dir="." includes="XQTSResult.xml"/>
-         <attribute name="http://xml.org/sax/features/validation" value="true"/>
-         <attribute name="http://apache.org/xml/features/validation/schema"  value="true"/>
-         <attribute name="http://xml.org/sax/features/namespaces" value="true"/>
-         <property name="http://apache.org/xml/properties/schema/external-schemaLocation" value="${schemaLocation}"/>
-      </xmlvalidate>
-   </target>
-   
+
+	<property name="catalog" location="../XQTSCatalog.xml" />
+	<property name="schema" location="XQTSResult.xsd" />
+	<property name="schemaLocation" value="http://www.w3.org/2005/02/query-test-XQTSResult ${schema}" />
+	<property name="results" location="Results.xml" />
+
+	<target name="createboth">
+		<antcall target="create" />
+		<antcall target="createsimple" />
+	</target>
+
+	<target name="create">
+		<tstamp>
+			<format property="now" pattern="MM/dd/yyyy HH:mm" />
+		</tstamp>
+
+		<xslt in="${catalog}" out="XQTSReport.html" destdir="." basedir="." style="XQTSResults.xsl" force="yes">
+			<param name="creationDate" expression="${now}" />
+			<param name="documentAuthor" expression="${user.name}" />
+			<param name="resultFiles" expression="${results}" />
+		</xslt>
+	</target>
+
+	<target name="createsimple">
+		<tstamp>
+			<format property="now" pattern="MM/dd/yyyy HH:mm" />
+		</tstamp>
+
+		<xslt in="${catalog}" out="XQTSReportSimple.html" destdir="." basedir="." style="XQTSResults.xsl" force="yes">
+			<param name="now" expression="${now}" />
+			<param name="resultFiles" expression="${results}" />
+			<param name="summary" expression="true" />
+			<param name="impdef" expression="false" />
+			<param name="details" expression="false" />
+			<param name="failures" expression="false" />
+			<param name="test-run-details" expression="false" />
+		</xslt>
+	</target>
+
+	<target name='validate'>
+		<xmlvalidate failonerror="yes" lenient="no" warn="yes">
+			<fileset dir="." includes="XQTSResult.xml" />
+			<attribute name="http://xml.org/sax/features/validation" value="true" />
+			<attribute name="http://apache.org/xml/features/validation/schema" value="true" />
+			<attribute name="http://xml.org/sax/features/namespaces" value="true" />
+			<property name="http://apache.org/xml/properties/schema/external-schemaLocation" value="${schemaLocation}" />
+		</xmlvalidate>
+	</target>
+
 </project>
