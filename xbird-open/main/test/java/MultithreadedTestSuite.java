@@ -57,7 +57,6 @@ public class MultithreadedTestSuite extends TestSuite {
                         e.printStackTrace();
                     }
                 }
-
             });
         }
         exec.shutdown();
