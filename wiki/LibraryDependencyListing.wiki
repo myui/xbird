@@ -19,7 +19,7 @@ The detail of the dependencies are as follows.
 || lib/optional/[http://www.icu-project.org/ icu4j_xx.jar] || used by [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/func/string/NormalizeUnicode.java NormalizeUnicode] class which represents `fn:normalize-unicode()`. || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/func/string/NormalizeUnicode.java NormalizeUnicode] class || [http://xbird.googlecode.com/svn/trunk/xbird-open/lib/license/icu4j-license.html ICU4J] (BSD like) || no ||
 || lib/optional/[http://logging.apache.org/log4j/ log4j-xx.jar] || required if you want to log by log4j via `commons-logging` || a bunch of classes which does logging || ASL 2.0 || no ||
 || lib/optional/[http://tomcat.apache.org/ resolver.jar] || required for resolving XML entities when parsing || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/instance/DocumentTableModel.java DocumentTableModel] class || ASL 1.1 || yes ||
-|| lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/adapter/StreamReaderAdapter.java StreamReaderAdapter] class ||  ASF 2.0 || yes ||
+|| lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/adapter/StreamReaderAdapter.java StreamReaderAdapter] class ||  ASL 2.0 || yes ||
 
 == For Compilation ==
 
