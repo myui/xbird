@@ -53,6 +53,7 @@ The detail of the dependencies are as follows.
 
 || * file path * || * role * || * (main) dependent classes * ||  * license * || * included in fat jar? * ||
 || lib/optional/[http://www.junit.org/ junit-xx.jar] || required for test codes || a bunch of classes in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/ main/test/java] ||  CPL 1.0  || no ||
+|| lib/optional/[https://parallel-junit.dev.java.net/ parallel-junit.jar] || required for test codes || a bunch of classes in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/ main/test/java] ||  new BSD || no ||
 || lib/optional/[http://sourceforge.net/projects/saxon saxon8-dom.jar] || used for cross validation in XQTS tests. || required by `saxon8.jar` || MPL 1.1 || no ||
 || lib/optional/[http://sourceforge.net/projects/saxon saxon8.jar] || used for cross validation in XQTS tests. || classes in [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xqts main/test/java/xqts] || MPL 1.1 || no ||
 || lib/optional/[http://testng.org/ testng-xx-jdk15.jar] || used in (XQTS) test cases. || classes under [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xqts main/test/java] || ASL 2.0 || no ||
@@ -61,6 +62,11 @@ The detail of the dependencies are as follows.
 == For Experimental (and unrevealed) Feature ==
 
 || * file path * || * role * || * (main) dependent classes * ||  * license * || * included in fat jar? * ||
+|| lib/optional/[http://mina.apache.org/ mina-integration-beans-xx.jar] || required for an experimental feature of distributed query processing (JMX monitoring) || in lib/xbird-db-xx.jar || ASL 2.0 || no ||
+|| lib/optional/[http://mina.apache.org/ mina-integration-jmx-xx.jar] || required for an experimental feature of distributed query processing (JMX monitoring) || in lib/xbird-db-xx.jar || ASL 2.0 || no ||
+|| lib/optional/[http://mina.apache.org/ mina-integration-ognl-xx.jar] || required for an experimental feature of distributed query processing || in lib/xbird-db-xx.jar || ASL 2.0 || no ||
+|| lib/optional/[http://mina.apache.org/ mina-transport-apr-xx.jar] || required for an experimental feature of distributed query processing (Remote paing) || in lib/xbird-db-xx.jar || ASL 2.0 || no ||
+|| lib/optional/[http://www.opensymphony.com/ognl/ ognl-xx.jar] || required by Apache MINA || in lib/optional/mina-integration-ognl-xx.jar || new BSD || no ||
 || lib/optional/[http://www.jgroups.org/ jgroups-core-xx.jar] || required for a (unrevealed) map-reduce functionality on grid environment || in lib/xbird-db-xx.jar || LGPL 2.1 || no ||
 
 The above libraries are re-distributed [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/lib/ here]. 
