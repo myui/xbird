@@ -26,6 +26,7 @@ The detail of the dependencies are as follows.
 
 == For XQuery Servlet Pages ==
 
+|| * file path * || * role * || * (main) dependent classes * ||  * license * || * included in fat jar? * ||
 || lib/optional/[http://tomcat.apache.org/ servlet-api.jar] || required for `xqsp` servlet feature. || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/servlet/xqsp/XQueryServlet.java XQueryServlet] class || ASL 2.0 || no ||
 
 == For Object-XML mapping ==
