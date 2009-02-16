@@ -69,5 +69,7 @@ The detail of the dependencies are as follows.
 || lib/optional/[http://mina.apache.org/ mina-transport-apr-xx.jar] || required for an experimental feature of distributed query processing (Remote paing) || in lib/xbird-db-xx.jar || ASL 2.0 || no ||
 || lib/optional/[http://www.opensymphony.com/ognl/ ognl-xx.jar] || required by Apache MINA || in lib/optional/mina-integration-ognl-xx.jar || new BSD || no ||
 || lib/optional/[http://www.jgroups.org/ jgroups-core-xx.jar] || required for a (unrevealed) map-reduce functionality on grid environment || in lib/xbird-db-xx.jar || LGPL 2.1 || no ||
+|| lib/optional/[http://www.slf4j.org/ slf4j-api-xx.jar] || required by Apache MINA || in lib/optional/mina-core-xx.jar || MIT || no ||
+|| lib/optional/[http://www.slf4j.org/ slf4j-log4j12-xx.jar] || required by Apache MINA (when using log4j) || in lib/optional/mina-core-xx.jar || MIT || no ||
 
 The above libraries are re-distributed [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/lib/ here]. 
