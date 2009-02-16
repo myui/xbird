@@ -39,8 +39,8 @@ The detail of the dependencies are as follows.
 == For Object-XML mapping ==
 
 || * file path * || * role * || * (main) dependent classes * ||  * license * || * included in fat jar? * ||
-|| lib/optional/[http://xstream.codehaus.org/ xstream-xx.jar] || required when using the [http://code.google.com/p/xbird/wiki/XmlObjectBinding XML/Object mapping feature]. ||  classes under [http://code.google.com/p/xbird/source/browse/#svn/trunk/xbird-open/main/src/java/xbird/ext/xstream xbird.ext.xstream] || MIT (new BSD) || no || 
 || lib/optional/[http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/index.html xpp3_min-xx.jar] || preferably required by [http://xstream.codehaus.org/tutorial.html XStream]. || required by `xstream-xx.jar` || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/lib/license/xpp3-LICENSE.txt Indiana University Extreme! Lab Software License ver.1.1.1] (BSD like) || no ||
+|| lib/optional/[http://xstream.codehaus.org/ xstream-xx.jar] || required when using the [http://code.google.com/p/xbird/wiki/XmlObjectBinding XML/Object mapping feature]. ||  classes under [http://code.google.com/p/xbird/source/browse/#svn/trunk/xbird-open/main/src/java/xbird/ext/xstream xbird.ext.xstream] || MIT (new BSD) || no || 
 
 == For Screen-scraping ==
 
