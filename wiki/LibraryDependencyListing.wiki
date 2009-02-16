@@ -18,10 +18,14 @@ The detail of the dependencies are as follows.
 || lib/optional/[http://sourceforge.net/projects/high-scale-lib high-scale-lib-xx.jar] || used for its efficiency when many CPUs  ( 8 processors or more)  are available. || classes in xbird-db-xx.jar and classes under [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/util/concurrent/ xbird.util.concurrent.xx]. || public domain || yes ||
 || lib/optional/[http://www.icu-project.org/ icu4j_xx.jar] || used by [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/func/string/NormalizeUnicode.java NormalizeUnicode] class which represents `fn:normalize-unicode()`. || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/func/string/NormalizeUnicode.java NormalizeUnicode] class || [http://xbird.googlecode.com/svn/trunk/xbird-open/lib/license/icu4j-license.html ICU4J] (BSD like) || no ||
 || lib/optional/[http://www.jgroups.org/ jgroups-core-xx.jar] || required for a (unrevealed) map-reduce functionality on grid environment || in lib/xbird-db-xx.jar || LGPL 2.1 || no ||
-|| lib/optional/[http://code.google.com/p/jsr-305/ jsr305.jar] || required for compilation || in the class with [http://jcp.org/en/jsr/detail?id=305 annotations of software defect detection] || new BSD || no ||
 || lib/optional/[http://logging.apache.org/log4j/ log4j-xx.jar] || required if you want to log by log4j via `commons-logging` || a bunch of classes which does logging || ASL 2.0 || no ||
 || lib/optional/[http://tomcat.apache.org/ resolver.jar] || required for resolving XML entities when parsing || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/instance/DocumentTableModel.java DocumentTableModel] class || ASL 1.1 || yes ||
 || lib/optional/[http://stax.codehaus.org/ stax-api-xx.jar] || required when use stax API. This API is required before JDK 1.6 (JDK 1.6 includes this API.) || [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/src/java/xbird/xquery/dm/adapter/StreamReaderAdapter.java StreamReaderAdapter] class ||  ASF 2.0 || yes ||
+
+== For Compilation ==
+
+|| * file path * || * role * || * (main) dependent classes * ||  * license * || * included in fat jar? * ||
+|| lib/optional/[http://code.google.com/p/jsr-305/ jsr305.jar] || required for compilation || in the class with [http://jcp.org/en/jsr/detail?id=305 annotations of software defect detection] || new BSD || no ||
 
 == For GUIs ==
 
