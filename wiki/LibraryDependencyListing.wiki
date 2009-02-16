@@ -71,7 +71,7 @@ The detail of the dependencies are as follows.
 || lib/optional/[http://www.jgroups.org/ jgroups-core-xx.jar] || required for a (unrevealed) map-reduce functionality on grid environment || in lib/xbird-db-xx.jar || LGPL 2.1 || no ||
 || lib/optional/[http://www.slf4j.org/ slf4j-api-xx.jar] || required by Apache MINA || in lib/optional/mina-core-xx.jar || MIT || no ||
 || lib/optional/[http://www.slf4j.org/ slf4j-log4j12-xx.jar] || required by Apache MINA (when using log4j) || in lib/optional/mina-core-xx.jar || MIT || no ||
-|| lib/optional/[http://tokyocabinet.sourceforge.net/index.html tokyocabinet-xx.jar] || required for a (unrevealed) DHT functionality on grid environment || in lib/xbird-db-xx.jar || LGPL 2.1 || no ||
+|| lib/optional/[http://tokyocabinet.sourceforge.net/index.html tokyocabinet-xx.jar] || required for a (unrevealed) DHT functionality on P2P environment || in lib/xbird-db-xx.jar || LGPL 2.1 || no ||
 || lib/optional/[http://tomcat.apache.org/tomcat-5.5-doc/apr.html tomcat-apr-xx.jar] || required for an experimental feature of distributed query processing (Remote paing) || in lib/optional/mina-transport-apr-xx.jar || ASL 2.0 || no ||
 
 
