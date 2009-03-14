@@ -117,11 +117,10 @@ You can find more examples in [http://code.google.com/p/xbird/source/browse/trun
 = FAQ =
 
   * How XBird Persistent feature deal with different versions of classes?
-
-{{{
+<pre>
 It depends on XStream serialization/deserialization. 
-See <a href="http://xstream.codehaus.org/faq.html#Serialization_newer_class_versions">XStream FAQ</a> for the further information.
-}}}
+See [http://xstream.codehaus.org/faq.html#Serialization_newer_class_versions XStream FAQ] for the further information.
+</pre>
 
 = Reference =
 
