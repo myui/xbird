@@ -114,6 +114,15 @@ You can find more examples in [http://code.google.com/p/xbird/source/browse/trun
 
   * Does not support 'live' persistence for the stored objects. Modified objects are required to explicitly (re)set to the collection. Get details on [http://thread.gmane.org/gmane.comp.java.xstream.user/4088/focus=4089 XStream mailing list].
 
+= FAQ =
+
+  * How XBird Persistent feature deal with different versions of classes?
+
+{{{
+It depends on XStream serialization/deserialization. See [http://xstream.codehaus.org/faq.html#Serialization_newer_class_versions XStream FAQ] for the futher information. 
+}}}
+  
+
 = Reference =
 
   * [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/test/java/xbird/ext/xstream/XBirdCollectionStrategyTest.java XBirdCollectionStrategyTest class] - a testcase containing example usages
