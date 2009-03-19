@@ -45,7 +45,7 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
     protected V _value;
     private final int _hash;
 
-    private final UnsafeIntCounter _pinning;
+    protected final UnsafeIntCounter _pinning;
     private final ILock _lock = new AtomicBackoffLock();
 
     /** used for barrier */
@@ -118,7 +118,7 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
         return false;
     }
 
-    public final boolean pin() {
+    public boolean pin() {
         final UnsafeIntCounter pinning = _pinning;
         int capa;
         do {
@@ -146,15 +146,15 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
         _pinning.set(-1);
     }
 
-    public final void tryEvict(int expect, int update) {
+    public void tryEvict(int expect, int update) {
         _pinning.compareAndSet(expect, update);
     }
 
-    public final boolean tryEvict() {
+    public boolean tryEvict() {
         return _pinning.compareAndSet(0, -1);
     }
 
-    public final boolean isEvicted() {
+    public boolean isEvicted() {
         return _pinning.get() == -1;
     }
 
