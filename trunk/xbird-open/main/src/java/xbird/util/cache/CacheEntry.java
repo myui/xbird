@@ -142,7 +142,7 @@ public class CacheEntry<K, V> implements ICacheEntry<K, V> {
         return _pinning.get();
     }
 
-    public final void setEvicted() {
+    public void setEvicted() {
         _pinning.set(-1);
     }
 
