@@ -164,8 +164,10 @@
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/jsr305.jar"
 			                  relpath="" />
+			<!--
 			<fatjar.jarsource file="${lib.dir}/optional/jgroups-core-2.6.3.GA.jar"
 			                  relpath="" />
+			-->
 			<fatjar.jarsource file="${lib.dir}/optional/mina-core-2.0.0-M4.jar"
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-jmx-2.0.0-M4.jar"
@@ -182,8 +184,10 @@
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/ognl-2.6.9.jar"
 			                  relpath="" />
+			<!--
 			<fatjar.jarsource file="${lib.dir}/optional/tokyocabinet-1.14.jar"
 			                  relpath="" />
+			-->
 		</fatjar.build>
 	</target>
 
