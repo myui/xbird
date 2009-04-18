@@ -1,0 +1,31 @@
+Title: Making XML Database Systems Scalable to Computer Resources and Data Volumes
+
+Abstract: 
+Increasing use of XML has emphasized the need for scalable database systems 
+that are capable of handling a large amount of XML data efficiently. This study 
+explores effective methods for making a scalable XML database system in the 
+following aspects: (a) scalability to data volumes, (b) scalable XML processing 
+with a shared-nothing PC cluster, and (c) scalable database processing on 
+shared-memory multiprocessors. In the study of (a), we propose an XQuery 
+processing scheme in which an XML document is internally represented as a set 
+of blocks and can directly be stored on secondary storage. Our experimental 
+results showed that our storage scheme is scalable to data volumes and 
+outperforms competing schemes with respect to I/O intensive workloads. In (b), 
+we discuss on-the-fly XML processing using shared-nothing PC clusters. We 
+propose a scheme for distributed and parallel query processing that employs a 
+pass-by-reference semantics by using remote proxy. Previously proposed methods 
+that use pass-by-value semantics have often suffered from redundant 
+communication between processor elements and limited inter-operator 
+parallelism. To cope with these problems, we developed a distributed XML query 
+processing scheme that leverages the benefit of lazy evaluation. Our 
+experimental results showed that our proposed scheme obtains up to 22x speedups 
+compared with competitive methods, and demonstrated the importance of 
+distributed XML database systems to take pass-by-reference semantics into 
+consideration. In (c), we explain the internal locking in the buffer management 
+module that prevents databases from being scalable to the number of processors. 
+We further propose a scalable buffer management scheme that employs 
+non-blocking synchronization instead of locking-based ones. Our experimental 
+results revealed that our scheme can obtain nearly linear scalability to 
+processors up to 64 processors, although the existing locking-based schemes do 
+not scale beyond 16 processors. Finally, we conclude our studies with examining 
+our XML native database system built on top of the three contributions.
