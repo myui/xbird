@@ -49,4 +49,9 @@ public final class ClassUtils {
         return idx == -1 ? className : className.substring(idx + 1);
     }
 
+    @Nonnull
+    public static String getClassFilePath(@Nonnull String className) {
+        return className.replace('.', '/') + ".class";
+    }
+
 }
