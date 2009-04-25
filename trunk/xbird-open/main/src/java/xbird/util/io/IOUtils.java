@@ -35,18 +35,7 @@
  */
 package xbird.util.io;
 
-import java.io.Closeable;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -203,6 +192,12 @@ public final class IOUtils {
         }
     }
 
+    public static byte[] getBytes(final InputStream in) throws IOException {
+        FastByteArrayOutputStream out = new FastByteArrayOutputStream(4096);
+        copy(in, out);
+        return out.toByteArray();
+    }
+
     public static void writeString(final DataOutput out, final String s) throws IOException {
         final int len = s.length();
         out.writeInt(len);
@@ -302,6 +297,19 @@ public final class IOUtils {
             }
         };
         sched.schedule(cancel, delay, TimeUnit.MILLISECONDS);
+    }
+
+    public static void writeBytes(final byte[] b, final ObjectOutput out) throws IOException {
+        final int len = b.length;
+        out.write(len);
+        out.write(b, 0, len);
+    }
+
+    public static byte[] readBytes(final ObjectInput in) throws IOException {
+        final int len = in.readInt();
+        final byte[] b = new byte[len];
+        in.read(b, 0, len);
+        return b;
     }
 
 }
