@@ -20,8 +20,15 @@
  */
 package xbird.util.lang;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import xbird.util.io.IOUtils;
 
 /**
  * 
@@ -50,8 +57,42 @@ public final class ClassUtils {
     }
 
     @Nonnull
-    public static String getClassFilePath(@Nonnull String className) {
+    public static String getRelativeClassFilePath(@Nonnull String className) {
+        // Create parent class if it is an inner class
+        final int innerIdx = className.indexOf('$');
+        if(innerIdx != -1) {
+            className = className.substring(0, innerIdx);
+        }
         return className.replace('.', '/') + ".class";
+    }
+
+    @Nonnull
+    public static File getClassFile(@Nonnull Class<?> clazz) {
+        String className = clazz.getName();
+        String path = getRelativeClassFilePath(className);
+        URL url = clazz.getResource('/' + path);
+        String absolutePath = url.getFile();
+        return new File(absolutePath);
+    }
+
+    public static byte[] getClassAsBytes(@Nonnull Class<?> clazz) throws IOException {
+        InputStream is = getClassAsStream(clazz);
+        return IOUtils.getBytes(is);
+    }
+
+    public static InputStream getClassAsStream(@Nonnull Class<?> clazz) throws IOException {
+        String className = clazz.getName();
+        String path = getRelativeClassFilePath(className);
+        URL url = clazz.getResource('/' + path);
+        return url.openStream();
+    }
+
+    public static long getLastModified(@Nonnull Class<?> clazz) {
+        final File file = getClassFile(clazz);
+        if(file.exists()) {
+            return file.lastModified();
+        }
+        return -1L;
     }
 
 }
