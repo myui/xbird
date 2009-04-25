@@ -77,6 +77,10 @@ public final class StopWatch {
             buf.append(label + ": ");
         }
         long t = elapsed();
+        if(t == 0) {
+            buf.append("0ms");
+            return buf.toString();
+        }
         long hour = t / 3600000;
         if(hour > 0) {
             buf.append(hour + "h ");
@@ -99,6 +103,9 @@ public final class StopWatch {
     }
 
     public static String elapsedTime(long t) {
+        if(t == 0) {
+            return "0ms";
+        }
         final StringBuilder buf = new StringBuilder();
         long hour = t / 3600000;
         if(hour > 0) {

@@ -301,7 +301,7 @@ public final class IOUtils {
 
     public static void writeBytes(final byte[] b, final ObjectOutput out) throws IOException {
         final int len = b.length;
-        out.write(len);
+        out.writeInt(len);
         out.write(b, 0, len);
     }
 
