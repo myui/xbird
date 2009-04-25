@@ -23,7 +23,10 @@ package xbird.util.lang;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,13 +69,15 @@ public final class ClassUtils {
         return className.replace('.', '/') + ".class";
     }
 
+    @SuppressWarnings("deprecation")
     @Nonnull
     public static File getClassFile(@Nonnull Class<?> clazz) {
         String className = clazz.getName();
         String path = getRelativeClassFilePath(className);
         URL url = clazz.getResource('/' + path);
         String absolutePath = url.getFile();
-        return new File(absolutePath);
+        String decoded = URLDecoder.decode(absolutePath);
+        return new File(decoded);
     }
 
     public static byte[] getClassAsBytes(@Nonnull Class<?> clazz) throws IOException {
