@@ -59,11 +59,6 @@ public final class ClassUtils {
 
     @Nonnull
     public static String getRelativeClassFilePath(@Nonnull String className) {
-        // Create parent class if it is an inner class
-        final int innerIdx = className.indexOf('$');
-        if(innerIdx != -1) {
-            className = className.substring(0, innerIdx);
-        }
         return className.replace('.', '/') + ".class";
     }
 
