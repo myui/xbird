@@ -73,8 +73,8 @@ public final class FilePath implements Externalizable {
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        IOUtils.writeString(out, dirPath);
-        IOUtils.writeString(out, fileName);
+        IOUtils.writeString(dirPath, out);
+        IOUtils.writeString(fileName, out);
     }
 
 }

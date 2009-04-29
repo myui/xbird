@@ -43,6 +43,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import xbird.util.lang.CancelAwareTimer;
 
 /**
@@ -198,25 +201,6 @@ public final class IOUtils {
         return out.toByteArray();
     }
 
-    public static void writeString(final DataOutput out, final String s) throws IOException {
-        final int len = s.length();
-        out.writeInt(len);
-        for(int i = 0; i < len; i++) {
-            int v = s.charAt(i);
-            out.write((v >>> 8) & 0xFF);
-            out.write((v >>> 0) & 0xFF);
-        }
-    }
-
-    public static String readString(final DataInput in) throws IOException {
-        final int len = in.readInt();
-        final char[] ch = new char[len];
-        for(int i = 0; i < len; i++) {
-            ch[i] = in.readChar();
-        }
-        return new String(ch);
-    }
-
     public static void closeQuietly(final Closeable channel) {
         if(channel != null) {
             try {
@@ -299,17 +283,54 @@ public final class IOUtils {
         sched.schedule(cancel, delay, TimeUnit.MILLISECONDS);
     }
 
-    public static void writeBytes(final byte[] b, final ObjectOutput out) throws IOException {
+    public static void writeBytes(@Nullable final byte[] b, final ObjectOutput out)
+            throws IOException {
+        if(b == null) {
+            out.writeInt(-1);
+            return;
+        }
         final int len = b.length;
         out.writeInt(len);
         out.write(b, 0, len);
     }
 
+    @Nullable
     public static byte[] readBytes(final ObjectInput in) throws IOException {
         final int len = in.readInt();
+        if(len == -1) {
+            return null;
+        }
         final byte[] b = new byte[len];
         in.read(b, 0, len);
         return b;
+    }
+
+    public static void writeString(@Nullable final String s, final DataOutput out)
+            throws IOException {
+        if(s == null) {
+            out.writeInt(-1);
+            return;
+        }
+        final int len = s.length();
+        out.writeInt(len);
+        for(int i = 0; i < len; i++) {
+            int v = s.charAt(i);
+            out.write((v >>> 8) & 0xFF);
+            out.write((v >>> 0) & 0xFF);
+        }
+    }
+
+    @Nullable
+    public static String readString(@Nonnull final DataInput in) throws IOException {
+        final int len = in.readInt();
+        if(len == -1) {
+            return null;
+        }
+        final char[] ch = new char[len];
+        for(int i = 0; i < len; i++) {
+            ch[i] = in.readChar();
+        }
+        return new String(ch);
     }
 
 }

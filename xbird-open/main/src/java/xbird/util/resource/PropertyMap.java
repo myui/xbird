@@ -153,16 +153,16 @@ public final class PropertyMap implements Serializable {
             out.writeInt(totalEntries);
             out.writeInt(0); // duplicateEnrties
             for(Entry<String, String> e : _entries.entrySet()) {
-                IOUtils.writeString(out, e.getKey());
-                IOUtils.writeString(out, e.getValue());
+                IOUtils.writeString(e.getKey(), out);
+                IOUtils.writeString(e.getValue(), out);
             }
         } else {//append
             final int volatileSize = _volatileEntries.size();
             for(int i = 0; i < volatileSize; i += 2) {
                 String key = _volatileEntries.get(i);
-                IOUtils.writeString(out, key);
+                IOUtils.writeString(key, out);
                 String value = _volatileEntries.get(i + 1);
-                IOUtils.writeString(out, value);
+                IOUtils.writeString(value, out);
             }
         }
         _volatileEntries.clear();
