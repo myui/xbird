@@ -292,11 +292,19 @@ public final class StringUtils {
     }
 
     public static byte[] getBytes(final String s) {
-        assert (s != null);
         final int len = s.length();
         final byte[] b = new byte[len * 2];
         for(int i = 0; i < len; i++) {
             Primitives.putChar(b, i * 2, s.charAt(i));
+        }
+        return b;
+    }
+
+    public static byte[][] toBytes(final String[] args) {
+        final int len = args.length;
+        final byte[][] b = new byte[len][];
+        for(int i = 0; i < len; i++) {
+            b[i] = StringUtils.getBytes(args[i]);
         }
         return b;
     }
