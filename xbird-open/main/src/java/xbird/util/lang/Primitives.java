@@ -262,7 +262,7 @@ public final class Primitives {
         return c;
     }
 
-    public static long getInt(final byte[] b) {
+    public static int getInt(final byte[] b) {
         if(b.length != 4) {
             throw new IllegalArgumentException("Illegal byte size as a int value: " + b.length);
         }
