@@ -95,8 +95,10 @@ public final class ClassUtils {
         final int idx = path.lastIndexOf('!');
         if(idx != -1) {
             String jarFilePath = path.substring(0, idx);
-            if(jarFilePath.startsWith("file:" + File.separatorChar)) {
+            if(jarFilePath.startsWith("file:\\")) {// workaround for windows
                 jarFilePath = jarFilePath.substring(6);
+            } else if(jarFilePath.startsWith("file:/")) {
+                jarFilePath = jarFilePath.substring(5);
             }
             file = new File(jarFilePath);
         }
