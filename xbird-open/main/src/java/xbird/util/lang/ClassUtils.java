@@ -25,10 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import xbird.util.io.FileUtils;
 import xbird.util.io.IOUtils;
 
 /**
@@ -86,11 +90,38 @@ public final class ClassUtils {
     }
 
     public static long getLastModified(@Nonnull Class<?> clazz) {
-        final File file = getClassFile(clazz);
+        File file = getClassFile(clazz);
+        String path = file.getPath();
+        final int idx = path.lastIndexOf('!');
+        if(idx != -1) {
+            String jarFilePath = path.substring(0, idx);
+            if(jarFilePath.startsWith("file:\\")) {// workaround for windows
+                jarFilePath = jarFilePath.substring(6);
+            }
+            file = new File(jarFilePath);
+        }
         if(file.exists()) {
             return file.lastModified();
         }
         return -1L;
     }
 
+    public static Map<String, File> getInnerClassFiles(@Nonnull Class<?> clazz, boolean includeSelf) {
+        final Map<String, File> m = new LinkedHashMap<String, File>(8);
+        final File file = getClassFile(clazz);
+        if(includeSelf) {
+            String clsName = clazz.getName();
+            m.put(clsName, file);
+        }
+        File directory = file.getParentFile();
+        String simpleName = clazz.getSimpleName();
+        final List<File> list = FileUtils.listFiles(directory, new String[] { simpleName }, new String[] { ".class" }, false);
+        for(File f : list) {
+            String fname = f.getName();
+            int idx = fname.lastIndexOf('.');
+            String clsName = fname.substring(0, idx);
+            m.put(clsName, f);
+        }
+        return m;
+    }
 }
