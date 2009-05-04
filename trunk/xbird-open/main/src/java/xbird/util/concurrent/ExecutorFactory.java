@@ -56,6 +56,10 @@ public final class ExecutorFactory {
         return new ThreadPoolExecutor(corePoolSize, Integer.MAX_VALUE, keepAliveTimeInSec, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
+    public static ThreadPoolExecutor newCachedThreadPool(int corePoolSize, long keepAliveTimeInSec, String threadName, boolean daemon) {
+        return new ThreadPoolExecutor(corePoolSize, Integer.MAX_VALUE, keepAliveTimeInSec, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(threadName, daemon));
+    }
+
     /**
      * <code>ThreadPoolExecutor</code> only grows beyond coresize if your task queue is bounded and becomes full.
      * If your queue is unbounded then core is the limit. 
