@@ -40,12 +40,17 @@ public final class NamedThreadFactory implements ThreadFactory {
     private int threadPriority = Thread.NORM_PRIORITY;
 
     public NamedThreadFactory(String threadName) {
+        this(threadName, false);
+    }
+
+    public NamedThreadFactory(String threadName, boolean daemon) {
         if(threadName == null) {
             throw new IllegalArgumentException();
         }
         SecurityManager s = System.getSecurityManager();
         this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
         this.namePrefix = threadName + '-';
+        this.daemon = daemon;
     }
 
     public NamedThreadFactory(String threadName, ThreadGroup threadGroup) {

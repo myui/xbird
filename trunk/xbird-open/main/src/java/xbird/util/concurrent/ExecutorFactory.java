@@ -76,12 +76,20 @@ public final class ExecutorFactory {
         return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
+    public static ThreadPoolExecutor newFixedThreadPool(int nThreads, String threadName, boolean daemon) {
+        return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName, daemon));
+    }
+
     public static ThreadPoolExecutor newThreadPool(int corePoolSize, int maxPoolSize, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, maxPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
 
     public static ThreadPoolExecutor newThreadPool(int corePoolSize, int maxPoolSize, long keepAliveInSec, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveInSec, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
+    }
+
+    public static ThreadPoolExecutor newThreadPool(int corePoolSize, int maxPoolSize, long keepAliveInSec, String threadName, boolean daemon) {
+        return new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveInSec, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName, daemon));
     }
 
     /**
