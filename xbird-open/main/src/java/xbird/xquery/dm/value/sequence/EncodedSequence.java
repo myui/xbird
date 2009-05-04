@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.FastByteArrayOutputStream;
+import xbird.util.io.IOUtils;
 import xbird.util.lang.PrintUtils;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.coder.XQEventDecoder;
@@ -107,9 +108,7 @@ public final class EncodedSequence extends AbstractSequence<Item> implements Ext
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.type = (Type) in.readObject();
-        final int len = in.readInt();
-        final byte[] b = new byte[len];
-        in.read(b, 0, len);
+        final byte[] b = IOUtils.readBytes(in);
         //this.encodedSequence = b;
         this.actualSequence = decode(b);
     }
@@ -122,9 +121,7 @@ public final class EncodedSequence extends AbstractSequence<Item> implements Ext
         if(b == null) {
             throw new IllegalStateException();
         }
-        final int len = b.length;
-        out.writeInt(len);
-        out.write(b, 0, len);
+        IOUtils.writeBytes(b, out);
     }
 
 }
