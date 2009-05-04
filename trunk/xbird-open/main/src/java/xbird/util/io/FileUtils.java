@@ -84,9 +84,9 @@ public final class FileUtils {
      * subdirectories). All files found are filtered by an IOFileFilter.
      */
     public static List<File> listFiles(File directory, IOFileFilter fileFilter, IOFileFilter dirFilter) {
-        if(!directory.isDirectory()) {
-            throw new IllegalArgumentException("Parameter 'directory' is not a directory");
-        }
+        //if(!directory.isDirectory()) {
+        //    throw new IllegalArgumentException("Parameter 'directory' is not a directory");
+        //}
         if(fileFilter == null) {
             throw new NullPointerException("Parameter 'fileFilter' is null");
         }
