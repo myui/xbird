@@ -106,6 +106,7 @@ public final class ClassUtils {
         return -1L;
     }
 
+    @Deprecated
     public static Map<String, File> getInnerClassFiles(@Nonnull Class<?> clazz, boolean includeSelf) {
         final Map<String, File> m = new LinkedHashMap<String, File>(8);
         final File file = getClassFile(clazz);
