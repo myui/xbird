@@ -26,7 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import xbird.XBirdError;
+import xbird.util.io.FileUtils;
 
 /**
  * The class manages XBiRD system properties.
@@ -36,6 +40,7 @@ import xbird.XBirdError;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public final class Settings {
+    private static final Log LOG = LogFactory.getLog(Settings.class);
 
     public static final String XBIRD_VERSION = "1.0";
 
@@ -47,19 +52,56 @@ public final class Settings {
 
     private static final Properties properties;
     static {
+        properties = new Properties();
+        final String userDir = System.getProperty("user.dir");
         try {
             // put default settings.
             InputStream is = Settings.class.getResourceAsStream(PROPERTY_FILE_NAME);
-            properties = new Properties();
             properties.load(is);
-            // put user specific settings.
-            String curdir = System.getProperty("user.dir");
-            File configfile = new File(curdir, PROPERTY_FILE_NAME);
-            if(configfile.exists()) {
-                properties.load(new FileInputStream(configfile));
+            // put user specific settings.            
+            File propFile = new File(userDir, PROPERTY_FILE_NAME);
+            if(propFile.exists()) {
+                properties.load(new FileInputStream(propFile));
+                LOG.info("Loaded xbird.properties in: " + propFile.getAbsolutePath());
             }
         } catch (IOException e) {
             throw new XBirdError("Exception caused while loading user provided properties file.", e);
+        }
+        // import external files
+        importExternalFiles(properties, userDir);
+    }
+
+    private static void importExternalFiles(final Properties props, final String userDir) {
+        final String externals = props.getProperty("prop.external");
+        if(externals == null) {
+            return;
+        }
+        String[] filePaths = externals.split(";");
+        for(String fp : filePaths) {
+            fp = fp.trim();
+            if(fp.length() == 0) {
+                continue;
+            }
+            final InputStream is = ClassLoader.getSystemResourceAsStream(fp);
+            if(is != null) {
+                try {
+                    props.load(is);
+                    LOG.info("Loaded an external property file in the classpath: " + fp);
+                } catch (IOException e) {
+                    LOG.warn("An error caused while loading a property file: " + fp);
+                }
+                String fileName = FileUtils.basename(fp, '/');
+                File propFile = new File(userDir, fileName);
+                if(propFile.exists()) {
+                    try {
+                        props.load(new FileInputStream(propFile));
+                        LOG.info("Loaded an external property file in the user dir: " + fp);
+                    } catch (IOException e) {
+                        LOG.warn("An error caused while loading a property file: "
+                                + propFile.getAbsolutePath());
+                    }
+                }
+            }
         }
     }
 

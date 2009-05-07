@@ -205,6 +205,15 @@ public final class FileUtils {
         }
     }
 
+    public static String basename(String filepath, char separator) {
+        final int index = filepath.lastIndexOf(separator);
+        if(-1 == index) {
+            return filepath;
+        } else {
+            return filepath.substring(index + 1);
+        }
+    }
+
     public static String dirName(String filepath, char separatorChar) {
         final int index = filepath.lastIndexOf(separatorChar);
         if(-1 == index) {
