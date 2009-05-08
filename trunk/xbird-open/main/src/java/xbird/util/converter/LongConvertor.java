@@ -33,11 +33,11 @@ public final class LongConvertor implements DataConverter<Long> {
 
     public LongConvertor() {}
     
-    public byte[] convert(final Long v) {
+    public byte[] encode(final Long v) {
         return Primitives.toBytes(v);
     }
     
-    public Long convert(final byte[] b) {
+    public Long decode(final byte[] b) {
         return Primitives.getLong(b);
     }
 

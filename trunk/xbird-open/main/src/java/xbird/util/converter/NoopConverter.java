@@ -20,8 +20,6 @@
  */
 package xbird.util.converter;
 
-import xbird.util.lang.Primitives;
-
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -29,15 +27,24 @@ import xbird.util.lang.Primitives;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class IntConverter implements DataConverter<Integer> {
+public final class NoopConverter implements DataConverter<byte[]> {
 
-    public IntConverter() {}
-    
-    public byte[] encode(final Integer v) {
-        return Primitives.toBytes(v.intValue());
+    public NoopConverter() {}
+
+    public byte[] encode(final byte[] v) {
+        return v;
     }
-    
-    public Integer decode(final byte[] b) {
-        return Primitives.getInt(b);
+
+    public byte[] decode(final byte[] b) {
+        return b;
     }
+
+    public static NoopConverter getInstance() {
+        return SingletonHolder.instance;
+    }
+
+    private static final class SingletonHolder {
+        static final NoopConverter instance = new NoopConverter();
+    }
+
 }

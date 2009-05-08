@@ -32,9 +32,9 @@ import javax.annotation.Nonnull;
 public interface DataConverter<T> {
 
     @Nonnull
-    byte[] convert(@Nonnull T v);
+    byte[] encode(@Nonnull T v);
 
     @Nonnull
-    T convert(@Nonnull byte[] b);
+    T decode(@Nonnull byte[] b);
 
 }
