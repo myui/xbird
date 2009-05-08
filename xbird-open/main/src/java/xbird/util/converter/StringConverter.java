@@ -33,11 +33,11 @@ public final class StringConverter implements DataConverter<String> {
 
     public StringConverter() {}
 
-    public byte[] convert(final String v) {
+    public byte[] encode(final String v) {
         return StringUtils.getBytes(v);
     }
 
-    public String convert(final byte[] b) {
+    public String decode(final byte[] b) {
         return StringUtils.toString(b);
     }
 }
