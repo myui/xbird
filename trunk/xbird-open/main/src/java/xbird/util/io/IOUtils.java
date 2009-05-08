@@ -315,8 +315,7 @@ public final class IOUtils {
         out.writeInt(len);
         for(int i = 0; i < len; i++) {
             int v = s.charAt(i);
-            out.write((v >>> 8) & 0xFF);
-            out.write((v >>> 0) & 0xFF);
+            out.writeChar(v);
         }
     }
 

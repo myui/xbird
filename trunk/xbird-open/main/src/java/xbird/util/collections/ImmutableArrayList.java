@@ -39,12 +39,6 @@ public final class ImmutableArrayList<E> extends AbstractList<E> implements Exte
     private/* final */E[] elements;
     private/* final */int size;
 
-    @SuppressWarnings("unchecked")
-    public ImmutableArrayList(int size) {
-        this.elements = (E[]) new Object[size];
-        this.size = size;
-    }
-
     public ImmutableArrayList(E[] elements) {
         this.elements = elements;
         this.size = elements.length;
