@@ -47,18 +47,27 @@ public final class CollectionUtils {
 
     public static <T> Set<T> asSet(T[] array) {
         final Set<T> set = new HashSet<T>(array.length);
-        for(T e: array) {
+        for(T e : array) {
             set.add(e);
         }
         return set;
     }
-    
+
     private static <T> List<T> _eliminateDuplicationForSmall(final List<T> list, final boolean equalsByIdentity) {
-        int size = list.size();
-        final List<T> newList = equalsByIdentity ? new TinyIdentityList<T>(size)
-                : new ArrayList<T>(size);
-        for(T e : list) {
-            newList.add(e);
+        final int size = list.size();
+        final List<T> newList;
+        if(equalsByIdentity) {
+            newList = new TinyIdentityList<T>(size);
+            for(T e : list) {
+                newList.add(e);
+            }
+        } else {
+            newList = new ArrayList<T>(size);
+            for(T e : list) {
+                if(!newList.contains(e)) {
+                    newList.add(e);
+                }
+            }
         }
         return newList;
     }
@@ -71,6 +80,13 @@ public final class CollectionUtils {
             newSet.add(e);
         }
         return newSet;
+    }
+
+    public static <T> T getFirst(final Collection<T> col) {
+        for(T e : col) {
+            return e;
+        }
+        return null;
     }
 
 }

@@ -21,8 +21,11 @@
 package xbird.util.iterator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -56,6 +59,27 @@ public final class IteratorUtils {
         final List<T> list = new ArrayList<T>(estimatedSize);
         addToList(itor, list);
         return list;
+    }
+
+    public static <T> List<T> toListUnique(@Nonnull Iterator<T> itor) {
+        final List<T> list = new ArrayList<T>(32);
+        final Set<T> set = new HashSet<T>(32);
+        while(itor.hasNext()) {
+            final T e = itor.next();
+            if(set.add(e)) {
+                list.add(e);
+            }
+        }
+        return list;
+    }
+
+    @Nonnull
+    public static <T> Set<T> toSet(@Nonnull Iterator<T> itor) {
+        final Set<T> set = new LinkedHashSet<T>();
+        while(itor.hasNext()) {
+            set.add(itor.next());
+        }
+        return set;
     }
 
     @SuppressWarnings("unchecked")
