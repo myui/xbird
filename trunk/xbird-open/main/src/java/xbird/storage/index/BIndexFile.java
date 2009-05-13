@@ -49,7 +49,7 @@ import xbird.util.lang.Primitives;
 public class BIndexFile extends BTree {
 
     private static final byte DATA_RECORD = 10;
-    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 512);  // 4k * 512 = 2m
+    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 512); // 4k * 512 = 2m
     public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 12);
 
     private final LongLRUMap<DataPage> dataCache;
@@ -182,10 +182,52 @@ public class BIndexFile extends BTree {
     private void saveFreeList(FreeList freeList, FreeSpace free, DataPage dataPage) {
         final BFileHeader fh = getFileHeader();
         final int leftFree = fh.getWorkSize() - dataPage.getTotalDataLen();
-        free.setFree(leftFree);
-        if(leftFree < FreeSpace.MIN_LEFT_FREE) {
-            freeList.remove(free);
+        if(free != null) {
+            free.setFree(leftFree);
+            if(leftFree < FreeSpace.MIN_LEFT_FREE) {
+                freeList.remove(free);
+            }
+        } else {
+            if(leftFree >= FreeSpace.MIN_LEFT_FREE) {
+                FreeSpace newFree = new FreeSpace(dataPage.getPageNum(), leftFree);
+                freeList.add(newFree);
+            }
         }
+    }
+
+    public byte[][] remove(Value key) throws DbException {
+        final List<byte[]> list = new ArrayList<byte[]>(4);
+        while(true) {
+            final long ptr = findValue(key);
+            if(ptr != KEY_NOT_FOUND) {// key found
+                break;
+            }
+            final byte[] v = removeValue(ptr);
+            if(v != null) {
+                list.add(v);
+            }
+            super.removeValue(key, ptr);
+        }
+        if(list.isEmpty()) {
+            return null;
+        }
+        final byte[][] ary = new byte[list.size()][];
+        return list.toArray(ary);
+    }
+
+    protected final byte[] removeValue(long ptr) throws DbException {
+        long pageNum = getPageNumFromPointer(ptr);
+        DataPage dataPage = getDataPage(pageNum);
+        int tidx = getTidFromPointer(ptr);
+        final byte[] b = dataPage.remove(tidx);
+
+        // adjust the free-list
+        BFileHeader fh = getFileHeader();
+        FreeList freeList = fh.getFreeList();
+        FreeSpace free = freeList.find(pageNum);
+        saveFreeList(freeList, free, dataPage);
+
+        return b;
     }
 
     private DataPage createDataPage() throws DbException {
@@ -269,6 +311,24 @@ public class BIndexFile extends BTree {
                 //ph.setDataLength(totalDataLen);
             }
             setDirty();
+        }
+
+        public byte[] remove(int tidx) throws DbException {
+            final int size = tuples.size();
+            if(tidx >= size) {
+                throw new IllegalStateException("Index out of range");
+            }
+            byte[] tuple = tuples.remove(tidx);
+            if(tuples != null) {
+                totalDataLen -= (tuple.length + 4);
+            }
+            ph.setTupleCount(size - 1);
+            this.dirty = true;
+            if(totalDataLen == 0) {
+                dataCache.remove(page.getPageNum());
+                unlinkPages(page);
+            }
+            return tuple;
         }
 
         private void setDirty() {

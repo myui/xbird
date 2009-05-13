@@ -95,6 +95,17 @@ public final class FreeList {
         }
         return found;
     }
+    
+    public FreeSpace find(long pageNum) {
+        FreeSpace next = header;
+        while(next != null) {
+            if(next.page == pageNum) {
+                return next;
+            }
+            next = next.next;
+        }
+        return null;
+    }
 
     public void write(DataOutput out) throws IOException {
         int skip = 0;
