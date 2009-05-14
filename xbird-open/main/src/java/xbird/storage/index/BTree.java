@@ -683,7 +683,7 @@ public class BTree extends Paged {
                     } else {
                         int founds = 0;
                         long[] matched = new long[rightIdx - leftIdx + 1];
-                        for(int i = leftIdx; i < rightIdx; i++) {
+                        for(int i = leftIdx; i <= rightIdx; i++) {
                             long p = ptrs[i];
                             if(p == pointer) {
                                 set(ArrayUtils.remove(keys, i), ArrayUtils.remove(ptrs, i));

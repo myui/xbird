@@ -199,7 +199,7 @@ public class BIndexFile extends BTree {
         final List<byte[]> list = new ArrayList<byte[]>(4);
         while(true) {
             final long ptr = findValue(key);
-            if(ptr != KEY_NOT_FOUND) {// key found
+            if(ptr == KEY_NOT_FOUND) {// key found
                 break;
             }
             final byte[] v = removeValue(ptr);
