@@ -27,7 +27,7 @@ package xbird.util.collections;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class ObjectQueue<T> {
+public class SimpleArrayListQueue<T> {
 
     public static final int DEFAULT_ARY_SIZE = 16;
 
@@ -37,21 +37,21 @@ public class ObjectQueue<T> {
     private int _arraySize;
     private Object[] _array;
 
-    public ObjectQueue() {
+    public SimpleArrayListQueue() {
         this(DEFAULT_ARY_SIZE);
     }
 
-    public ObjectQueue(int arysize) {
+    public SimpleArrayListQueue(int arysize) {
         this._array = new Object[arysize];
         this._arraySize = arysize;
     }
 
-    public ObjectQueue(T[] array) {
+    public SimpleArrayListQueue(T[] array) {
         this._array = array;
         this._arraySize = array.length;
     }
 
-    public ObjectQueue(T[] array, int cur, int last) {
+    public SimpleArrayListQueue(T[] array, int cur, int last) {
         this._array = array;
         this._arraySize = array.length;
         this._index = cur;
@@ -80,6 +80,13 @@ public class ObjectQueue<T> {
     @SuppressWarnings("unchecked")
     public final T peek() {
         return (_index < _lastIndex) ? (T) _array[_index] : null;
+    }
+
+    public T get(int index) {
+        if(index >= _lastIndex) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + _lastIndex);
+        }
+        return (T) _array[index];
     }
 
     public final boolean isEmpty() {
