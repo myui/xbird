@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
 import xbird.engine.request.QueryRequest.FetchMethod;
-import xbird.util.collections.SimpleArrayListQueue;
+import xbird.util.collections.ArrayQueue;
 import xbird.util.compress.LZFInputStream;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FastByteArrayInputStream;
@@ -77,7 +77,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
     //--------------------------------------------
     // prefetch items
 
-    private final SimpleArrayListQueue<Item> _fetchedQueue;
+    private final ArrayQueue<Item> _fetchedQueue;
     private boolean _nomoreFetch = false;
 
     //--------------------------------------------
@@ -96,7 +96,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
     private final AtomicBoolean _closed = new AtomicBoolean(false);
 
     public RemoteFocus() {//Externalizable
-        this._fetchedQueue = new SimpleArrayListQueue<Item>(512);
+        this._fetchedQueue = new ArrayQueue<Item>(512);
     }
 
     public RemoteFocus(IRemoteFocusProxy proxy, int fetchSize, float fetchGrow, FetchMethod fetchMethod) {
@@ -107,7 +107,7 @@ public final class RemoteFocus implements IFocus<Item>, Externalizable {
         this._fetchSize = fetchSize;
         this._fetchGrow = fetchGrow;
         this._fetchWatermark = (int) (fetchSize * Math.pow(fetchGrow, 19)); // 256*1.3^20=48652.7073, 256*1.3^19=37425.1594
-        this._fetchedQueue = new SimpleArrayListQueue<Item>(512);
+        this._fetchedQueue = new ArrayQueue<Item>(512);
         this._fetchMethod = fetchMethod;
     }
 
