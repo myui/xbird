@@ -20,6 +20,8 @@
  */
 package xbird.util.collections;
 
+import java.io.Serializable;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -27,49 +29,55 @@ package xbird.util.collections;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class SimpleArrayListQueue<T> {
+public class ArrayQueue<T> implements Serializable {
+    private static final long serialVersionUID = 7432315428377829289L;
 
     public static final int DEFAULT_ARY_SIZE = 16;
 
-    private transient int _index = 0;
-    private int _lastIndex = 0;
+    protected/* transient */int _pos = 0; // TODO serialization
+    protected int _lastIndex = 0;
 
-    private int _arraySize;
-    private Object[] _array;
+    protected int _arraySize;
+    protected Object[] _array;
 
-    public SimpleArrayListQueue() {
+    public ArrayQueue() {
         this(DEFAULT_ARY_SIZE);
     }
 
-    public SimpleArrayListQueue(int arysize) {
+    public ArrayQueue(int arysize) {
         this._array = new Object[arysize];
         this._arraySize = arysize;
     }
 
-    public SimpleArrayListQueue(T[] array) {
+    public ArrayQueue(T[] array) {
         this._array = array;
         this._arraySize = array.length;
     }
 
-    public SimpleArrayListQueue(T[] array, int cur, int last) {
+    public ArrayQueue(T[] array, int cur, int last) {
         this._array = array;
         this._arraySize = array.length;
-        this._index = cur;
+        this._pos = cur;
         this._lastIndex = last;
     }
 
-    public final void offer(T x) {
-        if(_lastIndex >= _arraySize) {
+    public boolean offer(T x) {
+        if(isFull()) {
             growArray();
         }
         _array[_lastIndex++] = x;
+        return false;
+    }
+
+    protected final boolean isFull() {
+        return _lastIndex >= _arraySize;
     }
 
     @SuppressWarnings("unchecked")
     public final T poll() {
-        if(_index < _lastIndex) {
-            T obj = (T) _array[_index++];
-            if(_index == _lastIndex) {
+        if(_pos < _lastIndex) {
+            T obj = (T) _array[_pos++];
+            if(_pos == _lastIndex) {
                 clear();
             }
             return obj;
@@ -79,27 +87,34 @@ public class SimpleArrayListQueue<T> {
 
     @SuppressWarnings("unchecked")
     public final T peek() {
-        return (_index < _lastIndex) ? (T) _array[_index] : null;
+        return (_pos < _lastIndex) ? (T) _array[_pos] : null;
     }
 
-    public T get(int index) {
-        if(index >= _lastIndex) {
+    @SuppressWarnings("unchecked")
+    public final T get(int index) {
+        final int pos = _pos + index;
+        if(pos >= _lastIndex) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + _lastIndex);
         }
-        return (T) _array[index];
+        return (T) _array[pos];
+    }
+
+    @SuppressWarnings("unchecked")
+    public final T unsafeGet(int index) {
+        return (T) _array[_pos + index];
     }
 
     public final boolean isEmpty() {
-        return _index >= _lastIndex;
+        return _pos >= _lastIndex;
     }
 
     public final void clear() {
-        _index = 0;
+        _pos = 0;
         _lastIndex = 0;
     }
 
     public final int size() {
-        return _lastIndex - _index;
+        return _lastIndex - _pos;
     }
 
     private void growArray() {
@@ -110,13 +125,13 @@ public class SimpleArrayListQueue<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public T[] toArray() {
+    public final T[] toArray() {
         if(_arraySize == 0) {
             return (T[]) new Object[0];
         }
         final int size = size();
         final Object[] ary = new Object[size];
-        System.arraycopy(_array, _index, ary, 0, size);
+        System.arraycopy(_array, _pos, ary, 0, size);
         return (T[]) ary;
     }
 
