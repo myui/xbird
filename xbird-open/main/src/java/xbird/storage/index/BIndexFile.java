@@ -299,7 +299,7 @@ public class BIndexFile extends BTree {
         }
 
         public void set(int tidx, Value value) {
-            if(tidx > (tuples.size() - 1)) {
+            if(tidx >= tuples.size()) {
                 throw new IllegalStateException("Illegal tid for DataPage#" + page.getPageNum()
                         + ": " + tidx);
             }
@@ -318,7 +318,7 @@ public class BIndexFile extends BTree {
             if(tidx >= size) {
                 throw new IllegalStateException("Index out of range");
             }
-            byte[] tuple = tuples.remove(tidx);
+            final byte[] tuple = tuples.set(tidx, null); // TODO remove effects other tids.
             if(tuples != null) {
                 totalDataLen -= (tuple.length + 4);
             }
@@ -337,8 +337,8 @@ public class BIndexFile extends BTree {
         }
 
         public byte[] get(int tidx) {
-            if(tidx > (tuples.size() - 1)) {
-                return null;
+            if(tidx >= tuples.size()) {
+                return null; // REVIEWME
             }
             return tuples.get(tidx);
         }
@@ -376,6 +376,9 @@ public class BIndexFile extends BTree {
             final byte[] dest = new byte[totalDataLen];
             int pos = 0;
             for(byte[] tuple : tuples) {
+                if(tuple == null) {
+                    continue;
+                }
                 final int len = tuple.length;
                 Primitives.putInt(dest, pos, len);
                 pos += 4;
