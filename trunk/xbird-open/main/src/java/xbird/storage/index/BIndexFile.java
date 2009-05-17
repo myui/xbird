@@ -286,7 +286,7 @@ public class BIndexFile extends BTree {
                 throw new IllegalStateException("blocks length exceeds limit: " + idx);
             }
 
-            final byte[] tuple = value.getData();
+            byte[] tuple = value.getData();
             tuples.add(tuple);
 
             // update controls
@@ -318,8 +318,8 @@ public class BIndexFile extends BTree {
             if(tidx >= size) {
                 throw new IllegalStateException("Index out of range");
             }
-            final byte[] tuple = tuples.set(tidx, null); // TODO remove effects other tids.
-            if(tuples != null) {
+            final byte[] tuple = tuples.get(tidx); // TODO REVIEWME storeCache. remove effects other tids.
+            if(tuple != null) {
                 totalDataLen -= (tuple.length + 4);
             }
             ph.setTupleCount(size - 1);
