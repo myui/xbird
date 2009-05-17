@@ -29,6 +29,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 
+import xbird.util.io.CustomObjectInputStream;
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.io.IOUtils;
@@ -198,8 +199,17 @@ public final class ObjectUtils {
         return ObjectUtils.<T> readObjectQuietly(new FastByteArrayInputStream(obj));
     }
 
+    public static <T> T readObjectQuietly(final byte[] obj, final ClassLoader cl) {
+        return ObjectUtils.<T> readObjectQuietly(new FastByteArrayInputStream(obj), cl);
+    }
+
     public static <T> T readObject(final byte[] obj) throws IOException, ClassNotFoundException {
         return ObjectUtils.<T> readObject(new FastByteArrayInputStream(obj));
+    }
+
+    public static <T> T readObject(final byte[] obj, final ClassLoader cl) throws IOException,
+            ClassNotFoundException {
+        return ObjectUtils.<T> readObject(new FastByteArrayInputStream(obj), cl);
     }
 
     public static <T> T readObjectQuietly(final InputStream is) {
@@ -215,8 +225,27 @@ public final class ObjectUtils {
         }
     }
 
+    public static <T> T readObjectQuietly(final InputStream is, final ClassLoader cl) {
+        try {
+            final ObjectInputStream ois = new CustomObjectInputStream(is, cl);
+            return (T) ois.readObject();
+        } catch (IOException ioe) {
+            IOUtils.closeQuietly(is);
+            throw new IllegalStateException(ioe);
+        } catch (ClassNotFoundException ce) {
+            IOUtils.closeQuietly(is);
+            throw new IllegalStateException(ce);
+        }
+    }
+
     public static <T> T readObject(final InputStream is) throws IOException, ClassNotFoundException {
         final ObjectInputStream ois = new ObjectInputStream(is);
+        return (T) ois.readObject();
+    }
+
+    public static <T> T readObject(final InputStream is, final ClassLoader cl) throws IOException,
+            ClassNotFoundException {
+        final ObjectInputStream ois = new CustomObjectInputStream(is, cl);
         return (T) ois.readObject();
     }
 
