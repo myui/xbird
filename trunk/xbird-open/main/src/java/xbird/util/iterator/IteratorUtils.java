@@ -88,4 +88,13 @@ public final class IteratorUtils {
             list.add(itor.next());
         }
     }
+
+    public static int count(@Nonnull Iterator<?> itor) {
+        int sum = 0;
+        if(itor.hasNext()) {
+            sum++;
+            itor.next();
+        }
+        return sum;
+    }
 }
