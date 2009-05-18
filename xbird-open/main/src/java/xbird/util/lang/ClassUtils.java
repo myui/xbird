@@ -77,6 +77,15 @@ public final class ClassUtils {
         return new File(decoded);
     }
 
+    public static File getClassFile(@Nonnull Class<?> clazz, ClassLoader cl) {
+        String className = clazz.getName();
+        String path = getRelativeClassFilePath(className);
+        URL url = cl.getResource('/' + path);
+        String absolutePath = url.getFile();
+        String decoded = URLDecoder.decode(absolutePath);
+        return new File(decoded);
+    }
+
     public static byte[] getClassAsBytes(@Nonnull Class<?> clazz) throws IOException {
         InputStream is = getClassAsStream(clazz);
         return IOUtils.getBytes(is);
