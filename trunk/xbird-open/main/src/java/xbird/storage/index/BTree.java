@@ -689,6 +689,8 @@ public class BTree extends Paged {
                                 set(ArrayUtils.remove(keys, i), ArrayUtils.remove(ptrs, i));
                                 decrDataLength(searchKey);
                                 matched[founds++] = p;
+                                i--;
+                                rightIdx--;
                             }
                         }
                         if(founds == 0) {
