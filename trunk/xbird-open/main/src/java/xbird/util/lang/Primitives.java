@@ -132,6 +132,10 @@ public final class Primitives {
         return b;
     }
 
+    public static byte[] toBytes(double v) {
+        return toBytes(Double.doubleToLongBits(v));
+    }
+
     public static char[] toChars(final byte[] b) {
         return toChars(b, 0, b.length);
     }
@@ -290,6 +294,10 @@ public final class Primitives {
                 | ((long) (ary[offset + 2] & 0xFF) << 40) | ((long) (ary[offset + 3] & 0xFF) << 32)
                 | ((long) (ary[offset + 4] & 0xFF) << 24) | ((long) (ary[offset + 5] & 0xFF) << 16)
                 | ((long) (ary[offset + 6] & 0xFF) << 8) | (ary[offset + 7] & 0xFF);
+    }
+
+    public static double getDouble(final byte[] b) {
+        return Double.longBitsToDouble(getLong(b));
     }
 
     /** signed byte to unsigned char ( 0 .. 255 ) */
