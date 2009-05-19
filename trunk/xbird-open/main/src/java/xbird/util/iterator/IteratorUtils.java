@@ -91,7 +91,7 @@ public final class IteratorUtils {
 
     public static int count(@Nonnull Iterator<?> itor) {
         int sum = 0;
-        if(itor.hasNext()) {
+        while(itor.hasNext()) {
             sum++;
             itor.next();
         }
