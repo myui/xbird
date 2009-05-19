@@ -216,18 +216,13 @@ public class BIndexFile extends BTree {
     public byte[][] remove(Value key) throws DbException {
         final List<byte[]> list = new ArrayList<byte[]>(4);
         while(true) {
-            Long cachedPtr = storeCache.remove(key);
-            final long ptr;
-            if(cachedPtr != null) {
-                ptr = cachedPtr.longValue();
-            } else {
-                ptr = findValue(key);
-                if(ptr == KEY_NOT_FOUND) {// key found
-                    break;
-                }
+            final long ptr = findValue(key);
+            if(ptr == KEY_NOT_FOUND) {// key found
+                break;
             }
             final byte[] v = removeValue(ptr);
             if(v != null) {
+                storeCache.remove(new Value(v));
                 list.add(v);
             }
             super.removeValue(key, ptr);
