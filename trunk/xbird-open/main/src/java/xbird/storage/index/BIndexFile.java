@@ -117,20 +117,20 @@ public class BIndexFile extends BTree {
         return new BFileCallback(handler);
     }
 
-    public final long putValue(long key, byte[] value) throws DbException {
-        return putValue(new Value(key), new Value(value));
+    public final long addValue(long key, byte[] value) throws DbException {
+        return addValue(new Value(key), new Value(value));
     }
 
-    public final long putValue(Value key, byte[] value) throws DbException {
-        return putValue(key, new Value(value));
+    public final long addValue(Value key, byte[] value) throws DbException {
+        return addValue(key, new Value(value));
     }
 
-    public synchronized long putValue(Value key, Value value) throws DbException {
+    public synchronized long addValue(Value key, Value value) throws DbException {
         long ptr = findValue(key);
         if(ptr != KEY_NOT_FOUND) {// key found
             // update the page
             if(!isDuplicateAllowed()) {
-                updateValue(value, ptr);
+                updateValue(ptr, value);
                 return ptr;
             }
         }
@@ -140,7 +140,25 @@ public class BIndexFile extends BTree {
         return ptr;
     }
 
-    protected final void updateValue(Value value, long ptr) throws DbException {
+    public final long putValue(Value key, byte[] value) throws DbException {
+        return putValue(key, new Value(value));
+    }
+
+    public synchronized long putValue(Value key, Value value) throws DbException {
+        long ptr = findValue(key);
+        if(ptr != KEY_NOT_FOUND) {
+            // update the page
+            updateValue(ptr, value);
+            return ptr;
+        } else {
+            // insert a new key
+            ptr = storeValue(value);
+            addValue(key, ptr);
+            return ptr;
+        }
+    }
+
+    protected final void updateValue(long ptr, Value value) throws DbException {
         long pageNum = getPageNumFromPointer(ptr);
         DataPage dataPage = getDataPage(pageNum);
         int tidx = getTidFromPointer(ptr);

@@ -56,7 +56,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
     }
 
     @Override
-    public synchronized long putValue(final Value key, final Value value) throws DbException {
+    public synchronized long addValue(final Value key, final Value value) throws DbException {
         final long valuePtr = storeValue(value);
         final long ptr = findValue(key);
         if(ptr != KEY_NOT_FOUND) {// key found
@@ -68,7 +68,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
                 ptrsCache.put(ptr, ptrs);
             }
             ptrs.addPointer(valuePtr);
-            updateValue(ptrs, ptr);
+            updateValue(ptr, ptrs);
             return ptr;
         } else {
             // insert a new key           .
