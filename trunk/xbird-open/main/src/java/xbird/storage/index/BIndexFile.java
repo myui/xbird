@@ -216,9 +216,15 @@ public class BIndexFile extends BTree {
     public byte[][] remove(Value key) throws DbException {
         final List<byte[]> list = new ArrayList<byte[]>(4);
         while(true) {
-            final long ptr = findValue(key);
-            if(ptr == KEY_NOT_FOUND) {// key found
-                break;
+            Long cachedPtr = storeCache.remove(key);
+            final long ptr;
+            if(cachedPtr != null) {
+                ptr = cachedPtr.longValue();
+            } else {
+                ptr = findValue(key);
+                if(ptr == KEY_NOT_FOUND) {// key found
+                    break;
+                }
             }
             final byte[] v = removeValue(ptr);
             if(v != null) {
@@ -239,11 +245,13 @@ public class BIndexFile extends BTree {
         int tidx = getTidFromPointer(ptr);
         final byte[] b = dataPage.remove(tidx);
 
+        /*
         // adjust the free-list
         BFileHeader fh = getFileHeader();
         FreeList freeList = fh.getFreeList();
         FreeSpace free = freeList.find(pageNum);
         saveFreeList(freeList, free, dataPage);
+         */
 
         return b;
     }
@@ -308,7 +316,7 @@ public class BIndexFile extends BTree {
             tuples.add(tuple);
 
             // update controls
-            ph.setTupleCount(idx + 1);
+            ph.incrTupleCount();
             totalDataLen += (tuple.length + 4);
             //ph.setDataLength(totalDataLen);
             setDirty();
@@ -334,15 +342,11 @@ public class BIndexFile extends BTree {
         public byte[] remove(int tidx) throws DbException {
             final int size = tuples.size();
             if(tidx >= size) {
-                throw new IllegalStateException("Index out of range");
+                throw new IllegalStateException("Index out of range: " + tidx);
             }
             final byte[] tuple = tuples.get(tidx); // TODO REVIEWME storeCache. remove effects other tids.
-            if(tuple != null) {
-                totalDataLen -= (tuple.length + 4);
-            }
-            ph.setTupleCount(size - 1);
             this.dirty = true;
-            if(totalDataLen == 0) {
+            if(ph.decrTupleCount() == 0) {
                 dataCache.remove(page.getPageNum());
                 unlinkPages(page);
             }
@@ -394,9 +398,7 @@ public class BIndexFile extends BTree {
             final byte[] dest = new byte[totalDataLen];
             int pos = 0;
             for(byte[] tuple : tuples) {
-                if(tuple == null) {
-                    continue;
-                }
+                assert (tuple != null);
                 final int len = tuple.length;
                 Primitives.putInt(dest, pos, len);
                 pos += 4;
@@ -456,8 +458,12 @@ public class BIndexFile extends BTree {
             return tupleCount;
         }
 
-        public void setTupleCount(int tupleCount) {
-            this.tupleCount = tupleCount;
+        public int incrTupleCount() {
+            return tupleCount++;
+        }
+
+        public int decrTupleCount() {
+            return tupleCount--;
         }
 
         @Override
