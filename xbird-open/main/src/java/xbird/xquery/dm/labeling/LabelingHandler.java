@@ -166,7 +166,7 @@ public final class LabelingHandler extends Serializer {
             final byte[][] labels = labelValues;
             for(int i = 0; i < CACHE_SIZE; i++) {
                 try {
-                    labelIndexer.putValue(rowids[i], labels[i]);
+                    labelIndexer.addValue(rowids[i], labels[i]);
                 } catch (DbException e) {
                     throw new XQRTException("failed flushing PathIndexer. DTM_ROWID: " + rowids[i]
                             + ", LABEL: " + labels[i], e);
@@ -294,7 +294,7 @@ public final class LabelingHandler extends Serializer {
             final byte[][] labels = labelValues;
             for(int i = 0; i < labelCachePtr; i++) {
                 try {
-                    labelIndexer.putValue(rowids[i], labels[i]);
+                    labelIndexer.addValue(rowids[i], labels[i]);
                 } catch (DbException e) {
                     throw new XQRTException("failed flushing PathIndexer. DTM_ROWID: " + rowids[i]
                             + ", LABEL: " + labels[i], e);

@@ -72,7 +72,7 @@ public final class VarSegmentsBFile implements Segments {
 
     public long write(long idx, byte[] b) throws IOException {
         try {
-            return bfile.putValue(idx, b);
+            return bfile.addValue(idx, b);
         } catch (DbException e) {
             throw new IOException("write failed on idx#" + idx);
         }

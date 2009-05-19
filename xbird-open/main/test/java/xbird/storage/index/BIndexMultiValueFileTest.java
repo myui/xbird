@@ -104,7 +104,7 @@ public class BIndexMultiValueFileTest extends TestCase {
                 expected.put(k, vset);
             }
             vset.add(v);
-            btree.putValue(new Value(k), new Value(v));
+            btree.addValue(new Value(k), new Value(v));
         }
         System.err.println(watchdog1);
 
