@@ -87,7 +87,7 @@ public final class PerfmonService extends ServiceBase {
         @Override
         public void run() {
             CPUInfo newCpuInfo = SystemUtils.getCPUInfo(prevCpuInfo);
-            float cpuUsage = newCpuInfo.getCpuUsage();
+            float cpuUsage = newCpuInfo.getCpuLoad();
             long heapUsed = SystemUtils.getHeapUsedMemory();
             if(LOG.isDebugEnabled()) {
                 String line = "cpuUsage: " + String.format("%.2f", cpuUsage) + " %, usedHeap: "
