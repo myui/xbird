@@ -224,7 +224,8 @@ public final class SystemUtils {
         if(USE_SUN_MXBEAN) {
             OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
             com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
-            return sunmx.getSystemLoadAverage();
+            double d = sunmx.getSystemLoadAverage();
+            return d;
         } else {
             return -1d;
         }
