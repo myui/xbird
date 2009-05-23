@@ -20,7 +20,7 @@
  */
 package xbird.util.pool;
 
-import xbird.util.concurrent.collections.ConcurrentCyclicBuffer;
+import xbird.util.concurrent.collections.ConcurrentBoundedQueue;
 
 /**
  * 
@@ -31,10 +31,10 @@ import xbird.util.concurrent.collections.ConcurrentCyclicBuffer;
  */
 public abstract class BoundedObjectPool<V> implements ObjectPool<V> {
 
-    private final ConcurrentCyclicBuffer<V> queue;
+    private final ConcurrentBoundedQueue<V> queue;
 
     public BoundedObjectPool(int initEntries) {
-        this.queue = new ConcurrentCyclicBuffer<V>(initEntries);
+        this.queue = new ConcurrentBoundedQueue<V>(initEntries);
         for(int i = 0; i < initEntries; i++) {
             queue.offer(createObject());
         }
