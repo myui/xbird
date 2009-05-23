@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class ConcurrentCyclicBuffer<E> extends AbstractQueue<E> implements Queue<E> {
+public final class ConcurrentBoundedQueue<E> extends AbstractQueue<E> implements Queue<E> {
 
     private final int _capacity;
     private final AtomicReferenceArray<E> _array;
@@ -41,7 +41,7 @@ public final class ConcurrentCyclicBuffer<E> extends AbstractQueue<E> implements
     private final AtomicInteger _readPtr, _writePtr;
     private final AtomicInteger _used, _free; // as barriers
 
-    public ConcurrentCyclicBuffer(int capacity) {
+    public ConcurrentBoundedQueue(int capacity) {
         this._capacity = capacity;
         this._array = new AtomicReferenceArray<E>(capacity);
         this._readPtr = new AtomicInteger(0);
