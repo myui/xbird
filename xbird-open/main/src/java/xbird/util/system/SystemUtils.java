@@ -212,15 +212,27 @@ public final class SystemUtils {
         }
     }
 
-    /** return in msec */
-    public static long getUpTimeInMillis() {
+    /** 
+     * @return uptime in msec
+     */
+    public static long getUptime() {
         final RuntimeMXBean mx = ManagementFactory.getRuntimeMXBean();
         return mx.getUptime();
     }
 
+    public static double getCpuLoadAverage() {
+        if(USE_SUN_MXBEAN) {
+            OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
+            com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
+            return sunmx.getSystemLoadAverage();
+        } else {
+            return -1d;
+        }
+    }
+
     public static CPUInfo getCPUInfo(CPUInfo prev) {
         final long cpuTime = getProcessCpuTime();
-        final long upTime = getUpTimeInMillis();
+        final long upTime = getUptime();
         final long elapsedCpu = cpuTime - prev.cpuTime;
         long elapsedUp = upTime - prev.upTime;
         if(elapsedUp == 0L) {
@@ -235,22 +247,22 @@ public final class SystemUtils {
 
         final long cpuTime;
         final long upTime;
-        final float cpuUsage;
+        final float cpuLoad;
 
         public CPUInfo() {
             this.cpuTime = getProcessCpuTime();
-            this.upTime = getUpTimeInMillis();
-            this.cpuUsage = 1L;
+            this.upTime = getUptime();
+            this.cpuLoad = 1L;
         }
 
         public CPUInfo(long procCpuTime, long upTime, float cpuUsage) {
             this.cpuTime = procCpuTime;
             this.upTime = upTime;
-            this.cpuUsage = cpuUsage;
+            this.cpuLoad = cpuUsage;
         }
 
-        public float getCpuUsage() {
-            return cpuUsage;
+        public float getCpuLoad() {
+            return cpuLoad;
         }
     }
 

@@ -43,7 +43,7 @@ public final class ImmutableArrayList<E> extends AbstractList<E> implements Exte
         this.elements = elements;
         this.size = elements.length;
     }
-
+    
     public E[] getInternalArray() {
         return elements;
     }
