@@ -33,17 +33,17 @@ public final class DateTimeFormatter {
 
     public static String formatTime(long t) {
         final StringBuilder buf = new StringBuilder();
-        long hour = t / 3600000;
+        final long hour = t / 3600000;
         if(hour > 0) {
             buf.append(hour + "h ");
             t = t % 3600000;
         }
-        long min = t / 60000;
+        final long min = t / 60000;
         if(min > 0) {
             buf.append(min + "m ");
             t = t % 60000;
         }
-        long sec = t / 1000;
+        final long sec = t / 1000;
         if(sec > 0) {
             buf.append(sec + "s ");
             t = t % 1000;
@@ -51,7 +51,32 @@ public final class DateTimeFormatter {
         if(t > 0) {
             buf.append(t + "ms");
         }
-        return buf.toString();
+        return buf.length() == 0 ? "0ms" : buf.toString();
+    }
+
+    public static String formatTime(double timeInMills) {
+        final StringBuilder buf = new StringBuilder();
+        long t = (long) timeInMills;
+        float diff = (float) (timeInMills - t);
+        final long hour = t / 3600000;
+        if(hour > 0) {
+            buf.append(hour + "h ");
+            t = t % 3600000;
+        }
+        final long min = t / 60000;
+        if(min > 0) {
+            buf.append(min + "m ");
+            t = t % 60000;
+        }
+        final long sec = t / 1000;
+        if(sec > 0) {
+            buf.append(sec + "s ");
+            t = t % 1000;
+        }
+        if(t > 0) {
+            buf.append((t + diff) + "ms");
+        }
+        return buf.length() == 0 ? "0ms" : buf.toString();
     }
 
     public static String formatNanoTime(final long t) {
