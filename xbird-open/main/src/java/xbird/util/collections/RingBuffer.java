@@ -23,6 +23,8 @@ package xbird.util.collections;
 import java.io.Serializable;
 import java.util.Iterator;
 
+import xbird.util.lang.ArrayUtils;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -85,6 +87,39 @@ public final class RingBuffer<T> implements Serializable, Iterable<T> {
         private int position = 0;
 
         public RingBufferIterator() {}
+
+        public boolean hasNext() {
+            if(position >= items.length) {
+                return false;
+            }
+            return items[(position + validStart) % items.length] != null;
+        }
+
+        public T next() {
+            return items[((position++) + validStart) % items.length];
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
+    public Iterator<T> snapshotIterator() {
+        final T[] snapshot = ArrayUtils.copy(items);
+        return new RingBufferSnapshotIterator<T>(snapshot, validStart);
+    }
+
+    private static final class RingBufferSnapshotIterator<T> implements Iterator<T> {
+
+        private final T[] items;
+        private final int validStart;
+        private int position = 0;
+
+        public RingBufferSnapshotIterator(T[] items, int validStart) {
+            this.items = items;
+            this.validStart = validStart;
+        }
 
         public boolean hasNext() {
             if(position >= items.length) {

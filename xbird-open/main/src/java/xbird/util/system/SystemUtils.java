@@ -26,11 +26,13 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import xbird.config.Settings;
 
 /**
  * 
@@ -52,12 +54,41 @@ public final class SystemUtils {
 
     private static final int NPROCS = Runtime.getRuntime().availableProcessors();
     public static final boolean IS_SUN_VM = System.getProperty("java.vm.vendor").indexOf("Sun") != -1;
+
+    private static final boolean preferSigar;
+    private static Object sigarInstance = null;
+    private static Method sigarCpuPercMtd = null;
+    private static Method sigarCpuCombinedMtd = null;
+    private static boolean useSunJdk6;
     private static final MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
-    private static final boolean USE_SUN_MXBEAN;
     static {
+        preferSigar = Boolean.parseBoolean(Settings.get("xbird.perfmon.perfer_sigar"));
+        if(preferSigar) {
+            initializeSigar();
+        } else {
+            initializeSunJdk();
+        }
+    }
+
+    private SystemUtils() {}
+
+    private static void initializeSigar() {
+        try {
+            Object sigar = Class.forName("org.hyperic.sigar.Sigar").newInstance();
+            Method proxyMtd = Class.forName("org.hyperic.sigar.SigarProxyCache").getMethod("newInstance", sigar.getClass(), int.class);
+            // Update caches every 2 seconds.
+            sigarInstance = proxyMtd.invoke(null, sigar, 2000);
+            sigarCpuPercMtd = sigarInstance.getClass().getMethod("getCpuPerc");
+            sigarCpuCombinedMtd = sigarCpuPercMtd.getReturnType().getMethod("getCombined");
+        } catch (Exception e) {
+            LogFactory.getLog(SystemUtils.class).error("Failed to initilize Hyperic Sigar", e);
+        }
+    }
+
+    private static void initializeSunJdk() {
         boolean useSunMx = false;
-        OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
         if(IS_SUN_VM) {
+            OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
             com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
             long testval = sunmx.getProcessCpuTime();
             if(testval != -1L) {
@@ -71,16 +102,11 @@ public final class SystemUtils {
             try {
                 System.loadLibrary("xbird_util_lang_SystemUtils");
             } catch (UnsatisfiedLinkError le) {
-                final Log log = LogFactory.getLog(SystemUtils.class);
-                if(log.isWarnEnabled()) {
-                    log.warn("Performance monitoring is not supported for this JVM. Please ensure that 'xbird.profiling' property is not enabled in your 'xbird.properties'");
-                }
+                LogFactory.getLog(SystemUtils.class).warn("Performance monitoring is not supported for this JVM. Please ensure that 'xbird.profiling' property is not enabled in your 'xbird.properties'");
             }
         }
-        USE_SUN_MXBEAN = useSunMx;
+        useSunJdk6 = useSunMx;
     }
-
-    private SystemUtils() {}
 
     public static float getJavaVersion() {
         return JAVA_VERSION_FLOAT;
@@ -201,17 +227,6 @@ public final class SystemUtils {
         return count;
     }
 
-    /** return in nano-seconds */
-    public static long getProcessCpuTime() {
-        if(USE_SUN_MXBEAN) {
-            OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
-            com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
-            return sunmx.getProcessCpuTime();
-        } else {
-            return _getProcessCpuTime() * 1000000L; /* milli to nano (10^6) */
-        }
-    }
-
     /** 
      * @return uptime in msec
      */
@@ -221,13 +236,34 @@ public final class SystemUtils {
     }
 
     public static double getCpuLoadAverage() {
-        if(USE_SUN_MXBEAN) {
+        if(preferSigar) {
+            try {
+                return (Double) sigarCpuCombinedMtd.invoke(sigarCpuPercMtd.invoke(sigarInstance));
+            } catch (Exception e) {
+                LogFactory.getLog(SystemUtils.class).error("Failed to obtain CPU load via Hyperic Sigar", e);
+                return -1d;
+            }
+        } else if(useSunJdk6) {
             OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
             com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
             double d = sunmx.getSystemLoadAverage();
             return d;
         } else {
             return -1d;
+        }
+    }
+
+    /** return in nano-seconds */
+    @Deprecated
+    public static long getProcessCpuTime() {
+        if(preferSigar) {
+            throw new UnsupportedOperationException("SystemUtils#getProcessCpuTime() is not supported when using Hyperic Sigar");
+        } else if(useSunJdk6) {
+            OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
+            com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
+            return sunmx.getProcessCpuTime();
+        } else {
+            return _getProcessCpuTime() * 1000000L; /* milli to nano (10^6) */
         }
     }
 
