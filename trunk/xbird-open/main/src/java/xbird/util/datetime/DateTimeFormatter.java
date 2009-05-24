@@ -73,8 +73,9 @@ public final class DateTimeFormatter {
             buf.append(sec + "s ");
             t = t % 1000;
         }
-        if(t > 0) {
-            buf.append((t + diff) + "ms");
+        if(t > 0 || diff > 0f) {
+            buf.append(String.format("%.2f", (diff + t)));
+            buf.append("ms");
         }
         return buf.length() == 0 ? "0ms" : buf.toString();
     }
