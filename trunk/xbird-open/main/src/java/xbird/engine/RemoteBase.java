@@ -108,6 +108,7 @@ public abstract class RemoteBase implements Remote, Serializable {
         try {// bind the remote object's stub in the registry
             Naming.rebind(endpointUrl, stub);
         } catch (MalformedURLException e) {
+            LOG.error("failed to bind: " + endpointUrl, e);
             throw new IllegalStateException("Illegal regist url: " + endpointUrl, e);
         }
         LOG.info("Remote object is bounded at " + endpointUrl + " for "
