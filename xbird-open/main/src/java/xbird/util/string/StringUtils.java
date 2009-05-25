@@ -366,4 +366,49 @@ public final class StringUtils {
         return new String(ch);
     }
 
+    public static boolean isEmpty(final String str) {
+        return (str == null || str.length() == 0);
+    }
+
+    public static int countMatches(final String str, final String sub) {
+        if(isEmpty(str) || isEmpty(sub)) {
+            return 0;
+        }
+        int count = 0;
+        int idx = 0;
+        while((idx = str.indexOf(sub, idx)) != -1) {
+            count++;
+            idx += sub.length();
+        }
+        return count;
+    }
+
+    public static int countMatches(final String str, final char c) {
+        if(isEmpty(str)) {
+            return 0;
+        }
+        int count = 0;
+        final int size = str.length();
+        for(int i = 0; i < size; i++) {
+            if(str.charAt(i) == c) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static int indexOf(final String str, final char ch, final int nth) {
+        if(nth < 1) {
+            throw new IllegalArgumentException("nth must be greater than 0: " + nth);
+        }
+        int startPos = 0;
+        for(int i = 0; i < nth; i++) {
+            startPos = str.indexOf(ch, startPos);
+            if(startPos == -1) {
+                return -1;
+            }
+        }
+        return startPos;
+    }
+
 }
