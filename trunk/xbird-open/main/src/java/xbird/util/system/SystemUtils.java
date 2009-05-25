@@ -247,6 +247,9 @@ public final class SystemUtils {
             OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
             com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
             double d = sunmx.getSystemLoadAverage();
+            if(d > 0) {
+                return d / NPROCS;
+            }
             return d;
         } else {
             return -1d;
