@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 
 import xbird.util.io.IOUtils;
 import xbird.util.lang.ArrayUtils;
+import xbird.util.lang.Primitives;
 import xbird.util.string.StringUtils;
 
 /**
@@ -48,22 +49,41 @@ public final class ByteArray implements Externalizable, Comparable<Object> {
 
     public ByteArray() {}//Externalizable
 
-    public ByteArray(@CheckForNull final byte[] bytea) {
-        if(bytea == null) {
+    public ByteArray(@CheckForNull final byte[] data) {
+        if(data == null) {
             throw new IllegalArgumentException();
         }
-        this.bytea = bytea;
+        this.bytea = data;
     }
 
-    public ByteArray(@CheckForNull final String str) {
-        if(str == null) {
+    public ByteArray(@CheckForNull String data) {
+        if(data == null) {
             throw new IllegalArgumentException();
         }
-        this.bytea = StringUtils.getBytes(str);
+        this.bytea = StringUtils.getBytes(data);
     }
 
-    public ByteArray(final int size) {
-        this.bytea = new byte[size];
+    public ByteArray(int data) {
+        this.bytea = Primitives.toBytes(data);
+    }
+
+    public ByteArray(long data) {
+        this.bytea = Primitives.toBytes(data);
+    }
+
+    public ByteArray(float data) {
+        this.bytea = Primitives.toBytes(data);
+    }
+
+    public ByteArray(double data) {
+        this.bytea = Primitives.toBytes(data);
+    }
+
+    public ByteArray(@CheckForNull char[] data) {
+        if(data == null) {
+            throw new IllegalArgumentException();
+        }
+        this.bytea = Primitives.toBytes(data);
     }
 
     public byte[] getInternalArray() {
