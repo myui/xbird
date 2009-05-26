@@ -371,8 +371,8 @@ public class BTree extends Paged {
     private final void scanRange(BTreeNode left, BTreeNode right, IndexQuery query, BTreeCallback callback)
             throws DbException {
         final long rightmostPageNum = right.page.getPageNum();
-        if(LOG.isInfoEnabled()) {
-            LOG.info("scan range [" + left.page.getPageNum() + ", " + rightmostPageNum + "] start");
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("scan range [" + left.page.getPageNum() + ", " + rightmostPageNum + "] start");
         }
         BTreeNode cur = left;
         int scaned = 0;
@@ -394,8 +394,8 @@ public class BTree extends Paged {
             }
             cur = getBTreeNode(_rootInfo, next, null);
         }
-        if(LOG.isInfoEnabled()) {
-            LOG.info("scan range end. total scaned pages: " + scaned);
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("scan range end. total scaned pages: " + scaned);
         }
     }
 
