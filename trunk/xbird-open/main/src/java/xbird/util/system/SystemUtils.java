@@ -59,6 +59,7 @@ public final class SystemUtils {
     private static Object sigarInstance = null;
     private static Method sigarCpuPercMtd = null;
     private static Method sigarCpuCombinedMtd = null;
+    private static Method sigarIoWaitMtd = null;
     private static boolean useSunJdk6;
     private static final MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
     static {
@@ -80,6 +81,7 @@ public final class SystemUtils {
             sigarInstance = proxyMtd.invoke(null, sigar, 2000);
             sigarCpuPercMtd = sigarInstance.getClass().getMethod("getCpuPerc");
             sigarCpuCombinedMtd = sigarCpuPercMtd.getReturnType().getMethod("getCombined");
+            sigarIoWaitMtd = sigarCpuPercMtd.getReturnType().getMethod("getWait");
         } catch (Exception e) {
             LogFactory.getLog(SystemUtils.class).error("Failed to initilize Hyperic Sigar", e);
         }
@@ -237,12 +239,14 @@ public final class SystemUtils {
 
     public static double getCpuLoadAverage() {
         if(preferSigar) {
+            final Double cpuload;
             try {
-                return (Double) sigarCpuCombinedMtd.invoke(sigarCpuPercMtd.invoke(sigarInstance));
+                cpuload = (Double) sigarCpuCombinedMtd.invoke(sigarCpuPercMtd.invoke(sigarInstance));
             } catch (Exception e) {
                 LogFactory.getLog(SystemUtils.class).error("Failed to obtain CPU load via Hyperic Sigar", e);
                 return -1d;
             }
+            return cpuload.doubleValue();
         } else if(useSunJdk6) {
             OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
             com.sun.management.OperatingSystemMXBean sunmx = (com.sun.management.OperatingSystemMXBean) mx;
@@ -251,6 +255,21 @@ public final class SystemUtils {
                 return d / NPROCS;
             }
             return d;
+        } else {
+            return -1d;
+        }
+    }
+
+    public static double getIoWait() {
+        if(preferSigar) {
+            final Double iowait;
+            try {
+                iowait = (Double) sigarIoWaitMtd.invoke(sigarCpuPercMtd.invoke(sigarInstance));
+            } catch (Exception e) {
+                LogFactory.getLog(SystemUtils.class).error("Failed to obtain CPU iowait via Hyperic Sigar", e);
+                return -1d;
+            }
+            return iowait.doubleValue();
         } else {
             return -1d;
         }
