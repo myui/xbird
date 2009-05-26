@@ -197,4 +197,22 @@ public final class PrintUtils {
         return prettyFileSize(FileUtils.getFileSize(file));
     }
 
+    public static float toPercent(final double v) {
+        return (float) (v * 100.0f);
+    }
+
+    public static String toPercentString(final float v) {
+        String p = String.valueOf(v * 100.0f);
+        int ix = p.indexOf('.') + 1;
+        String percent = p.substring(0, ix) + p.substring(ix, ix + 1);
+        return percent + '%';
+    }
+
+    public static String toPercentString(final double v) {
+        String p = String.valueOf(v * 100.0f);
+        int ix = p.indexOf('.') + 1;
+        String percent = p.substring(0, ix) + p.substring(ix, ix + 1);
+        return percent + '%';
+    }
+
 }
