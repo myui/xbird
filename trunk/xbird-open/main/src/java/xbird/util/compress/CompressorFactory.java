@@ -45,4 +45,23 @@ public final class CompressorFactory {
         }
         return new NoCompressionCodec();
     }
+
+    public static CompressionCodec createCodec(CompressionCodecType type) {
+        switch(type) {
+            case deflate:
+                return new DeflateCodec();
+            case lzf:
+                return new LZFCodec();
+            case lzss:
+                return new LZSSCodec();
+            case nop:
+                return new NoCompressionCodec();
+            default:
+                throw new IllegalStateException("unexpected type: " + type);
+        }
+    }
+
+    public enum CompressionCodecType {
+        nop, deflate, lzf, lzss;
+    }
 }
