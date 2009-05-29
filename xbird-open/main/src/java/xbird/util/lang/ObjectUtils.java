@@ -28,6 +28,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import xbird.util.io.CustomObjectInputStream;
 import xbird.util.io.FastByteArrayInputStream;
@@ -171,6 +173,18 @@ public final class ObjectUtils {
         return bos.toByteArray_clear();
     }
 
+    public static byte[] toGzipCompressedBytes(final Object obj) {
+        final FastMultiByteArrayOutputStream bos = new FastMultiByteArrayOutputStream();
+        final GZIPOutputStream gos;
+        try {
+            gos = new GZIPOutputStream(bos);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        toStream(obj, gos);
+        return bos.toByteArray_clear();
+    }
+
     public static void toStream(final Object obj, final OutputStream out) {
         try {
             final ObjectOutputStream oos = new ObjectOutputStream(out);
@@ -203,8 +217,26 @@ public final class ObjectUtils {
         return ObjectUtils.<T> readObjectQuietly(new FastByteArrayInputStream(obj), cl);
     }
 
+    public static <T> T readGzipCompressedObjectQuietly(final byte[] obj) {
+        final FastByteArrayInputStream bis = new FastByteArrayInputStream(obj);
+        final GZIPInputStream gis;
+        try {
+            gis = new GZIPInputStream(bis);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return ObjectUtils.<T> readObjectQuietly(gis);
+    }
+
     public static <T> T readObject(final byte[] obj) throws IOException, ClassNotFoundException {
         return ObjectUtils.<T> readObject(new FastByteArrayInputStream(obj));
+    }
+
+    public static <T> T readGzipCompressedObject(final byte[] obj) throws IOException,
+            ClassNotFoundException {
+        FastByteArrayInputStream bis = new FastByteArrayInputStream(obj);
+        GZIPInputStream gis = new GZIPInputStream(bis);
+        return ObjectUtils.<T> readObject(gis);
     }
 
     public static <T> T readObject(final byte[] obj, final ClassLoader cl) throws IOException,

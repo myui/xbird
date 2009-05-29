@@ -283,7 +283,7 @@ public final class IOUtils {
         sched.schedule(cancel, delay, TimeUnit.MILLISECONDS);
     }
 
-    public static void writeBytes(@Nullable final byte[] b, final ObjectOutput out)
+    public static void writeBytes(@Nullable final byte[] b, final DataOutput out)
             throws IOException {
         if(b == null) {
             out.writeInt(-1);
