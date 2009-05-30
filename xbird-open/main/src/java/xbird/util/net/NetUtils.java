@@ -22,14 +22,19 @@ package xbird.util.net;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.util.Enumeration;
 import java.util.NoSuchElementException;
+
+import xbird.config.Settings;
 
 /**
  * 
@@ -40,14 +45,101 @@ import java.util.NoSuchElementException;
  */
 public final class NetUtils {
 
+    private static final String BIND_NIC;
+    static {
+        BIND_NIC = Settings.getThroughSystemProperty("xbird.net.bind_interface");
+    }
+
     private NetUtils() {}
 
+    /**
+     * Get local address without loopback address.
+     * 
+     * @throws 
+     */
     public static InetAddress getLocalHost() {
-        try {
-            return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException(e);
+        final InetAddress addr = getLocalHost(false);
+        if(addr == null) {
+            throw new IllegalStateException("No valid IP address for this host found");
         }
+        return addr;
+    }
+
+    /**
+     * @return null if no valid address found.
+     */
+    public static InetAddress getLocalHost(boolean allowLoopbackAddr) {
+        if(BIND_NIC != null) {
+            final NetworkInterface nic;
+            try {
+                nic = NetworkInterface.getByName(BIND_NIC);
+            } catch (SocketException e) {
+                final StringBuilder buf = new StringBuilder(128);
+                buf.append("{ ");
+                try {
+                    Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
+                    boolean hasMore = nics.hasMoreElements();
+                    while(hasMore) {
+                        NetworkInterface n = nics.nextElement();
+                        String nicName = n.getName();
+                        buf.append(nicName);
+                        if((hasMore = nics.hasMoreElements()) == true) {
+                            buf.append(',');
+                        }
+                    }
+                } catch (SocketException se) {
+                    ;
+                }
+                buf.append(" }");
+                throw new IllegalStateException("NIC ' " + BIND_NIC + "' not found in " + buf, e);
+            }
+            if(nic == null) {
+                throw new IllegalArgumentException("NIC nout found: " + BIND_NIC);
+            }
+            final Enumeration<InetAddress> nicAddrs = nic.getInetAddresses();
+            while(nicAddrs.hasMoreElements()) {
+                final InetAddress nicAddr = nicAddrs.nextElement();
+                if(!nicAddr.isLoopbackAddress() && !nicAddr.isLinkLocalAddress()) {
+                    return nicAddr;
+                }
+            }
+            return null;
+        }
+        InetAddress localHost = null;
+        try {
+            InetAddress probeAddr = InetAddress.getLocalHost();
+            if(allowLoopbackAddr) {
+                localHost = probeAddr;
+            }
+            if(probeAddr.isLoopbackAddress() || probeAddr.isLinkLocalAddress()) {
+                final Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
+                nicLoop: while(nics.hasMoreElements()) {
+                    NetworkInterface nic = nics.nextElement();
+                    if(nic.isLoopback()) {
+                        continue;
+                    }
+                    final Enumeration<InetAddress> nicAddrs = nic.getInetAddresses();
+                    while(nicAddrs.hasMoreElements()) {
+                        InetAddress nicAddr = nicAddrs.nextElement();
+                        if(!nicAddr.isLoopbackAddress() && !nicAddr.isLinkLocalAddress()) {
+                            localHost = nicAddr;
+                            if(nic.isVirtual()) {
+                                continue nicLoop; // try to find IP-address of non-virtual NIC
+                            } else {
+                                break nicLoop;
+                            }
+                        }
+                    }
+                }
+            } else {
+                localHost = probeAddr;
+            }
+        } catch (UnknownHostException ue) {
+            throw new IllegalStateException(ue);
+        } catch (SocketException se) {
+            throw new IllegalStateException(se);
+        }
+        return localHost;
     }
 
     public static String getLocalHostName() {
