@@ -21,15 +21,7 @@
 package xbird.util.net;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.channels.SocketChannel;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
@@ -74,6 +66,9 @@ public final class NetUtils {
             try {
                 nic = NetworkInterface.getByName(BIND_NIC);
             } catch (SocketException e) {
+                throw new IllegalStateException("Error while getting NetworkInterface: " + BIND_NIC, e);
+            }
+            if(nic == null) {
                 final StringBuilder buf = new StringBuilder(128);
                 buf.append("{ ");
                 try {
@@ -91,15 +86,12 @@ public final class NetUtils {
                     ;
                 }
                 buf.append(" }");
-                throw new IllegalStateException("NIC ' " + BIND_NIC + "' not found in " + buf, e);
-            }
-            if(nic == null) {
-                throw new IllegalArgumentException("NIC nout found: " + BIND_NIC);
+                throw new IllegalArgumentException("NIC '" + BIND_NIC + "' not found in " + buf);
             }
             final Enumeration<InetAddress> nicAddrs = nic.getInetAddresses();
             while(nicAddrs.hasMoreElements()) {
                 final InetAddress nicAddr = nicAddrs.nextElement();
-                if(!nicAddr.isLoopbackAddress() && !nicAddr.isLinkLocalAddress()) {
+                if(!nicAddr.isLoopbackAddress()/* && !nicAddr.isLinkLocalAddress() */) {
                     return nicAddr;
                 }
             }
@@ -111,7 +103,7 @@ public final class NetUtils {
             if(allowLoopbackAddr) {
                 localHost = probeAddr;
             }
-            if(probeAddr.isLoopbackAddress() || probeAddr.isLinkLocalAddress()) {
+            if(probeAddr.isLoopbackAddress()/* || probeAddr.isLinkLocalAddress() */) {
                 final Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
                 nicLoop: while(nics.hasMoreElements()) {
                     NetworkInterface nic = nics.nextElement();
@@ -121,7 +113,7 @@ public final class NetUtils {
                     final Enumeration<InetAddress> nicAddrs = nic.getInetAddresses();
                     while(nicAddrs.hasMoreElements()) {
                         InetAddress nicAddr = nicAddrs.nextElement();
-                        if(!nicAddr.isLoopbackAddress() && !nicAddr.isLinkLocalAddress()) {
+                        if(!nicAddr.isLoopbackAddress()/* && !nicAddr.isLinkLocalAddress() */) {
                             localHost = nicAddr;
                             if(nic.isVirtual()) {
                                 continue nicLoop; // try to find IP-address of non-virtual NIC
@@ -148,6 +140,24 @@ public final class NetUtils {
 
     public static String getLocalHostAddress() {
         return getLocalHost().getHostAddress();
+    }
+
+    /**
+     * @link http://www.ietf.org/rfc/rfc2396.txt
+     */
+    public static String getLocalHostAddressAsUrlString() {
+        final InetAddress addr = getLocalHost();
+        final String hostaddr = addr.getHostAddress();
+        if(isIpV6Address(addr)) {
+            // hostaddr = hostaddr.replaceAll("%", "%25")
+            String v6addr = '[' + hostaddr + ']';
+            return v6addr;
+        }
+        return hostaddr;
+    }
+
+    public static boolean isIpV6Address(final InetAddress addr) {
+        return addr instanceof Inet6Address;
     }
 
     public static String getHostNameWithoutDomain(final InetAddress addr) {

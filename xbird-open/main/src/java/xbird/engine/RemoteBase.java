@@ -66,8 +66,8 @@ public abstract class RemoteBase implements Remote, Serializable {
         if(bindName == null) {
             throw new IllegalArgumentException();
         }
-        this.endpointUrl = "//" + NetUtils.getLocalHostName() + ":" + localRegistryPort + '/'
-                + bindName;
+        this.endpointUrl = "//" + NetUtils.getLocalHostAddressAsUrlString() + ":"
+                + localRegistryPort + '/' + bindName;
         this.exportPort = exportPort;
     }
 
