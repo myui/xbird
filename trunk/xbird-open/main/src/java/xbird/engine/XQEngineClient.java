@@ -48,7 +48,7 @@ public class XQEngineClient implements XQEngine {
 
     public XQEngineClient(String remoteEndpoint) {
         if(remoteEndpoint == null) {
-            this.remoteEndpoint = "//" + NetUtils.getLocalHostName() + ":"
+            this.remoteEndpoint = "//" + NetUtils.getLocalHostAddressAsUrlString() + ":"
                     + RemoteBase.localRegistryPort + '/' + XQEngineServer.bindName;
         } else {
             this.remoteEndpoint = remoteEndpoint;
