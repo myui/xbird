@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="lib/optional/saxon8-dom.jar"/>
 	<classpathentry kind="lib" path="lib/optional/saxon8.jar"/>
 	<classpathentry kind="lib" path="lib/optional/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/optional/testng-5.8-jdk15.jar"/>
 	<classpathentry kind="lib" path="lib/optional/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/optional/high-scale-lib-0.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/optional/xmlunit-1.2.jar"/>
@@ -45,5 +44,6 @@
 	<classpathentry kind="lib" path="lib/optional/mina-integration-ognl-2.0.0-M4.jar"/>
 	<classpathentry kind="lib" path="lib/optional/mina-transport-apr-2.0.0-M4.jar"/>
 	<classpathentry kind="lib" path="lib/optional/tomcat-apr-5.5.23.jar"/>
+	<classpathentry kind="lib" path="lib/optional/testng-5.9-jdk15.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
