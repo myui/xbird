@@ -77,10 +77,22 @@ public final class VolatileBackoffLock implements ILock {
         }
     }
 
+    public boolean tryLock() {
+        if(!busy) { // test-and-test-and-set
+            synchronized(this) {
+                if(!busy) {
+                    busy = true;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public/* synchronized */void unlock() {
         this.busy = false;
     }
-    
+
     public boolean isLocked() {
         return busy;
     }

@@ -40,6 +40,10 @@ public final class TASLock implements ILock {
             ;
     }
 
+    public boolean tryLock() {
+        return !state.getAndSet(true);
+    }
+
     public void unlock() {
         state.set(false);
     }
@@ -47,4 +51,5 @@ public final class TASLock implements ILock {
     public boolean isLocked() {
         return state.get();
     }
+
 }

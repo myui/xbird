@@ -31,6 +31,8 @@ public interface ILock {
     
     public void lock();
     
+    public boolean tryLock();
+    
     public void unlock();
     
     public boolean isLocked();

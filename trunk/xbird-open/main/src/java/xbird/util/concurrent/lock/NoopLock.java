@@ -29,6 +29,10 @@ public final class NoopLock implements ILock {
 
     public void lock() {}
 
+    public boolean tryLock() {
+        return true;
+    }
+
     public void unlock() {}
 
 }
