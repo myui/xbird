@@ -45,6 +45,13 @@ public final class TTASLock implements ILock {
         }
     }
 
+    public boolean tryLock() {
+        if(state.get()) {
+            return false;
+        }
+        return !state.getAndSet(true);
+    }
+
     public void unlock() {
         state.set(false);
     }

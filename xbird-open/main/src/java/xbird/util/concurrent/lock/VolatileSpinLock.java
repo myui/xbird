@@ -46,11 +46,23 @@ public final class VolatileSpinLock implements ILock {
         }
     }
 
+    public boolean tryLock() {
+        if(!busy) { // test-and-test-and-set
+            synchronized(this) {
+                if(!busy) {
+                    busy = true;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** works only for Java 5 or above */
-    public /* synchronized */ void unlock() {
+    public/* synchronized */void unlock() {
         this.busy = false;
     }
-    
+
     public boolean isLocked() {
         return busy;
     }

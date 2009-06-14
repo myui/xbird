@@ -59,7 +59,7 @@ public final class AtomicBackoffLock implements ILock {
         this._initSleepTime = initSleepTime;
         this.state = new AtomicBoolean(lock);
     }
-    
+
     public boolean isLocked() {
         return state.get();
     }
@@ -89,6 +89,15 @@ public final class AtomicBackoffLock implements ILock {
                 sleepTime = (3 * sleepTime) >> 1 + 1; // 50% is arbitrary
             }
         }
+    }
+
+    public boolean tryLock() {
+        if(!state.get()) {
+            if(!state.getAndSet(true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void unlock() {
