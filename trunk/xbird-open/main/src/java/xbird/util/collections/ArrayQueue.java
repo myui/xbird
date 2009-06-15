@@ -94,7 +94,8 @@ public class ArrayQueue<T> implements Serializable {
     public final T get(int index) {
         final int pos = _pos + index;
         if(pos >= _lastIndex) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + _lastIndex);
+            throw new IndexOutOfBoundsException("Index: " + index + ", pos: " + _pos + ", Size: "
+                    + _lastIndex);
         }
         return (T) _array[pos];
     }
