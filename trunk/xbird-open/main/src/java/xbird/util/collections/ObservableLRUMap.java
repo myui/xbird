@@ -20,6 +20,7 @@
  */
 package xbird.util.collections;
 
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -37,6 +38,14 @@ public final class ObservableLRUMap<K, V> extends LRUMap<K, V> {
     public ObservableLRUMap(int limit, Cleaner<K, V> cleaner) {
         super(limit);
         this.cleaner = cleaner;
+    }
+
+    @Override
+    public void clear() {
+        for(Map.Entry<K, V> e : entrySet()) {
+            cleaner.cleanup(e.getKey(), e.getValue());
+        }
+        super.clear();
     }
 
     public interface Cleaner<K, V> {
