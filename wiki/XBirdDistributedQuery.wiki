@@ -16,12 +16,11 @@ XBird/D introduces a distributed query extention to XQuery called XBird Distribu
 The distiributed query processor, XBird/D in short, is configurable through [http://code.google.com/p/xbird/source/browse/trunk/xbird-open/main/conf/xbird/config/xbird.properties xbird.properties].
 
 {{{
-# The port number which XBird/D uses.
-# This effects host:port as appears in later.
+# The port number used by XBird/D.
+# This effects host:port as appears in the later.
 xbird.rmi.registry.local.port=1099
 
-# The identifying name of the services: 
-#   name(,name)*
+# The identifying name of the services: name(,name)*
 # caution: name should not start with slash.
 xbird.rmi.engine.name=xbird/srv-01
 }}}
