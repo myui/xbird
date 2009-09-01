@@ -41,6 +41,7 @@ import net.sf.saxon.trans.XPathException;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.testng.Assert;
 import org.testng.TestListenerAdapter;
 import org.testng.TestNG;
 import org.testng.annotations.Test;
@@ -89,7 +90,9 @@ public class MultithreadedInvocationTest {
         Diff diff = new Diff(saxonOut, xbirdOut);
         if(!diff.identical()) {
             if(!diff.similar()) {
-                System.err.println(diff.toString());
+                Assert.fail(diff.toString());
+            } else {                
+                System.out.println(diff.toString());
             }
         }
     }

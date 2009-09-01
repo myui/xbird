@@ -38,7 +38,7 @@ public abstract class DataModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** Universally managed document Id. */
-    protected final AtomicInteger _docidCounter = new AtomicInteger(-1);
+    protected static final AtomicInteger _docidCounter = new AtomicInteger(-1);
 
     protected int _volume = 0;
 
