@@ -43,7 +43,7 @@ public abstract class Serializer implements XQEventReceiver {
     public static final char[] SPACE = " ".toCharArray();
     public static final char[] NEW_LINE = "\n".toCharArray();
 
-    private boolean _interveningBlanks = true;
+    private boolean _interveningBlanks = false;
     private boolean _isBlankRequired = false;
 
     public Serializer() {
@@ -133,7 +133,7 @@ public abstract class Serializer implements XQEventReceiver {
     }
 
     public void evAtomicValue(final AtomicValue atom) throws XQueryException {
-        if(_isBlankRequired) {
+        if(_interveningBlanks && _isBlankRequired) {
             evText(SPACE, 0, 1);
             this._isBlankRequired = false;
         }

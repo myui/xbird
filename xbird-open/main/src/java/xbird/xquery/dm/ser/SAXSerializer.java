@@ -23,7 +23,9 @@ package xbird.xquery.dm.ser;
 import static javax.xml.XMLConstants.DEFAULT_NS_PREFIX;
 
 import java.io.Writer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Stack;
 
 import javax.xml.XMLConstants;
 
@@ -32,9 +34,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
-import xbird.util.xml.*;
-import xbird.util.xml.XMLUtils;
-import xbird.xquery.*;
+import xbird.util.xml.NamespaceBinder;
+import xbird.util.xml.SAXWriter;
+import xbird.xquery.DynamicError;
+import xbird.xquery.XQRTException;
+import xbird.xquery.XQueryException;
 import xbird.xquery.misc.QNameUtil;
 import xbird.xquery.misc.QNameTable.QualifiedName;
 
@@ -306,12 +310,14 @@ public class SAXSerializer extends Serializer {
     }
 
     public void endItem(boolean last) throws XQueryException {
-        if(_writer != null) {
-            for(int i = 0; i < _pendingAtts.getLength(); i++) {
-                XMLUtils.normalizeAndPrint(_writer, _pendingAtts.getValue(i), true);
-            }
-            _pendingAtts.clear();
+    /*
+    if(_writer != null) {
+        for(int i = 0; i < _pendingAtts.getLength(); i++) {
+            XMLUtils.normalizeAndPrint(_writer, _pendingAtts.getValue(i), true);
         }
+        _pendingAtts.clear();
+    }
+    */
     }
 
 }

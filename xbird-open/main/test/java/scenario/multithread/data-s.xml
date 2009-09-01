@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records xmlns:hoge="http://www.hoge.jp/dtd">
+  <record hoge:id="1" id="046340" hoge:href="/aozora/sakuhin/1/">
+    <personid hoge:href="/aozora/sakuhin/1/personid">001234</personid>
+    <author hoge:href="/aozora/sakuhin/1/author">愛知 敬一</author>
+    <workid hoge:href="/aozora/sakuhin/1/workid">046340</workid>
+    <title hoge:href="/aozora/sakuhin/1/title">ファラデーの伝 電気学の泰斗</title>
+    <kanaknd hoge:href="/aozora/sakuhin/1/kanaknd">新字新仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/1/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/1/puncher">松本吉彦、松本庄八</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/1/proofreader">小林繁雄</proofreader>
+    <condition hoge:href="/aozora/sakuhin/1/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/1/conditiondate">2006-12-24</conditiondate>
+    <source hoge:href="/aozora/sakuhin/1/source">ファラデーの傳</source>
+    <publisher hoge:href="/aozora/sakuhin/1/publisher">岩波書店</publisher>
+    <edition hoge:href="/aozora/sakuhin/1/edition">1923（大正12）年5月15日第1版</edition>
+    <proofedition hoge:href="/aozora/sakuhin/1/proofedition">1923（大正12）年5月15日第1版</proofedition>
+  </record>
+  <record hoge:id="2" id="046511" hoge:href="/aozora/sakuhin/2/">
+    <personid hoge:href="/aozora/sakuhin/2/personid">001245</personid>
+    <author hoge:href="/aozora/sakuhin/2/author">会津 八一</author>
+    <workid hoge:href="/aozora/sakuhin/2/workid">046511</workid>
+    <title hoge:href="/aozora/sakuhin/2/title">一片の石</title>
+    <kanaknd hoge:href="/aozora/sakuhin/2/kanaknd">新字旧仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/2/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/2/puncher">門田裕志</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/2/proofreader">仙酔ゑびす</proofreader>
+    <condition hoge:href="/aozora/sakuhin/2/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/2/conditiondate">2007-01-03</conditiondate>
+    <source hoge:href="/aozora/sakuhin/2/source">日本の名随筆88　石</source>
+    <publisher hoge:href="/aozora/sakuhin/2/publisher">作品社</publisher>
+    <edition hoge:href="/aozora/sakuhin/2/edition">1996（平成8）年8月25日第5刷</edition>
+    <proofedition hoge:href="/aozora/sakuhin/2/proofedition"/>
+  </record>
+  <record hoge:id="3" id="046512" hoge:href="/aozora/sakuhin/3/">
+    <personid hoge:href="/aozora/sakuhin/3/personid">001245</personid>
+    <author hoge:href="/aozora/sakuhin/3/author">会津 八一</author>
+    <workid hoge:href="/aozora/sakuhin/3/workid">046512</workid>
+    <title hoge:href="/aozora/sakuhin/3/title">菊の根分をしながら</title>
+    <kanaknd hoge:href="/aozora/sakuhin/3/kanaknd">新字旧仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/3/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/3/puncher">門田裕志</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/3/proofreader">仙酔ゑびす</proofreader>
+    <condition hoge:href="/aozora/sakuhin/3/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/3/conditiondate">2007-01-03</conditiondate>
+    <source hoge:href="/aozora/sakuhin/3/source">花の名随筆3　三月の花</source>
+    <publisher hoge:href="/aozora/sakuhin/3/publisher">作品社</publisher>
+    <edition hoge:href="/aozora/sakuhin/3/edition">1999（平成11）年2月10日初版第1刷</edition>
+    <proofedition hoge:href="/aozora/sakuhin/3/proofedition"/>
+  </record>
+  <record hoge:id="4" id="046513" hoge:href="/aozora/sakuhin/4/">
+    <personid hoge:href="/aozora/sakuhin/4/personid">001245</personid>
+    <author hoge:href="/aozora/sakuhin/4/author">会津 八一</author>
+    <workid hoge:href="/aozora/sakuhin/4/workid">046513</workid>
+    <title hoge:href="/aozora/sakuhin/4/title">支那の明器</title>
+    <kanaknd hoge:href="/aozora/sakuhin/4/kanaknd">新字旧仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/4/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/4/puncher">門田裕志</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/4/proofreader">仙酔ゑびす</proofreader>
+    <condition hoge:href="/aozora/sakuhin/4/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/4/conditiondate">2007-01-03</conditiondate>
+    <source hoge:href="/aozora/sakuhin/4/source">日本の名随筆　別巻9　骨董</source>
+    <publisher hoge:href="/aozora/sakuhin/4/publisher">作品社</publisher>
+    <edition hoge:href="/aozora/sakuhin/4/edition">1999（平成11）年8月25日第6刷</edition>
+    <proofedition hoge:href="/aozora/sakuhin/4/proofedition"/>
+  </record>
+  <record hoge:id="5" id="046514" hoge:href="/aozora/sakuhin/5/">
+    <personid hoge:href="/aozora/sakuhin/5/personid">001245</personid>
+    <author hoge:href="/aozora/sakuhin/5/author">会津 八一</author>
+    <workid hoge:href="/aozora/sakuhin/5/workid">046514</workid>
+    <title hoge:href="/aozora/sakuhin/5/title">拓本の話</title>
+    <kanaknd hoge:href="/aozora/sakuhin/5/kanaknd">旧字旧仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/5/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/5/puncher">門田裕志</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/5/proofreader">仙酔ゑびす</proofreader>
+    <condition hoge:href="/aozora/sakuhin/5/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/5/conditiondate">2007-01-01</conditiondate>
+    <source hoge:href="/aozora/sakuhin/5/source">日本の名随筆27　墨</source>
+    <publisher hoge:href="/aozora/sakuhin/5/publisher">作品社</publisher>
+    <edition hoge:href="/aozora/sakuhin/5/edition">1997（平成9）年5月20日第17刷</edition>
+    <proofedition hoge:href="/aozora/sakuhin/5/proofedition"/>
+  </record>
+  <record hoge:id="6" id="045754" hoge:href="/aozora/sakuhin/6/">
+    <personid hoge:href="/aozora/sakuhin/6/personid">000374</personid>
+    <author hoge:href="/aozora/sakuhin/6/author">饗庭 篁村</author>
+    <workid hoge:href="/aozora/sakuhin/6/workid">045754</workid>
+    <title hoge:href="/aozora/sakuhin/6/title">良夜</title>
+    <kanaknd hoge:href="/aozora/sakuhin/6/kanaknd">新字新仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/6/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/6/puncher">高田農業高校生産技術科流通経済コース</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/6/proofreader">小林繁雄</proofreader>
+    <condition hoge:href="/aozora/sakuhin/6/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/6/conditiondate">2006-09-25</conditiondate>
+    <source hoge:href="/aozora/sakuhin/6/source">新潟県文学全集　第1巻　明治編</source>
+    <publisher hoge:href="/aozora/sakuhin/6/publisher">郷土出版社</publisher>
+    <edition hoge:href="/aozora/sakuhin/6/edition">1995（平成7）年10月26日</edition>
+    <proofedition hoge:href="/aozora/sakuhin/6/proofedition">1995（平成7）年10月26日</proofedition>
+  </record>
+  <record hoge:id="7" id="000900" hoge:href="/aozora/sakuhin/7/">
+    <personid hoge:href="/aozora/sakuhin/7/personid">000330</personid>
+    <author hoge:href="/aozora/sakuhin/7/author">青木 栄瞳</author>
+    <workid hoge:href="/aozora/sakuhin/7/workid">000900</workid>
+    <title hoge:href="/aozora/sakuhin/7/title">野性のセロリ</title>
+    <kanaknd hoge:href="/aozora/sakuhin/7/kanaknd">新字新仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/7/transrator"/>
+    <puncher hoge:href="/aozora/sakuhin/7/puncher">長尾高弘</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/7/proofreader"/>
+    <condition hoge:href="/aozora/sakuhin/7/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/7/conditiondate">1998-02-26</conditiondate>
+    <source hoge:href="/aozora/sakuhin/7/source">生原稿</source>
+    <publisher hoge:href="/aozora/sakuhin/7/publisher"/>
+    <edition hoge:href="/aozora/sakuhin/7/edition"/>
+    <proofedition hoge:href="/aozora/sakuhin/7/proofedition"/>
+  </record>
+  <record hoge:id="8" id="043837" hoge:href="/aozora/sakuhin/8/">
+    <personid hoge:href="/aozora/sakuhin/8/personid">001162</personid>
+    <author hoge:href="/aozora/sakuhin/8/author">秋田 滋</author>
+    <workid hoge:href="/aozora/sakuhin/8/workid">043837</workid>
+    <title hoge:href="/aozora/sakuhin/8/title">ある自殺者の手記</title>
+    <kanaknd hoge:href="/aozora/sakuhin/8/kanaknd">新字新仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/8/transrator">秋田 滋</transrator>
+    <puncher hoge:href="/aozora/sakuhin/8/puncher">京都大学電子テクスト研究会入力班</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/8/proofreader">京都大学電子テクスト研究会校正班</proofreader>
+    <condition hoge:href="/aozora/sakuhin/8/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/8/conditiondate">2006-05-26</conditiondate>
+    <source hoge:href="/aozora/sakuhin/8/source">モオパツサン短篇集　色ざんげ　他十篇</source>
+    <publisher hoge:href="/aozora/sakuhin/8/publisher">改造文庫、改造社出版</publisher>
+    <edition hoge:href="/aozora/sakuhin/8/edition">1937（昭和12）年5月20日</edition>
+    <proofedition hoge:href="/aozora/sakuhin/8/proofedition">1937（昭和12）年5月20日</proofedition>
+  </record>
+  <record hoge:id="9" id="043651" hoge:href="/aozora/sakuhin/9/">
+    <personid hoge:href="/aozora/sakuhin/9/personid">001162</personid>
+    <author hoge:href="/aozora/sakuhin/9/author">秋田 滋</author>
+    <workid hoge:href="/aozora/sakuhin/9/workid">043651</workid>
+    <title hoge:href="/aozora/sakuhin/9/title">狂女</title>
+    <kanaknd hoge:href="/aozora/sakuhin/9/kanaknd">新字新仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/9/transrator">秋田 滋</transrator>
+    <puncher hoge:href="/aozora/sakuhin/9/puncher">京都大学電子テクスト研究会入力班</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/9/proofreader">京都大学電子テクスト研究会校正班</proofreader>
+    <condition hoge:href="/aozora/sakuhin/9/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/9/conditiondate">2005-03-14</conditiondate>
+    <source hoge:href="/aozora/sakuhin/9/source">モオパツサン短篇集　初雪　他九篇</source>
+    <publisher hoge:href="/aozora/sakuhin/9/publisher">改造文庫、改造社出版</publisher>
+    <edition hoge:href="/aozora/sakuhin/9/edition">1937（昭和12）年10月15日</edition>
+    <proofedition hoge:href="/aozora/sakuhin/9/proofedition"/>
+  </record>
+  <record hoge:id="10" id="043652" hoge:href="/aozora/sakuhin/10/">
+    <personid hoge:href="/aozora/sakuhin/10/personid">001162</personid>
+    <author hoge:href="/aozora/sakuhin/10/author">秋田 滋</author>
+    <workid hoge:href="/aozora/sakuhin/10/workid">043652</workid>
+    <title hoge:href="/aozora/sakuhin/10/title">墓</title>
+    <kanaknd hoge:href="/aozora/sakuhin/10/kanaknd">新字新仮名</kanaknd>
+    <transrator hoge:href="/aozora/sakuhin/10/transrator">秋田 滋</transrator>
+    <puncher hoge:href="/aozora/sakuhin/10/puncher">京都大学電子テクスト研究会入力班</puncher>
+    <proofreader hoge:href="/aozora/sakuhin/10/proofreader">京都大学電子テクスト研究会校正班</proofreader>
+    <condition hoge:href="/aozora/sakuhin/10/condition">公開</condition>
+    <conditiondate hoge:href="/aozora/sakuhin/10/conditiondate">2005-03-14</conditiondate>
+    <source hoge:href="/aozora/sakuhin/10/source">モオパツサン短篇集　初雪　他九篇</source>
+    <publisher hoge:href="/aozora/sakuhin/10/publisher">改造文庫、改造社出版</publisher>
+    <edition hoge:href="/aozora/sakuhin/10/edition">1937（昭和12）年10月15日</edition>
+    <proofedition hoge:href="/aozora/sakuhin/10/proofedition"/>
+  </record>
+</records>

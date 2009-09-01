@@ -57,7 +57,7 @@ public final class CreateIndex extends CommandBase {
         if(args.length < COMMAND.length) {
             return false;
         }
-        if(!(COMMAND[0].equals(args[0]) & COMMAND[2].equals(args[2]))) {
+        if(!(COMMAND[0].equals(args[0]) && COMMAND[2].equals(args[2]))) {
             return false;
         }
         if(!ArrayUtils.contains(IDXTYPE, args[1])) {

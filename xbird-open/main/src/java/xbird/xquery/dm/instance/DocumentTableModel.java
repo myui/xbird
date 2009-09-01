@@ -870,7 +870,7 @@ public final class DocumentTableModel extends DataModel implements Externalizabl
 
         @Override
         public int getDocumentId() {
-            return _docidCounter;
+            return getDataModel()._docid;
         }
 
         @Override
