@@ -26,11 +26,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
 import java.util.Map;
 
 import xbird.util.collections.LRUMap;
-import xbird.util.collections.SoftHashMap;
-import xbird.util.collections.SoftHashMap.SoftValue;
 import xbird.util.xml.NamespaceBinder;
 import xbird.util.xml.XMLUtils;
 import xbird.xquery.DynamicError;
@@ -50,7 +49,10 @@ import xbird.xquery.meta.DynamicContext;
 public final class DocumentManager {
     private static final int DOC_CACHE_SIZE = Integer.getInteger("xbird.doc_caches", 8);
 
-    private static final Map<URL, DTMDocument> _sharedCache = new SoftHashMap<URL, DTMDocument>(new LRUMap<URL, SoftValue<URL, DTMDocument>>(DOC_CACHE_SIZE));
+    private static final Map<URL, DTMDocument> _sharedCache;
+    static {
+        _sharedCache = Collections.synchronizedMap(new LRUMap<URL, DTMDocument>(DOC_CACHE_SIZE));
+    }
 
     public DocumentManager() {}
 
