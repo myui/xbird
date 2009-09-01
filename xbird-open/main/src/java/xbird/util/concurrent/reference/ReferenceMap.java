@@ -108,6 +108,10 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V>
     public ReferenceMap(ReferenceType keyReferenceType, ReferenceType valueReferenceType) {
         this(new ConcurrentHashMap(), keyReferenceType, valueReferenceType);
     }
+    
+    public ReferenceMap(ReferenceType keyReferenceType, ReferenceType valueReferenceType, int initSize) {
+        this(new ConcurrentHashMap(initSize), keyReferenceType, valueReferenceType);
+    }
 
     V internalGet(K key) {
         Object valueReference = delegate.get(makeKeyReferenceAware(key));

@@ -40,7 +40,8 @@ import javax.xml.namespace.QName;
 
 import xbird.storage.DbCollection;
 import xbird.storage.DbException;
-import xbird.util.collections.SoftHashMap;
+import xbird.util.concurrent.reference.ReferenceMap;
+import xbird.util.concurrent.reference.ReferenceType;
 import xbird.util.string.StringUtils;
 import xbird.util.xml.XMLUtils;
 import xbird.xquery.XQRTException;
@@ -65,8 +66,8 @@ public final class QNameTable implements Externalizable {
     private static final int NAME_MASK = MAX_NAMES - 1;
     private static final int PREFIX_SHIFT = NAME_BITS;
 
-    private static final QualifiedName probe = new QualifiedName("", "");
-    private static final Map<QualifiedName, QualifiedName> pendings = new SoftHashMap<QualifiedName, QualifiedName>(32);
+    private static final Map<QualifiedName, QualifiedName> __pendings = new ReferenceMap<QualifiedName, QualifiedName>(ReferenceType.STRONG, ReferenceType.SOFT, 64);
+    private final QualifiedName probe = new QualifiedName("", "");
     private boolean _dirty = true;
 
     //--------------------------------------------
@@ -138,7 +139,7 @@ public final class QNameTable implements Externalizable {
         probe.nsuri = (nsuri == null) ? XMLUtils.NULL_NS_URI : nsuri;
         assert (name != null);
         probe.localName = name;
-        final QualifiedName predefined = pendings.remove(probe);
+        final QualifiedName predefined = __pendings.remove(probe);
         if(predefined != null) {
             assert (predefined.id == -1);
             predefined.id = nameMap.size();
@@ -258,7 +259,7 @@ public final class QNameTable implements Externalizable {
 
     public static QualifiedName instantiate(String nsuri, String localName, String prefix) {
         final QualifiedName name = new QualifiedName(nsuri, localName, prefix);
-        pendings.put(name, name);
+        __pendings.put(name, name);
         return name;
     }
 
