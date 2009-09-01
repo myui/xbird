@@ -207,7 +207,7 @@ public final class XDouble extends XNumber {
             } else if(value != value) {
                 c = "NaN";
             } else if(value == 0) {
-                c = (1.0 / value) == Double.POSITIVE_INFINITY ? "0" : "-0";
+                c = ((1.0 / value) == Double.POSITIVE_INFINITY) ? "0" : "-0";
             } else {
                 final double abs = Math.abs(value);
                 if(abs >= 1e-6 && abs < 1e6) {

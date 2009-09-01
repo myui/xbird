@@ -42,7 +42,9 @@ import xbird.xquery.type.xs.UntypedAtomicType;
 
 /**
  * An utility class for XQuery Data Model.
- * <DIV lang="en"></DIV>
+ * <DIV lang="en">
+ * This class is state-less.
+ * </DIV>
  * <DIV lang="ja"></DIV>
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)

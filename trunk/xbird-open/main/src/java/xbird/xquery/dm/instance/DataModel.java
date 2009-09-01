@@ -21,6 +21,7 @@
 package xbird.xquery.dm.instance;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.XQEventReceiver;
@@ -34,9 +35,10 @@ import xbird.xquery.dm.value.XQNode;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public abstract class DataModel implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    /** Universary managed document Id. */
-    protected static int _docidCounter = -1;
+    /** Universally managed document Id. */
+    protected final AtomicInteger _docidCounter = new AtomicInteger(-1);
 
     protected int _volume = 0;
 
@@ -46,8 +48,8 @@ public abstract class DataModel implements Serializable {
         return false;
     }
 
-    public synchronized int nextDocumentId() {
-        return ++_docidCounter;
+    public final int nextDocumentId() {
+        return _docidCounter.incrementAndGet();
     }
 
 }
