@@ -96,7 +96,7 @@
 		        file="${target.dir}/xbird-${version}-src.zip" />
 		<zip destfile="${target.dir}/xbird-${version}-src.zip"
 		     basedir="."
-		     excludes="${target.dir}/**,build/**,**/*.log,**/*.bak,**/.svn/**" />
+		     excludes="${target.dir}/**,build/**,**/*.log,**/*.bak,**/.svn/**,test-output/**" />
 	</target>
 
 	<target name="makeall" depends="jar,war,makedist" />
