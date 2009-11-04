@@ -14,13 +14,13 @@ The "root" collection is also called the Database. It is special in that:
 
 == Configuring a Database ==
 
-The _xbird.database.datadir_ property can be overrided by putting your modified  _xbird.properties_ file on the directory where System.getProperty("user.dir") directs.
+The _xbird.database.datadir_ property can be overrided by putting your modified  _xbird.properties_ file on the directory where System.getProperty("user.home") directs.
 
 {{{
-// You can simply ask the system for the “java.io.tmpdir” and "user.dir" properties as following:
+// You can simply ask the system for the “java.io.tmpdir” and "user.home" properties as following:
 String tmpDir = System.getProperty("java.io.tmpdir");
-String userDir = System.getProperty("user.dir");
-System.out.println("java.io.tmpdir: [" + tmpDir + "], user.dir: [" + userDir + "]");
+String userHome = System.getProperty("user.home");
+System.out.println("java.io.tmpdir: [" + tmpDir + "], user.home: [" + userHome + "]");
 }}}
 
 == Importing Documents ==
