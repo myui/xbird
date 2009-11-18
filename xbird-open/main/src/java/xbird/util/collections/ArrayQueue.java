@@ -22,6 +22,8 @@ package xbird.util.collections;
 
 import java.io.Serializable;
 
+import xbird.util.lang.ArrayUtils;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -125,15 +127,30 @@ public class ArrayQueue<T> implements Serializable {
         _arraySize = newArray.length;
     }
 
-    @SuppressWarnings("unchecked")
-    public final T[] toArray() {
+    public final Object[] toArray() {
         if(_arraySize == 0) {
-            return (T[]) new Object[0];
+            return new Object[0];
         }
         final int size = size();
         final Object[] ary = new Object[size];
         System.arraycopy(_array, _pos, ary, 0, size);
-        return (T[]) ary;
+        return ary;
+    }
+
+    @SuppressWarnings("unchecked")
+    public final T[] toArray(Class clazz) {
+        final int size = size();
+        return (T[]) ArrayUtils.copyOf(_array, size, clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public final T[] toArray(T[] a) {
+        final int size = size();
+        if(a.length < size) {
+            return (T[]) ArrayUtils.copyOf(_array, size, a.getClass());
+        }
+        System.arraycopy(_array, 0, a, 0, size);
+        return a;
     }
 
 }
