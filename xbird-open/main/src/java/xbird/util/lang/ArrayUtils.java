@@ -58,11 +58,11 @@ public final class ArrayUtils {
     private ArrayUtils() {}
 
     public static <T> T[] copy(final T[] original) {
-        return ArrayUtils.copyOf(original, original.length);
+        return copyOf(original, original.length);
     }
 
     public static int[] copy(final int[] original) {
-        return ArrayUtils.copyOf(original, original.length);
+        return copyOf(original, original.length);
     }
 
     /**
@@ -428,6 +428,7 @@ public final class ArrayUtils {
         return copy;
     }
 
+    @SuppressWarnings("unchecked")
     public static int binarySearch(final Object[] a, final int fromIndex, final int toIndex, final Object key) {
         int low = fromIndex;
         int high = toIndex - 1;
