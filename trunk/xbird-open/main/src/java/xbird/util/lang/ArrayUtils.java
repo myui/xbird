@@ -230,6 +230,17 @@ public final class ArrayUtils {
         return newVals;
     }
 
+    public static byte[] append(final byte[] b1, final byte[] b2) {
+        final byte[] nb = new byte[b1.length + b2.length];
+        if(b1.length > 0) {
+            System.arraycopy(b1, 0, nb, 0, b1.length);
+        }
+        if(b2.length > 0) {
+            System.arraycopy(b2, 0, nb, b1.length, b2.length);
+        }
+        return nb;
+    }
+
     /**
      * <p>Removes the element at the specified position from the specified array.
      * All subsequent elements are shifted to the left (substracts one from
