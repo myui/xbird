@@ -20,7 +20,7 @@
  */
 package xbird.util.codec;
 
-import xbird.util.lang.Primitives;
+import xbird.util.primitives.Primitives;
 
 /**
  * 
