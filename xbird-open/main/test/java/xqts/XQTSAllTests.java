@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import xbird.ext.junit.MultithreadedTestSuite;
 import xbird.util.lang.ClassResolver;
-import xbird.util.lang.Primitives;
+import xbird.util.primitives.Primitives;
 
 /**
  * -Dxqts.report_on -Duser.timezone=America/New_York

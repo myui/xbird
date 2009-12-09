@@ -28,8 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import xbird.storage.DbException;
 import xbird.util.collections.longs.LongArrayList;
 import xbird.util.collections.longs.LongHash.LongLRUMap;
-import xbird.util.lang.Primitives;
 import xbird.util.lang.PrintUtils;
+import xbird.util.primitives.Primitives;
 
 /**
  * 

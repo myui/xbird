@@ -39,8 +39,8 @@ import xbird.storage.indexer.BasicIndexQuery.IndexConditionANY;
 import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.lang.ArrayUtils;
-import xbird.util.lang.Primitives;
 import xbird.util.lang.PrintUtils;
+import xbird.util.primitives.Primitives;
 
 /**
  * 

@@ -24,7 +24,7 @@ import java.io.*;
 
 import xbird.util.codec.Base64Codec;
 import xbird.util.lang.ObjectUtils;
-import xbird.util.lang.Primitives;
+import xbird.util.primitives.Primitives;
 import xbird.util.string.StringUtils;
 import xbird.xquery.DynamicError;
 import xbird.xquery.XQueryException;

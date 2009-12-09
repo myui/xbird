@@ -27,7 +27,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 import xbird.util.concurrent.counter.ThreadLocalCounter;
-import xbird.util.lang.MutableLong;
+import xbird.util.primitives.MutableLong;
 import xbird.xquery.DynamicError;
 import xbird.xquery.XQueryException;
 import xbird.xquery.XQueryModule;

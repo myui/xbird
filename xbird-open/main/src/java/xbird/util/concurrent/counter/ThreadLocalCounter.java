@@ -20,7 +20,7 @@
  */
 package xbird.util.concurrent.counter;
 
-import xbird.util.lang.MutableLong;
+import xbird.util.primitives.MutableLong;
 
 /**
  * ThreadLocal counter.
