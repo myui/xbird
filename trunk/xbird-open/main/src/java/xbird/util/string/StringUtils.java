@@ -411,4 +411,71 @@ public final class StringUtils {
         return startPos;
     }
 
+    /**
+     * Imported code from Apache commons lang.
+     */
+    public static String escape(final String str) {
+        final int sz = str.length();
+        final StringBuilder buffer = new StringBuilder(2 * sz);
+        for(int i = 0; i < sz; i++) {
+            final char ch = str.charAt(i);
+            if(ch > 0xfff) {
+                buffer.append("\\u" + Integer.toHexString(ch));
+            } else if(ch > 0xff) {
+                buffer.append("\\u0" + Integer.toHexString(ch));
+            } else if(ch > 0x7f) {
+                buffer.append("\\u00" + Integer.toHexString(ch));
+            } else if(ch < 32) {
+                switch(ch) {
+                    case '\b':
+                        buffer.append('\\');
+                        buffer.append('b');
+                        break;
+                    case '\n':
+                        buffer.append('\\');
+                        buffer.append('n');
+                        break;
+                    case '\t':
+                        buffer.append('\\');
+                        buffer.append('t');
+                        break;
+                    case '\f':
+                        buffer.append('\\');
+                        buffer.append('f');
+                        break;
+                    case '\r':
+                        buffer.append('\\');
+                        buffer.append('r');
+                        break;
+                    default:
+                        if(ch > 0xf) {
+                            buffer.append("\\u00" + Integer.toHexString(ch));
+                        } else {
+                            buffer.append("\\u000" + Integer.toHexString(ch));
+                        }
+                        break;
+                }
+            } else {
+                switch(ch) {
+                    case '\'':
+                        buffer.append('\\');
+                        buffer.append('\'');
+                        break;
+                    case '"':
+                        buffer.append('\\');
+                        buffer.append('"');
+                        break;
+                    case '\\':
+                        buffer.append('\\');
+                        buffer.append('\\');
+                        break;
+                    default:
+                        buffer.append(ch);
+                        break;
+                }
+            }
+        }
+        return buffer.toString();
+    }
+
 }
