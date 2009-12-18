@@ -68,4 +68,10 @@ public final class Triple<X, Y, Z> implements Serializable {
         this.third = third;
     }
 
+    public void clear() {
+        this.first = null;
+        this.second = null;
+        this.third = null;
+    }
+
 }

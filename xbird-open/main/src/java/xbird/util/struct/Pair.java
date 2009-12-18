@@ -89,4 +89,9 @@ public class Pair<X, Y> implements Serializable {
         return buf.toString();
     }
 
+    public void clear() {
+        this.first = null;
+        this.second = null;
+    }
+
 }
