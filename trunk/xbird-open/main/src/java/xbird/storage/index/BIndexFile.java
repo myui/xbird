@@ -37,7 +37,7 @@ import xbird.util.collections.longs.ObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.collections.longs.LongHash.LongLRUMap;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 

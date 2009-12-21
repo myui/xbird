@@ -46,7 +46,7 @@ import xbird.util.concurrent.cache.ConcurrentLongCache;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.lang.HashUtils;
 import xbird.util.lang.PrivilegedAccessor;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 import xbird.util.resource.PropertyMap;
 import xbird.util.string.StringUtils;
 import xbird.xquery.dm.coder.SerializationContext;

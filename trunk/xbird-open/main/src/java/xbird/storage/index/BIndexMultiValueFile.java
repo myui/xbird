@@ -29,7 +29,7 @@ import xbird.storage.DbException;
 import xbird.util.collections.longs.LongArrayList;
 import xbird.util.collections.longs.LongHash.LongLRUMap;
 import xbird.util.lang.PrintUtils;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 

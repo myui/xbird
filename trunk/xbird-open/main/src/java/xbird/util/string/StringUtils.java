@@ -20,7 +20,7 @@
  */
 package xbird.util.string;
 
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 

@@ -39,7 +39,7 @@ import xbird.util.compress.CompressionCodec;
 import xbird.util.compress.CompressorFactory;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.lang.HashUtils;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 import xbird.util.resource.PropertyMap;
 import xbird.util.string.StringUtils;
 
