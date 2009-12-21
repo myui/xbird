@@ -22,7 +22,7 @@ package xbird.xquery.dm.dtm.hooked;
 
 import java.io.File;
 
-import xbird.util.io.CsvWriter;
+import xbird.util.csv.CsvWriter;
 import xbird.xquery.dm.dtm.DocumentTable;
 
 /**
