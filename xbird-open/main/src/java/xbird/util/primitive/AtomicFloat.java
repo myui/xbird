@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.primitives;
+package xbird.util.primitive;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

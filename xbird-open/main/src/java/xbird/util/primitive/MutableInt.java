@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.primitives;
+package xbird.util.primitive;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -33,40 +33,36 @@ import java.io.ObjectOutput;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  * @link http://commons.apache.org/lang/
  */
-public final class MutableLong extends Number implements Comparable<Number>, Externalizable {
+public final class MutableInt extends Number implements Comparable<Number>, Externalizable {
     private static final long serialVersionUID = 5875689871048864932L;
-    public static final long INT_MIN_VALUE = 0x80000000L;
 
     /** The mutable value. */
-    private long _value;
-    private transient int _hashcode;
+    private int _value;
 
-    public MutableLong() {
+    public MutableInt() {
         super();
-        this._value = 0L;
     }
 
-    public MutableLong(long value) {
+    public MutableInt(int value) {
         super();
         this._value = value;
-        this._hashcode = (int) (value ^ (value >>> 32));
     }
 
-    public MutableLong(Number value) {
+    public MutableInt(Number value) {
         super();
-        this._value = value.longValue();
+        this._value = value.intValue();
     }
 
-    public Long getValue() {
-        return new Long(_value);
+    public Integer getValue() {
+        return new Integer(_value);
     }
 
-    public void setValue(long v) {
+    public void setValue(int v) {
         this._value = v;
     }
 
     public void setValue(Number v) {
-        this._value = v.longValue();
+        this._value = v.intValue();
     }
 
     @Override
@@ -80,32 +76,32 @@ public final class MutableLong extends Number implements Comparable<Number>, Ext
     }
 
     @Override
-    public int intValue() {
-        return (int) _value;
-    }
-
-    @Override
     public long longValue() {
         return _value;
     }
 
+    @Override
+    public int intValue() {
+        return _value;
+    }
+
     public int compareTo(Number other) {
-        final long thisVal = _value;
-        final long anotherVal = other.longValue();
+        final int thisVal = _value;
+        final int anotherVal = other.intValue();
         return thisVal < anotherVal ? -1 : (thisVal == anotherVal ? 0 : 1);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof MutableLong) {
-            return _value == ((MutableLong) obj).longValue();
+        if(obj instanceof MutableInt) {
+            return _value == ((MutableInt) obj).intValue();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return _hashcode;
+        return _value;
     }
 
     @Override
@@ -114,30 +110,28 @@ public final class MutableLong extends Number implements Comparable<Number>, Ext
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        long v = in.readLong();
-        this._value = v;
-        this._hashcode = (int) (v ^ (v >>> 32));
+        this._value = in.readInt();
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeLong(_value);
+        out.writeInt(_value);
     }
 
     //-----------------------------------------------------------------------
 
-    public long incrementAndGet() {
+    public int incrementAndGet() {
         return ++_value;
     }
 
-    public long decrementAndGet() {
+    public int decrementAndGet() {
         return --_value;
     }
 
-    public long getAndIncrement() {
+    public int getAndIncrement() {
         return _value++;
     }
 
-    public long getAndDecrement() {
+    public int getAndDecrement() {
         return _value--;
     }
 
@@ -149,31 +143,31 @@ public final class MutableLong extends Number implements Comparable<Number>, Ext
         _value--;
     }
 
-    public void add(long operand) {
+    public void add(int operand) {
         this._value += operand;
     }
 
     public void add(Number operand) {
-        this._value += operand.longValue();
+        this._value += operand.intValue();
     }
 
-    public long addAndGet(long x) {
+    public int addAndGet(int x) {
         _value += x;
         return _value;
     }
 
-    public long getAndAdd(long x) {
-        long prev = _value;
+    public int getAndAdd(int x) {
+        int prev = _value;
         _value += x;
         return prev;
     }
 
-    public void subtract(long operand) {
+    public void subtract(int operand) {
         this._value -= operand;
     }
 
     public void subtract(Number operand) {
-        this._value -= operand.longValue();
+        this._value -= operand.intValue();
     }
 
 }

@@ -20,7 +20,7 @@
  */
 package xbird.util.compress;
 
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * LZSS codec with simplified sunday's Quick Search (a fast BMSearch).

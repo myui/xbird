@@ -29,7 +29,7 @@ import java.io.OutputStream;
 
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.lang.HashUtils;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 import xbird.util.string.StringUtils;
 
 /**

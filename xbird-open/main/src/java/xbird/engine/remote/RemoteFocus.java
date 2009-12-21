@@ -40,7 +40,7 @@ import xbird.util.compress.LZFInputStream;
 import xbird.util.io.FastBufferedInputStream;
 import xbird.util.io.FastByteArrayInputStream;
 import xbird.util.io.RemoteInputStream;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 import xbird.xquery.XQRTException;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.sequence.SingleCollection;

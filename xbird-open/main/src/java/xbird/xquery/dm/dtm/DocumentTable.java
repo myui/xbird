@@ -39,7 +39,7 @@ import xbird.util.concurrent.lock.AtomicBackoffLock;
 import xbird.util.concurrent.lock.ILock;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.lang.PrivilegedAccessor;
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 import xbird.util.resource.PropertyMap;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.instance.DocumentTableModel;

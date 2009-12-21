@@ -24,7 +24,7 @@ import static java.util.zip.Deflater.DEFAULT_COMPRESSION;
 
 import java.util.zip.*;
 
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 

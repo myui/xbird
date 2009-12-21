@@ -33,7 +33,7 @@
  */
 package xbird.util.compress;
 
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 

@@ -23,7 +23,7 @@ package xbird.util.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 

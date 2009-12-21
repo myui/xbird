@@ -20,7 +20,7 @@
  */
 package xbird.util.converter;
 
-import xbird.util.primitives.Primitives;
+import xbird.util.primitive.Primitives;
 
 /**
  * 
