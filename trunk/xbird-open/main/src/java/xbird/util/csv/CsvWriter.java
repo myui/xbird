@@ -18,7 +18,7 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.util.io;
+package xbird.util.csv;
 
 import java.io.*;
 
