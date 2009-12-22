@@ -22,14 +22,11 @@ package xbird.util.csv;
 
 import java.io.IOException;
 import java.io.PushbackReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import xbird.util.collections.FixedArrayList;
 
 /**
  * 
@@ -42,6 +39,7 @@ public final class CsvUtils {
 
     public static final char DEFAULT_FIELD_SEPARATOR = '\t';
     public static final char DEFAULT_QUOTE_CHARACTER = '"';
+    public static final char DEFAULT_ESCAPE_CHARACTER = '\\';
     private static final int EOF = -1;
 
     private CsvUtils() {}
@@ -255,69 +253,5 @@ public final class CsvUtils {
             pos++;
         }
         return pos;
-    }
-
-    public static void main(String[] args) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("a,b,c").append("\n"); // standard case
-        sb.append("a,\"b,b,b\",c").append("\n"); // quoted elements
-        sb.append(",,").append("\n"); // empty elements
-        sb.append("a,\"PO Box 123,\nKippax,ACT. 2615.\nAustralia\",d.\n");
-        sb.append("\"Glen \"\"The Man\"\" Smith\",Athlete,Developer\n"); // Test
-        sb.append("\"\"\"\"\"\",\"test\"\n"); // """""","test" representing:
-        sb.append("\"a\nb\",b,\"\nd\",e\n");
-        PushbackReader reader = new PushbackReader(new StringReader(sb.toString()));
-
-        // test normal case                
-        String line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        String[] fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals("a", fields[0]);
-        org.junit.Assert.assertEquals("b", fields[1]);
-        org.junit.Assert.assertEquals("c", fields[2]);
-
-        // test quoted commas
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals("a", fields[0]);
-        org.junit.Assert.assertEquals("b,b,b", fields[1]);
-        org.junit.Assert.assertEquals("c", fields[2]);
-
-        String[] ary3 = new String[3];
-        FixedArrayList<String> list3 = new FixedArrayList<String>(ary3);
-        retrieveFields(line, new int[] { 0, 2 }, list3, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals("a", ary3[0]);
-        org.junit.Assert.assertEquals("c", ary3[1]);
-
-        // test empty elements
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals(3, fields.length);
-
-        // test multiline quoted
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals(3, fields.length);
-
-        // test quoted quote chars
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals("Glen \"The Man\" Smith", fields[0]);
-
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertTrue(fields[0].equals("\"\"")); // check the tricky situation
-        org.junit.Assert.assertTrue(fields[1].equals("test")); // make sure we didn't ruin the next field..
-
-        list3.trimToZero();
-        retrieveFields(line, new int[] { 0 }, list3, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertTrue(ary3[0].equals("\"\""));
-
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertEquals(4, fields.length);
-
-        // test end of stream
-        line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
-        org.junit.Assert.assertNull(line);
     }
 }

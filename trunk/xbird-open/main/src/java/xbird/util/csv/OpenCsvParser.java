@@ -37,11 +37,6 @@ public final class OpenCsvParser {
 
     private static final int INITIAL_READ_SIZE = 128;
 
-    public static final char DEFAULT_SEPARATOR = '\t';
-    public static final char DEFAULT_QUOTE_CHARACTER = '"';
-    public static final char DEFAULT_ESCAPE_CHARACTER = '\\';
-    public static final boolean DEFAULT_STRICT_QUOTES = false;
-
     private final char filedSeparator;
     private final char stringQuote;
     private final char escapeChar;
@@ -53,7 +48,7 @@ public final class OpenCsvParser {
      * Constructs CSVParser using a comma for the separator.
      */
     public OpenCsvParser() {
-        this(DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER, DEFAULT_ESCAPE_CHARACTER);
+        this(CsvUtils.DEFAULT_FIELD_SEPARATOR, CsvUtils.DEFAULT_QUOTE_CHARACTER, CsvUtils.DEFAULT_ESCAPE_CHARACTER);
     }
 
     /**
@@ -62,7 +57,7 @@ public final class OpenCsvParser {
      *            the delimiter to use for separating entries.
      */
     public OpenCsvParser(char separator) {
-        this(separator, DEFAULT_QUOTE_CHARACTER, DEFAULT_ESCAPE_CHARACTER);
+        this(separator, CsvUtils.DEFAULT_QUOTE_CHARACTER, CsvUtils.DEFAULT_ESCAPE_CHARACTER);
     }
 
     /**
@@ -73,7 +68,7 @@ public final class OpenCsvParser {
      *            the character to use for quoted elements
      */
     public OpenCsvParser(char separator, char quotechar) {
-        this(separator, quotechar, DEFAULT_ESCAPE_CHARACTER);
+        this(separator, quotechar, CsvUtils.DEFAULT_ESCAPE_CHARACTER);
     }
 
     /**
@@ -86,7 +81,7 @@ public final class OpenCsvParser {
      *            the character to use for escaping a separator or quote
      */
     public OpenCsvParser(char separator, char quotechar, char escape) {
-        this(separator, quotechar, escape, DEFAULT_STRICT_QUOTES);
+        this(separator, quotechar, escape, false);
     }
 
     /**
