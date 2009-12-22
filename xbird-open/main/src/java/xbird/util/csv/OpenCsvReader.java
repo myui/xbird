@@ -22,7 +22,6 @@
 package xbird.util.csv;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ import java.util.List;
  * 
  * @author Glen Smith
  */
-public final class CsvReader implements Closeable {
+public final class OpenCsvReader implements CvsReader {
 
     private final BufferedReader br;
     private final OpenCsvParser parser;
@@ -46,8 +45,8 @@ public final class CsvReader implements Closeable {
      * @param reader
      *            the reader to an underlying CSV source.
      */
-    public CsvReader(Reader reader) {
-        this(reader, OpenCsvParser.DEFAULT_SEPARATOR, OpenCsvParser.DEFAULT_QUOTE_CHARACTER, OpenCsvParser.DEFAULT_ESCAPE_CHARACTER);
+    public OpenCsvReader(Reader reader) {
+        this(reader, CsvUtils.DEFAULT_FIELD_SEPARATOR, CsvUtils.DEFAULT_QUOTE_CHARACTER, CsvUtils.DEFAULT_ESCAPE_CHARACTER);
     }
 
     /**
@@ -58,8 +57,8 @@ public final class CsvReader implements Closeable {
      * @param separator
      *            the delimiter to use for separating entries.
      */
-    public CsvReader(Reader reader, char separator) {
-        this(reader, separator, OpenCsvParser.DEFAULT_QUOTE_CHARACTER, OpenCsvParser.DEFAULT_ESCAPE_CHARACTER);
+    public OpenCsvReader(Reader reader, char separator) {
+        this(reader, separator, CsvUtils.DEFAULT_QUOTE_CHARACTER, CsvUtils.DEFAULT_ESCAPE_CHARACTER);
     }
 
     /**
@@ -72,8 +71,8 @@ public final class CsvReader implements Closeable {
      * @param quotechar
      *            the character to use for quoted elements
      */
-    public CsvReader(Reader reader, char separator, char quotechar) {
-        this(reader, separator, quotechar, OpenCsvParser.DEFAULT_ESCAPE_CHARACTER, OpenCsvParser.DEFAULT_STRICT_QUOTES);
+    public OpenCsvReader(Reader reader, char separator, char quotechar) {
+        this(reader, separator, quotechar, CsvUtils.DEFAULT_ESCAPE_CHARACTER, false);
     }
 
     /**
@@ -88,9 +87,8 @@ public final class CsvReader implements Closeable {
       * @param escape
       *            the character to use for escaping a separator or quote
       */
-
-    public CsvReader(Reader reader, char separator, char quotechar, char escape) {
-        this(reader, separator, quotechar, escape, OpenCsvParser.DEFAULT_STRICT_QUOTES);
+    public OpenCsvReader(Reader reader, char separator, char quotechar, char escape) {
+        this(reader, separator, quotechar, escape, false);
     }
 
     /**
@@ -107,7 +105,7 @@ public final class CsvReader implements Closeable {
      * @param strictQuotes
      *            sets if characters outside the quotes are ignored
      */
-    public CsvReader(Reader reader, char separator, char quotechar, char escape, boolean strictQuotes) {
+    public OpenCsvReader(Reader reader, char separator, char quotechar, char escape, boolean strictQuotes) {
         this.br = new BufferedReader(reader);
         this.parser = new OpenCsvParser(separator, quotechar, escape, strictQuotes);
     }
@@ -172,12 +170,16 @@ public final class CsvReader implements Closeable {
      * @throws IOException
      *             if bad things happen during the read
      */
-    private String getNextLine() throws IOException {
+    public String getNextLine() throws IOException {
         final String nextLine = br.readLine();
         if(nextLine == null) {
             hasNext = false;
         }
         return hasNext ? nextLine : null;
+    }
+
+    public String[] parseLine(String line) throws IOException {
+        return parser.parseLine(line);
     }
 
     /**
