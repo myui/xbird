@@ -29,6 +29,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import xbird.util.collections.FixedArrayList;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -160,18 +162,18 @@ public final class CsvUtils {
         final StringBuilder fieldBuf = new StringBuilder(32);
         final int lineLength = line.length();
         final int numRetrieveFields = fieldIndicies.length;
-        for(int fi = 0, pos = 0; (fi < numRetrieveFields) && (pos <= lineLength); pos++) {
-            if((pos == lineLength) && (fieldIndicies[fi] == fi)) {// trick for the case ",,"
-                retrieveField(line, lineLength, pos - 1, fields, filedSeparator, quoteChar, fieldBuf);
-                break;
-            } else {
-                if(fieldIndicies[fi] == fi) {
-                    pos = retrieveField(line, lineLength, pos, fields, filedSeparator, quoteChar, fieldBuf);
-                    fieldBuf.setLength(0); // clear
-                    fi++;
+        for(int i = 0, fi = 0, pos = 0; (fi < numRetrieveFields) && (pos <= lineLength); i++, pos++) {
+            if(i == fieldIndicies[fi]) {
+                if(pos == lineLength) {// trick for the case ",,"
+                    retrieveField(line, lineLength, pos - 1, fields, filedSeparator, quoteChar, fieldBuf);
+                    break;
                 } else {
-                    pos = skip(line, lineLength, pos, filedSeparator, quoteChar);
+                    pos = retrieveField(line, lineLength, pos, fields, filedSeparator, quoteChar, fieldBuf);
+                    fieldBuf.setLength(0); // clear                    
+                    fi++;
                 }
+            } else {
+                pos = skip(line, lineLength, pos, filedSeparator, quoteChar);
             }
         }
     }
@@ -280,6 +282,12 @@ public final class CsvUtils {
         org.junit.Assert.assertEquals("b,b,b", fields[1]);
         org.junit.Assert.assertEquals("c", fields[2]);
 
+        String[] ary3 = new String[3];
+        FixedArrayList<String> list3 = new FixedArrayList<String>(ary3);
+        retrieveFields(line, new int[] { 0, 2 }, list3, ',', DEFAULT_QUOTE_CHARACTER);
+        org.junit.Assert.assertEquals("a", ary3[0]);
+        org.junit.Assert.assertEquals("c", ary3[1]);
+
         // test empty elements
         line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
         fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
@@ -299,6 +307,10 @@ public final class CsvUtils {
         fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
         org.junit.Assert.assertTrue(fields[0].equals("\"\"")); // check the tricky situation
         org.junit.Assert.assertTrue(fields[1].equals("test")); // make sure we didn't ruin the next field..
+
+        list3.trimToZero();
+        retrieveFields(line, new int[] { 0 }, list3, ',', DEFAULT_QUOTE_CHARACTER);
+        org.junit.Assert.assertTrue(ary3[0].equals("\"\""));
 
         line = readLine(reader, DEFAULT_QUOTE_CHARACTER);
         fields = parseLine(line, ',', DEFAULT_QUOTE_CHARACTER);
