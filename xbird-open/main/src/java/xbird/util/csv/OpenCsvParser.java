@@ -137,7 +137,6 @@ public final class OpenCsvParser {
         if(!multi && pending != null) {
             pending = null;
         }
-
         if(nextLine == null) {
             if(pending != null) {
                 String s = pending;
@@ -185,8 +184,9 @@ public final class OpenCsvParser {
                 tokensOnThisLine.add(sb.toString());
                 sb = new StringBuilder(INITIAL_READ_SIZE); // start work on next token
             } else {
-                if(!strictQuotes || inQuotes)
+                if(!strictQuotes || inQuotes) {
                     sb.append(c);
+                }
             }
         }
         // line is done - check status
