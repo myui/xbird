@@ -177,6 +177,7 @@ public final class ArrayUtils {
      * @throws IndexOutOfBoundsException if the index is out of range 
      * (index < 0 || index > array.length).
      */
+    @SuppressWarnings("unchecked")
     public static <T> T[] insert(final Object array, final int index, final Object element) {
         if(array == null) {
             if(index != 0) {
@@ -241,6 +242,17 @@ public final class ArrayUtils {
         return nb;
     }
 
+    public static int[] append(final int[] left, final int[] right) {
+        final int[] n = new int[left.length + right.length];
+        if(left.length > 0) {
+            System.arraycopy(left, 0, n, 0, left.length);
+        }
+        if(right.length > 0) {
+            System.arraycopy(right, 0, n, left.length, right.length);
+        }
+        return n;
+    }
+
     /**
      * <p>Removes the element at the specified position from the specified array.
      * All subsequent elements are shifted to the left (substracts one from
@@ -262,6 +274,7 @@ public final class ArrayUtils {
      * (index < 0 || index >= array.length), or if the array is <code>null</code>.
      * @since 2.1
      */
+    @SuppressWarnings("unchecked")
     public static <T> T[] remove(final T[] array, final int index) {
         int length = getLength(array);
         if(index < 0 || index >= length) {
@@ -275,6 +288,7 @@ public final class ArrayUtils {
         return (T[]) result;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T[] remove(final T[] array, final int from, final int to) {
         assert (to >= from) : to + " - " + from;
         int length = getLength(array);
@@ -323,7 +337,7 @@ public final class ArrayUtils {
      * size 1 array of this type.
      * @return A new copy of the array of size 1 greater than the input.
      */
-    private static Object copyArrayGrow1(final Object array, final Class newArrayComponentType) {
+    private static Object copyArrayGrow1(final Object array, final Class<?> newArrayComponentType) {
         if(array != null) {
             int arrayLength = Array.getLength(array);
             Object newArray = Array.newInstance(array.getClass().getComponentType(), arrayLength + 1);
@@ -393,10 +407,12 @@ public final class ArrayUtils {
         return copy;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T[] copyOfRange(final T[] original, final int from, final int to) {
         return copyOfRange(original, from, to, (Class<T[]>) original.getClass());
     }
 
+    @SuppressWarnings("unchecked")
     private static <T, U> T[] copyOfRange(final U[] original, final int from, final int to, final Class<? extends T[]> newType) {
         final int newLength = to - from;
         if(newLength < 0) {
