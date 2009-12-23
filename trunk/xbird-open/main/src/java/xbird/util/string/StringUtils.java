@@ -478,4 +478,44 @@ public final class StringUtils {
         return buffer.toString();
     }
 
+    public static String escape(final char ch) {
+        if(ch > 0xfff) {
+            return "\\u" + Integer.toHexString(ch);
+        } else if(ch > 0xff) {
+            return "\\u0" + Integer.toHexString(ch);
+        } else if(ch > 0x7f) {
+            return "\\u00" + Integer.toHexString(ch);
+        } else if(ch < 32) {
+            switch(ch) {
+                case '\b':
+                    return "\\b";
+                case '\n':
+                    return "\\n";
+                case '\t':
+                    return "\\t";
+                case '\f':
+                    return "\\f";
+                case '\r':
+                    return "\\r";
+                default:
+                    if(ch > 0xf) {
+                        return "\\u00" + Integer.toHexString(ch);
+                    } else {
+                        return "\\u000" + Integer.toHexString(ch);
+                    }
+            }
+        } else {
+            switch(ch) {
+                case '\'':
+                    return "\\'";
+                case '"':
+                    return "\\\"";
+                case '\\':
+                    return "\\\\";
+                default:
+                    return new String(new char[] { ch });
+            }
+        }
+    }
+
 }
