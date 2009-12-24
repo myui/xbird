@@ -10,7 +10,6 @@
 	<classpathentry kind="src" path="main/test/resources"/>
 	<classpathentry kind="src" path="main/src/resources"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/optional/args4j-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/optional/junit-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/optional/log4j-1.2.13.jar"/>
 	<classpathentry kind="lib" path="lib/optional/saxon8-dom.jar"/>
@@ -45,5 +44,6 @@
 	<classpathentry kind="lib" path="lib/optional/mina-transport-apr-2.0.0-M4.jar"/>
 	<classpathentry kind="lib" path="lib/optional/tomcat-apr-5.5.23.jar"/>
 	<classpathentry kind="lib" path="lib/optional/testng-5.9-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/optional/args4j-2.0.12.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
