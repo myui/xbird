@@ -538,9 +538,13 @@ public final class JDBCUtils {
             for(int i = 0; i < pkeyColumns; i++) {
                 String columnName = keys.get(i);
                 ResultSet rs = meta.getColumns(catalog, null, tableName, columnName);
+                if(!rs.next()) {
+                    throw new IllegalStateException("Existing primary key '" + columnName
+                            + "' was not defined in the catalog");
+                }
                 int pos = rs.getInt("ORDINAL_POSITION");
-                rs.close();
                 idxs[i] = pos;
+                rs.close();
             }
             pkeyIdxs = idxs;
         }
@@ -563,9 +567,13 @@ public final class JDBCUtils {
             for(int i = 0; i < fkeyColumns; i++) {
                 String columnName = keys.get(i);
                 ResultSet rs = meta.getColumns(catalog, null, tableName, columnName);
+                if(!rs.next()) {
+                    throw new IllegalStateException("Existing foreign key '" + columnName
+                            + "' was not defined in the catalog");
+                }
                 int pos = rs.getInt("ORDINAL_POSITION");
-                rs.close();
                 idxs[i] = pos;
+                rs.close();
             }
             fkeyIdxs = idxs;
         }
