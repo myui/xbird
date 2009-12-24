@@ -110,7 +110,7 @@
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/commons-logging-1.0.4.jar"
 			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.4.jar"
+			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.12.jar"
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/high-scale-lib-0.8.1.jar"
 			                  relpath="" />
@@ -146,7 +146,7 @@
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/commons-logging-1.0.4.jar"
 			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.4.jar"
+			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.12.jar"
 			                  relpath="" />
 			<fatjar.jarsource file="${lib.dir}/optional/log4j-1.2.13.jar"
 			                  relpath="" />
