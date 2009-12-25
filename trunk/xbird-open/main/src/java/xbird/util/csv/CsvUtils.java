@@ -170,7 +170,7 @@ public final class CsvUtils {
                     fieldBuf.setLength(0); // clear                    
                     fi++;
                 }
-            } else {
+            } else if(pos != lineLength) {
                 pos = skip(line, lineLength, pos, filedSeparator, quoteChar);
             }
         }
