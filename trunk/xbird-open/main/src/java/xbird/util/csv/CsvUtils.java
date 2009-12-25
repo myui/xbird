@@ -156,11 +156,14 @@ public final class CsvUtils {
         retrieveFields(line, fieldIndicies, fields, DEFAULT_FIELD_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
     }
 
+    /**
+     * @param fieldIndicies Field index to retrieve. Note that each index start with 1. 
+     */
     public static void retrieveFields(@Nonnull final String line, @Nonnull final int[] fieldIndicies, @Nonnull final List<String> fields, final char filedSeparator, final char quoteChar) {
         final StringBuilder fieldBuf = new StringBuilder(32);
         final int lineLength = line.length();
         final int numRetrieveFields = fieldIndicies.length;
-        for(int i = 0, fi = 0, pos = 0; (fi < numRetrieveFields) && (pos <= lineLength); i++, pos++) {
+        for(int i = 1, fi = 0, pos = 0; (fi < numRetrieveFields) && (pos <= lineLength); i++, pos++) {
             if(i == fieldIndicies[fi]) {
                 if(pos == lineLength) {// trick for the case ",,"
                     retrieveField(line, lineLength, pos - 1, fields, filedSeparator, quoteChar, fieldBuf);
