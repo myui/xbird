@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 import xbird.config.Settings;
+import xbird.util.system.SystemUtils;
 
 /**
  * 
@@ -265,5 +266,38 @@ public final class NetUtils {
         } catch (IOException e) {
             ;
         }
+    }
+
+    public static String getMacAddress(final InetAddress addr) {
+        if(SystemUtils.getJavaVersion() < 1.6f) {
+            return null; // getHardwareAddress is not supported
+        }
+        final NetworkInterface ni;
+        try {
+            ni = NetworkInterface.getByInetAddress(addr);
+        } catch (SocketException e) {
+            return null;
+        }
+        if(ni != null) {
+            final byte[] mac;
+            try {
+                mac = ni.getHardwareAddress();
+            } catch (SocketException e) {
+                return null;
+            }
+            final StringBuilder buf = new StringBuilder(30);
+            /*
+             * Extract each array of mac address and convert it to hexa with the
+             * following format 08-00-27-DC-4A-9E.
+             */
+            final int macLength = mac.length;
+            final int last = macLength - 1;
+            for(int i = 0; i < macLength; i++) {
+                String s = String.format("%02X%s", mac[i], (i == last) ? "" : "-");
+                buf.append(s);
+            }
+            return buf.toString();
+        }
+        return null;
     }
 }
