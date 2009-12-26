@@ -20,7 +20,6 @@
  */
 package xbird.util.concurrent;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -68,8 +67,35 @@ public final class ExecutorFactory {
      * @link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6458662
      */
     public static ThreadPoolExecutor newBoundedWorkQueueThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTimeInSec, String threadName) {
-        final int taskQueueSize = Math.min(corePoolSize + ((maximumPoolSize - corePoolSize) >> 1), corePoolSize << 1);
-        return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInSec, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(taskQueueSize), new NamedThreadFactory(threadName), new WaitPolicy());
+        final int workQueueSize = Math.min(corePoolSize + ((maximumPoolSize - corePoolSize) >> 1), corePoolSize << 1);
+        return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInSec, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(workQueueSize), new NamedThreadFactory(threadName), new WaitPolicy());
+    }
+
+    public static ThreadPoolExecutor newBoundedWorkQueueThreadPool(int corePoolSize, int maximumPoolSize, int workQueueSize, String threadName) {
+        return newBoundedWorkQueueThreadPool(corePoolSize, maximumPoolSize, workQueueSize, 0L, threadName, false);
+    }
+
+    public static ThreadPoolExecutor newBoundedWorkQueueThreadPool(int corePoolSize, int maximumPoolSize, int workQueueSize, long keepAliveTimeInSec, String threadName, boolean daemon) {
+        if(maximumPoolSize > corePoolSize && workQueueSize < maximumPoolSize) {
+            throw new IllegalArgumentException("Pool never grows to maximumPoolSize ("
+                    + maximumPoolSize + ") when workQueueSize (" + workQueueSize
+                    + ") was less than corePoolSize (" + corePoolSize + ")");
+        }
+        return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInSec, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(workQueueSize), new NamedThreadFactory(threadName, daemon), new WaitPolicy());
+    }
+
+    /**
+     * Allow N active & W queued Thread.
+     */
+    public static ThreadPoolExecutor newBoundedWorkQueueFixedThreadPool(int nthreads, int workQueueSize, String threadName, boolean daemon) {
+        return newBoundedWorkQueueThreadPool(nthreads, nthreads, workQueueSize, 0L, threadName, daemon);
+    }
+
+    /**
+     * Allow N active & N queued Thread.
+     */
+    public static ThreadPoolExecutor newBoundedWorkQueueFixedThreadPool(int size, String threadName, boolean daemon) {
+        return new ThreadPoolExecutor(size, size, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(size), new NamedThreadFactory(threadName, daemon), new WaitPolicy());
     }
 
     public static ScheduledExecutorService newScheduledExecutor(int corePoolSize, String threadName) {
@@ -98,6 +124,7 @@ public final class ExecutorFactory {
 
     /**
      * A handler for unexecutable tasks that waits until task can be submitted for execution.
+     * Note that this blocking method can handle tricky scenarios such as calling shutdownNow() during an invokeAll().
      */
     public static final class WaitPolicy implements RejectedExecutionHandler {
 
@@ -108,6 +135,7 @@ public final class ExecutorFactory {
                 try {
                     executor.getQueue().put(r);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     throw new RejectedExecutionException(e);
                 }
             }
