@@ -93,6 +93,22 @@ public final class IOUtils {
         return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
     }
 
+    public static void writeChar(final char v, final OutputStream out) throws IOException {
+        out.write(0xff & (v >> 8));
+        out.write(0xff & v);
+    }
+
+    public static void writeChar(final char v, final FastByteArrayOutputStream out) {
+        out.write(0xff & (v >> 8));
+        out.write(0xff & v);
+    }
+
+    public static char readChar(final InputStream in) throws IOException {
+        final int a = in.read();
+        final int b = in.read();
+        return (char) ((a << 8) | (b & 0xff));
+    }
+
     public static void readFully(final InputStream in, final byte[] b, int offset, int len)
             throws IOException {
         do {
