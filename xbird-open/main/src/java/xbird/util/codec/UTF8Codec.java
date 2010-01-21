@@ -20,7 +20,12 @@
  */
 package xbird.util.codec;
 
+import java.io.CharConversionException;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import xbird.util.collections.ints.IntArrayList;
+import xbird.util.io.FastByteArrayOutputStream;
 
 /**
  * This is a utility class encode/decode UTF-8.
@@ -227,6 +232,80 @@ public final class UTF8Codec {
         int ret = hexSymbol[high] << 4;
         ret = (ret & hexSymbol[low]);
         return ret;
+    }
+
+    public static void writeUTF8(char c, OutputStream out) throws IOException {
+        writeUTF8((int) c, out);
+    }
+
+    public static void writeUTF8(char c, FastByteArrayOutputStream out) {
+        writeUTF8((int) c, out);
+    }
+
+    public static void writeUTF8(int code, OutputStream out) throws IOException {
+        if((code & 0xffffff80) == 0) {
+            out.write(code);
+        } else if((code & 0xfffff800) == 0) { // 2 bytes.
+            out.write(0xc0 | (code >> 6));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0xffff0000) == 0) { // 3 bytes.
+            out.write(0xe0 | (code >> 12));
+            out.write(0x80 | ((code >> 6) & 0x3f));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0xff200000) == 0) { // 4 bytes.
+            out.write(0xf0 | (code >> 18));
+            out.write(0x80 | ((code >> 12) & 0x3f));
+            out.write(0x80 | ((code >> 6) & 0x3f));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0xf4000000) == 0) { // 5 bytes.
+            out.write(0xf8 | (code >> 24));
+            out.write(0x80 | ((code >> 18) & 0x3f));
+            out.write(0x80 | ((code >> 12) & 0x3f));
+            out.write(0x80 | ((code >> 6) & 0x3f));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0x80000000) == 0) { // 6 bytes.
+            out.write(0xfc | (code >> 30));
+            out.write(0x80 | ((code >> 24) & 0x3f));
+            out.write(0x80 | ((code >> 18) & 0x3f));
+            out.write(0x80 | ((code >> 12) & 0x3F));
+            out.write(0x80 | ((code >> 6) & 0x3F));
+            out.write(0x80 | (code & 0x3F));
+        } else {
+            throw new CharConversionException("Illegal character: " + Integer.toHexString(code));
+        }
+    }
+
+    public static void writeUTF8(int code, FastByteArrayOutputStream out) {
+        if((code & 0xffffff80) == 0) {
+            out.write(code);
+        } else if((code & 0xfffff800) == 0) { // 2 bytes.
+            out.write(0xc0 | (code >> 6));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0xffff0000) == 0) { // 3 bytes.
+            out.write(0xe0 | (code >> 12));
+            out.write(0x80 | ((code >> 6) & 0x3f));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0xff200000) == 0) { // 4 bytes.
+            out.write(0xf0 | (code >> 18));
+            out.write(0x80 | ((code >> 12) & 0x3f));
+            out.write(0x80 | ((code >> 6) & 0x3f));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0xf4000000) == 0) { // 5 bytes.
+            out.write(0xf8 | (code >> 24));
+            out.write(0x80 | ((code >> 18) & 0x3f));
+            out.write(0x80 | ((code >> 12) & 0x3f));
+            out.write(0x80 | ((code >> 6) & 0x3f));
+            out.write(0x80 | (code & 0x3f));
+        } else if((code & 0x80000000) == 0) { // 6 bytes.
+            out.write(0xfc | (code >> 30));
+            out.write(0x80 | ((code >> 24) & 0x3f));
+            out.write(0x80 | ((code >> 18) & 0x3f));
+            out.write(0x80 | ((code >> 12) & 0x3F));
+            out.write(0x80 | ((code >> 6) & 0x3F));
+            out.write(0x80 | (code & 0x3F));
+        } else {
+            throw new IllegalArgumentException("Illegal character: " + Integer.toHexString(code));
+        }
     }
 
 }
