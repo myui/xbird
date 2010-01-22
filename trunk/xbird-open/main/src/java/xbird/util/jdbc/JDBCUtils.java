@@ -517,6 +517,12 @@ public final class JDBCUtils {
     @Nonnull
     public static Pair<int[], int[]> getPartitioningKeys(@Nonnull final Connection conn, @Nonnull final String tableName)
             throws SQLException {
+        return getPartitioningKeys(conn, tableName, true, true);
+    }
+
+    @Nonnull
+    public static Pair<int[], int[]> getPartitioningKeys(@Nonnull final Connection conn, @Nonnull final String tableName, final boolean sort, final boolean removeDup)
+            throws SQLException {
         final List<String> keys = new ArrayList<String>();
         final DatabaseMetaData meta = conn.getMetaData();
         final String catalog = conn.getCatalog();
@@ -532,11 +538,15 @@ public final class JDBCUtils {
             rs1.close();
         }
         int[] pkeyIdxs = null;
+        String pkColumnName = null;
         final int pkeyColumns = keys.size();
         if(pkeyColumns != 0) {
             final int[] idxs = new int[pkeyColumns];
             for(int i = 0; i < pkeyColumns; i++) {
                 String columnName = keys.get(i);
+                if(pkeyColumns == 1 && i == 0) {
+                    pkColumnName = columnName;
+                }
                 ResultSet rs = meta.getColumns(catalog, null, tableName, columnName);
                 if(!rs.next()) {
                     throw new IllegalStateException("Existing primary key '" + columnName
@@ -546,6 +556,9 @@ public final class JDBCUtils {
                 idxs[i] = pos;
                 rs.close();
             }
+            if(sort) {
+                Arrays.sort(idxs);
+            }
             pkeyIdxs = idxs;
         }
         keys.clear();
@@ -554,8 +567,16 @@ public final class JDBCUtils {
         final ResultSet rs2 = meta.getImportedKeys(catalog, null, tableName);
         try {
             while(rs2.next()) {
-                String fk = rs2.getString("FKCOLUMN_NAME");
-                keys.add(fk);
+                final String fkColumnName = rs2.getString("FKCOLUMN_NAME");
+                if(keys.contains(fkColumnName)) {
+                    if(removeDup) {
+                        if(!fkColumnName.equals(pkColumnName)) {
+                            keys.add(fkColumnName);
+                        }
+                    } else {
+                        keys.add(fkColumnName);
+                    }
+                }
             }
         } finally {
             rs2.close();
@@ -574,6 +595,9 @@ public final class JDBCUtils {
                 int pos = rs.getInt("ORDINAL_POSITION");
                 idxs[i] = pos;
                 rs.close();
+            }
+            if(sort) {
+                Arrays.sort(idxs);
             }
             fkeyIdxs = idxs;
         }
