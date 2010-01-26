@@ -28,6 +28,7 @@ package xbird.client.command;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public abstract class CommandException extends Exception {
+    private static final long serialVersionUID = -3931271672892480277L;
 
     public CommandException() {
         super();
