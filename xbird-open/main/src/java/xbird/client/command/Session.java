@@ -29,7 +29,7 @@ import xbird.storage.*;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class Session {
+public final class Session {
     
     private DbCollection collection = null;
 
