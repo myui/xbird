@@ -568,7 +568,7 @@ public final class JDBCUtils {
         try {
             while(rs2.next()) {
                 final String fkColumnName = rs2.getString("FKCOLUMN_NAME");
-                if(keys.contains(fkColumnName)) {
+                if(!keys.contains(fkColumnName)) {
                     if(removeDup) {
                         if(!fkColumnName.equals(pkColumnName)) {
                             keys.add(fkColumnName);
