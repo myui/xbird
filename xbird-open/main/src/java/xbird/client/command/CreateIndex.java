@@ -26,6 +26,8 @@ import java.util.Map;
 
 import xbird.storage.DbCollection;
 import xbird.storage.DbException;
+import xbird.util.cmdline.CommandBase;
+import xbird.util.cmdline.CommandException;
 import xbird.util.lang.ArrayUtils;
 import xbird.util.resource.PropertyMap;
 import xbird.xquery.XQueryException;
@@ -49,8 +51,11 @@ public final class CreateIndex extends CommandBase {
     private static final int VALUE_IDX = 0, PATH_IDX = 1, FULLTEXT_IDX = 2;
     private static final String DATATYPE_CMD = "as";
 
+    private final Session session;
+
     public CreateIndex(Session session) {
-        super(session);
+        super();
+        this.session = session;
     }
 
     public boolean match(String[] args) {
@@ -66,7 +71,7 @@ public final class CreateIndex extends CommandBase {
         return true;
     }
 
-    public boolean process(String[] args) throws CommandFailedException {
+    public boolean process(String[] args) throws CommandException {
         final DbCollection col = session.getContextCollection();
         if(col == null) {
             throwException("Context collection is not set");

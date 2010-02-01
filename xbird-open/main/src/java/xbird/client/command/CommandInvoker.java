@@ -20,14 +20,21 @@
  */
 package xbird.client.command;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.kohsuke.args4j.*;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 
 import xbird.storage.DbCollection;
 import xbird.storage.DbException;
+import xbird.util.cmdline.Command;
+import xbird.util.cmdline.CommandException;
 import xbird.util.datetime.StopWatch;
 
 /**

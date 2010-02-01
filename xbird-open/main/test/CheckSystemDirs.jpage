@@ -1,3 +1,6 @@
 System.out.println(System.getProperty("user.dir"));
 System.out.println(System.getProperty("java.io.tmpdir"));
 System.out.println(System.getProperty("user.home"));
+
+String url = "jdbc:monetdb://localhost/tpch10";
+System.out.println(url.substring(0, url.lastIndexOf('/') + 1));

@@ -29,6 +29,8 @@ import xbird.config.Settings;
 import xbird.storage.DbCollection;
 import xbird.storage.DbException;
 import xbird.storage.tx.Transaction;
+import xbird.util.cmdline.CommandBase;
+import xbird.util.cmdline.CommandException;
 import xbird.util.io.FileUtils;
 import xbird.xquery.XQueryException;
 import xbird.xquery.dm.dtm.BigDocumentTable;
@@ -54,10 +56,12 @@ public class ImportDocument extends CommandBase {
 
     private static final String[] COMMAND = new String[] { "import", "document" };
 
+    private final Session session;
     private boolean recursive = false;
 
     public ImportDocument(Session session) {
-        super(session);
+        super();
+        this.session = session;
     }
 
     public boolean match(String[] args) {
@@ -78,7 +82,7 @@ public class ImportDocument extends CommandBase {
         }
     }
 
-    public boolean process(String[] args) throws CommandFailedException {
+    public boolean process(String[] args) throws CommandException {
         DbCollection col = session.getContextCollection();
         if(col == null) {
             throwException("Context collection is not set");

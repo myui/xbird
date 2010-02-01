@@ -45,10 +45,12 @@ public final class CacheFactory {
     /** Restricts an instantiation. */
     private CacheFactory() {}
 
+    @SuppressWarnings("unchecked")
     public static Cache createCache(String regionName) {
         return createCache(regionName, new Properties());
     }
 
+    @SuppressWarnings("unchecked")
     public static Cache createCache(String regionName, Properties props) {
         assert (props != null);
         String providerStr = Settings.get(PROP_CACHE_PROVIDER);
