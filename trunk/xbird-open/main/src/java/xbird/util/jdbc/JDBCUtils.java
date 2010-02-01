@@ -24,6 +24,7 @@ package xbird.util.jdbc;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +56,31 @@ public final class JDBCUtils {
     private static final boolean showSQL = "true".equalsIgnoreCase(Settings.get("xbird.showsql"));
 
     private JDBCUtils() {}
+
+    public static Connection getConnection(@Nonnull String connectUrl, @Nullable String driverClassName, @Nullable String userName, @Nullable String password)
+            throws ClassNotFoundException, SQLException {
+        if(driverClassName != null) {
+            Class.forName(driverClassName);
+        }
+        final Connection conn;
+        if(userName == null) {
+            conn = DriverManager.getConnection(connectUrl);
+        } else {
+            conn = DriverManager.getConnection(connectUrl, userName, password);
+        }
+        return conn;
+    }
+
+    public static Connection getConnection(@Nonnull String connectUrl, @Nullable String userName, @Nullable String password)
+            throws SQLException {
+        final Connection conn;
+        if(userName == null) {
+            conn = DriverManager.getConnection(connectUrl);
+        } else {
+            conn = DriverManager.getConnection(connectUrl, userName, password);
+        }
+        return conn;
+    }
 
     /**
      * Execute a batch of SQL INSERT, UPDATE, or DELETE queries.

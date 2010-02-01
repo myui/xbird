@@ -20,6 +20,8 @@
  */
 package xbird.client.command;
 
+import xbird.util.cmdline.CommandException;
+
 /**
  * 
  * <DIV lang="en"></DIV>

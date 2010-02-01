@@ -1,5 +1,5 @@
 /*
- * @(#)$Id: CommandException.java 3619 2008-03-26 07:23:03Z yui $
+ * @(#)$Id: Command.java 3619 2008-03-26 07:23:03Z yui $
  *
  * Copyright 2006-2008 Makoto YUI
  *
@@ -18,7 +18,9 @@
  * Contributors:
  *     Makoto YUI - initial implementation
  */
-package xbird.client.command;
+package xbird.util.cmdline;
+
+import java.util.Map;
 
 /**
  * 
@@ -27,24 +29,13 @@ package xbird.client.command;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public abstract class CommandException extends Exception {
-    private static final long serialVersionUID = -3931271672892480277L;
+public interface Command {
 
-    public CommandException() {
-        super();
-    }
+    Map<String, Option<?>> listOptions();
 
-    public CommandException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    boolean match(String[] args);
 
-    public CommandException(String message) {
-        super(message);
-    }
+    boolean process(String[] args) throws CommandException;
 
-    public CommandException(Throwable cause) {
-        super(cause);
-    }
-
-
+    String usage();
 }
