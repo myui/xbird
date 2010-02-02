@@ -268,7 +268,10 @@ public final class NetUtils {
         }
     }
 
-    public static String getMacAddress(final InetAddress addr) {
+    /**
+     * Usually returns MAC address (48 bits = 6 bytes).
+     */
+    public static byte[] getMacAddress(final InetAddress addr) {
         if(SystemUtils.getJavaVersion() < 1.6f) {
             return null; // getHardwareAddress is not supported
         }
@@ -285,19 +288,31 @@ public final class NetUtils {
             } catch (SocketException e) {
                 return null;
             }
-            final StringBuilder buf = new StringBuilder(30);
-            /*
-             * Extract each array of mac address and convert it to hexa with the
-             * following format 08-00-27-DC-4A-9E.
-             */
-            final int macLength = mac.length;
-            final int last = macLength - 1;
-            for(int i = 0; i < macLength; i++) {
-                String s = String.format("%02X%s", mac[i], (i == last) ? "" : "-");
-                buf.append(s);
-            }
-            return buf.toString();
+            return mac;
         }
         return null;
+    }
+
+    public static String getMacAddressStr(final InetAddress addr) {
+        final byte[] mac = getMacAddress(addr);
+        if(mac == null) {
+            return null;
+        }
+        return formatMacAddr(mac);
+    }
+
+    public static String formatMacAddr(final byte[] mac) {
+        final StringBuilder buf = new StringBuilder(30);
+        /*
+         * Extract each array of mac address and convert it to hexa with the
+         * following format 08-00-27-DC-4A-9E.
+         */
+        final int macLength = mac.length;
+        final int last = macLength - 1;
+        for(int i = 0; i < macLength; i++) {
+            String s = String.format("%02X%s", mac[i], (i == last) ? "" : "-");
+            buf.append(s);
+        }
+        return buf.toString();
     }
 }
