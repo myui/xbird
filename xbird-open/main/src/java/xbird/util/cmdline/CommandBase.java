@@ -20,7 +20,7 @@
  */
 package xbird.util.cmdline;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -37,20 +37,20 @@ public abstract class CommandBase implements Command {
     protected final Map<String, Option<?>> options;
 
     public CommandBase() {
-        this.options = listOptions();
+        options = new HashMap<String, Option<?>>(8);
     }
 
     public Map<String, Option<?>> listOptions() {
-        return Collections.emptyMap();
+        return options;
     }
 
-    protected final void addOption(Map<String, Option<?>> map, Option<?> opt) {
-        map.put(opt.getName().toLowerCase(), opt);
+    protected final void addOption(Option<?> opt) {
+        options.put(opt.getName().toLowerCase(), opt);
     }
 
-    protected final void addOption(Map<String, Option<?>> map, Option<?>... opts) {
+    protected final void addOption(Option<?>... opts) {
         for(Option<?> opt : opts) {
-            map.put(opt.getName().toLowerCase(), opt);
+            options.put(opt.getName().toLowerCase(), opt);
         }
     }
 

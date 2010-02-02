@@ -94,17 +94,17 @@ public abstract class Option<T> {
         return "Option [name=" + name + ", required=" + required + ", value=" + value + "]";
     }
 
-    public static final class IOption extends Option<Integer> {
+    public static final class IntOption extends Option<Integer> {
 
-        public IOption(String name, boolean required) {
+        public IntOption(String name, boolean required) {
             super(name, null, required);
         }
 
-        public IOption(String name, Integer defaultValue, boolean required) {
+        public IntOption(String name, Integer defaultValue, boolean required) {
             super(name, defaultValue, required);
         }
 
-        public IOption(String name, Integer defaultValue, boolean required, String help) {
+        public IntOption(String name, Integer defaultValue, boolean required, String help) {
             super(name, defaultValue, required, help);
         }
 
@@ -114,17 +114,17 @@ public abstract class Option<T> {
         }
     }
 
-    public static final class SOption extends Option<String> {
+    public static final class StringOption extends Option<String> {
 
-        public SOption(String name, boolean required) {
+        public StringOption(String name, boolean required) {
             super(name, null, required);
         }
 
-        public SOption(String name, String defaultValue, boolean required) {
+        public StringOption(String name, String defaultValue, boolean required) {
             super(name, defaultValue, required);
         }
 
-        public SOption(String name, String defaultValue, boolean required, String help) {
+        public StringOption(String name, String defaultValue, boolean required, String help) {
             super(name, defaultValue, required, help);
         }
 
