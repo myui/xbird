@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+     $Id: build.xml 2064 2007-06-03 23:29:13Z yui $                                                      
+
+     Copyright (c) 2005-2006 Makoto YUI (yuin405+xbird@gmail.com)
+	 All rights reserved.
+                   
+	 This file is part of XBiRD and is distributed under the terms of
+	 the Common Public License v1.0.                                                     
+====================================================================== -->
+
+<project name="project" default="all">
+	<description>
+    	Run JavaCC
+    </description>
+
+	<property environment="env" />
+	<property file="build.properties" />
+	<property name="src_dir" value="." />
+	<property name="target_dir" value="." />
+	<property name="target_name" value="XQueryParser" />
+	<!--<property name="jjt_output_dir" value="../expr"/>-->
+
+	<!-- ================================= 
+          target: default              
+         ================================= -->
+	<target name="javacc">
+		<javacc javacchome="${javacc_home}" outputdirectory="${target_dir}" target="${src_dir}/${target_name}.jj" />
+	</target>
+
+	<target name="jjdoc">
+		<jjdoc javacchome="${javacc_home}" target="${src_dir}/${target_name}.jj" outputfile="../../../../../../docs/parser/ParserBNF.html" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: depends                      
+         - - - - - - - - - - - - - - - - - -->
+	<!--
+    <target name="jjtree">
+		<jjtree javacchome="${javacc_home}"
+			outputdirectory="${target_dir}"
+			target="${src_dir}/${target_name}.jjt"/>
+    </target>
+	-->
+
+	<target name="clean">
+		<delete>
+			<fileset dir="${target_dir}">
+				<exclude name="*.jj" />
+				<exclude name="build.properties" />
+				<exclude name="build.xml" />
+				<exclude name="XQueryModule.java" />
+				<exclude name="SyntaxError.java" />
+				<exclude name="XQueryParserVisitor.java" />
+				<exclude name="visitor/*" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="all" depends="javacc, jjdoc" />
+
+</project>
+

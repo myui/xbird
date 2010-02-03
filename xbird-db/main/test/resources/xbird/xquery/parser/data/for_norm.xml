@@ -1,0 +1,12 @@
+<root>
+  <aaa><bbb>woh<ccc/></bbb><fff/></aaa>
+  <aaa>777</aaa>
+  <bbb>777</bbb>
+  <bbb><ddd>eee</ddd></bbb>
+  <ccc/>
+  <ccc>777</ccc>
+  <ddd>3</ddd>
+  <eee/>
+  <eee>3</eee>
+</root>
+

@@ -1,0 +1,205 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT genbank (INSDSeq)+>
+<!ATTLIST genbank
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq (INSDSeq_locus,INSDSeq_length,INSDSeq_moltype,
+                   INSDSeq_topology,INSDSeq_division,
+                   INSDSeq_update-date,INSDSeq_create-date,
+                   INSDSeq_definition,INSDSeq_primary-accession,
+                   INSDSeq_accession-version,INSDSeq_other-seqids,
+                   INSDSeq_keywords?,INSDSeq_source,INSDSeq_organism,
+                   INSDSeq_taxonomy,INSDSeq_references,INSDSeq_comment,
+                   INSDSeq_source-db,INSDSeq_feature-table,
+                   INSDSeq_sequence)>
+<!ATTLIST INSDSeq
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_locus (#PCDATA)>
+<!ATTLIST INSDSeq_locus
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_length (#PCDATA)>
+<!ATTLIST INSDSeq_length
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_moltype (#PCDATA)>
+<!ATTLIST INSDSeq_moltype
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_topology (#PCDATA)>
+<!ATTLIST INSDSeq_topology
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_division (#PCDATA)>
+<!ATTLIST INSDSeq_division
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_update-date (#PCDATA)>
+<!ATTLIST INSDSeq_update-date
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_create-date (#PCDATA)>
+<!ATTLIST INSDSeq_create-date
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_definition (#PCDATA)>
+<!ATTLIST INSDSeq_definition
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_primary-accession (#PCDATA)>
+<!ATTLIST INSDSeq_primary-accession
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_accession-version (#PCDATA)>
+<!ATTLIST INSDSeq_accession-version
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_other-seqids (INSDSeqid)+>
+<!ATTLIST INSDSeq_other-seqids
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_keywords (INSDKeyword)>
+<!ATTLIST INSDSeq_keywords
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_source (#PCDATA)>
+<!ATTLIST INSDSeq_source
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_organism (#PCDATA)>
+<!ATTLIST INSDSeq_organism
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_taxonomy (#PCDATA)>
+<!ATTLIST INSDSeq_taxonomy
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_references (INSDReference)+>
+<!ATTLIST INSDSeq_references
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_comment (#PCDATA)>
+<!ATTLIST INSDSeq_comment
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_source-db (#PCDATA)>
+<!ATTLIST INSDSeq_source-db
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_feature-table (INSDFeature)+>
+<!ATTLIST INSDSeq_feature-table
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeq_sequence (#PCDATA)>
+<!ATTLIST INSDSeq_sequence
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDSeqid (#PCDATA)>
+<!ATTLIST INSDSeqid
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDKeyword (#PCDATA)>
+<!ATTLIST INSDKeyword
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference (INSDReference_reference,INSDReference_position,
+                         INSDReference_authors?,
+                         INSDReference_consortium?,INSDReference_title,
+                         INSDReference_journal,INSDReference_pubmed?)>
+<!ATTLIST INSDReference
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDFeature (INSDFeature_key,INSDFeature_location,
+                       INSDFeature_intervals,INSDFeature_partial5?,
+                       INSDFeature_partial3?,INSDFeature_quals)>
+<!ATTLIST INSDFeature
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_reference (#PCDATA)>
+<!ATTLIST INSDReference_reference
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_position (#PCDATA)>
+<!ATTLIST INSDReference_position
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_authors (INSDAuthor)+>
+<!ATTLIST INSDReference_authors
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_consortium (#PCDATA)>
+<!ATTLIST INSDReference_consortium
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_title (#PCDATA)>
+<!ATTLIST INSDReference_title
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_journal (#PCDATA)>
+<!ATTLIST INSDReference_journal
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDReference_pubmed (#PCDATA)>
+<!ATTLIST INSDReference_pubmed
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDFeature_key (#PCDATA)>
+<!ATTLIST INSDFeature_key
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDFeature_location (#PCDATA)>
+<!ATTLIST INSDFeature_location
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDFeature_intervals (INSDInterval)>
+<!ATTLIST INSDFeature_intervals
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDFeature_partial5 EMPTY>
+<!ATTLIST INSDFeature_partial5
+  xmlns CDATA #FIXED ''
+  value  #REQUIRED>
+
+<!ELEMENT INSDFeature_partial3 EMPTY>
+<!ATTLIST INSDFeature_partial3
+  xmlns CDATA #FIXED ''
+  value  #REQUIRED>
+
+<!ELEMENT INSDFeature_quals (INSDQualifier)+>
+<!ATTLIST INSDFeature_quals
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDAuthor (#PCDATA)>
+<!ATTLIST INSDAuthor
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDInterval (INSDInterval_from,INSDInterval_to,
+                        INSDInterval_accession)>
+<!ATTLIST INSDInterval
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDQualifier (INSDQualifier_name,INSDQualifier_value?)>
+<!ATTLIST INSDQualifier
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDInterval_from (#PCDATA)>
+<!ATTLIST INSDInterval_from
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDInterval_to (#PCDATA)>
+<!ATTLIST INSDInterval_to
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDInterval_accession (#PCDATA)>
+<!ATTLIST INSDInterval_accession
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDQualifier_name (#PCDATA)>
+<!ATTLIST INSDQualifier_name
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT INSDQualifier_value (#PCDATA)>
+<!ATTLIST INSDQualifier_value
+  xmlns CDATA #FIXED ''>

@@ -1,0 +1,5119 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="EN" xmlns="http://www.w3.org/1999/xhtml" xml:lang="EN">
+<head>
+<meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org"/>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title>Building a Tokenizer for XPath or XQuery</title>
+
+<style type="text/css">
+/*<![CDATA[*/
+.wsspec      { font-family: monospace; font-size: small; font-style: italic }      
+.xpath         { color: red; background-color: white }
+.xquery      { color: green; background-color: white }
+
+.xpath:link { color: red; background-color: white }
+.xpath:visited { color: red; background-color: white }
+
+.shared:link { color: black; background-color: white }
+.shared:visited { color: black; background-color: white }
+
+.xquery:link { color: green; background-color: white }
+.xquery:visited { color: green; background-color: white }
+
+
+code           { font-family: monospace; }
+
+div.constraint,
+div.issue,
+div.note,
+div.notice     { margin-left: 2em; }
+
+ol.enumar      { list-style-type: decimal; }
+ol.enumla      { list-style-type: lower-alpha; }
+ol.enumlr      { list-style-type: lower-roman; }
+ol.enumua      { list-style-type: upper-alpha; }
+ol.enumur      { list-style-type: upper-roman; }
+
+li p           { margin-top: 0.3em;
+                 margin-bottom: 0.3em; }
+
+
+div.exampleInner pre { margin-left: 1em;
+                       margin-top: 0em; margin-bottom: 0em}
+div.exampleOuter {border: 4px double gray;
+                  margin: 0em; padding: 0em}
+div.exampleInner { background-color: #d5dee3;
+                   border-top-width: 4px;
+                   border-top-style: double;
+                   border-top-color: #d3d3d3;
+                   border-bottom-width: 4px;
+                   border-bottom-style: double;
+                   border-bottom-color: #d3d3d3;
+                   padding: 4px; margin: 0em }
+div.exampleWrapper { margin: 4px }
+div.exampleHeader { font-weight: bold;
+                    margin: 4px}
+
+table.small    { font-size: x-small; }
+/*]]>*/
+</style>
+<link type="text/css" rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD.css"/>
+</head>
+<body>
+<div class="head">
+<p><a href="http://www.w3.org/"><img width="72" height="48" alt="W3C" src="http://www.w3.org/Icons/w3c_home"/></a></p>
+<h1><a id="title" name="title"></a>Building a Tokenizer for XPath or XQuery</h1>
+<h2><a id="w3c-doctype" name="w3c-doctype"></a>W3C Working Draft 4 April 2005</h2>
+<dl>
+<dt>This version:</dt>
+<dd><a href="http://www.w3.org/TR/2005/WD-xquery-xpath-parsing-20050404/">http://www.w3.org/TR/2005/WD-xquery-xpath-parsing-20050404/</a></dd>
+<dt>Latest version:</dt>
+<dd><a href="http://www.w3.org/TR/xquery-xpath-parsing/">http://www.w3.org/TR/xquery-xpath-parsing/</a></dd>
+<dt>Editor:</dt>
+<dd>Scott Boag (XSL WG), IBM Research <a href="mailto:%20scott_boag@us.ibm.com">&lt;scott_boag@us.ibm.com&gt;</a></dd>
+</dl>
+<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2005 <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup> (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>, <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>, <a href="http://www.keio.ac.jp/">Keio</a>),
+All Rights Reserved. W3C <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.</p>
+</div>
+<hr/>
+<div>
+<h2><a id="abstract" name="abstract"></a>Abstract</h2>
+<p>This document describes possible strategies for tokenizing the <a href="#xpath20">[XML Path Language (XPath) 2.0]</a> and <a href="#xquery">[XQuery 1.0: An XML Query Language]</a> languages, and is provided as a helpful guide to those who are designing an implementation for these languages, and as background material for the normative EBNF found in the language specifications. In the future this document may be expanded to cover more general parsing strategies.</p>
+</div>
+<div>
+<h2><a id="status" name="status"></a>Status of this Document</h2>
+<p><em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current W3C publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a> at http://www.w3.org/TR/.</em></p>
+<p>This is a public W3C Working Draft for review by W3C Members and other interested parties. Publication as a Working Draft does not imply endorsement by the W3C Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress.</p>
+<p>Building a Tokenizer for XPath or XQuery has been defined through the efforts of a joint task force of the <a href="http://www.w3.org/XML/Query">XML Query Working Group</a> and the <a href="http://www.w3.org/Style/XSL/">XSL Working Group</a> (both part of the <a href="http://www.w3.org/XML/Activity.html">XML Activity</a>). It is designed to be read in conjunction with the following documents: <a href="#xpath20">[XML Path Language (XPath) 2.0]</a> and <a href="#xquery">[XQuery 1.0: An XML Query
+Language]</a>.</p>
+<p>This is the first public Working Draft of these guidelines. Public comments on this document are invited. Comments should be entered into the last-call issue tracking system for this specification (instructions can be found at <a href="http://www.w3.org/XML/2005/04/qt-bugzilla">http://www.w3.org/XML/2005/04/qt-bugzilla</a>). If access to that system is not feasible, you may send your comments to the W3C XPath/XQuery mailing list, <a href="mailto:%20public-qt-comments@w3.org">public-qt-comments@w3.org</a> (archived at <a href="http://lists.w3.org/Archives/Public/public-qt-comments/">http://lists.w3.org/Archives/Public/public-qt-comments/</a>), with &#x201C;[Parsing]&#x201D; at the beginning of the subject field.</p>
+<p>As of this publication, the Working Group expects to eventually publish this document as a Working Group Note. It is not expected to become a W3C Recommendation, and therefore it has no associated <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">W3C Patent Policy</a> licensing obligations. If this expectation changes, the Working Group will have an opportunity to fulfill the associated patent policy requirements with respect to a future draft.</p>
+</div>
+<div class="toc">
+<h2><a id="contents" name="contents"></a>Table of Contents</h2>
+<p class="toc">1 <a href="#N100A4">Introduction</a><br/>
+    1.1 <a href="#N100B8">Structure of Parsers</a><br/>
+    1.2 <a href="#N100D0">Lexical Scanning Strategies</a><br/>
+        1.2.1 <a href="#N100FD">Token Granularity</a><br/>
+    1.3 <a href="#N1012C">Parser Strategies</a><br/>
+2 <a href="#N1015D">Lexical Processing</a><br/>
+    2.1 <a href="#id-lexical-states">Lexical States</a><br/>
+        2.1.1 <a href="#XQuery-lexical-states">XQuery Lexical States</a><br/>
+        2.1.2 <a href="#XPath-lexical-states">XPath Lexical States</a><br/></p>
+<h3><a id="appendices" name="appendices"></a>Appendices</h3>
+<p class="toc">A <a href="#nt-bnf">XPath/XQuery Grammar</a><br/>
+    A.1 <a href="#id-grammar">EBNF</a><br/>
+        A.1.1 <a href="#XPath-EBNF">XPath EBNF</a><br/>
+        A.1.2 <a href="#XQuery-EBNF">XQuery EBNF</a><br/>
+B <a href="#id-references">References</a><br/>
+    B.1 <a href="#id-non-normative-references">Main References</a><br/>
+C <a href="#id-glossary">Glossary</a> (Non-Normative)<br/></p>
+<p class="toc"><a href="#endnotes">End Notes</a></p>
+</div>
+<hr/>
+<div class="body">
+<div class="div1">
+<h2><a id="N100A4" name="N100A4"></a>1 Introduction</h2>
+<p>The XQuery language is, for the most part, a super-set of the smaller XPath language <sup>[<a href="#N100A9" id="FN-ANCH-N100A9" name="FN-ANCH-N100A9">1</a>]</sup>. XPath is designed to be a simple addressing and expression language, while XQuery includes prologue declarations, function, variable, and extension declarations, XML element construction, and advanced iteration constructs. These languages do not contain reserved keywords, which is to say data references in the form of QNames are designed to
+never overlap with keywords in the language. In order to achieve the combination of expression language, directory-style addressing, prologue declarations, type matching, and XML element construction, the meaning of the tokens are extremely context dependent. For instance, the string <code>div</code> may be an element reference, or may be a division operator. Likewise, the <code>*</code> might be a wildcard element reference, may be a multiplication operator, or may be a kleene operator.</p>
+<p>As illustration, the following is a very unlikely, but legal, XQuery example:</p>
+<div class="exampleInner">
+<pre>
+declare namespace namespace = "http://example.com"; 
+declare union &lt;union&gt;for gibberish {
+   for $for in for return &lt;for&gt;***div div&lt;/for&gt;
+}&lt;/union&gt;, 
+if(if) then then else else- +-++-**-* instance 
+of element(*)* * * **---++div- div -div
+</pre></div>
+<div class="div2">
+<h3><a id="N100B8" name="N100B8"></a>1.1 Structure of Parsers</h3>
+<p>XPath and XQuery parsers may be either top-down or bottom-up. Traditionally, the parsing process is decomposed into subcomponents:</p>
+<ol class="enumar">
+<li>
+<p>[<a title="lexical scanner" id="lexer" name="lexer">Definition</a>: <b>Lexical scanner</b>, which assigns symbols known as tokens to units in the input, in essence recognizing the basic words and punctuation of the language. Typically, the lexer uses regular expressions as a specification for how to do this tokenization. The rules that govern the lexical structure of the language, sometimes known as microsyntax, should be simple, regular, and as context-free as possible.]</p>
+</li>
+<li>
+<p>[<a title="parser" id="parser" name="parser">Definition</a>: <b>Parser</b>, which arranges the tokens into a hierarchical structure. Typically, the parser uses a BNF or variant description (EBNF in the case of XPath/XQuery) as a specification for this parsing.]</p>
+</li>
+</ol>
+<p>Since the tokenization of XPath/XQuery is so context dependent, this breakdown may not be as simple as with other programming languages. Furthermore, the granularity of tokenization is an issue.</p>
+</div>
+<div class="div2">
+<h3><a id="N100D0" name="N100D0"></a>1.2 Lexical Scanning Strategies</h3>
+<p>We can speculate on an enumeration of some strategies for implementing a <a title="lexical scanner" href="#lexer">lexical scanner</a> as follows:</p>
+<ol class="enumar">
+<li>
+<p>[<a title="Scan-while-parse scanner" id="scan-while-parse" name="scan-while-parse">Definition</a>: <b>Scan-while-parse scanner</b>. Using this strategy, the parser would evaluate the character stream into tokens, while at the same time branching to the respective hierarchical context. Thus the words can be discovered in context. Complex parsers are typically not built in this fashion, but, given the issue of context sensitivity, this may be a reasonable approach. This would probably be implemented as a
+hand-constructed recursive-descent parser. ]</p>
+</li>
+<li>
+<p>[<a title="fuzzy token scanner" id="fuzzy-token-scanner" name="fuzzy-token-scanner">Definition</a>: <b>Fuzzy token scanner</b>. Using this strategy, a typical simple lexical scanner is implemented, but the meaning of the tokens are often left somewhat ambiguous. Thus, the word <code>div</code> might be assigned the symbol QNameOrKeyword. The words can be disambiguated during the context sensitive parse process. This approach would probably be a hand-constructed, Top-down parser.]</p>
+</li>
+<li>
+<p>[<a title="two-pass scanner" id="two-pass-scanner" name="two-pass-scanner">Definition</a>: <b>Two-pass scanner</b>. This is the same as the Fuzzy token scanner, but the ambiguous words can be disambiguated by a second scan, using some rules (probably expressed as a context-free grammar) that reflect the basic structure of the EBNF (call this the three-pass approach). The three-pass approach could conceivably be implemented via a parser constructor program, with the addition of a custom disambiguator in
+between the lexer and parser. This method could be used for either Top-down or Bottom-up techniques.]</p>
+</li>
+<li>
+<p>[<a title="state-driven scanner" id="state-driven-scanner" name="state-driven-scanner">Definition</a>: <b>State-driven scanner</b>. This approach recognizes sets of words only in certain states, each word or punctuation possibly transitioning to a next state. In other words, it implements lexical recognition as transition tables for a push-down automata.]</p>
+</li>
+</ol>
+<div class="div3">
+<h4><a id="N100FD" name="N100FD"></a>1.2.1 Token Granularity</h4>
+<p>In XPath/XQuery, the meaning of a word may often be determined by the words and punctuation ahead of it. Thus, the word <code>if</code> is only the "if" keyword if it is followed by a left-parenthesis (ignoring whitespace). Likewise, the word <code>declare</code> may be a QName, or may be part of a NamespaceDecl in the prolog, if followed by a <code>namespace</code> word. Inversely, <code>namespace</code> is determined to be a keyword verses a QName by it's appearance after <code>declare</code>. In the
+XQuery and XPath specifications, in the EBNF appendix, the notation "&lt; ... &gt;" is used to indicate a grouping of terminals that together may help disambiguate the individual symbols.</p>
+<p>A scanner might take one of two approaches for assigning token units to the character stream:</p>
+<ul>
+<li>
+<p>[<a title="short token" id="short-token" name="short-token">Definition</a>: <b>Short tokens</b>. Using this approach, <code>declare namespace</code> would be considered two tokens, the exact symbols assigned based on lexical look-ahead (and look-behind).] In this case, a parser that has at least a look-ahead of two tokens is required (in particular, a two-token look-ahead should be sufficient for a LALR parser).</p>
+</li>
+<li>
+<p>[<a title="long token" id="long-token" name="long-token">Definition</a>: <b>Long tokens</b>. Using this approach, <code>declare namespace</code> would be considered a single token.] In this case, a parser that has a look-ahead of only one token can be implemented.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="div2">
+<h3><a id="N1012C" name="N1012C"></a>1.3 Parser Strategies</h3>
+<p>The general strategies for implementing the <a title="parser" href="#parser">parser</a> are as follows:</p>
+<ol class="enumar">
+<li>
+<p>Recursive-descent parser. For our purposes, this term means a hand-constructed, recursive descent parser.</p>
+</li>
+<li>
+<p>[<a title="LL Parser" id="ll-parser" name="ll-parser">Definition</a>: <b>LL Parser</b> (<em>L</em>eft to right, <em>L</em>eftmost derivation, hence LL). ] The XPath/XQuery EBNF is expressed as an LL(1) grammar, so an LL parser can use the EBNF from the specifications fairly directly.</p>
+</li>
+<li>
+<p>[<a title="LALR Parser" id="lalr-parser" name="lalr-parser">Definition</a>: <b>LALR Parser</b> (<em>L</em>ook <em>A</em>head <em>L</em>eft to right, <em>R</em>ightmost derivation, hence LALR). ] The XPath/XQuery EBNF is expressed as an LL(1) grammar, so an LALR parser must use what is essentially an inverted form of the original EBNF.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="div1">
+<h2><a id="N1015D" name="N1015D"></a>2 Lexical Processing</h2>
+<div class="div2">
+<h3><a id="id-lexical-states" name="id-lexical-states"></a>2.1 Lexical States</h3>
+<p>Many <a title="lexical scanner" href="#lexer">lexical scanner</a> generators will allow specifications of tokens that are recognized based on some condition. It is possible to condition the XQuery and XPath token recognition in a <a title="lexical scanner" href="#lexer">lexical scanner</a> in terms of a series of states and transitions between those states.</p>
+<p>[<a title="lexical state" id="lexical-state" name="lexical-state">Definition</a>: A <b>lexical state</b> is a condition where a defined set of patterns are recognized.] The tables below define the complete lexical rules for [XPath/XQuery]. Each two column table corresponds to a lexical state and lists in the first column the tokens that are recognized when in that state. Any token not listed should result in a syntax error when in that state. When a given token is recognized in the given state, the
+transition to the next state and/or a lexical action is given in the right column. [<a title="lexical action" id="lexical-action" name="lexical-action">Definition</a>: A <b>lexical action</b> is an action that occurs as an side-effect of a pattern recognition.] Following are a list of lexical actions used in the tables:</p>
+<dl>
+<dt class="label"><a id="lexaction-pushstate" name="lexaction-pushstate"></a>pushState()</dt>
+<dd>
+<p>The current state, <em>before the transition</em>, is pushed onto an abstract stack.</p>
+</dd>
+<dt class="label"><a id="lexaction-pushstate-with-param" name="lexaction-pushstate-with-param"></a>pushState(<em>STATE</em>)</dt>
+<dd>
+<p>A STATE parameter is pushed onto an abstract stack.</p>
+</dd>
+<dt class="label"><a id="lexaction-popstate" name="lexaction-popstate"></a>popState()</dt>
+<dd>
+<p>The most recently pushed state is removed from the top of the stack, and becomes the current state.</p>
+</dd>
+<dt class="label"><a id="lexaction-backup" name="lexaction-backup"></a>input_stream.backup(<em>n</em>)</dt>
+<dd>
+<p>This is a special action that backs up the character stream by <em>n</em> characters. See the <a href="#OCCURRENCEINDICATOR_xquery">description of the OCCURRENCEINDICATOR state</a> for more information.</p>
+</dd>
+<dt class="label"><a id="lexaction-maintain-state" name="lexaction-maintain-state"></a>(maintain state)</dt>
+<dd>
+<p>This simply means that the current state is maintained with no modification.</p>
+</dd>
+</dl>
+<p>The lexical states have, in many cases, close connection to the parser productions. However, just because a token is recognized in a certain lexical state, does not mean it will be legal in the current EBNF production.</p>
+<div>
+<p>The XQuery EBNF has some places where whitespace has explicit specification, which is to say, whitespace is not ignored in these states: <a href="#START_TAG_xquery">START_TAG</a>, <a href="#END_TAG_xquery">END_TAG</a>, <a href="#ELEMENT_CONTENT_xquery">ELEMENT_CONTENT</a>, <a href="#XML_COMMENT_xquery">XML_COMMENT</a>, <a href="#PROCESSING_INSTRUCTION_xquery">PROCESSING_INSTRUCTION</a>, <a href="#PROCESSING_INSTRUCTION_CONTENT_xquery">PROCESSING_INSTRUCTION_CONTENT</a>, <a href="#CDATA_SECTION_xquery">CDATA_SECTION</a>, <a href="#QUOT_ATTRIBUTE_CONTENT_xquery">QUOT_ATTRIBUTE_CONTENT</a>, and <a href="#APOS_ATTRIBUTE_CONTENT_xquery">APOS_ATTRIBUTE_CONTENT</a>.</p>
+</div>
+<table border="1" summary="Editorial note">
+<tr>
+<td width="50%" valign="top" align="left"><b>Editorial note</b></td>
+<td width="50%" valign="top" align="right"> </td>
+</tr>
+<tr>
+<td valign="top" align="left" colspan="2">The following tables were hand-constructed and have <em>not</em>, at the time of this writing, been exhaustively verified against all possible paths that may be legal in the XQuery and XPath EBNFs, which is to say, it is possible they contain bugs.</td>
+</tr>
+</table>
+<div class="div3">
+<h4><a id="XQuery-lexical-states" name="XQuery-lexical-states"></a>2.1.1 XQuery Lexical States</h4>
+<dl>
+<dt class="label"><a id="DEFAULT_xquery" name="DEFAULT_xquery"></a>The DEFAULT State</dt>
+<dd>
+<p>This state is for patterns that occur at the beginning of an expression or subexpression.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-DecimalLiteral">DecimalLiteral</a>, <span>".."</span>, <span>"."</span>, <a href="#prod-xquery-DoubleLiteral">DoubleLiteral</a>, <a href="#prod-xquery-IntegerLiteral">IntegerLiteral</a>, NotNumber, &lt;<a href="#prod-xquery-NCName">NCName</a> ":" "*"&gt;, <a href="#prod-xquery-QName">QName</a>, ")", <span>&lt;"*" ":" <a href="#prod-xquery-NCName">NCName</a>&gt;</span>, "*", <a href="#prod-xquery-StringLiteral">StringLiteral</a>, &lt;"declare" "construction"&gt;, &lt;"declare"
+"default" "order"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "default" "collation"&gt;, &lt;"declare" "namespace"&gt;, &lt;"module" "namespace"&gt;, &lt;"declare" "base-uri"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "default" "element"&gt;, &lt;"declare" "default" "function"&gt;, &lt;"import" "schema"&gt;, &lt;"import" "module"&gt;, &lt;"declare" "copy-namespaces"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEKEYWORD_xquery">NAMESPACEKEYWORD</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"$", &lt;<span>"for"</span> <span>"$"</span>&gt;, &lt;"let" "$"&gt;, <span>&lt;"some" "$"&gt;</span>, <span>&lt;"every" "$"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#VARNAME_xquery">VARNAME</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "variable" "$"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#VARNAME_xquery">VARNAME</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;")" "as"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ITEMTYPE_xquery">ITEMTYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"element" "("&gt;</span>, <span>&lt;"attribute" "("&gt;</span>, <span>&lt;"schema-element" "("&gt;</span>, <span>&lt;"schema-attribute" "("&gt;</span>, &lt;<span>"comment"</span> <span>"("</span>&gt;, &lt;<span>"text"</span> <span>"("</span>&gt;, &lt;<span>"node"</span> <span>"("</span>&gt;, <span>&lt;</span>"document-node" <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTEST_xquery">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;<span>"processing-instruction"</span> <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTESTFORPI_xquery">KINDTESTFORPI</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;!--"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#XML_COMMENT_xquery">XML_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;?"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#PROCESSING_INSTRUCTION_xquery">PROCESSING_INSTRUCTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;![CDATA["</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#CDATA_SECTION_xquery">CDATA_SECTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#START_TAG_xquery">START_TAG</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "boundary-space"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#XMLSPACE_DECL_xquery">XMLSPACE_DECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"}"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"validate" "{"&gt;, &lt;"validate" <a href="#prod-xquery-ValidationMode">ValidationMode</a>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"typeswitch" "("&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"element" "{"&gt;, &lt;"attribute" "{"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"attribute" <a href="#prod-xquery-QName">QName</a> "{"&gt;, &lt;"element" <a href="#prod-xquery-QName">QName</a> "{"&gt;, &lt;"document" "{"&gt;, &lt;"text" "{"&gt;, &lt;"processing-instruction" "{"&gt;, &lt;"processing-instruction" <a href="#prod-xquery-NCName">NCName</a> "{"&gt;, &lt;"comment" "{"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "function"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"{", &lt;"ordered" "{"&gt;, &lt;"unordered" "{"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "ordering"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DECLAREORDERING_xquery">DECLAREORDERING</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"xquery" "version"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#XQUERYVERSION_xquery">XQUERYVERSION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"(#"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#PRAGMA_xquery">PRAGMA</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"declare" "option"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPTION_xquery">OPTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"at" <a href="#prod-xquery-URILiteral">URILiteral</a>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>";", ",", "(", &lt;<a href="#prod-xquery-QName">QName</a> "("&gt;, <span>&lt;</span>"if" <span>"("</span>&gt;, <span>"-"</span>, <span>"+"</span>, <span>"//"</span>, <span>"/"</span>, <span>&lt;</span>"ancestor-or-self" <span>"::"</span>&gt;, <span>&lt;</span>"ancestor" <span>"::"</span>&gt;, &lt;"attribute" "::"&gt;, &lt;"child" "::"&gt;, &lt;"descendant-or-self" "::"&gt;, &lt;"descendant" "::"&gt;, <span>&lt;</span>"following-sibling" <span>"::"</span>&gt;, <span>&lt;</span>"following"
+<span>"::"</span>&gt;, &lt;"parent" "::"&gt;, <span>&lt;</span>"preceding-sibling" <span>"::"</span>&gt;, <span>&lt;</span>"preceding" <span>"::"</span>&gt;, &lt;"self" "::"&gt;, <span>"@"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="DECLAREORDERING_xquery" name="DECLAREORDERING_xquery"></a>The DECLAREORDERING State</dt>
+<dd>
+<p>Special state to recognize declare ordering specific keywords.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"ordered", "unordered"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="OPERATOR_xquery" name="OPERATOR_xquery"></a>The OPERATOR State</dt>
+<dd>
+<p>This state is for patterns that are defined for operators.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"{"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>";", <span>"then"</span>, <span>"else"</span>, "external", <span>"and"</span>, "at", ":=", ",", <span>"div"</span>, <span>"="</span>, <span>"except"</span>, <span>"eq"</span>, <span>"ge"</span>, <span>"gt"</span>, <span>"le"</span>, <span>"lt"</span>, <span>"ne"</span>, <span>"&gt;="</span>, <span>"&gt;&gt;"</span>, <span>"&gt;"</span>, <span>"idiv"</span>, <span>"intersect"</span>, <span>"in"</span>, <span>"is"</span>, <span>"["</span>, <span>"&lt;="</span>, <span>"&lt;&lt;"</span>,
+<span>"&lt;"</span>, <span>"-"</span>, <span>"mod"</span>, <span>"*"</span>, <span>"!="</span>, &lt;"order" "by"&gt;, &lt;"stable" "order" "by"&gt;, <span>"or"</span>, <span>"+"</span>, "return", <span>"satisfies"</span>, <span>"//"</span>, <span>"/"</span>, <span>"to"</span>, <span>"union"</span>, <span>"|"</span>, "where", ("preserve" | "strip")</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"castable" "as"&gt;</span>, <span>&lt;"cast" "as"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#SINGLETYPE_xquery">SINGLETYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"instance" "of"&gt;</span>, <span>&lt;"treat" "as"&gt;</span>, "case", "as", &lt;")" "as"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ITEMTYPE_xquery">ITEMTYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"}"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"$", &lt;<span>"for"</span> <span>"$"</span>&gt;, &lt;"let" "$"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#VARNAME_xquery">VARNAME</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>")", <span>"?"</span>, &lt;"empty" "greatest"&gt;, &lt;"empty" "least"&gt;, "ascending", "descending", "default", <span>"]"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"collation"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#URITOOPERATOR_xquery">URITOOPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-StringLiteral">StringLiteral</a>, NotOperatorKeyword</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="XQUERYVERSION_xquery" name="XQUERYVERSION_xquery"></a>The XQUERYVERSION State</dt>
+<dd>
+<p>This state is for recognition of XQuery version specific keywords.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>";"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-StringLiteral">StringLiteral</a>, "encoding"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#XQUERYVERSION_xquery">XQUERYVERSION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="NAMESPACEDECL_xquery" name="NAMESPACEDECL_xquery"></a>The NAMESPACEDECL State</dt>
+<dd>
+<p>This state occurs inside of a namespace declaration, and is needed to recognize a NCName that is to be used as the prefix, as opposed to allowing a QName to occur. (Otherwise, the difference between NCName and QName are ambiguous.)</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-URILiteral">URILiteral</a>, ",", &lt;"at" <a href="#prod-xquery-URILiteral">URILiteral</a>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"=", <a href="#prod-xquery-NCName">NCName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>";"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="URITOOPERATOR_xquery" name="URITOOPERATOR_xquery"></a>The URITOOPERATOR State</dt>
+<dd>
+<p>This state is to recognize a URILiteral that transits to the OPERATOR state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-URILiteral">URILiteral</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="NAMESPACEKEYWORD_xquery" name="NAMESPACEKEYWORD_xquery"></a>The NAMESPACEKEYWORD State</dt>
+<dd>
+<p>This state occurs at places where the keyword "namespace" is expected, which would otherwise be ambiguous compared to a QName. QNames can not occur in this state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-URILiteral">URILiteral</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"inherit", "no-inherit"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"namespace"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"default" "element"&gt;, "preserve", "no-preserve", ","</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEKEYWORD_xquery">NAMESPACEKEYWORD</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="XMLSPACE_DECL_xquery" name="XMLSPACE_DECL_xquery"></a>The XMLSPACE_DECL State</dt>
+<dd>
+<p>This state occurs at places where the keywords "preserve" and "strip" is expected to support "declare xmlspace". QNames can not occur in this state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"preserve", "strip"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="SINGLETYPE_xquery" name="SINGLETYPE_xquery"></a>The SINGLETYPE State</dt>
+<dd>
+<p>This state distinguishes tokens that can occur only inside the SingleType production.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="ITEMTYPE_xquery" name="ITEMTYPE_xquery"></a>The ITEMTYPE State</dt>
+<dd>
+<p>This state distinguishes tokens that can occur only inside the ItemType production.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"$"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#VARNAME_xquery">VARNAME</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;</span>"void" <span>"("</span> <span>")"</span>&gt;, <a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"element" "("&gt;</span>, <span>&lt;"attribute" "("&gt;</span>, <span>&lt;"schema-element" "("&gt;</span>, <span>&lt;"schema-attribute" "("&gt;</span>, &lt;<span>"comment"</span> <span>"("</span>&gt;, &lt;<span>"text"</span> <span>"("</span>&gt;, &lt;<span>"node"</span> <span>"("</span>&gt;, <span>&lt;</span>"document-node" <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OCCURRENCEINDICATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTEST_xquery">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;<span>"processing-instruction"</span> <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OCCURRENCEINDICATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTESTFORPI_xquery">KINDTESTFORPI</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-QName">QName</a>, <span>&lt;"item" "(" ")"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OCCURRENCEINDICATOR_xquery">OCCURRENCEINDICATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"(#"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#PRAGMA_xquery">PRAGMA</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>";", <span>"then"</span>, <span>"else"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;"at" <a href="#prod-xquery-URILiteral">URILiteral</a>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#NAMESPACEDECL_xquery">NAMESPACEDECL</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"external", <span>"and"</span>, "at", ":=", ",", <span>"div"</span>, <span>"="</span>, <span>"except"</span>, <span>"eq"</span>, <span>"ge"</span>, <span>"gt"</span>, <span>"le"</span>, <span>"lt"</span>, <span>"ne"</span>, <span>"&gt;="</span>, <span>"&gt;&gt;"</span>, <span>"&gt;"</span>, <span>"idiv"</span>, <span>"intersect"</span>, <span>"in"</span>, <span>"is"</span>, <span>"["</span>, "(", <span>"&lt;="</span>, <span>"&lt;&lt;"</span>, <span>"&lt;"</span>, <span>"-"</span>, <span>"mod"</span>,
+<span>"!="</span>, &lt;"order" "by"&gt;, &lt;"stable" "order" "by"&gt;, <span>"or"</span>, "return", <span>"satisfies"</span>, <span>"to"</span>, <span>"union"</span>, <span>"|"</span>, "where"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"castable" "as"&gt;</span>, <span>&lt;"cast" "as"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#SINGLETYPE_xquery">SINGLETYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"instance" "of"&gt;</span>, <span>&lt;"treat" "as"&gt;</span>, "case", "as", &lt;")" "as"&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ITEMTYPE_xquery">ITEMTYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="KINDTEST_xquery" name="KINDTEST_xquery"></a>The KINDTEST State</dt>
+<dd>
+<p>This state is for the psuedo-parameters for the KindTest productions.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"{"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>")"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"*"</span>, <a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#CLOSEKINDTEST_xquery">CLOSEKINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"element" "("&gt;</span>, <span>&lt;"schema-element" "("&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(KINDTEST)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTEST_xquery">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="KINDTESTFORPI_xquery" name="KINDTESTFORPI_xquery"></a>The KINDTESTFORPI State</dt>
+<dd>
+<p>This state is similar to KINDTEST, but recognizes NCNames instead of QNames.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>")"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-NCName">NCName</a>, <a href="#prod-xquery-StringLiteral">StringLiteral</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#KINDTESTFORPI_xquery">KINDTESTFORPI</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="CLOSEKINDTEST_xquery" name="CLOSEKINDTEST_xquery"></a>The CLOSEKINDTEST State</dt>
+<dd>
+<p>This state is expecting to close a KINDTEST sequence.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>")"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>","</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#KINDTEST_xquery">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"{"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"?"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#CLOSEKINDTEST_xquery">CLOSEKINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="OCCURRENCEINDICATOR_xquery" name="OCCURRENCEINDICATOR_xquery"></a>The OCCURRENCEINDICATOR State</dt>
+<dd>
+<p>This special state is needed to distinguish occurrence indicators that appear in the SequenceType production. For instance, compare "foo instance of baz*" to "baz*foo". In the first case, the "*" is interpreted as an occurrence indicator, and in the second case, it must be interpreted as a multiplication operator. But, when in the OCCURRENCEINDICATOR state, if anything else other than "?", "*", and "+", those symbols must be interpreted in the OPERATOR state. For instance, this would occur with the
+expression "foo instance of baz and $x", with the operator "and". This backing up of the lexical characters in order to reset the state, is symbolized by the notation "input_stream.backup(1)". NotOccurrenceIndicator is a special symbol for any character that is not an occurrence indicator.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[NotOccurrenceIndicator]</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-backup">input_stream.backup(1)</a></td>
+</tr>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"?"</span>, <span>"*"</span>, <span>"+"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="OPTION_xquery" name="OPTION_xquery"></a>The OPTION State</dt>
+<dd>
+<p>This state is entered in the prolog for an option declaration, and recognizes a QName that transits to a DEFAULT state rather than a OPERATOR state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="PRAGMA_xquery" name="PRAGMA_xquery"></a>The PRAGMA State</dt>
+<dd>
+<p>This state is entered in a a pragma expression, and recognizes a QName that transits to a PRAGMACONTENTS state rather than a OPERATOR state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#PRAGMACONTENTS_xquery">PRAGMACONTENTS</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="PRAGMACONTENTS_xquery" name="PRAGMACONTENTS_xquery"></a>The PRAGMACONTENTS State</dt>
+<dd>
+<p>This state recognizes characters in pragma content, and transits out of this state when a '#)' pattern is recognized.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"#)"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-S">S</a>, <a href="#prod-xquery-Char">Char</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="VARNAME_xquery" name="VARNAME_xquery"></a>The VARNAME State</dt>
+<dd>
+<p>This state differentiates variable names from qualified names. This allows only the pattern of a QName to be recognized when otherwise ambiguities could occur.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-VarName">VarName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xquery">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="START_TAG_xquery" name="START_TAG_xquery"></a>The START_TAG State</dt>
+<dd>
+<p>This state allows attributes in the native XML syntax, and marks the beginning of an element construction. Element constructors also push the current state, popping it at the conclusion of an end tag. In the START_TAG state, the string "&gt;" is recognized as a token which is associated with the transition to the original state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"/&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ELEMENT_CONTENT_xquery">ELEMENT_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>'"'</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#QUOT_ATTRIBUTE_CONTENT_xquery">QUOT_ATTRIBUTE_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"'"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#APOS_ATTRIBUTE_CONTENT_xquery">APOS_ATTRIBUTE_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"="</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#START_TAG_xquery">START_TAG</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-S">S</a>, <a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="ELEMENT_CONTENT_xquery" name="ELEMENT_CONTENT_xquery"></a>The ELEMENT_CONTENT State</dt>
+<dd>
+<p>This state allows XML-like content, without these characters being misinterpreted as expressions. The character "{" marks a transition to the DEFAULT state, i.e. the start of an embedded expression, and the "}" character pops back to the ELEMENT_CONTENT state. To allow curly braces to be used as character content, a double left or right curly brace is interpreted as a single curly brace character. The string "&lt;/" is interpreted as the beginning of an end tag, which is associated with a transition to
+the END_TAG state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"&lt;/"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#END_TAG_xquery">END_TAG</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"{"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;!--"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#XML_COMMENT_xquery">XML_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;?"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#PROCESSING_INSTRUCTION_xquery">PROCESSING_INSTRUCTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;![CDATA["</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#CDATA_SECTION_xquery">CDATA_SECTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"&lt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#START_TAG_xquery">START_TAG</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-ElementContentChar">ElementContentChar</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ELEMENT_CONTENT_xquery">ELEMENT_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-PredefinedEntityRef">PredefinedEntityRef</a>, <a href="#prod-xquery-CharRef">CharRef</a>, "{{", "}}"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="END_TAG_xquery" name="END_TAG_xquery"></a>The END_TAG State</dt>
+<dd>
+<p>When the end tag is terminated, the state is popped to the state that was pushed at the start of the corresponding start tag.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-S">S</a>, <a href="#prod-xquery-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="XML_COMMENT_xquery" name="XML_COMMENT_xquery"></a>The XML_COMMENT State</dt>
+<dd>
+<p>The "&lt;--" token marks the beginning of an XML Comment, and the "--&gt;" token marks the end. This allows no special interpretation of other characters in this state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"--&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>(<a href="#prod-xquery-Char">Char</a> - '-'), &lt;'-' (<a href="#prod-xquery-Char">Char</a> - '-')&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#XML_COMMENT_xquery">XML_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="EXPR_COMMENT_xquery" name="EXPR_COMMENT_xquery"></a>The EXPR_COMMENT State</dt>
+<dd>
+<p>The "(:" token marks the beginning of an expression Comment, and the ":)" token marks the end. This allows no special interpretation of other characters in this state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span><span>":)"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xquery">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-Char">Char</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="PROCESSING_INSTRUCTION_xquery" name="PROCESSING_INSTRUCTION_xquery"></a>The PROCESSING_INSTRUCTION State</dt>
+<dd>
+<p>In this state, only patterns that are legal in a processing instruction name are recognized.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xquery-S">S</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#PROCESSING_INSTRUCTION_CONTENT_xquery">PROCESSING_INSTRUCTION_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"?&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-PITarget">PITarget</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#PROCESSING_INSTRUCTION_xquery">PROCESSING_INSTRUCTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="PROCESSING_INSTRUCTION_CONTENT_xquery" name="PROCESSING_INSTRUCTION_CONTENT_xquery"></a>The PROCESSING_INSTRUCTION_CONTENT State</dt>
+<dd>
+<p>In this state, only characters are that are legal in processing instruction content are recognized.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"?&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-Char">Char</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#PROCESSING_INSTRUCTION_CONTENT_xquery">PROCESSING_INSTRUCTION_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="CDATA_SECTION_xquery" name="CDATA_SECTION_xquery"></a>The CDATA_SECTION State</dt>
+<dd>
+<p>In this state, only lexemes that are legal in a CDATA section are recognized.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"]]&gt;"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-Char">Char</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#CDATA_SECTION_xquery">CDATA_SECTION</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="QUOT_ATTRIBUTE_CONTENT_xquery" name="QUOT_ATTRIBUTE_CONTENT_xquery"></a>The QUOT_ATTRIBUTE_CONTENT State</dt>
+<dd>
+<p>This state allows content legal for attributes. The character "{" marks a transition to the DEFAULT state, i.e. the start of an embedded expression, and the "}" character pops back to the original state. To allow curly braces to be used as character content, a double left or right curly brace is interpreted as a single curly brace character. This state is the same as APOS_ATTRIBUTE_CONTENT, except that apostrophes are allowed without escaping, and an unescaped quote marks the end of the state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>'"'</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#START_TAG_xquery">START_TAG</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"{"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-EscapeQuot">EscapeQuot</a>, <a href="#prod-xquery-QuotAttrContentChar">QuotAttrContentChar</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#QUOT_ATTRIBUTE_CONTENT_xquery">QUOT_ATTRIBUTE_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-PredefinedEntityRef">PredefinedEntityRef</a>, <a href="#prod-xquery-CharRef">CharRef</a>, "{{", "}}"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="APOS_ATTRIBUTE_CONTENT_xquery" name="APOS_ATTRIBUTE_CONTENT_xquery"></a>The APOS_ATTRIBUTE_CONTENT State</dt>
+<dd>
+<p>This state is the same as QUOT_ATTRIBUTE_CONTENT, except that quotes are allowed, and an unescaped apostrophe marks the end of the state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"'"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#START_TAG_xquery">START_TAG</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"{"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#DEFAULT_xquery">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-EscapeApos">EscapeApos</a>, <a href="#prod-xquery-AposAttrContentChar">AposAttrContentChar</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#APOS_ATTRIBUTE_CONTENT_xquery">APOS_ATTRIBUTE_CONTENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xquery-PredefinedEntityRef">PredefinedEntityRef</a>, <a href="#prod-xquery-CharRef">CharRef</a>, "{{", "}}"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+</dl>
+</div>
+<div class="div3">
+<h4><a id="XPath-lexical-states" name="XPath-lexical-states"></a>2.1.2 XPath Lexical States</h4>
+<dl>
+<dt class="label"><a id="DEFAULT_xpath" name="DEFAULT_xpath"></a>The DEFAULT State</dt>
+<dd>
+<p>This state is for patterns that occur at the beginning of an expression or subexpression.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xpath-DecimalLiteral">DecimalLiteral</a>, <span>".."</span>, <span>"."</span>, <a href="#prod-xpath-DoubleLiteral">DoubleLiteral</a>, <a href="#prod-xpath-IntegerLiteral">IntegerLiteral</a>, NotNumber, &lt;<a href="#prod-xpath-NCName">NCName</a> ":" "*"&gt;, <a href="#prod-xpath-QName">QName</a>, <span>")"</span>, <span>&lt;"*" ":" <a href="#prod-xpath-NCName">NCName</a>&gt;</span>, "*", <a href="#prod-xpath-StringLiteral">StringLiteral</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"$", &lt;<span>"for"</span> <span>"$"</span>&gt;, <span>&lt;"some" "$"&gt;</span>, <span>&lt;"every" "$"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#VARNAME_xpath">VARNAME</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"element" "("&gt;</span>, <span>&lt;"attribute" "("&gt;</span>, <span>&lt;"schema-element" "("&gt;</span>, <span>&lt;"schema-attribute" "("&gt;</span>, &lt;<span>"comment"</span> <span>"("</span>&gt;, &lt;<span>"text"</span> <span>"("</span>&gt;, &lt;<span>"node"</span> <span>"("</span>&gt;, <span>&lt;</span>"document-node" <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTEST_xpath">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;<span>"processing-instruction"</span> <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OPERATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTESTFORPI_xpath">KINDTESTFORPI</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>",", "(", <span>&lt;<a href="#prod-xpath-QName">QName</a> "("&gt;</span>, <span>&lt;</span>"if" <span>"("</span>&gt;, <span>"-"</span>, <span>"+"</span>, <span>"//"</span>, <span>"/"</span>, <span>&lt;</span>"ancestor-or-self" <span>"::"</span>&gt;, <span>&lt;</span>"ancestor" <span>"::"</span>&gt;, &lt;"attribute" "::"&gt;, &lt;"child" "::"&gt;, &lt;"descendant-or-self" "::"&gt;, &lt;"descendant" "::"&gt;, <span>&lt;</span>"following-sibling" <span>"::"</span>&gt;, <span>&lt;</span>"following"
+<span>"::"</span>&gt;, &lt;"namespace" "::"&gt;, &lt;"parent" "::"&gt;, <span>&lt;</span>"preceding-sibling" <span>"::"</span>&gt;, <span>&lt;</span>"preceding" <span>"::"</span>&gt;, &lt;"self" "::"&gt;, <span>"@"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xpath">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="OPERATOR_xpath" name="OPERATOR_xpath"></a>The OPERATOR State</dt>
+<dd>
+<p>This state is for patterns that are defined for operators.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span>"then"</span>, <span>"else"</span>, <span>"and"</span>, ",", <span>"div"</span>, <span>"="</span>, <span>"except"</span>, <span>"eq"</span>, <span>"ge"</span>, <span>"gt"</span>, <span>"le"</span>, <span>"lt"</span>, <span>"ne"</span>, <span>"&gt;="</span>, <span>"&gt;&gt;"</span>, <span>"&gt;"</span>, <span>"idiv"</span>, <span>"intersect"</span>, <span>"in"</span>, <span>"is"</span>, <span>"["</span>, <span>"&lt;="</span>, <span>"&lt;&lt;"</span>, <span>"&lt;"</span>, <span>"-"</span>,
+<span>"mod"</span>, <span>"*"</span>, <span>"!="</span>, <span>"or"</span>, <span>"+"</span>, "return", <span>"satisfies"</span>, <span>"//"</span>, <span>"/"</span>, <span>"to"</span>, <span>"union"</span>, <span>"|"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xpath">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"castable" "as"&gt;</span>, <span>&lt;"cast" "as"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#SINGLETYPE_xpath">SINGLETYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"instance" "of"&gt;</span>, <span>&lt;"treat" "as"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ITEMTYPE_xpath">ITEMTYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>"$", &lt;<span>"for"</span> <span>"$"</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#VARNAME_xpath">VARNAME</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>")"</span>, <span>"?"</span>, <span>"]"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xpath-StringLiteral">StringLiteral</a>, NotOperatorKeyword</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="SINGLETYPE_xpath" name="SINGLETYPE_xpath"></a>The SINGLETYPE State</dt>
+<dd>
+<p>This state distinguishes tokens that can occur only inside the SingleType production.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xpath-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="ITEMTYPE_xpath" name="ITEMTYPE_xpath"></a>The ITEMTYPE State</dt>
+<dd>
+<p>This state distinguishes tokens that can occur only inside the ItemType production.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span>&lt;</span>"void" <span>"("</span> <span>")"</span>&gt;, <a href="#prod-xpath-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"element" "("&gt;</span>, <span>&lt;"attribute" "("&gt;</span>, <span>&lt;"schema-element" "("&gt;</span>, <span>&lt;"schema-attribute" "("&gt;</span>, &lt;<span>"comment"</span> <span>"("</span>&gt;, &lt;<span>"text"</span> <span>"("</span>&gt;, &lt;<span>"node"</span> <span>"("</span>&gt;, <span>&lt;</span>"document-node" <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OCCURRENCEINDICATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTEST_xpath">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>&lt;<span>"processing-instruction"</span> <span>"("</span>&gt;</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(OCCURRENCEINDICATOR)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTESTFORPI_xpath">KINDTESTFORPI</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xpath-QName">QName</a>, <span>&lt;"item" "(" ")"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OCCURRENCEINDICATOR_xpath">OCCURRENCEINDICATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"then"</span>, <span>"else"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xpath">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"and"</span>, ",", <span>"div"</span>, <span>"="</span>, <span>"except"</span>, <span>"eq"</span>, <span>"ge"</span>, <span>"gt"</span>, <span>"le"</span>, <span>"lt"</span>, <span>"ne"</span>, <span>"&gt;="</span>, <span>"&gt;&gt;"</span>, <span>"&gt;"</span>, <span>"idiv"</span>, <span>"intersect"</span>, <span>"in"</span>, <span>"is"</span>, <span>"["</span>, "(", <span>"&lt;="</span>, <span>"&lt;&lt;"</span>, <span>"&lt;"</span>, <span>"-"</span>, <span>"mod"</span>, <span>"!="</span>,
+<span>"or"</span>, "return", <span>"satisfies"</span>, <span>"to"</span>, <span>"union"</span>, <span>"|"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#DEFAULT_xpath">DEFAULT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"castable" "as"&gt;</span>, <span>&lt;"cast" "as"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#SINGLETYPE_xpath">SINGLETYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"instance" "of"&gt;</span>, <span>&lt;"treat" "as"&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#ITEMTYPE_xpath">ITEMTYPE</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="KINDTEST_xpath" name="KINDTEST_xpath"></a>The KINDTEST State</dt>
+<dd>
+<p>This state is for the psuedo-parameters for the KindTest productions.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>")"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"*"</span>, <a href="#prod-xpath-QName">QName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#CLOSEKINDTEST_xpath">CLOSEKINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>&lt;"element" "("&gt;</span>, <span>&lt;"schema-element" "("&gt;</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate-with-param">pushState(KINDTEST)</a></td>
+</tr>
+<tr>
+<td><a href="#KINDTEST_xpath">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="KINDTESTFORPI_xpath" name="KINDTESTFORPI_xpath"></a>The KINDTESTFORPI State</dt>
+<dd>
+<p>This state is similar to KINDTEST, but recognizes NCNames instead of QNames.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>")"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xpath-NCName">NCName</a>, <a href="#prod-xpath-StringLiteral">StringLiteral</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#KINDTESTFORPI_xpath">KINDTESTFORPI</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="CLOSEKINDTEST_xpath" name="CLOSEKINDTEST_xpath"></a>The CLOSEKINDTEST State</dt>
+<dd>
+<p>This state is expecting to close a KINDTEST sequence.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>")"</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>","</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#KINDTEST_xpath">KINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"?"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#CLOSEKINDTEST_xpath">CLOSEKINDTEST</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="OCCURRENCEINDICATOR_xpath" name="OCCURRENCEINDICATOR_xpath"></a>The OCCURRENCEINDICATOR State</dt>
+<dd>
+<p>This special state is needed to distinguish occurrence indicators that appear in the SequenceType production. For instance, compare "foo instance of baz*" to "baz*foo". In the first case, the "*" is interpreted as an occurrence indicator, and in the second case, it must be interpreted as a multiplication operator. But, when in the OCCURRENCEINDICATOR state, if anything else other than "?", "*", and "+", those symbols must be interpreted in the OPERATOR state. For instance, this would occur with the
+expression "foo instance of baz and $x", with the operator "and". This backing up of the lexical characters in order to reset the state, is symbolized by the notation "input_stream.backup(1)". NotOccurrenceIndicator is a special symbol for any character that is not an occurrence indicator.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[NotOccurrenceIndicator]</td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-backup">input_stream.backup(1)</a></td>
+</tr>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span>"?"</span>, <span>"*"</span>, <span>"+"</span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="VARNAME_xpath" name="VARNAME_xpath"></a>The VARNAME State</dt>
+<dd>
+<p>This state differentiates variable names from qualified names. This allows only the pattern of a QName to be recognized when otherwise ambiguities could occur.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#prod-xpath-VarName">VarName</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#OPERATOR_xpath">OPERATOR</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+<dt class="label"><a id="EXPR_COMMENT_xpath" name="EXPR_COMMENT_xpath"></a>The EXPR_COMMENT State</dt>
+<dd>
+<p>The "(:" token marks the beginning of an expression Comment, and the ":)" token marks the end. This allows no special interpretation of other characters in this state.</p>
+<table summary="Transition table" border="1">
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Transition To State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span><span>":)"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-popstate">popState()</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><span><span>"(:"</span></span></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-pushstate">pushState()</a></td>
+</tr>
+<tr>
+<td><a href="#EXPR_COMMENT_xpath">EXPR_COMMENT</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td><a href="#prod-xpath-Char">Char</a></td>
+<td>
+<table summary="Transition table">
+<tbody>
+<tr>
+<td><a href="#lexaction-maintain-state">(maintain state)</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/></dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div class="back">
+<div class="div1">
+<h2><a id="nt-bnf" name="nt-bnf"></a>A XPath/XQuery Grammar</h2>
+<div class="div2">
+<h3><a id="id-grammar" name="id-grammar"></a>A.1 EBNF</h3>
+<p>For convenience, the basic EBNF of the XPath and XQuery grammars are reproduced here. For further details please consult the respective specifications.</p>
+<p>The following grammars use the same simple Extended Backus-Naur Form (EBNF) notation as <a href="#XML">[XML 1.0]</a> with the following minor differences. The notation "&lt; ... &gt;" is used to indicate a grouping of terminals that together may help disambiguate the individual symbols. To help readability, this "&lt; ... &gt;" notation is absent in the EBNF in the main body of this document. For further details concerning the EBNF notation used, see <a href="http://www.w3.org/TR/xquery#id-grammar">Section A.1 EBNF</a><sup><small>XQ</small></sup> in <a href="#xquery">[XQuery 1.0: An XML Query Language]</a> or <a href="http://www.w3.org/TR/xpath20/#id-grammar">Section A.1 EBNF</a><sup><small>XP</small></sup> in <a href="#xpath20">[XML Path Language (XPath) 2.0]</a>.</p>
+<p id="grammar-notes-explanation">Comments on grammar productions are between '/*' and '*/' symbols. A 'gn:' prefix means a 'Grammar Note', and is meant as a clarification for parsing rules, and are explained in <a href="http://www.w3.org/TR/xquery#notes-on-parsing">Section A.1.1 Grammar Notes</a><sup><small>XQ</small></sup> in <a href="#xquery">[XQuery 1.0: An XML Query Language]</a> or <a href="http://www.w3.org/TR/xpath20/#notes-on-parsing">Section A.1.1 Grammar Notes</a><sup><small>XP</small></sup> in
+<a href="#xpath20">[XML Path Language (XPath) 2.0]</a>. A 'ws:' prefix explains the whitespace rules for the production, the details of which are explained in <a href="http://www.w3.org/TR/xquery#whitespace-rules">Section A.2.2 Whitespace Rules</a><sup><small>XQ</small></sup> in <a href="#xquery">[XQuery 1.0: An XML Query Language]</a> or <a href="http://www.w3.org/TR/xpath20/#whitespace-rules">Section A.2.2 Whitespace Rules</a><sup><small>XP</small></sup> in <a href="#xpath20">[XML Path Language (XPath)
+2.0]</a>.</p>
+<div class="div3">
+<h4><a id="XPath-EBNF" name="XPath-EBNF"></a>A.1.1 XPath EBNF</h4>
+<table summary="Scrap" class="scrap">
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-XPath" name="prod-xpath-XPath"></a>[1]   </td>
+<td><code>XPath</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-Expr">Expr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Expr" name="prod-xpath-Expr"></a>[2]   </td>
+<td><code>Expr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-ExprSingle">ExprSingle</a> ("," <a href="#prod-xpath-ExprSingle">ExprSingle</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ExprSingle" name="prod-xpath-ExprSingle"></a>[3]   </td>
+<td><code>ExprSingle</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-ForExpr">ForExpr</a><br/>
+| <a href="#prod-xpath-QuantifiedExpr">QuantifiedExpr</a><br/>
+| <a href="#prod-xpath-IfExpr">IfExpr</a><br/>
+| <a href="#prod-xpath-OrExpr">OrExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ForExpr" name="prod-xpath-ForExpr"></a>[4]   </td>
+<td><code>ForExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-SimpleForClause">SimpleForClause</a> "return" <a href="#prod-xpath-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-SimpleForClause" name="prod-xpath-SimpleForClause"></a>[5]   </td>
+<td><code>SimpleForClause</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"for" "$"&gt; <a href="#prod-xpath-VarName">VarName</a> "in" <a href="#prod-xpath-ExprSingle">ExprSingle</a> ("," "$" <a href="#prod-xpath-VarName">VarName</a> "in" <a href="#prod-xpath-ExprSingle">ExprSingle</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-QuantifiedExpr" name="prod-xpath-QuantifiedExpr"></a>[6]   </td>
+<td><code>QuantifiedExpr</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"some" "$"&gt; | &lt;"every" "$"&gt;) <a href="#prod-xpath-VarName">VarName</a> "in" <a href="#prod-xpath-ExprSingle">ExprSingle</a> ("," "$" <a href="#prod-xpath-VarName">VarName</a> "in" <a href="#prod-xpath-ExprSingle">ExprSingle</a>)* "satisfies" <a href="#prod-xpath-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-IfExpr" name="prod-xpath-IfExpr"></a>[7]   </td>
+<td><code>IfExpr</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"if" "("&gt; <a href="#prod-xpath-Expr">Expr</a> ")" "then" <a href="#prod-xpath-ExprSingle">ExprSingle</a> "else" <a href="#prod-xpath-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-OrExpr" name="prod-xpath-OrExpr"></a>[8]   </td>
+<td><code>OrExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AndExpr">AndExpr</a> ( "or" <a href="#prod-xpath-AndExpr">AndExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AndExpr" name="prod-xpath-AndExpr"></a>[9]   </td>
+<td><code>AndExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-ComparisonExpr">ComparisonExpr</a> ( "and" <a href="#prod-xpath-ComparisonExpr">ComparisonExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ComparisonExpr" name="prod-xpath-ComparisonExpr"></a>[10]   </td>
+<td><code>ComparisonExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-RangeExpr">RangeExpr</a> ( (<a href="#prod-xpath-ValueComp">ValueComp</a><br/>
+| <a href="#prod-xpath-GeneralComp">GeneralComp</a><br/>
+| <a href="#prod-xpath-NodeComp">NodeComp</a>) <a href="#prod-xpath-RangeExpr">RangeExpr</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-RangeExpr" name="prod-xpath-RangeExpr"></a>[11]   </td>
+<td><code>RangeExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AdditiveExpr">AdditiveExpr</a> ( "to" <a href="#prod-xpath-AdditiveExpr">AdditiveExpr</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AdditiveExpr" name="prod-xpath-AdditiveExpr"></a>[12]   </td>
+<td><code>AdditiveExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-MultiplicativeExpr">MultiplicativeExpr</a> ( ("+" | "-") <a href="#prod-xpath-MultiplicativeExpr">MultiplicativeExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-MultiplicativeExpr" name="prod-xpath-MultiplicativeExpr"></a>[13]   </td>
+<td><code>MultiplicativeExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-UnionExpr">UnionExpr</a> ( ("*" | "div" | "idiv" | "mod") <a href="#prod-xpath-UnionExpr">UnionExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-UnionExpr" name="prod-xpath-UnionExpr"></a>[14]   </td>
+<td><code>UnionExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-IntersectExceptExpr">IntersectExceptExpr</a> ( ("union" | "|") <a href="#prod-xpath-IntersectExceptExpr">IntersectExceptExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-IntersectExceptExpr" name="prod-xpath-IntersectExceptExpr"></a>[15]   </td>
+<td><code>IntersectExceptExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-InstanceofExpr">InstanceofExpr</a> ( ("intersect" | "except") <a href="#prod-xpath-InstanceofExpr">InstanceofExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-InstanceofExpr" name="prod-xpath-InstanceofExpr"></a>[16]   </td>
+<td><code>InstanceofExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-TreatExpr">TreatExpr</a> ( &lt;"instance" "of"&gt; <a href="#prod-xpath-SequenceType">SequenceType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-TreatExpr" name="prod-xpath-TreatExpr"></a>[17]   </td>
+<td><code>TreatExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-CastableExpr">CastableExpr</a> ( &lt;"treat" "as"&gt; <a href="#prod-xpath-SequenceType">SequenceType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-CastableExpr" name="prod-xpath-CastableExpr"></a>[18]   </td>
+<td><code>CastableExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-CastExpr">CastExpr</a> ( &lt;"castable" "as"&gt; <a href="#prod-xpath-SingleType">SingleType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-CastExpr" name="prod-xpath-CastExpr"></a>[19]   </td>
+<td><code>CastExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-UnaryExpr">UnaryExpr</a> ( &lt;"cast" "as"&gt; <a href="#prod-xpath-SingleType">SingleType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-UnaryExpr" name="prod-xpath-UnaryExpr"></a>[20]   </td>
+<td><code>UnaryExpr</code></td>
+<td>   ::=   </td>
+<td><code>("-" | "+")* <a href="#prod-xpath-ValueExpr">ValueExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ValueExpr" name="prod-xpath-ValueExpr"></a>[21]   </td>
+<td><code>ValueExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-PathExpr">PathExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-GeneralComp" name="prod-xpath-GeneralComp"></a>[22]   </td>
+<td><code>GeneralComp</code></td>
+<td>   ::=   </td>
+<td><code>"=" | "!=" | "&lt;" | "&lt;=" | "&gt;" | "&gt;="</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-lt">gn: lt</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ValueComp" name="prod-xpath-ValueComp"></a>[23]   </td>
+<td><code>ValueComp</code></td>
+<td>   ::=   </td>
+<td><code>"eq" | "ne" | "lt" | "le" | "gt" | "ge"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-NodeComp" name="prod-xpath-NodeComp"></a>[24]   </td>
+<td><code>NodeComp</code></td>
+<td>   ::=   </td>
+<td><code>"is" | "&lt;&lt;" | "&gt;&gt;"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-PathExpr" name="prod-xpath-PathExpr"></a>[25]   </td>
+<td><code>PathExpr</code></td>
+<td>   ::=   </td>
+<td><code>("/" <a href="#prod-xpath-RelativePathExpr">RelativePathExpr</a>?)<br/>
+| ("//" <a href="#prod-xpath-RelativePathExpr">RelativePathExpr</a>)<br/>
+| <a href="#prod-xpath-RelativePathExpr">RelativePathExpr</a></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-leading-lone-slash">gn: leading-lone-slash</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-RelativePathExpr" name="prod-xpath-RelativePathExpr"></a>[26]   </td>
+<td><code>RelativePathExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-StepExpr">StepExpr</a> (("/" | "//") <a href="#prod-xpath-StepExpr">StepExpr</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-StepExpr" name="prod-xpath-StepExpr"></a>[27]   </td>
+<td><code>StepExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AxisStep">AxisStep</a> | <a href="#prod-xpath-FilterExpr">FilterExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AxisStep" name="prod-xpath-AxisStep"></a>[28]   </td>
+<td><code>AxisStep</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xpath-ForwardStep">ForwardStep</a> | <a href="#prod-xpath-ReverseStep">ReverseStep</a>) <a href="#prod-xpath-PredicateList">PredicateList</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ForwardStep" name="prod-xpath-ForwardStep"></a>[29]   </td>
+<td><code>ForwardStep</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xpath-ForwardAxis">ForwardAxis</a> <a href="#prod-xpath-NodeTest">NodeTest</a>) | <a href="#prod-xpath-AbbrevForwardStep">AbbrevForwardStep</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ForwardAxis" name="prod-xpath-ForwardAxis"></a>[30]   </td>
+<td><code>ForwardAxis</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"child" "::"&gt;<br/>
+| &lt;"descendant" "::"&gt;<br/>
+| &lt;"attribute" "::"&gt;<br/>
+| &lt;"self" "::"&gt;<br/>
+| &lt;"descendant-or-self" "::"&gt;<br/>
+| &lt;"following-sibling" "::"&gt;<br/>
+| &lt;"following" "::"&gt;<br/>
+| &lt;"namespace" "::"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AbbrevForwardStep" name="prod-xpath-AbbrevForwardStep"></a>[31]   </td>
+<td><code>AbbrevForwardStep</code></td>
+<td>   ::=   </td>
+<td><code>"@"? <a href="#prod-xpath-NodeTest">NodeTest</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ReverseStep" name="prod-xpath-ReverseStep"></a>[32]   </td>
+<td><code>ReverseStep</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xpath-ReverseAxis">ReverseAxis</a> <a href="#prod-xpath-NodeTest">NodeTest</a>) | <a href="#prod-xpath-AbbrevReverseStep">AbbrevReverseStep</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ReverseAxis" name="prod-xpath-ReverseAxis"></a>[33]   </td>
+<td><code>ReverseAxis</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"parent" "::"&gt;<br/>
+| &lt;"ancestor" "::"&gt;<br/>
+| &lt;"preceding-sibling" "::"&gt;<br/>
+| &lt;"preceding" "::"&gt;<br/>
+| &lt;"ancestor-or-self" "::"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AbbrevReverseStep" name="prod-xpath-AbbrevReverseStep"></a>[34]   </td>
+<td><code>AbbrevReverseStep</code></td>
+<td>   ::=   </td>
+<td><code>".."</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-NodeTest" name="prod-xpath-NodeTest"></a>[35]   </td>
+<td><code>NodeTest</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-KindTest">KindTest</a> | <a href="#prod-xpath-NameTest">NameTest</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-NameTest" name="prod-xpath-NameTest"></a>[36]   </td>
+<td><code>NameTest</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-QName">QName</a> | <a href="#prod-xpath-Wildcard">Wildcard</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Wildcard" name="prod-xpath-Wildcard"></a>[37]   </td>
+<td><code>Wildcard</code></td>
+<td>   ::=   </td>
+<td><code>"*"<br/>
+| &lt;<a href="#prod-xpath-NCName">NCName</a> ":" "*"&gt;<br/>
+| &lt;"*" ":" <a href="#prod-xpath-NCName">NCName</a>&gt;</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#ws-explicit">ws: explicit</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-FilterExpr" name="prod-xpath-FilterExpr"></a>[38]   </td>
+<td><code>FilterExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-PrimaryExpr">PrimaryExpr</a> <a href="#prod-xpath-PredicateList">PredicateList</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-PredicateList" name="prod-xpath-PredicateList"></a>[39]   </td>
+<td><code>PredicateList</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-Predicate">Predicate</a>*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Predicate" name="prod-xpath-Predicate"></a>[40]   </td>
+<td><code>Predicate</code></td>
+<td>   ::=   </td>
+<td><code>"[" <a href="#prod-xpath-Expr">Expr</a> "]"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-PrimaryExpr" name="prod-xpath-PrimaryExpr"></a>[41]   </td>
+<td><code>PrimaryExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-Literal">Literal</a> | <a href="#prod-xpath-VarRef">VarRef</a> | <a href="#prod-xpath-ParenthesizedExpr">ParenthesizedExpr</a> | <a href="#prod-xpath-ContextItemExpr">ContextItemExpr</a> | <a href="#prod-xpath-FunctionCall">FunctionCall</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Literal" name="prod-xpath-Literal"></a>[42]   </td>
+<td><code>Literal</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-NumericLiteral">NumericLiteral</a> | <a href="#prod-xpath-StringLiteral">StringLiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-NumericLiteral" name="prod-xpath-NumericLiteral"></a>[43]   </td>
+<td><code>NumericLiteral</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-IntegerLiteral">IntegerLiteral</a> | <a href="#prod-xpath-DecimalLiteral">DecimalLiteral</a> | <a href="#prod-xpath-DoubleLiteral">DoubleLiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-VarRef" name="prod-xpath-VarRef"></a>[44]   </td>
+<td><code>VarRef</code></td>
+<td>   ::=   </td>
+<td><code>"$" <a href="#prod-xpath-VarName">VarName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ParenthesizedExpr" name="prod-xpath-ParenthesizedExpr"></a>[45]   </td>
+<td><code>ParenthesizedExpr</code></td>
+<td>   ::=   </td>
+<td><code>"(" <a href="#prod-xpath-Expr">Expr</a>? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ContextItemExpr" name="prod-xpath-ContextItemExpr"></a>[46]   </td>
+<td><code>ContextItemExpr</code></td>
+<td>   ::=   </td>
+<td><code>"."</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-FunctionCall" name="prod-xpath-FunctionCall"></a>[47]   </td>
+<td><code>FunctionCall</code></td>
+<td>   ::=   </td>
+<td><code>&lt;<a href="#prod-xpath-QName">QName</a> "("&gt; (<a href="#prod-xpath-ExprSingle">ExprSingle</a> ("," <a href="#prod-xpath-ExprSingle">ExprSingle</a>)*)? ")"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-parens">gn: parens</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+<tr valign="baseline">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-reserved-function-names">gn: reserved-function-names</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-SingleType" name="prod-xpath-SingleType"></a>[48]   </td>
+<td><code>SingleType</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AtomicType">AtomicType</a> "?"?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-SequenceType" name="prod-xpath-SequenceType"></a>[49]   </td>
+<td><code>SequenceType</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xpath-ItemType">ItemType</a> <a href="#prod-xpath-OccurrenceIndicator">OccurrenceIndicator</a>?)<br/>
+| &lt;"void" "(" ")"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-OccurrenceIndicator" name="prod-xpath-OccurrenceIndicator"></a>[50]   </td>
+<td><code>OccurrenceIndicator</code></td>
+<td>   ::=   </td>
+<td><code>"?" | "*" | "+"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-occurrence-indicators">gn: occurrence-indicators</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ItemType" name="prod-xpath-ItemType"></a>[51]   </td>
+<td><code>ItemType</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AtomicType">AtomicType</a> | <a href="#prod-xpath-KindTest">KindTest</a> | &lt;"item" "(" ")"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AtomicType" name="prod-xpath-AtomicType"></a>[52]   </td>
+<td><code>AtomicType</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-KindTest" name="prod-xpath-KindTest"></a>[53]   </td>
+<td><code>KindTest</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-DocumentTest">DocumentTest</a><br/>
+| <a href="#prod-xpath-ElementTest">ElementTest</a><br/>
+| <a href="#prod-xpath-AttributeTest">AttributeTest</a><br/>
+| <a href="#prod-xpath-SchemaElementTest">SchemaElementTest</a><br/>
+| <a href="#prod-xpath-SchemaAttributeTest">SchemaAttributeTest</a><br/>
+| <a href="#prod-xpath-PITest">PITest</a><br/>
+| <a href="#prod-xpath-CommentTest">CommentTest</a><br/>
+| <a href="#prod-xpath-TextTest">TextTest</a><br/>
+| <a href="#prod-xpath-AnyKindTest">AnyKindTest</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AnyKindTest" name="prod-xpath-AnyKindTest"></a>[54]   </td>
+<td><code>AnyKindTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"node" "("&gt; ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-DocumentTest" name="prod-xpath-DocumentTest"></a>[55]   </td>
+<td><code>DocumentTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"document-node" "("&gt; (<a href="#prod-xpath-ElementTest">ElementTest</a> | <a href="#prod-xpath-SchemaElementTest">SchemaElementTest</a>)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-TextTest" name="prod-xpath-TextTest"></a>[56]   </td>
+<td><code>TextTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"text" "("&gt; ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-CommentTest" name="prod-xpath-CommentTest"></a>[57]   </td>
+<td><code>CommentTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"comment" "("&gt; ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-PITest" name="prod-xpath-PITest"></a>[58]   </td>
+<td><code>PITest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"processing-instruction" "("&gt; (<a href="#prod-xpath-NCName">NCName</a> | <a href="#prod-xpath-StringLiteral">StringLiteral</a>)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AttributeTest" name="prod-xpath-AttributeTest"></a>[59]   </td>
+<td><code>AttributeTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"attribute" "("&gt; (<a href="#prod-xpath-AttribNameOrWildcard">AttribNameOrWildcard</a> ("," <a href="#prod-xpath-TypeName">TypeName</a>)?)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AttribNameOrWildcard" name="prod-xpath-AttribNameOrWildcard"></a>[60]   </td>
+<td><code>AttribNameOrWildcard</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AttributeName">AttributeName</a> | "*"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-SchemaAttributeTest" name="prod-xpath-SchemaAttributeTest"></a>[61]   </td>
+<td><code>SchemaAttributeTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"schema-attribute" "("&gt; <a href="#prod-xpath-AttributeDeclaration">AttributeDeclaration</a> ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AttributeDeclaration" name="prod-xpath-AttributeDeclaration"></a>[62]   </td>
+<td><code>AttributeDeclaration</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-AttributeName">AttributeName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ElementTest" name="prod-xpath-ElementTest"></a>[63]   </td>
+<td><code>ElementTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"element" "("&gt; (<a href="#prod-xpath-ElementNameOrWildcard">ElementNameOrWildcard</a> ("," <a href="#prod-xpath-TypeName">TypeName</a> "?"?)?)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ElementNameOrWildcard" name="prod-xpath-ElementNameOrWildcard"></a>[64]   </td>
+<td><code>ElementNameOrWildcard</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-ElementName">ElementName</a> | "*"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-SchemaElementTest" name="prod-xpath-SchemaElementTest"></a>[65]   </td>
+<td><code>SchemaElementTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"schema-element" "("&gt; <a href="#prod-xpath-ElementDeclaration">ElementDeclaration</a> ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ElementDeclaration" name="prod-xpath-ElementDeclaration"></a>[66]   </td>
+<td><code>ElementDeclaration</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-ElementName">ElementName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-AttributeName" name="prod-xpath-AttributeName"></a>[67]   </td>
+<td><code>AttributeName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-ElementName" name="prod-xpath-ElementName"></a>[68]   </td>
+<td><code>ElementName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-TypeName" name="prod-xpath-TypeName"></a>[69]   </td>
+<td><code>TypeName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-QName">QName</a></code></td>
+</tr>
+</tbody>
+</table>
+<table summary="Scrap" class="scrap">
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-IntegerLiteral" name="prod-xpath-IntegerLiteral"></a>[70]   </td>
+<td><code>IntegerLiteral</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-Digits">Digits</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-DecimalLiteral" name="prod-xpath-DecimalLiteral"></a>[71]   </td>
+<td><code>DecimalLiteral</code></td>
+<td>   ::=   </td>
+<td><code>("." <a href="#prod-xpath-Digits">Digits</a>) | (<a href="#prod-xpath-Digits">Digits</a> "." [0-9]*)</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#ws-explicit">ws: explicit</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-DoubleLiteral" name="prod-xpath-DoubleLiteral"></a>[72]   </td>
+<td><code>DoubleLiteral</code></td>
+<td>   ::=   </td>
+<td><code>(("." <a href="#prod-xpath-Digits">Digits</a>) | (<a href="#prod-xpath-Digits">Digits</a> ("." [0-9]*)?)) [eE] [+-]? <a href="#prod-xpath-Digits">Digits</a></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#ws-explicit">ws: explicit</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-StringLiteral" name="prod-xpath-StringLiteral"></a>[73]   </td>
+<td><code>StringLiteral</code></td>
+<td>   ::=   </td>
+<td><code>('"' (('"' '"') | [^"])* '"') | ("'" (("'" "'") | [^'])* "'")</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#ws-explicit">ws: explicit</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-VarName" name="prod-xpath-VarName"></a>[74]   </td>
+<td><code>VarName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xpath-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Digits" name="prod-xpath-Digits"></a>[75]   </td>
+<td><code>Digits</code></td>
+<td>   ::=   </td>
+<td><code>[0-9]+</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Comment" name="prod-xpath-Comment"></a>[76]   </td>
+<td><code>Comment</code></td>
+<td>   ::=   </td>
+<td><code>"(:" (<a href="#prod-xpath-CommentContents">CommentContents</a> | <a href="#prod-xpath-Comment">Comment</a>)* ":)"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#ws-explicit">ws: explicit</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+<tr valign="baseline">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-comments">gn: comments</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-CommentContents" name="prod-xpath-CommentContents"></a>[77]   </td>
+<td><code>CommentContents</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xpath-Char">Char</a>+ - (Char* ':)' Char*))</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-QName" name="prod-xpath-QName"></a>[78]   </td>
+<td><code>QName</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml-names/#NT-QName">[http://www.w3.org/TR/REC-xml-names/#NT-QName]</a><sup><small>Names</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-xml-version">gn: xml-version</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-NCName" name="prod-xpath-NCName"></a>[79]   </td>
+<td><code>NCName</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml-names/#NT-NCName">[http://www.w3.org/TR/REC-xml-names/#NT-NCName]</a><sup><small>Names</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-xml-version">gn: xml-version</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xpath-Char" name="prod-xpath-Char"></a>[80]   </td>
+<td><code>Char</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml/#NT-Char">[http://www.w3.org/TR/REC-xml#NT-Char]</a><sup><small>XML</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xpath20/#parse-note-xml-version">gn: xml-version</a><sup><small>XP</small></sup> */</i></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="div3">
+<h4><a id="XQuery-EBNF" name="XQuery-EBNF"></a>A.1.2 XQuery EBNF</h4>
+<table summary="Scrap" class="scrap">
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Module" name="prod-xquery-Module"></a>[1]   </td>
+<td><code>Module</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-VersionDecl">VersionDecl</a>? (<a href="#prod-xquery-MainModule">MainModule</a> | <a href="#prod-xquery-LibraryModule">LibraryModule</a>)</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-VersionDecl" name="prod-xquery-VersionDecl"></a>[2]   </td>
+<td><code>VersionDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"xquery" "version"&gt; <a href="#prod-xquery-StringLiteral">StringLiteral</a> ("encoding" <a href="#prod-xquery-StringLiteral">StringLiteral</a>)? <a href="#prod-xquery-Separator">Separator</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-MainModule" name="prod-xquery-MainModule"></a>[3]   </td>
+<td><code>MainModule</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Prolog">Prolog</a> <a href="#prod-xquery-QueryBody">QueryBody</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-LibraryModule" name="prod-xquery-LibraryModule"></a>[4]   </td>
+<td><code>LibraryModule</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ModuleDecl">ModuleDecl</a> <a href="#prod-xquery-Prolog">Prolog</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ModuleDecl" name="prod-xquery-ModuleDecl"></a>[5]   </td>
+<td><code>ModuleDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"module" "namespace"&gt; <a href="#prod-xquery-NCName">NCName</a> "=" <a href="#prod-xquery-URILiteral">URILiteral</a> <a href="#prod-xquery-Separator">Separator</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Prolog" name="prod-xquery-Prolog"></a>[6]   </td>
+<td><code>Prolog</code></td>
+<td>   ::=   </td>
+<td><code>((<a href="#prod-xquery-Setter">Setter</a> | <a href="#prod-xquery-Import">Import</a> | <a href="#prod-xquery-NamespaceDecl">NamespaceDecl</a> | <a href="#prod-xquery-DefaultNamespaceDecl">DefaultNamespaceDecl</a>) <a href="#prod-xquery-Separator">Separator</a>)* ((<a href="#prod-xquery-VarDecl">VarDecl</a> | <a href="#prod-xquery-FunctionDecl">FunctionDecl</a> | <a href="#prod-xquery-OptionDecl">OptionDecl</a>) <a href="#prod-xquery-Separator">Separator</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Setter" name="prod-xquery-Setter"></a>[7]   </td>
+<td><code>Setter</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-BoundarySpaceDecl">BoundarySpaceDecl</a> | <a href="#prod-xquery-DefaultCollationDecl">DefaultCollationDecl</a> | <a href="#prod-xquery-BaseURIDecl">BaseURIDecl</a> | <a href="#prod-xquery-ConstructionDecl">ConstructionDecl</a> | <a href="#prod-xquery-OrderingModeDecl">OrderingModeDecl</a> | <a href="#prod-xquery-EmptyOrderDecl">EmptyOrderDecl</a> | <a href="#prod-xquery-CopyNamespacesDecl">CopyNamespacesDecl</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Import" name="prod-xquery-Import"></a>[8]   </td>
+<td><code>Import</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-SchemaImport">SchemaImport</a> | <a href="#prod-xquery-ModuleImport">ModuleImport</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Separator" name="prod-xquery-Separator"></a>[9]   </td>
+<td><code>Separator</code></td>
+<td>   ::=   </td>
+<td><code>";"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-NamespaceDecl" name="prod-xquery-NamespaceDecl"></a>[10]   </td>
+<td><code>NamespaceDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "namespace"&gt; <a href="#prod-xquery-NCName">NCName</a> "=" <a href="#prod-xquery-URILiteral">URILiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-BoundarySpaceDecl" name="prod-xquery-BoundarySpaceDecl"></a>[11]   </td>
+<td><code>BoundarySpaceDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "boundary-space"&gt; ("preserve" | "strip")</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DefaultNamespaceDecl" name="prod-xquery-DefaultNamespaceDecl"></a>[12]   </td>
+<td><code>DefaultNamespaceDecl</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"declare" "default" "element"&gt; | &lt;"declare" "default" "function"&gt;) "namespace" <a href="#prod-xquery-URILiteral">URILiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OptionDecl" name="prod-xquery-OptionDecl"></a>[13]   </td>
+<td><code>OptionDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "option"&gt; <a href="#prod-xquery-QName">QName</a> <a href="#prod-xquery-StringLiteral">StringLiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrderingModeDecl" name="prod-xquery-OrderingModeDecl"></a>[14]   </td>
+<td><code>OrderingModeDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "ordering"&gt; ("ordered" | "unordered")</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-EmptyOrderDecl" name="prod-xquery-EmptyOrderDecl"></a>[15]   </td>
+<td><code>EmptyOrderDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "default" "order"&gt; (&lt;"empty" "greatest"&gt; | &lt;"empty" "least"&gt;)</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CopyNamespacesDecl" name="prod-xquery-CopyNamespacesDecl"></a>[16]   </td>
+<td><code>CopyNamespacesDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "copy-namespaces"&gt; <a href="#prod-xquery-PreserveMode">PreserveMode</a> "," <a href="#prod-xquery-InheritMode">InheritMode</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PreserveMode" name="prod-xquery-PreserveMode"></a>[17]   </td>
+<td><code>PreserveMode</code></td>
+<td>   ::=   </td>
+<td><code>"preserve" | "no-preserve"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-InheritMode" name="prod-xquery-InheritMode"></a>[18]   </td>
+<td><code>InheritMode</code></td>
+<td>   ::=   </td>
+<td><code>"inherit" | "no-inherit"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DefaultCollationDecl" name="prod-xquery-DefaultCollationDecl"></a>[19]   </td>
+<td><code>DefaultCollationDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "default" "collation"&gt; <a href="#prod-xquery-URILiteral">URILiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-BaseURIDecl" name="prod-xquery-BaseURIDecl"></a>[20]   </td>
+<td><code>BaseURIDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "base-uri"&gt; <a href="#prod-xquery-URILiteral">URILiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-SchemaImport" name="prod-xquery-SchemaImport"></a>[21]   </td>
+<td><code>SchemaImport</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"import" "schema"&gt; <a href="#prod-xquery-SchemaPrefix">SchemaPrefix</a>? <a href="#prod-xquery-URILiteral">URILiteral</a> (&lt;"at" <a href="#prod-xquery-URILiteral">URILiteral</a>&gt; ("," <a href="#prod-xquery-URILiteral">URILiteral</a>)*)?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-SchemaPrefix" name="prod-xquery-SchemaPrefix"></a>[22]   </td>
+<td><code>SchemaPrefix</code></td>
+<td>   ::=   </td>
+<td><code>("namespace" <a href="#prod-xquery-NCName">NCName</a> "=") | (&lt;"default" "element"&gt; "namespace")</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ModuleImport" name="prod-xquery-ModuleImport"></a>[23]   </td>
+<td><code>ModuleImport</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"import" "module"&gt; ("namespace" <a href="#prod-xquery-NCName">NCName</a> "=")? <a href="#prod-xquery-URILiteral">URILiteral</a> (&lt;"at" <a href="#prod-xquery-URILiteral">URILiteral</a>&gt; ("," <a href="#prod-xquery-URILiteral">URILiteral</a>)*)?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-VarDecl" name="prod-xquery-VarDecl"></a>[24]   </td>
+<td><code>VarDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "variable" "$"&gt; <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? ((":=" <a href="#prod-xquery-ExprSingle">ExprSingle</a>) | "external")</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ConstructionDecl" name="prod-xquery-ConstructionDecl"></a>[25]   </td>
+<td><code>ConstructionDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "construction"&gt; ("preserve" | "strip")</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-FunctionDecl" name="prod-xquery-FunctionDecl"></a>[26]   </td>
+<td><code>FunctionDecl</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"declare" "function"&gt; &lt;<a href="#prod-xquery-QName">QName</a> "("&gt; <a href="#prod-xquery-ParamList">ParamList</a>? (")" | (&lt;")" "as"&gt; <a href="#prod-xquery-SequenceType">SequenceType</a>)) (<a href="#prod-xquery-EnclosedExpr">EnclosedExpr</a> | "external")</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ParamList" name="prod-xquery-ParamList"></a>[27]   </td>
+<td><code>ParamList</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Param">Param</a> ("," <a href="#prod-xquery-Param">Param</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Param" name="prod-xquery-Param"></a>[28]   </td>
+<td><code>Param</code></td>
+<td>   ::=   </td>
+<td><code>"$" <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-EnclosedExpr" name="prod-xquery-EnclosedExpr"></a>[29]   </td>
+<td><code>EnclosedExpr</code></td>
+<td>   ::=   </td>
+<td><code>"{" <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-QueryBody" name="prod-xquery-QueryBody"></a>[30]   </td>
+<td><code>QueryBody</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Expr">Expr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Expr" name="prod-xquery-Expr"></a>[31]   </td>
+<td><code>Expr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ExprSingle">ExprSingle</a> ("," <a href="#prod-xquery-ExprSingle">ExprSingle</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ExprSingle" name="prod-xquery-ExprSingle"></a>[32]   </td>
+<td><code>ExprSingle</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-FLWORExpr">FLWORExpr</a><br/>
+| <a href="#prod-xquery-QuantifiedExpr">QuantifiedExpr</a><br/>
+| <a href="#prod-xquery-TypeswitchExpr">TypeswitchExpr</a><br/>
+| <a href="#prod-xquery-IfExpr">IfExpr</a><br/>
+| <a href="#prod-xquery-OrExpr">OrExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-FLWORExpr" name="prod-xquery-FLWORExpr"></a>[33]   </td>
+<td><code>FLWORExpr</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-ForClause">ForClause</a> | <a href="#prod-xquery-LetClause">LetClause</a>)+ <a href="#prod-xquery-WhereClause">WhereClause</a>? <a href="#prod-xquery-OrderByClause">OrderByClause</a>? "return" <a href="#prod-xquery-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ForClause" name="prod-xquery-ForClause"></a>[34]   </td>
+<td><code>ForClause</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"for" "$"&gt; <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? <a href="#prod-xquery-PositionalVar">PositionalVar</a>? "in" <a href="#prod-xquery-ExprSingle">ExprSingle</a> ("," "$" <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? <a href="#prod-xquery-PositionalVar">PositionalVar</a>? "in" <a href="#prod-xquery-ExprSingle">ExprSingle</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PositionalVar" name="prod-xquery-PositionalVar"></a>[35]   </td>
+<td><code>PositionalVar</code></td>
+<td>   ::=   </td>
+<td><code>"at" "$" <a href="#prod-xquery-VarName">VarName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-LetClause" name="prod-xquery-LetClause"></a>[36]   </td>
+<td><code>LetClause</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"let" "$"&gt; <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? ":=" <a href="#prod-xquery-ExprSingle">ExprSingle</a> ("," "$" <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? ":=" <a href="#prod-xquery-ExprSingle">ExprSingle</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-WhereClause" name="prod-xquery-WhereClause"></a>[37]   </td>
+<td><code>WhereClause</code></td>
+<td>   ::=   </td>
+<td><code>"where" <a href="#prod-xquery-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrderByClause" name="prod-xquery-OrderByClause"></a>[38]   </td>
+<td><code>OrderByClause</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"order" "by"&gt; | &lt;"stable" "order" "by"&gt;) <a href="#prod-xquery-OrderSpecList">OrderSpecList</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrderSpecList" name="prod-xquery-OrderSpecList"></a>[39]   </td>
+<td><code>OrderSpecList</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-OrderSpec">OrderSpec</a> ("," <a href="#prod-xquery-OrderSpec">OrderSpec</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrderSpec" name="prod-xquery-OrderSpec"></a>[40]   </td>
+<td><code>OrderSpec</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ExprSingle">ExprSingle</a> <a href="#prod-xquery-OrderModifier">OrderModifier</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrderModifier" name="prod-xquery-OrderModifier"></a>[41]   </td>
+<td><code>OrderModifier</code></td>
+<td>   ::=   </td>
+<td><code>("ascending" | "descending")? (&lt;"empty" "greatest"&gt; | &lt;"empty" "least"&gt;)? ("collation" <a href="#prod-xquery-URILiteral">URILiteral</a>)?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-QuantifiedExpr" name="prod-xquery-QuantifiedExpr"></a>[42]   </td>
+<td><code>QuantifiedExpr</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"some" "$"&gt; | &lt;"every" "$"&gt;) <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? "in" <a href="#prod-xquery-ExprSingle">ExprSingle</a> ("," "$" <a href="#prod-xquery-VarName">VarName</a> <a href="#prod-xquery-TypeDeclaration">TypeDeclaration</a>? "in" <a href="#prod-xquery-ExprSingle">ExprSingle</a>)* "satisfies" <a href="#prod-xquery-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-TypeswitchExpr" name="prod-xquery-TypeswitchExpr"></a>[43]   </td>
+<td><code>TypeswitchExpr</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"typeswitch" "("&gt; <a href="#prod-xquery-Expr">Expr</a> ")" <a href="#prod-xquery-CaseClause">CaseClause</a>+ "default" ("$" <a href="#prod-xquery-VarName">VarName</a>)? "return" <a href="#prod-xquery-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CaseClause" name="prod-xquery-CaseClause"></a>[44]   </td>
+<td><code>CaseClause</code></td>
+<td>   ::=   </td>
+<td><code>"case" ("$" <a href="#prod-xquery-VarName">VarName</a> "as")? <a href="#prod-xquery-SequenceType">SequenceType</a> "return" <a href="#prod-xquery-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-IfExpr" name="prod-xquery-IfExpr"></a>[45]   </td>
+<td><code>IfExpr</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"if" "("&gt; <a href="#prod-xquery-Expr">Expr</a> ")" "then" <a href="#prod-xquery-ExprSingle">ExprSingle</a> "else" <a href="#prod-xquery-ExprSingle">ExprSingle</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrExpr" name="prod-xquery-OrExpr"></a>[46]   </td>
+<td><code>OrExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AndExpr">AndExpr</a> ( "or" <a href="#prod-xquery-AndExpr">AndExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AndExpr" name="prod-xquery-AndExpr"></a>[47]   </td>
+<td><code>AndExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ComparisonExpr">ComparisonExpr</a> ( "and" <a href="#prod-xquery-ComparisonExpr">ComparisonExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ComparisonExpr" name="prod-xquery-ComparisonExpr"></a>[48]   </td>
+<td><code>ComparisonExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-RangeExpr">RangeExpr</a> ( (<a href="#prod-xquery-ValueComp">ValueComp</a><br/>
+| <a href="#prod-xquery-GeneralComp">GeneralComp</a><br/>
+| <a href="#prod-xquery-NodeComp">NodeComp</a>) <a href="#prod-xquery-RangeExpr">RangeExpr</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-RangeExpr" name="prod-xquery-RangeExpr"></a>[49]   </td>
+<td><code>RangeExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AdditiveExpr">AdditiveExpr</a> ( "to" <a href="#prod-xquery-AdditiveExpr">AdditiveExpr</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AdditiveExpr" name="prod-xquery-AdditiveExpr"></a>[50]   </td>
+<td><code>AdditiveExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-MultiplicativeExpr">MultiplicativeExpr</a> ( ("+" | "-") <a href="#prod-xquery-MultiplicativeExpr">MultiplicativeExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-MultiplicativeExpr" name="prod-xquery-MultiplicativeExpr"></a>[51]   </td>
+<td><code>MultiplicativeExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-UnionExpr">UnionExpr</a> ( ("*" | "div" | "idiv" | "mod") <a href="#prod-xquery-UnionExpr">UnionExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-UnionExpr" name="prod-xquery-UnionExpr"></a>[52]   </td>
+<td><code>UnionExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-IntersectExceptExpr">IntersectExceptExpr</a> ( ("union" | "|") <a href="#prod-xquery-IntersectExceptExpr">IntersectExceptExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-IntersectExceptExpr" name="prod-xquery-IntersectExceptExpr"></a>[53]   </td>
+<td><code>IntersectExceptExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-InstanceofExpr">InstanceofExpr</a> ( ("intersect" | "except") <a href="#prod-xquery-InstanceofExpr">InstanceofExpr</a> )*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-InstanceofExpr" name="prod-xquery-InstanceofExpr"></a>[54]   </td>
+<td><code>InstanceofExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-TreatExpr">TreatExpr</a> ( &lt;"instance" "of"&gt; <a href="#prod-xquery-SequenceType">SequenceType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-TreatExpr" name="prod-xquery-TreatExpr"></a>[55]   </td>
+<td><code>TreatExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-CastableExpr">CastableExpr</a> ( &lt;"treat" "as"&gt; <a href="#prod-xquery-SequenceType">SequenceType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CastableExpr" name="prod-xquery-CastableExpr"></a>[56]   </td>
+<td><code>CastableExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-CastExpr">CastExpr</a> ( &lt;"castable" "as"&gt; <a href="#prod-xquery-SingleType">SingleType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CastExpr" name="prod-xquery-CastExpr"></a>[57]   </td>
+<td><code>CastExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-UnaryExpr">UnaryExpr</a> ( &lt;"cast" "as"&gt; <a href="#prod-xquery-SingleType">SingleType</a> )?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-UnaryExpr" name="prod-xquery-UnaryExpr"></a>[58]   </td>
+<td><code>UnaryExpr</code></td>
+<td>   ::=   </td>
+<td><code>("-" | "+")* <a href="#prod-xquery-ValueExpr">ValueExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ValueExpr" name="prod-xquery-ValueExpr"></a>[59]   </td>
+<td><code>ValueExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ValidateExpr">ValidateExpr</a> | <a href="#prod-xquery-PathExpr">PathExpr</a> | <a href="#prod-xquery-ExtensionExpr">ExtensionExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-GeneralComp" name="prod-xquery-GeneralComp"></a>[60]   </td>
+<td><code>GeneralComp</code></td>
+<td>   ::=   </td>
+<td><code>"=" | "!=" | "&lt;" | "&lt;=" | "&gt;" | "&gt;="</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-lt">gn: lt</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ValueComp" name="prod-xquery-ValueComp"></a>[61]   </td>
+<td><code>ValueComp</code></td>
+<td>   ::=   </td>
+<td><code>"eq" | "ne" | "lt" | "le" | "gt" | "ge"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-NodeComp" name="prod-xquery-NodeComp"></a>[62]   </td>
+<td><code>NodeComp</code></td>
+<td>   ::=   </td>
+<td><code>"is" | "&lt;&lt;" | "&gt;&gt;"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ValidateExpr" name="prod-xquery-ValidateExpr"></a>[63]   </td>
+<td><code>ValidateExpr</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"validate" "{"&gt; | (&lt;"validate" <a href="#prod-xquery-ValidationMode">ValidationMode</a>&gt; "{")) <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ExtensionExpr" name="prod-xquery-ExtensionExpr"></a>[64]   </td>
+<td><code>ExtensionExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Pragma">Pragma</a>+ "{" <a href="#prod-xquery-Expr">Expr</a>? "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Pragma" name="prod-xquery-Pragma"></a>[65]   </td>
+<td><code>Pragma</code></td>
+<td>   ::=   </td>
+<td><code>"(#" <a href="#prod-xquery-S">S</a>? <a href="#prod-xquery-QName">QName</a> <a href="#prod-xquery-PragmaContents">PragmaContents</a> "#)"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PragmaContents" name="prod-xquery-PragmaContents"></a>[66]   </td>
+<td><code>PragmaContents</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-Char">Char</a>* - (Char* '#)' Char*))</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PathExpr" name="prod-xquery-PathExpr"></a>[67]   </td>
+<td><code>PathExpr</code></td>
+<td>   ::=   </td>
+<td><code>("/" <a href="#prod-xquery-RelativePathExpr">RelativePathExpr</a>?)<br/>
+| ("//" <a href="#prod-xquery-RelativePathExpr">RelativePathExpr</a>)<br/>
+| <a href="#prod-xquery-RelativePathExpr">RelativePathExpr</a></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-leading-lone-slash">gn: leading-lone-slash</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-RelativePathExpr" name="prod-xquery-RelativePathExpr"></a>[68]   </td>
+<td><code>RelativePathExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-StepExpr">StepExpr</a> (("/" | "//") <a href="#prod-xquery-StepExpr">StepExpr</a>)*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-StepExpr" name="prod-xquery-StepExpr"></a>[69]   </td>
+<td><code>StepExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AxisStep">AxisStep</a> | <a href="#prod-xquery-FilterExpr">FilterExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AxisStep" name="prod-xquery-AxisStep"></a>[70]   </td>
+<td><code>AxisStep</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-ForwardStep">ForwardStep</a> | <a href="#prod-xquery-ReverseStep">ReverseStep</a>) <a href="#prod-xquery-PredicateList">PredicateList</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ForwardStep" name="prod-xquery-ForwardStep"></a>[71]   </td>
+<td><code>ForwardStep</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-ForwardAxis">ForwardAxis</a> <a href="#prod-xquery-NodeTest">NodeTest</a>) | <a href="#prod-xquery-AbbrevForwardStep">AbbrevForwardStep</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ForwardAxis" name="prod-xquery-ForwardAxis"></a>[72]   </td>
+<td><code>ForwardAxis</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"child" "::"&gt;<br/>
+| &lt;"descendant" "::"&gt;<br/>
+| &lt;"attribute" "::"&gt;<br/>
+| &lt;"self" "::"&gt;<br/>
+| &lt;"descendant-or-self" "::"&gt;<br/>
+| &lt;"following-sibling" "::"&gt;<br/>
+| &lt;"following" "::"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AbbrevForwardStep" name="prod-xquery-AbbrevForwardStep"></a>[73]   </td>
+<td><code>AbbrevForwardStep</code></td>
+<td>   ::=   </td>
+<td><code>"@"? <a href="#prod-xquery-NodeTest">NodeTest</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ReverseStep" name="prod-xquery-ReverseStep"></a>[74]   </td>
+<td><code>ReverseStep</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-ReverseAxis">ReverseAxis</a> <a href="#prod-xquery-NodeTest">NodeTest</a>) | <a href="#prod-xquery-AbbrevReverseStep">AbbrevReverseStep</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ReverseAxis" name="prod-xquery-ReverseAxis"></a>[75]   </td>
+<td><code>ReverseAxis</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"parent" "::"&gt;<br/>
+| &lt;"ancestor" "::"&gt;<br/>
+| &lt;"preceding-sibling" "::"&gt;<br/>
+| &lt;"preceding" "::"&gt;<br/>
+| &lt;"ancestor-or-self" "::"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AbbrevReverseStep" name="prod-xquery-AbbrevReverseStep"></a>[76]   </td>
+<td><code>AbbrevReverseStep</code></td>
+<td>   ::=   </td>
+<td><code>".."</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-NodeTest" name="prod-xquery-NodeTest"></a>[77]   </td>
+<td><code>NodeTest</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-KindTest">KindTest</a> | <a href="#prod-xquery-NameTest">NameTest</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-NameTest" name="prod-xquery-NameTest"></a>[78]   </td>
+<td><code>NameTest</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QName">QName</a> | <a href="#prod-xquery-Wildcard">Wildcard</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Wildcard" name="prod-xquery-Wildcard"></a>[79]   </td>
+<td><code>Wildcard</code></td>
+<td>   ::=   </td>
+<td><code>"*"<br/>
+| &lt;<a href="#prod-xquery-NCName">NCName</a> ":" "*"&gt;<br/>
+| &lt;"*" ":" <a href="#prod-xquery-NCName">NCName</a>&gt;</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-FilterExpr" name="prod-xquery-FilterExpr"></a>[80]   </td>
+<td><code>FilterExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-PrimaryExpr">PrimaryExpr</a> <a href="#prod-xquery-PredicateList">PredicateList</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PredicateList" name="prod-xquery-PredicateList"></a>[81]   </td>
+<td><code>PredicateList</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Predicate">Predicate</a>*</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Predicate" name="prod-xquery-Predicate"></a>[82]   </td>
+<td><code>Predicate</code></td>
+<td>   ::=   </td>
+<td><code>"[" <a href="#prod-xquery-Expr">Expr</a> "]"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PrimaryExpr" name="prod-xquery-PrimaryExpr"></a>[83]   </td>
+<td><code>PrimaryExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Literal">Literal</a> | <a href="#prod-xquery-VarRef">VarRef</a> | <a href="#prod-xquery-ParenthesizedExpr">ParenthesizedExpr</a> | <a href="#prod-xquery-ContextItemExpr">ContextItemExpr</a> | <a href="#prod-xquery-FunctionCall">FunctionCall</a> | <a href="#prod-xquery-Constructor">Constructor</a> | <a href="#prod-xquery-OrderedExpr">OrderedExpr</a> | <a href="#prod-xquery-UnorderedExpr">UnorderedExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Literal" name="prod-xquery-Literal"></a>[84]   </td>
+<td><code>Literal</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-NumericLiteral">NumericLiteral</a> | <a href="#prod-xquery-StringLiteral">StringLiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-NumericLiteral" name="prod-xquery-NumericLiteral"></a>[85]   </td>
+<td><code>NumericLiteral</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-IntegerLiteral">IntegerLiteral</a> | <a href="#prod-xquery-DecimalLiteral">DecimalLiteral</a> | <a href="#prod-xquery-DoubleLiteral">DoubleLiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-VarRef" name="prod-xquery-VarRef"></a>[86]   </td>
+<td><code>VarRef</code></td>
+<td>   ::=   </td>
+<td><code>"$" <a href="#prod-xquery-VarName">VarName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ParenthesizedExpr" name="prod-xquery-ParenthesizedExpr"></a>[87]   </td>
+<td><code>ParenthesizedExpr</code></td>
+<td>   ::=   </td>
+<td><code>"(" <a href="#prod-xquery-Expr">Expr</a>? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ContextItemExpr" name="prod-xquery-ContextItemExpr"></a>[88]   </td>
+<td><code>ContextItemExpr</code></td>
+<td>   ::=   </td>
+<td><code>"."</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OrderedExpr" name="prod-xquery-OrderedExpr"></a>[89]   </td>
+<td><code>OrderedExpr</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"ordered" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-UnorderedExpr" name="prod-xquery-UnorderedExpr"></a>[90]   </td>
+<td><code>UnorderedExpr</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"unordered" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-FunctionCall" name="prod-xquery-FunctionCall"></a>[91]   </td>
+<td><code>FunctionCall</code></td>
+<td>   ::=   </td>
+<td><code>&lt;<a href="#prod-xquery-QName">QName</a> "("&gt; (<a href="#prod-xquery-ExprSingle">ExprSingle</a> ("," <a href="#prod-xquery-ExprSingle">ExprSingle</a>)*)? ")"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-parens">gn: parens</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+<tr valign="baseline">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-reserved-function-names">gn: reserved-function-names</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Constructor" name="prod-xquery-Constructor"></a>[92]   </td>
+<td><code>Constructor</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-DirectConstructor">DirectConstructor</a><br/>
+| <a href="#prod-xquery-ComputedConstructor">ComputedConstructor</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirectConstructor" name="prod-xquery-DirectConstructor"></a>[93]   </td>
+<td><code>DirectConstructor</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-DirElemConstructor">DirElemConstructor</a><br/>
+| <a href="#prod-xquery-DirCommentConstructor">DirCommentConstructor</a><br/>
+| <a href="#prod-xquery-DirPIConstructor">DirPIConstructor</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirElemConstructor" name="prod-xquery-DirElemConstructor"></a>[94]   </td>
+<td><code>DirElemConstructor</code></td>
+<td>   ::=   </td>
+<td><code>"&lt;" <a href="#prod-xquery-QName">QName</a> <a href="#prod-xquery-DirAttributeList">DirAttributeList</a> ("/&gt;" | ("&gt;" <a href="#prod-xquery-DirElemContent">DirElemContent</a>* "&lt;/" <a href="#prod-xquery-QName">QName</a> <a href="#prod-xquery-S">S</a>? "&gt;"))</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+<tr valign="baseline">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-lt">gn: lt</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirAttributeList" name="prod-xquery-DirAttributeList"></a>[95]   </td>
+<td><code>DirAttributeList</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-S">S</a> (<a href="#prod-xquery-QName">QName</a> <a href="#prod-xquery-S">S</a>? "=" <a href="#prod-xquery-S">S</a>? <a href="#prod-xquery-DirAttributeValue">DirAttributeValue</a>)?)*</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirAttributeValue" name="prod-xquery-DirAttributeValue"></a>[96]   </td>
+<td><code>DirAttributeValue</code></td>
+<td>   ::=   </td>
+<td><code>('"' (<a href="#prod-xquery-EscapeQuot">EscapeQuot</a> | <a href="#prod-xquery-QuotAttrValueContent">QuotAttrValueContent</a>)* '"')<br/>
+| ("'" (<a href="#prod-xquery-EscapeApos">EscapeApos</a> | <a href="#prod-xquery-AposAttrValueContent">AposAttrValueContent</a>)* "'")</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-QuotAttrValueContent" name="prod-xquery-QuotAttrValueContent"></a>[97]   </td>
+<td><code>QuotAttrValueContent</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QuotAttrContentChar">QuotAttrContentChar</a><br/>
+| <a href="#prod-xquery-CommonContent">CommonContent</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AposAttrValueContent" name="prod-xquery-AposAttrValueContent"></a>[98]   </td>
+<td><code>AposAttrValueContent</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AposAttrContentChar">AposAttrContentChar</a><br/>
+| <a href="#prod-xquery-CommonContent">CommonContent</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirElemContent" name="prod-xquery-DirElemContent"></a>[99]   </td>
+<td><code>DirElemContent</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-DirectConstructor">DirectConstructor</a><br/>
+| <a href="#prod-xquery-ElementContentChar">ElementContentChar</a><br/>
+| <a href="#prod-xquery-CDataSection">CDataSection</a><br/>
+| <a href="#prod-xquery-CommonContent">CommonContent</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CommonContent" name="prod-xquery-CommonContent"></a>[100]   </td>
+<td><code>CommonContent</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-PredefinedEntityRef">PredefinedEntityRef</a> | <a href="#prod-xquery-CharRef">CharRef</a> | "{{" | "}}" | <a href="#prod-xquery-EnclosedExpr">EnclosedExpr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirCommentConstructor" name="prod-xquery-DirCommentConstructor"></a>[101]   </td>
+<td><code>DirCommentConstructor</code></td>
+<td>   ::=   </td>
+<td><code>"&lt;!--" <a href="#prod-xquery-DirCommentContents">DirCommentContents</a> "--&gt;"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirCommentContents" name="prod-xquery-DirCommentContents"></a>[102]   </td>
+<td><code>DirCommentContents</code></td>
+<td>   ::=   </td>
+<td><code>((<a href="#prod-xquery-Char">Char</a> - '-') | &lt;'-' (<a href="#prod-xquery-Char">Char</a> - '-')&gt;)*</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirPIConstructor" name="prod-xquery-DirPIConstructor"></a>[103]   </td>
+<td><code>DirPIConstructor</code></td>
+<td>   ::=   </td>
+<td><code>"&lt;?" <a href="#prod-xquery-PITarget">PITarget</a> (<a href="#prod-xquery-S">S</a> <a href="#prod-xquery-DirPIContents">DirPIContents</a>)? "?&gt;"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DirPIContents" name="prod-xquery-DirPIContents"></a>[104]   </td>
+<td><code>DirPIContents</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-Char">Char</a>* - (Char* '?&gt;' Char*))</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CDataSection" name="prod-xquery-CDataSection"></a>[105]   </td>
+<td><code>CDataSection</code></td>
+<td>   ::=   </td>
+<td><code>"&lt;![CDATA[" <a href="#prod-xquery-CDataSectionContents">CDataSectionContents</a> "]]&gt;"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CDataSectionContents" name="prod-xquery-CDataSectionContents"></a>[106]   </td>
+<td><code>CDataSectionContents</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-Char">Char</a>* - (Char* ']]&gt;' Char*))</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ComputedConstructor" name="prod-xquery-ComputedConstructor"></a>[107]   </td>
+<td><code>ComputedConstructor</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-CompDocConstructor">CompDocConstructor</a><br/>
+| <a href="#prod-xquery-CompElemConstructor">CompElemConstructor</a><br/>
+| <a href="#prod-xquery-CompAttrConstructor">CompAttrConstructor</a><br/>
+| <a href="#prod-xquery-CompTextConstructor">CompTextConstructor</a><br/>
+| <a href="#prod-xquery-CompCommentConstructor">CompCommentConstructor</a><br/>
+| <a href="#prod-xquery-CompPIConstructor">CompPIConstructor</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CompDocConstructor" name="prod-xquery-CompDocConstructor"></a>[108]   </td>
+<td><code>CompDocConstructor</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"document" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CompElemConstructor" name="prod-xquery-CompElemConstructor"></a>[109]   </td>
+<td><code>CompElemConstructor</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"element" <a href="#prod-xquery-QName">QName</a> "{"&gt; | (&lt;"element" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}" "{")) <a href="#prod-xquery-ContentExpr">ContentExpr</a>? "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ContentExpr" name="prod-xquery-ContentExpr"></a>[110]   </td>
+<td><code>ContentExpr</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Expr">Expr</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CompAttrConstructor" name="prod-xquery-CompAttrConstructor"></a>[111]   </td>
+<td><code>CompAttrConstructor</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"attribute" <a href="#prod-xquery-QName">QName</a> "{"&gt; | (&lt;"attribute" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}" "{")) <a href="#prod-xquery-Expr">Expr</a>? "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CompTextConstructor" name="prod-xquery-CompTextConstructor"></a>[112]   </td>
+<td><code>CompTextConstructor</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"text" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CompCommentConstructor" name="prod-xquery-CompCommentConstructor"></a>[113]   </td>
+<td><code>CompCommentConstructor</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"comment" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CompPIConstructor" name="prod-xquery-CompPIConstructor"></a>[114]   </td>
+<td><code>CompPIConstructor</code></td>
+<td>   ::=   </td>
+<td><code>(&lt;"processing-instruction" <a href="#prod-xquery-NCName">NCName</a> "{"&gt; | (&lt;"processing-instruction" "{"&gt; <a href="#prod-xquery-Expr">Expr</a> "}" "{")) <a href="#prod-xquery-Expr">Expr</a>? "}"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-SingleType" name="prod-xquery-SingleType"></a>[115]   </td>
+<td><code>SingleType</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AtomicType">AtomicType</a> "?"?</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-TypeDeclaration" name="prod-xquery-TypeDeclaration"></a>[116]   </td>
+<td><code>TypeDeclaration</code></td>
+<td>   ::=   </td>
+<td><code>"as" <a href="#prod-xquery-SequenceType">SequenceType</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-SequenceType" name="prod-xquery-SequenceType"></a>[117]   </td>
+<td><code>SequenceType</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-ItemType">ItemType</a> <a href="#prod-xquery-OccurrenceIndicator">OccurrenceIndicator</a>?)<br/>
+| &lt;"void" "(" ")"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-OccurrenceIndicator" name="prod-xquery-OccurrenceIndicator"></a>[118]   </td>
+<td><code>OccurrenceIndicator</code></td>
+<td>   ::=   </td>
+<td><code>"?" | "*" | "+"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-occurrence-indicators">gn: occurrence-indicators</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ItemType" name="prod-xquery-ItemType"></a>[119]   </td>
+<td><code>ItemType</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AtomicType">AtomicType</a> | <a href="#prod-xquery-KindTest">KindTest</a> | &lt;"item" "(" ")"&gt;</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AtomicType" name="prod-xquery-AtomicType"></a>[120]   </td>
+<td><code>AtomicType</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-KindTest" name="prod-xquery-KindTest"></a>[121]   </td>
+<td><code>KindTest</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-DocumentTest">DocumentTest</a><br/>
+| <a href="#prod-xquery-ElementTest">ElementTest</a><br/>
+| <a href="#prod-xquery-AttributeTest">AttributeTest</a><br/>
+| <a href="#prod-xquery-SchemaElementTest">SchemaElementTest</a><br/>
+| <a href="#prod-xquery-SchemaAttributeTest">SchemaAttributeTest</a><br/>
+| <a href="#prod-xquery-PITest">PITest</a><br/>
+| <a href="#prod-xquery-CommentTest">CommentTest</a><br/>
+| <a href="#prod-xquery-TextTest">TextTest</a><br/>
+| <a href="#prod-xquery-AnyKindTest">AnyKindTest</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AnyKindTest" name="prod-xquery-AnyKindTest"></a>[122]   </td>
+<td><code>AnyKindTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"node" "("&gt; ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DocumentTest" name="prod-xquery-DocumentTest"></a>[123]   </td>
+<td><code>DocumentTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"document-node" "("&gt; (<a href="#prod-xquery-ElementTest">ElementTest</a> | <a href="#prod-xquery-SchemaElementTest">SchemaElementTest</a>)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-TextTest" name="prod-xquery-TextTest"></a>[124]   </td>
+<td><code>TextTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"text" "("&gt; ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CommentTest" name="prod-xquery-CommentTest"></a>[125]   </td>
+<td><code>CommentTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"comment" "("&gt; ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PITest" name="prod-xquery-PITest"></a>[126]   </td>
+<td><code>PITest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"processing-instruction" "("&gt; (<a href="#prod-xquery-NCName">NCName</a> | <a href="#prod-xquery-StringLiteral">StringLiteral</a>)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AttributeTest" name="prod-xquery-AttributeTest"></a>[127]   </td>
+<td><code>AttributeTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"attribute" "("&gt; (<a href="#prod-xquery-AttribNameOrWildcard">AttribNameOrWildcard</a> ("," <a href="#prod-xquery-TypeName">TypeName</a>)?)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AttribNameOrWildcard" name="prod-xquery-AttribNameOrWildcard"></a>[128]   </td>
+<td><code>AttribNameOrWildcard</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AttributeName">AttributeName</a> | "*"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-SchemaAttributeTest" name="prod-xquery-SchemaAttributeTest"></a>[129]   </td>
+<td><code>SchemaAttributeTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"schema-attribute" "("&gt; <a href="#prod-xquery-AttributeDeclaration">AttributeDeclaration</a> ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AttributeDeclaration" name="prod-xquery-AttributeDeclaration"></a>[130]   </td>
+<td><code>AttributeDeclaration</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-AttributeName">AttributeName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ElementTest" name="prod-xquery-ElementTest"></a>[131]   </td>
+<td><code>ElementTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"element" "("&gt; (<a href="#prod-xquery-ElementNameOrWildcard">ElementNameOrWildcard</a> ("," <a href="#prod-xquery-TypeName">TypeName</a> "?"?)?)? ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ElementNameOrWildcard" name="prod-xquery-ElementNameOrWildcard"></a>[132]   </td>
+<td><code>ElementNameOrWildcard</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ElementName">ElementName</a> | "*"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-SchemaElementTest" name="prod-xquery-SchemaElementTest"></a>[133]   </td>
+<td><code>SchemaElementTest</code></td>
+<td>   ::=   </td>
+<td><code>&lt;"schema-element" "("&gt; <a href="#prod-xquery-ElementDeclaration">ElementDeclaration</a> ")"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ElementDeclaration" name="prod-xquery-ElementDeclaration"></a>[134]   </td>
+<td><code>ElementDeclaration</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-ElementName">ElementName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AttributeName" name="prod-xquery-AttributeName"></a>[135]   </td>
+<td><code>AttributeName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ElementName" name="prod-xquery-ElementName"></a>[136]   </td>
+<td><code>ElementName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-TypeName" name="prod-xquery-TypeName"></a>[137]   </td>
+<td><code>TypeName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QName">QName</a></code></td>
+</tr>
+</tbody>
+</table>
+<table summary="Scrap" class="scrap">
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-IntegerLiteral" name="prod-xquery-IntegerLiteral"></a>[138]   </td>
+<td><code>IntegerLiteral</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Digits">Digits</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DecimalLiteral" name="prod-xquery-DecimalLiteral"></a>[139]   </td>
+<td><code>DecimalLiteral</code></td>
+<td>   ::=   </td>
+<td><code>("." <a href="#prod-xquery-Digits">Digits</a>) | (<a href="#prod-xquery-Digits">Digits</a> "." [0-9]*)</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-DoubleLiteral" name="prod-xquery-DoubleLiteral"></a>[140]   </td>
+<td><code>DoubleLiteral</code></td>
+<td>   ::=   </td>
+<td><code>(("." <a href="#prod-xquery-Digits">Digits</a>) | (<a href="#prod-xquery-Digits">Digits</a> ("." [0-9]*)?)) [eE] [+-]? <a href="#prod-xquery-Digits">Digits</a></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-URILiteral" name="prod-xquery-URILiteral"></a>[141]   </td>
+<td><code>URILiteral</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-StringLiteral">StringLiteral</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-StringLiteral" name="prod-xquery-StringLiteral"></a>[142]   </td>
+<td><code>StringLiteral</code></td>
+<td>   ::=   </td>
+<td><code>('"' (<a href="#prod-xquery-PredefinedEntityRef">PredefinedEntityRef</a> | <a href="#prod-xquery-CharRef">CharRef</a> | ('"' '"') | [^"&amp;])* '"') | ("'" (<a href="#prod-xquery-PredefinedEntityRef">PredefinedEntityRef</a> | <a href="#prod-xquery-CharRef">CharRef</a> | ("'" "'") | [^'&amp;])* "'")</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PITarget" name="prod-xquery-PITarget"></a>[143]   </td>
+<td><code>PITarget</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml/#NT-PITarget">[http://www.w3.org/TR/REC-xml#NT-PITarget]</a><sup><small>XML</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-xml-version">gn: xml-version</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-VarName" name="prod-xquery-VarName"></a>[144]   </td>
+<td><code>VarName</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-QName">QName</a></code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ValidationMode" name="prod-xquery-ValidationMode"></a>[145]   </td>
+<td><code>ValidationMode</code></td>
+<td>   ::=   </td>
+<td><code>"lax" | "strict"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Digits" name="prod-xquery-Digits"></a>[146]   </td>
+<td><code>Digits</code></td>
+<td>   ::=   </td>
+<td><code>[0-9]+</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-PredefinedEntityRef" name="prod-xquery-PredefinedEntityRef"></a>[147]   </td>
+<td><code>PredefinedEntityRef</code></td>
+<td>   ::=   </td>
+<td><code>"&amp;" ("lt" | "gt" | "amp" | "quot" | "apos") ";"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CharRef" name="prod-xquery-CharRef"></a>[148]   </td>
+<td><code>CharRef</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml/#NT-CharRef">[http://www.w3.org/TR/REC-xml#NT-CharRef]</a><sup><small>XML</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-xml-version">gn: xml-version</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-EscapeQuot" name="prod-xquery-EscapeQuot"></a>[149]   </td>
+<td><code>EscapeQuot</code></td>
+<td>   ::=   </td>
+<td><code>'""'</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-EscapeApos" name="prod-xquery-EscapeApos"></a>[150]   </td>
+<td><code>EscapeApos</code></td>
+<td>   ::=   </td>
+<td><code>"''"</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-ElementContentChar" name="prod-xquery-ElementContentChar"></a>[151]   </td>
+<td><code>ElementContentChar</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Char">Char</a> - [{}&lt;&amp;]</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-QuotAttrContentChar" name="prod-xquery-QuotAttrContentChar"></a>[152]   </td>
+<td><code>QuotAttrContentChar</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Char">Char</a> - ["{}&lt;&amp;]</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-AposAttrContentChar" name="prod-xquery-AposAttrContentChar"></a>[153]   </td>
+<td><code>AposAttrContentChar</code></td>
+<td>   ::=   </td>
+<td><code><a href="#prod-xquery-Char">Char</a> - ['{}&lt;&amp;]</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Comment" name="prod-xquery-Comment"></a>[154]   </td>
+<td><code>Comment</code></td>
+<td>   ::=   </td>
+<td><code>"(:" (<a href="#prod-xquery-CommentContents">CommentContents</a> | <a href="#prod-xquery-Comment">Comment</a>)* ":)"</code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#ws-explicit">ws: explicit</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+<tr valign="baseline">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-comments">gn: comments</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-CommentContents" name="prod-xquery-CommentContents"></a>[155]   </td>
+<td><code>CommentContents</code></td>
+<td>   ::=   </td>
+<td><code>(<a href="#prod-xquery-Char">Char</a>+ - (Char* ':)' Char*))</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-QName" name="prod-xquery-QName"></a>[156]   </td>
+<td><code>QName</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml-names/#NT-QName">[http://www.w3.org/TR/REC-xml-names/#NT-QName]</a><sup><small>Names</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-xml-version">gn: xml-version</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-NCName" name="prod-xquery-NCName"></a>[157]   </td>
+<td><code>NCName</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml-names/#NT-NCName">[http://www.w3.org/TR/REC-xml-names/#NT-NCName]</a><sup><small>Names</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-xml-version">gn: xml-version</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-S" name="prod-xquery-S"></a>[158]   </td>
+<td><code>S</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml/#NT-S">[http://www.w3.org/TR/REC-xml#NT-S]</a><sup><small>XML</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-xml-version">gn: xml-version</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+<tbody>
+<tr valign="baseline">
+<td><a id="prod-xquery-Char" name="prod-xquery-Char"></a>[159]   </td>
+<td><code>Char</code></td>
+<td>   ::=   </td>
+<td><code><a href="http://www.w3.org/TR/REC-xml/#NT-Char">[http://www.w3.org/TR/REC-xml#NT-Char]</a><sup><small>XML</small></sup></code></td>
+<td><i>/* <a href="http://www.w3.org/TR/xquery#parse-note-xml-version">gn: xml-version</a><sup><small>XQ</small></sup> */</i></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="div1">
+<h2><a id="id-references" name="id-references"></a>B References</h2>
+<div class="div2">
+<h3><a id="id-non-normative-references" name="id-non-normative-references"></a>B.1 Main References</h3>
+<dl>
+<dt class="label"><span><a id="XML" name="XML"></a>XML 1.0</span></dt>
+<dd>
+<div>World Wide Web Consortium. <em>Extensible Markup Language (XML) 1.0.</em> W3C Recommendation. See <a href="http://www.w3.org/TR/2000/REC-xml-20001006">http://www.w3.org/TR/2000/REC-xml-20001006</a></div>
+</dd>
+<dt class="label"><span><a id="xpath20" name="xpath20"></a>XML Path Language (XPath) 2.0</span></dt>
+<dd>
+<div><a href="http://www.w3.org/TR/xpath20"><cite>XML Path Language (XPath) 2.0</cite></a>, Anders Berglund, Mary F. Fernández, Scott Boag, <em>et. al.</em>, Editors. World Wide Web Consortium, 4 Apr 2005. This version is http://www.w3.org/TR/2005/WD-xpath20-20050404. The <a href="http://www.w3.org/TR/xpath20">latest version</a> is available at http://www.w3.org/TR/xpath20.</div>
+</dd>
+<dt class="label"><span><a id="xquery" name="xquery"></a>XQuery 1.0: An XML Query Language</span></dt>
+<dd>
+<div><a href="http://www.w3.org/TR/xquery"><cite>XQuery 1.0: An XML Query Language</cite></a>, Scott Boag, Don Chamberlin, Mary F. Fernández, <em>et. al.</em>, Editors. World Wide Web Consortium, 4 Apr 2005. This version is http://www.w3.org/TR/2005/WD-xquery-20050404/. The <a href="http://www.w3.org/TR/xquery">latest version</a> is available at http://www.w3.org/TR/xquery.</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="div1">
+<h2><a id="id-glossary" name="id-glossary"></a>C Glossary (Non-Normative)</h2>
+<dl>
+<dt><a name="GLfuzzy-token-scanner" id="GLfuzzy-token-scanner"></a>fuzzy token scanner</dt>
+<dd>
+<p><b>Fuzzy token scanner</b>. Using this strategy, a typical simple lexical scanner is implemented, but the meaning of the tokens are often left somewhat ambiguous. Thus, the word <code>div</code> might be assigned the symbol QNameOrKeyword. The words can be disambiguated during the context sensitive parse process. This approach would probably be a hand-constructed, Top-down parser.</p>
+</dd>
+<dt><a name="GLlalr-parser" id="GLlalr-parser"></a>LALR Parser</dt>
+<dd>
+<p><b>LALR Parser</b> (<em>L</em>ook <em>A</em>head <em>L</em>eft to right, <em>R</em>ightmost derivation, hence LALR).</p>
+</dd>
+<dt><a name="GLlexical-action" id="GLlexical-action"></a>lexical action</dt>
+<dd>
+<p>A <b>lexical action</b> is an action that occurs as an side-effect of a pattern recognition.</p>
+</dd>
+<dt><a name="GLlexer" id="GLlexer"></a>lexical scanner</dt>
+<dd>
+<p><b>Lexical scanner</b>, which assigns symbols known as tokens to units in the input, in essence recognizing the basic words and punctuation of the language. Typically, the lexer uses regular expressions as a specification for how to do this tokenization. The rules that govern the lexical structure of the language, sometimes known as microsyntax, should be simple, regular, and as context-free as possible.</p>
+</dd>
+<dt><a name="GLlexical-state" id="GLlexical-state"></a>lexical state</dt>
+<dd>
+<p>A <b>lexical state</b> is a condition where a defined set of patterns are recognized.</p>
+</dd>
+<dt><a name="GLll-parser" id="GLll-parser"></a>LL Parser</dt>
+<dd>
+<p><b>LL Parser</b> (<em>L</em>eft to right, <em>L</em>eftmost derivation, hence LL).</p>
+</dd>
+<dt><a name="GLlong-token" id="GLlong-token"></a>long token</dt>
+<dd>
+<p><b>Long tokens</b>. Using this approach, <code>declare namespace</code> would be considered a single token.</p>
+</dd>
+<dt><a name="GLparser" id="GLparser"></a>parser</dt>
+<dd>
+<p><b>Parser</b>, which arranges the tokens into a hierarchical structure. Typically, the parser uses a BNF or variant description (EBNF in the case of XPath/XQuery) as a specification for this parsing.</p>
+</dd>
+<dt><a name="GLscan-while-parse" id="GLscan-while-parse"></a>Scan-while-parse scanner</dt>
+<dd>
+<p><b>Scan-while-parse scanner</b>. Using this strategy, the parser would evaluate the character stream into tokens, while at the same time branching to the respective hierarchical context. Thus the words can be discovered in context. Complex parsers are typically not built in this fashion, but, given the issue of context sensitivity, this may be a reasonable approach. This would probably be implemented as a hand-constructed recursive-descent parser.</p>
+</dd>
+<dt><a name="GLshort-token" id="GLshort-token"></a>short token</dt>
+<dd>
+<p><b>Short tokens</b>. Using this approach, <code>declare namespace</code> would be considered two tokens, the exact symbols assigned based on lexical look-ahead (and look-behind).</p>
+</dd>
+<dt><a name="GLstate-driven-scanner" id="GLstate-driven-scanner"></a>state-driven scanner</dt>
+<dd>
+<p><b>State-driven scanner</b>. This approach recognizes sets of words only in certain states, each word or punctuation possibly transitioning to a next state. In other words, it implements lexical recognition as transition tables for a push-down automata.</p>
+</dd>
+<dt><a name="GLtwo-pass-scanner" id="GLtwo-pass-scanner"></a>two-pass scanner</dt>
+<dd>
+<p><b>Two-pass scanner</b>. This is the same as the Fuzzy token scanner, but the ambiguous words can be disambiguated by a second scan, using some rules (probably expressed as a context-free grammar) that reflect the basic structure of the EBNF (call this the three-pass approach). The three-pass approach could conceivably be implemented via a parser constructor program, with the addition of a custom disambiguator in between the lexer and parser. This method could be used for either Top-down or Bottom-up
+techniques.</p>
+</dd>
+</dl>
+</div>
+</div>
+<hr/>
+<div class="endnotes">
+<h3><a id="endnotes" name="endnotes"></a>End Notes</h3>
+<dl>
+<dt>[<a href="#FN-ANCH-N100A9" id="N100A9" name="N100A9">1</a>]</dt>
+<dd>
+<p>XQuery does not include the ForExpr production and &lt;"namespace" "::"&gt; axis.</p>
+</dd>
+</dl>
+</div>
+</body>
+</html>

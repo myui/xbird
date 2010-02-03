@@ -1,0 +1,44 @@
+long l = 1024 + (long) Integer.MAX_VALUE;
+System.out.println(l);
+System.out.println(xbird.util.StringUtils.toBitString((long) Integer.MAX_VALUE));
+System.out.println(xbird.util.StringUtils.toBitString(l));
+System.out.println(xbird.util.StringUtils.toBitString((1 << 31) - 1));
+System.out.println(xbird.util.StringUtils.toBitString(0x7fffffff)); (No explicit return value)
+java.util.BitSet bits = new java.util.BitSet(8);
+bits.flip(0, 8);
+System.out.println(bits);
+int i = bits.nextClearBit(0);
+System.out.println(i);
+System.out.println(bits.isEmpty());
+java.applet.Applet applet;
+applet.getCodeBase();
+
+int i = Integer.MAX_VALUE +1 + Integer.MAX_VALUE;
+System.out.println(i);
+
+int counter = Integer.MIN_VALUE;
+int created = counter++;
+System.out.println(created);
+System.out.println(counter);
+
+System.out.println(1 << 12);System.out.println(1 << 13);
+
+System.out.println(0xffffffff);
+
+System.out.println(xbird.util.StringUtils.toBitString(12 % 8));
+System.out.println(xbird.util.StringUtils.toBitString(8 & 7));
+
+System.out.println(xbird.util.StringUtils.toBitString(8 / 8));System.out.println(xbird.util.StringUtils.toBitString(19 & 7));
+System.out.println(xbird.util.StringUtils.toBitString(8 >>> 3));
+System.out.println(xbird.util.StringUtils.toBitString(9 >>> 3));
+System.out.println(xbird.util.StringUtils.toBitString(16 >>> 3));
+System.out.println(1<<8);
+
+System.out.println(xbird.util.str.StringUtils.toBitString(0x1));
+System.out.println(xbird.util.str.StringUtils.toBitString(0x2));
+System.out.println(xbird.util.str.StringUtils.toBitString(0x4));
+System.out.println(xbird.util.str.StringUtils.toBitString(0x8));
+System.out.println(xbird.util.str.StringUtils.toBitString(0x80));
+System.out.println(xbird.util.str.StringUtils.toBitString(0x10));
+
+System.out.println(((-1 << 24) + (1 << 16) + (1 << 8) + (1 << 0)));

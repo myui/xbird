@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article>
+  <title condition="">Xbird Quick Start</title>
+
+  <articleinfo>
+    <author>
+      <firstname>Makoto</firstname>
+
+      <surname>YUI</surname>
+    </author>
+
+    <copyright>
+      <year>2006</year>
+
+      <holder>Makoto YUI</holder>
+    </copyright>
+
+    <revhistory>
+      <revision>
+        <revnumber>$Rev$</revnumber>
+
+        <date>$Date$</date>
+      </revision>
+    </revhistory>
+  </articleinfo>
+
+  <abstract>
+    <para>This document provides infomation for developers to work XBird in 5 minutes.</para>
+  </abstract>
+
+  <section>
+    <title>Installation</title>
+
+    <section>
+      <title>Requirements</title>
+
+      <orderedlist>
+        <listitem>
+          <para>Java Runtime Environment (JRE) 5.0 or after. 
+		   Please ensure that JRE 5.0 is install on your machine. If not installed yet, please download from <ulink url="http://java.sun.com/javase/downloads/index.jsp">Sun's distribution site</ulink> and install JRE.
+		  </para>
+
+          <para>We assume that <emphasis role="bold">JAVA_HOME</emphasis>
+          environment varible is set in this document.</para>
+        </listitem>
+
+        <listitem>
+          <para><ulink
+          url="http://jakarta.apache.org/commons/logging/">Commons
+          Logging</ulink> is used for logging library (included in lib
+          directory).</para>
+        </listitem>
+      </orderedlist>
+    </section>
+
+    <section>
+      <title>Installation the software</title>
+
+      <para>Unpack the Zip archive in the desired place.</para>
+
+      <para>In this document, an alias $XBIRD_DIR is used for the
+      directory.</para>
+    </section>
+
+    <section>
+      <title>License</title>
+
+      <para>XBird/open is licensed under <ulink
+      url="http://www.opensource.org/licenses/cpl1.0.php">Common Public
+      License 1.0</ulink>.</para>
+
+      <para>Licenses of used libraries are put on
+      <emphasis>lib/license</emphasis> directory. Please check and agree with
+      those before using.</para>
+    </section>
+
+    <section>
+      <title>Contents of the distribution</title>
+
+      <para>The distribution directory structure is basically based on <ulink
+      url="http://maven.apache.org/maven-1.x/">Maven 1.x</ulink> standard
+      convensions.</para>
+
+      <table>
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry>bin</entry>
+
+              <entry>Executable binaries and scripts.</entry>
+            </row>
+
+            <row>
+              <entry>build</entry>
+
+              <entry>Destination for classes that built by eclipse.</entry>
+            </row>
+
+            <row>
+              <entry>docs</entry>
+
+              <entry>Documentation and sample codes.</entry>
+            </row>
+
+            <row>
+              <entry>etc</entry>
+
+              <entry>Auxiliary contents. <para>e.g. Localized license files
+              and Eclipse CodeFormat file of the xbird
+              development.</para></entry>
+            </row>
+
+            <row>
+              <entry>examples</entry>
+
+              <entry>Example files of XQuery.</entry>
+            </row>
+
+            <row>
+              <entry>lib</entry>
+
+              <entry>
+                <para>Jar files in the directory is minimum libraries
+                required by XBird.</para>
+
+                <para>And, these contents are included in
+                sub-directory:</para>
+
+                <itemizedlist>
+                  <listitem>
+                    <para><emphasis role="bold">endosed</emphasis>: the
+                    directory for endosed libraries.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">license</emphasis>: the
+                    directory for licesece files of libraries.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">optional</emphasis>: the
+                    directory for optional features required for building
+                    entire XBird.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">proprietary</emphasis>: the
+                    directory for proprietary libraries (open-source edition
+                    may not have contents).</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">repos</emphasis>: the
+                    directory of maven local repository.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">src</emphasis>: the directory
+                    for sources of jar libraries.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">tools</emphasis>: the
+                    directory for tools. e.g. <ulink
+                    url="https://javacc.dev.java.net/">JavaCC</ulink> and
+                    <ulink
+                    url="http://www.cenqua.com/clover/">Clover</ulink>.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">unused</emphasis>: the
+                    directory for currentlly unused library.</para>
+                  </listitem>
+                </itemizedlist>
+              </entry>
+            </row>
+
+            <row>
+              <entry>main</entry>
+
+              <entry>
+                <para>Source codes and resources are based on <ulink
+                url="http://maven.apache.org/maven-1.x/reference/conventions.html">Maven
+                1.X standard convensions</ulink>.</para>
+
+                <itemizedlist>
+                  <listitem>
+                    <para><emphasis role="bold">conf</emphasis>: configuration
+                    files.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">src</emphasis>: source files.
+                    Core codes are obfuscated in free edition.</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">test</emphasis>: test
+                    codes.</para>
+                  </listitem>
+                </itemizedlist>
+              </entry>
+            </row>
+
+            <row>
+              <entry>target</entry>
+
+              <entry>Target directory generated by maven.</entry>
+            </row>
+
+            <row>
+              <entry>xdocs</entry>
+
+              <entry>Files to generate project site contents.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+  </section>
+
+  <section>
+    <title>Command Line execution</title>
+
+    <section>
+      <title>Intaractive Shell</title>
+
+      <para>XBird insteractive shell gives you interactive command execution,
+      and is lanched by as one of following.</para>
+
+      <para><xref linkend="ishell" /> is the executed image, and it figures
+      the XBird optional switches.</para>
+
+      <programlisting># execute from Jar (ensure that commons-logging.jar and args4j-2.0.4.jar are current directory).
+$ java -cp "commons-logging.jar;args4j-2.0.4.jar" -jar target/xbird-X.X.jar arguments...
+
+# execute from classes
+java -cp "target/classes;lib/commons-logging-1.0.4.jar;lib/optional/args4j-2.0.4.jar" \
+xbird.client.InteractiveShell arguments...</programlisting>
+
+      <figure>
+        <title id="ishell">Execution image of Intractive Shell</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/ishell.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </section>
+
+    <section>
+      <title>Batch execution</title>
+
+      <para>Batch execution is invoked by argumentating InteractiveShell "-q"
+      option as following.</para>
+
+      <programlisting># execute from Jar (ensure that commons-logging.jar and args4j-2.0.4.jar are current directory).
+$ java -cp "commons-logging-1.0.4.jar;args4j-2.0.4.jar" -jar target/xbird-X.X.jar -q queryFile arguments...
+
+# execute from classes
+$ java -cp "target/classes;lib/commons-logging.jar;lib/optional/args4j-2.0.4.jar" \
+xbird.client.InteractiveShell -q queryFile arguments...</programlisting>
+
+      <para>The optional arguments accepted by XBird are same to Shell
+      execution mode.</para>
+    </section>
+
+    <section>
+      <title>Using XQuery</title>
+
+      <section>
+        <title>Playing with XMark Queries</title>
+
+        <para><ulink url="http://monetdb.cwi.nl/xml/">XMark</ulink> is de-fact
+        XML database benchmark suite. This section provides you to run the
+        XMark queries.</para>
+
+        <para>XMark queries and the data is put on
+        <emphasis>example/xmark</emphasis> directory. To run XMark queries,
+        you'll type as following.</para>
+
+        <programlisting># Invoking XMark Q1
+$ java -cp "target/classes;lib/commons-logging-1.0.4.jar;lib/optional/args4j-2.0.4.jar" \
+xbird.client.InteractiveShell -q examples/xmark/q1xq
+
+# Then, get the result and execution time of the query
+Klemens Pelz 984ms</programlisting>
+      </section>
+    </section>
+  </section>
+
+  <toc></toc>
+</article>

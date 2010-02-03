@@ -1,0 +1,165 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT uniprot (entry)+>
+<!ATTLIST uniprot
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT entry (accession,name,protein,gene?,organism,organismHost?,
+                 reference+,comment*,dbReference+,(keyword*|feature*),
+                 evidence+,sequence)>
+<!ATTLIST entry
+  xmlns CDATA #FIXED ''
+  created  #REQUIRED
+  dataset  #REQUIRED
+  modified  #REQUIRED
+  version  #REQUIRED>
+
+<!ELEMENT accession (#PCDATA)>
+<!ATTLIST accession
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT protein (name)+>
+<!ATTLIST protein
+  xmlns CDATA #FIXED ''
+  evidence  #REQUIRED
+  type  #IMPLIED>
+
+<!ELEMENT gene (name)+>
+<!ATTLIST gene
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT organism (name+,dbReference,lineage)>
+<!ATTLIST organism
+  xmlns CDATA #FIXED ''
+  key  #REQUIRED>
+
+<!ELEMENT organismHost (name,dbReference)>
+<!ATTLIST organismHost
+  xmlns CDATA #FIXED ''
+  key  #REQUIRED>
+
+<!ELEMENT reference (citation,scope,source?)>
+<!ATTLIST reference
+  xmlns CDATA #FIXED ''
+  evidence CDATA #REQUIRED
+  key  #REQUIRED>
+
+<!ELEMENT comment (text)>
+<!ATTLIST comment
+  xmlns CDATA #FIXED ''
+  evidence  #IMPLIED
+  type CDATA #REQUIRED>
+
+<!ELEMENT keyword (#PCDATA)>
+<!ATTLIST keyword
+  xmlns CDATA #FIXED ''
+  evidence CDATA #REQUIRED
+  id  #REQUIRED>
+
+<!ELEMENT feature (location)>
+<!ATTLIST feature
+  xmlns CDATA #FIXED ''
+  evidence  #REQUIRED
+  type CDATA #REQUIRED>
+
+<!ELEMENT evidence EMPTY>
+<!ATTLIST evidence
+  xmlns CDATA #FIXED ''
+  attribute  #IMPLIED
+  category  #REQUIRED
+  date  #REQUIRED
+  key  #REQUIRED
+  type  #REQUIRED>
+
+<!ELEMENT sequence (#PCDATA)>
+<!ATTLIST sequence
+  xmlns CDATA #FIXED ''
+  checksum  #REQUIRED
+  length  #REQUIRED
+  mass  #REQUIRED
+  modified  #REQUIRED
+  version  #REQUIRED>
+
+<!ELEMENT lineage (taxon)+>
+<!ATTLIST lineage
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT citation (title?,authorList,dbReference*)>
+<!ATTLIST citation
+  xmlns CDATA #FIXED ''
+  date  #REQUIRED
+  db CDATA #IMPLIED
+  first  #IMPLIED
+  last  #IMPLIED
+  name CDATA #IMPLIED
+  type CDATA #REQUIRED
+  volume  #IMPLIED>
+
+<!ELEMENT scope (#PCDATA)>
+<!ATTLIST scope
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT source (strain)>
+<!ATTLIST source
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT text (#PCDATA)>
+<!ATTLIST text
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT location (position)>
+<!ATTLIST location
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT taxon (#PCDATA)>
+<!ATTLIST taxon
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT title (#PCDATA)>
+<!ATTLIST title
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT authorList (person+,consortium?)>
+<!ATTLIST authorList
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT strain (#PCDATA)>
+<!ATTLIST strain
+  xmlns CDATA #FIXED ''
+  evidence  #REQUIRED>
+
+<!ELEMENT position EMPTY>
+<!ATTLIST position
+  xmlns CDATA #FIXED ''
+  position  #REQUIRED>
+
+<!ELEMENT person EMPTY>
+<!ATTLIST person
+  xmlns CDATA #FIXED ''
+  name CDATA #REQUIRED>
+
+<!ELEMENT consortium EMPTY>
+<!ATTLIST consortium
+  xmlns CDATA #FIXED ''
+  name CDATA #REQUIRED>
+
+<!ELEMENT name (#PCDATA)>
+<!ATTLIST name
+  xmlns CDATA #FIXED ''
+  evidence  #IMPLIED
+  ref  #IMPLIED
+  type CDATA #IMPLIED>
+
+<!ELEMENT dbReference (property)*>
+<!ATTLIST dbReference
+  xmlns CDATA #FIXED ''
+  evidence  #IMPLIED
+  id  #REQUIRED
+  key  #REQUIRED
+  type CDATA #REQUIRED>
+
+<!ELEMENT property EMPTY>
+<!ATTLIST property
+  xmlns CDATA #FIXED ''
+  type CDATA #REQUIRED
+  value  #REQUIRED>

@@ -1,0 +1,239 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT result (BlastOutput)+>
+<!ATTLIST result
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput (BlastOutput_program,BlastOutput_version,
+                       BlastOutput_reference,BlastOutput_db,
+                       BlastOutput_query-ID,BlastOutput_query-def,
+                       BlastOutput_query-len,BlastOutput_param,
+                       BlastOutput_iterations)>
+<!ATTLIST BlastOutput
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_program (#PCDATA)>
+<!ATTLIST BlastOutput_program
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_version (#PCDATA)>
+<!ATTLIST BlastOutput_version
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_reference (#PCDATA)>
+<!ATTLIST BlastOutput_reference
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_db (#PCDATA)>
+<!ATTLIST BlastOutput_db
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_query-ID (#PCDATA)>
+<!ATTLIST BlastOutput_query-ID
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_query-def (#PCDATA)>
+<!ATTLIST BlastOutput_query-def
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_query-len (#PCDATA)>
+<!ATTLIST BlastOutput_query-len
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_param (Parameters)>
+<!ATTLIST BlastOutput_param
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT BlastOutput_iterations (Iteration)>
+<!ATTLIST BlastOutput_iterations
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Parameters (Parameters_matrix,Parameters_expect,
+                      Parameters_gap-open,Parameters_gap-extend,
+                      Parameters_filter)>
+<!ATTLIST Parameters
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Iteration (Iteration_iter-num,Iteration_hits?,Iteration_stat,
+                     Iteration_message?)>
+<!ATTLIST Iteration
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Parameters_matrix (#PCDATA)>
+<!ATTLIST Parameters_matrix
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Parameters_expect (#PCDATA)>
+<!ATTLIST Parameters_expect
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Parameters_gap-open (#PCDATA)>
+<!ATTLIST Parameters_gap-open
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Parameters_gap-extend (#PCDATA)>
+<!ATTLIST Parameters_gap-extend
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Parameters_filter (#PCDATA)>
+<!ATTLIST Parameters_filter
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Iteration_iter-num (#PCDATA)>
+<!ATTLIST Iteration_iter-num
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Iteration_hits (Hit)+>
+<!ATTLIST Iteration_hits
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Iteration_stat (Statistics)>
+<!ATTLIST Iteration_stat
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Iteration_message (#PCDATA)>
+<!ATTLIST Iteration_message
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit (Hit_num,Hit_id,Hit_def,Hit_embl,Hit_accession,Hit_len,
+               Hit_hsps)>
+<!ATTLIST Hit
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics (Statistics_db-num,Statistics_db-len,
+                      Statistics_hsp-len,Statistics_eff-space,
+                      Statistics_kappa,Statistics_lambda,
+                      Statistics_entropy)>
+<!ATTLIST Statistics
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_num (#PCDATA)>
+<!ATTLIST Hit_num
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_id (#PCDATA)>
+<!ATTLIST Hit_id
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_def (#PCDATA)>
+<!ATTLIST Hit_def
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_embl (#PCDATA)>
+<!ATTLIST Hit_embl
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_accession (#PCDATA)>
+<!ATTLIST Hit_accession
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_len (#PCDATA)>
+<!ATTLIST Hit_len
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hit_hsps (Hsp)+>
+<!ATTLIST Hit_hsps
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_db-num (#PCDATA)>
+<!ATTLIST Statistics_db-num
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_db-len (#PCDATA)>
+<!ATTLIST Statistics_db-len
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_hsp-len (#PCDATA)>
+<!ATTLIST Statistics_hsp-len
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_eff-space (#PCDATA)>
+<!ATTLIST Statistics_eff-space
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_kappa (#PCDATA)>
+<!ATTLIST Statistics_kappa
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_lambda (#PCDATA)>
+<!ATTLIST Statistics_lambda
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Statistics_entropy (#PCDATA)>
+<!ATTLIST Statistics_entropy
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp (Hsp_num,Hsp_bit-score,Hsp_score,Hsp_evalue,
+               Hsp_query-from,Hsp_query-to,Hsp_hit-from,Hsp_hit-to,
+               Hsp_query-frame,Hsp_hit-frame,Hsp_identity,Hsp_positive,
+               Hsp_gaps?,Hsp_align-len,Hsp_qseq,Hsp_hseq,Hsp_midline)>
+<!ATTLIST Hsp
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_num (#PCDATA)>
+<!ATTLIST Hsp_num
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_bit-score (#PCDATA)>
+<!ATTLIST Hsp_bit-score
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_score (#PCDATA)>
+<!ATTLIST Hsp_score
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_evalue (#PCDATA)>
+<!ATTLIST Hsp_evalue
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_query-from (#PCDATA)>
+<!ATTLIST Hsp_query-from
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_query-to (#PCDATA)>
+<!ATTLIST Hsp_query-to
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_hit-from (#PCDATA)>
+<!ATTLIST Hsp_hit-from
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_hit-to (#PCDATA)>
+<!ATTLIST Hsp_hit-to
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_query-frame (#PCDATA)>
+<!ATTLIST Hsp_query-frame
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_hit-frame (#PCDATA)>
+<!ATTLIST Hsp_hit-frame
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_identity (#PCDATA)>
+<!ATTLIST Hsp_identity
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_positive (#PCDATA)>
+<!ATTLIST Hsp_positive
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_gaps (#PCDATA)>
+<!ATTLIST Hsp_gaps
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_align-len (#PCDATA)>
+<!ATTLIST Hsp_align-len
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_qseq (#PCDATA)>
+<!ATTLIST Hsp_qseq
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_hseq (#PCDATA)>
+<!ATTLIST Hsp_hseq
+  xmlns CDATA #FIXED ''>
+
+<!ELEMENT Hsp_midline (#PCDATA)>
+<!ATTLIST Hsp_midline
+  xmlns CDATA #FIXED ''>

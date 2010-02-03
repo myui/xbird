@@ -1,0 +1,3 @@
+<aaa xmlns:bb="uri">
+   <bbb bb:aaa="ccc"/><ccc/><ddd/>
+</aaa>

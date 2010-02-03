@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="main/test/java"/>
+	<classpathentry kind="src" path="main/conf"/>
+	<classpathentry kind="src" path="main/test/secrets"/>
+	<classpathentry kind="src" path="main/test/resources"/>
+	<classpathentry kind="src" path="main/src/java"/>
+	<classpathentry kind="lib" path="lib/proprietary/collector.jar"/>
+	<classpathentry kind="src" path="/xbird-open"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/high-scale-lib-0.8.1.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/icu4j_3_4_2.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/junit-4.1.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/saxon8-dom.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/saxon8.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/xercesImpl-2.9.1.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/stax-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jgraph-5.7.4.5-lgpl.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jgraphpad.jar"/>
+	<classpathentry kind="lib" path="lib/optional/jgrapht-0.6.0.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/xmlunit-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/optional/junit-addons-1.4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/nekohtml-1.9.7.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/jdic-0.9.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="xbird-open/lib/native/jdic"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/jsr305.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/ognl-2.6.9.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/slf4j-api-1.4.3.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/slf4j-log4j12-1.4.3.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/resolver-1.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-core-2.0.0-M4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-integration-beans-2.0.0-M4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-integration-jmx-2.0.0-M4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-integration-ognl-2.0.0-M4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-transport-apr-2.0.0-M4.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/tomcat-apr-5.5.23.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gridool"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/testng-5.9-jdk15.jar"/>
+	<classpathentry kind="lib" path="/xbird-open/lib/optional/args4j-2.0.12.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>

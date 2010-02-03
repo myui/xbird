@@ -1,0 +1,4415 @@
+/*
+ * @(#)$Id: XQueryParser.jj 3527 2008-02-24 14:15:39Z yui $
+ *
+ * Copyright (c) 2005-2006 Makoto YUI and Project XBird
+ * All rights reserved.
+ * 
+ * This file is part of XBird and is distributed under the terms of
+ * the Common Public License v1.0.
+ *
+ * History:
+ *  - targeted for XQuery 1.0 WD04
+ *		http://www.w3.org/TR/2005/WD-xquery-20050404/
+ * 
+ * Contributors:
+ *     Makoto YUI - initial implementation
+ */
+
+// JavaCC Options
+options {
+	LOOKAHEAD = 1;
+	CHOICE_AMBIGUITY_CHECK = 2;
+	OTHER_AMBIGUITY_CHECK = 1;
+	STATIC = false;
+    DEBUG_PARSER = false;
+//	DEBUG_PARSER = true;
+	DEBUG_LOOKAHEAD = false;
+	DEBUG_TOKEN_MANAGER = false;
+//	DEBUG_TOKEN_MANAGER = true;
+//  OPTIMIZE_TOKEN_MANAGER = true;
+	ERROR_REPORTING = true;
+	JAVA_UNICODE_ESCAPE = true;
+	UNICODE_INPUT = false;
+	IGNORE_CASE = false;
+	USER_TOKEN_MANAGER = false;
+	USER_CHAR_STREAM = false;
+	BUILD_PARSER = true;
+	BUILD_TOKEN_MANAGER = true;
+	SANITY_CHECK = false;
+	FORCE_LA_CHECK = false;
+//  FORCE_LA_CHECK = true;
+	COMMON_TOKEN_ACTION = false;
+	CACHE_TOKENS = true;
+	KEEP_LINE_COLUMN = true;
+//  NODE_EXTENDS = 
+    JDK_VERSION = "1.5";
+}
+
+PARSER_BEGIN(XQueryParser)
+/*
+ * @(#)$Id: XQueryParser.jj 3527 2008-02-24 14:15:39Z yui $
+ *
+ * Copyright 2006-2008 Makoto YUI
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Makoto YUI - initial implementation
+ */
+package xbird.xquery.parser;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.xml.XMLConstants;
+
+import xbird.util.struct.Pair;
+import xbird.util.xml.NamespaceBinder;
+import xbird.util.xml.XMLUtils;
+import xbird.xquery.Module;
+import xbird.xquery.Pragma;
+import xbird.xquery.XQueryConstants;
+import xbird.xquery.XQueryException;
+import xbird.xquery.XQueryModule;
+import xbird.xquery.dm.value.AtomicValue;
+import xbird.xquery.dm.value.literal.XDecimal;
+import xbird.xquery.dm.value.literal.XDouble;
+import xbird.xquery.dm.value.literal.XInteger;
+import xbird.xquery.dm.value.literal.XString;
+import xbird.xquery.expr.LiteralExpr;
+import xbird.xquery.expr.XQExpression;
+import xbird.xquery.expr.comp.ComparisonOp;
+import xbird.xquery.expr.comp.GeneralComp;
+import xbird.xquery.expr.comp.NodeComp;
+import xbird.xquery.expr.comp.ValueComp;
+import xbird.xquery.expr.cond.IfExpr;
+import xbird.xquery.expr.cond.QuantifiedExpr;
+import xbird.xquery.expr.constructor.AttributeConstructor;
+import xbird.xquery.expr.constructor.AttributeConstructorBase;
+import xbird.xquery.expr.constructor.CommentConstructor;
+import xbird.xquery.expr.constructor.DocConstructor;
+import xbird.xquery.expr.constructor.ElementConstructor;
+import xbird.xquery.expr.constructor.NamespaceConstructor;
+import xbird.xquery.expr.constructor.NodeConstructor;
+import xbird.xquery.expr.constructor.PIConstructor;
+import xbird.xquery.expr.constructor.TextConstructor;
+import xbird.xquery.expr.constructor.TextContent;
+import xbird.xquery.expr.decorative.ExtensionExpr;
+import xbird.xquery.expr.decorative.ParenthesizedExpr;
+import xbird.xquery.expr.decorative.UnorderedExpr;
+import xbird.xquery.expr.dyna.ContextItemExpr;
+import xbird.xquery.expr.dyna.ValidateOp;
+import xbird.xquery.expr.ext.BDQExpr;
+import xbird.xquery.expr.flwr.Binding;
+import xbird.xquery.expr.flwr.FLWRExpr;
+import xbird.xquery.expr.flwr.ForClause;
+import xbird.xquery.expr.flwr.Grouping;
+import xbird.xquery.expr.flwr.GroupingSpec;
+import xbird.xquery.expr.flwr.LetClause;
+import xbird.xquery.expr.flwr.OrderSpec;
+import xbird.xquery.expr.logical.AndExpr;
+import xbird.xquery.expr.logical.OrExpr;
+import xbird.xquery.expr.math.AdditiveExpr;
+import xbird.xquery.expr.math.MultiplicativeExpr;
+import xbird.xquery.expr.math.NegativeExpr;
+import xbird.xquery.expr.path.AbsolutePath;
+import xbird.xquery.expr.path.FilterExpr;
+import xbird.xquery.expr.path.NodeTest;
+import xbird.xquery.expr.path.RelativePath;
+import xbird.xquery.expr.path.StepExpr;
+import xbird.xquery.expr.path.axis.AxisStep;
+import xbird.xquery.expr.path.axis.DescendantOrSelfStep;
+import xbird.xquery.expr.seq.ExceptOp;
+import xbird.xquery.expr.seq.IntersectOp;
+import xbird.xquery.expr.seq.RangeExpr;
+import xbird.xquery.expr.seq.SequenceExpression;
+import xbird.xquery.expr.seq.UnionOp;
+import xbird.xquery.expr.types.CaseClause;
+import xbird.xquery.expr.types.CastExpr;
+import xbird.xquery.expr.types.CastableExpr;
+import xbird.xquery.expr.types.InstanceofOp;
+import xbird.xquery.expr.types.TreatExpr;
+import xbird.xquery.expr.types.TypeswitchExpr;
+import xbird.xquery.expr.var.BindingVariable;
+import xbird.xquery.expr.var.VarRef;
+import xbird.xquery.expr.var.Variable;
+import xbird.xquery.expr.var.BindingVariable.CaseVariable;
+import xbird.xquery.expr.var.BindingVariable.ExecHostVariable;
+import xbird.xquery.expr.var.BindingVariable.ForVariable;
+import xbird.xquery.expr.var.BindingVariable.LetVariable;
+import xbird.xquery.expr.var.BindingVariable.ParametricVariable;
+import xbird.xquery.expr.var.BindingVariable.PositionalVariable;
+import xbird.xquery.expr.var.BindingVariable.QuantifiedVariable;
+import xbird.xquery.func.UserFunction;
+import xbird.xquery.meta.StaticContext;
+import xbird.xquery.misc.ExpressionFactory;
+import xbird.xquery.misc.QNameTable;
+import xbird.xquery.misc.QNameUtil;
+import xbird.xquery.misc.TypeFactory;
+import xbird.xquery.misc.QNameTable.QualifiedName;
+import xbird.xquery.type.AtomicType;
+import xbird.xquery.type.ItemType;
+import xbird.xquery.type.SequenceType;
+import xbird.xquery.type.Type;
+import xbird.xquery.type.Type.Occurrence;
+import xbird.xquery.type.node.AttributeTest;
+import xbird.xquery.type.node.DocumentTest;
+import xbird.xquery.type.node.ElementTest;
+import xbird.xquery.type.node.NodeType;
+import xbird.xquery.type.node.PITest;
+import xbird.xquery.type.node.SchemaAttributeTest;
+import xbird.xquery.type.node.SchemaElementTest;
+import xbird.xquery.type.xs.Untyped;
+
+public class XQueryParser {
+	
+	/** @see XQueryParserConstants */
+    private static final String[] LEX_STATES = { "DEFAULT", "DECLAREORDERING", "OPERATOR",
+            "QUERYVERSION", "NAMESPACEDECL", "URITOOPERATOR", "NAMESPACEKEYWORD", "XMLSPACE_DECL",
+            "SINGLETYPE", "ITEMTYPE", "KINDTEST", "KINDTESTFORPI", "CLOSEKINDTEST", "OPTION",
+            "PRAGMA", "PRAGMACONTENTS", "VARNAME", "EXPR_COMMENT", "NODETEST",
+            "OCCURRENCEINDICATOR", "XQUERYD", "START_TAG", "END_TAG", "ELEMENT_CONTENT",
+            "QUOT_ATTRIBUTE_CONTENT", "POS_ATTRIBUTE_CONTENT", "XML_COMMENT",
+            "PROCESSING_INSTRUCTION", "PROCESSING_INSTRUCTION_CONTENT", "CDATA_SECTION" };
+	
+    // parse-time variables
+    /** Whether currentModule is library module or not */
+    private boolean isLibraryModule = false;
+
+    /** parse state variables */
+    private Token currentToken = null;
+
+    /** main Module */
+    private XQueryModule currentModule = null;
+
+    /** static context */
+    private StaticContext staticContext = new StaticContext();
+
+    /** manages namespaces */
+    private NamespaceBinder namespaceContext = staticContext.getStaticalyKnownNamespaces();
+
+	private int baseURIDeclCount = 0;
+
+    public XQueryModule parse() throws XQueryException {
+        if (currentModule == null) {
+            this.currentModule = new XQueryModule();
+        }
+        final XQueryModule m;
+        try {
+            m = parseModule(); // returned m is same to currentModule
+        } catch (XQueryException xqe) {
+            throw xqe;
+        } catch (TokenMgrError tme) {
+            throw new SyntaxError("err:XPST0003", getErrorMessage(tme, false), tme);
+        } catch (ParseException pe) {
+            throw new SyntaxError("err:XPST0003", getErrorMessage(pe, false), pe);
+        } catch (Throwable e) {
+            throw new XQueryException(getErrorMessage(e, true), e);
+        }
+        return m;
+    }
+
+    private String getErrorMessage(final Throwable e, final boolean printLineInfo) {
+        final StringBuilder msg = new StringBuilder();
+        final String errmsg = e.getMessage();
+        if(errmsg != null) {
+            msg.append(errmsg);
+            msg.append('\n');
+        }
+        if(currentToken == null) {
+            if(printLineInfo || errmsg == null) {
+                msg.append("Parse failed"
+                        + (isLibraryModule ? " at module '" + currentModule.getNamespace() + "'."
+                                : ".\n"));
+            }
+        } else {
+            if(printLineInfo) {
+                msg.append("Parse failed before the line "
+                        + currentToken.beginLine
+                        + ", column "
+                        + currentToken.beginColumn
+                        + (isLibraryModule ? " at module '" + currentModule.getNamespace() + "'."
+                                : ".\n"));
+            }
+            msg.append("\n---- detail of the error condition ----");
+            msg.append("\n * curLexState: " + LEX_STATES[token_source.curLexState] + '('
+                    + token_source.curLexState + ')');
+            msg.append("\n * currentToken: `" + currentToken.image + "` ["
+                    + XQueryParserConstants.tokenImage[currentToken.kind] + ']');
+            if(currentToken.next != null) {
+                msg.append("\n * nextToken: `" + currentToken.next.image + "` ["
+                        + XQueryParserConstants.tokenImage[currentToken.next.kind] + ']');
+            }
+            if(currentToken.specialToken != null) {
+                msg.append("\n * specialToken: " + currentToken.specialToken);
+            }
+            msg.append("\n * stateStack: ");
+            for(int i = 0; i < token_source.stateStack.size(); i++) {
+                if(i != 0) {
+                    msg.append(' ');
+                }
+                final int stateNum = token_source.stateStack.elementAt(i);
+                msg.append(LEX_STATES[stateNum] + '(' + stateNum + ')');
+            }
+            msg.append("\n--------------------------------------- \n");
+        }
+        return msg.toString();
+    }
+
+    public void setCurrentModule(XQueryModule module) {
+        this.currentModule = module;
+    }
+
+	public void setStaticContext(StaticContext staticEnv) {
+		this.staticContext = staticEnv;
+		this.namespaceContext = staticEnv.getStaticalyKnownNamespaces();
+	}
+
+    public StaticContext getStaticContext() {
+        return staticContext;
+    }
+
+    private boolean hasNamespace(String namespaceURI) {
+        if (namespaceURI == null) {
+            throw new IllegalArgumentException("Given namespaceURI is null.");
+        }
+        for (int i = 0; i < namespaceContext.getNamespaceCount(); i++) {
+            String uri = namespaceContext.getNamespaceURI(i);
+            if (uri.equals(namespaceURI)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasNamespacePrefix(String prefix) {
+        if (prefix == null) {
+            return false;
+        } else {
+            return prefix.equals(namespaceContext.getNamespaceURI(prefix));
+        }
+    }
+
+    private void declarePrefix(String prefix, String uri) throws XQueryException {
+        if (!namespaceContext.declarePrefix(prefix, uri)) {
+            error("err:XQST0070");
+        }
+    }
+
+    private void error(String errorCode) throws XQueryException {
+        throw new SyntaxError(errorCode, currentToken.beginLine, currentToken.beginColumn);
+    }
+
+    private static String unquote(String s) {
+        return s.substring(1, s.length() - 1);
+    }
+    
+    private static String unescape(String s) {
+        return s.replace("\"\"", "\"").replace("''", "'");        
+    }
+
+	private static String replaceReference(final String str) {
+        assert (str != null) : str;
+        final int strlen = str.length();
+        final StringBuilder buf = new StringBuilder(strlen);
+        for(int i = 0; i < strlen; i++) {
+            char c = str.charAt(i);
+            if(c == '&' && (i + 1) < strlen) {
+                final int end = str.indexOf(";", i + 1);
+                if(end == -1) {
+                    buf.append(c);
+                } else {
+                    String ref = str.substring(i, end + 1);
+                    String entity = parseCharRef(ref);
+                    buf.append(entity);
+                    i = end;
+                }
+            } else {
+                buf.append(c);
+            }
+        }
+        return buf.toString();
+    }
+
+    private static String parseCharRef(final String ref) {
+        assert (ref != null) : ref;
+        if(ref.startsWith("&#")) {
+            final int value;
+            if(ref.charAt(2) == 'x') {// hex digits
+                String s = ref.substring(3, ref.length() - 1);
+                value = Integer.parseInt(s, 16);
+            } else {
+                String s = ref.substring(2, ref.length() - 1);
+                value = Integer.parseInt(s);
+            }
+            return Character.toString((char) value);
+        } else if("&lt;".equals(ref)) {
+            return "<";
+        } else if("&gt;".equals(ref)) {
+            return ">";
+        } else if("&amp;".equals(ref)) {
+            return "&";
+        } else if("&quot;".equals(ref)) {
+            return "\"";
+        } else if("&apos;".equals(ref)) {
+            return "'";
+        } else {
+            throw new IllegalStateException("Illegal character: " + ref);
+        }
+    }
+
+    private XQExpression locate(XQExpression expr) {
+        if (currentToken == null) {
+            expr.setLocation(0, 0);
+        } else {
+            expr.setLocation(currentToken.beginLine, currentToken.beginColumn);
+        }
+        return expr;
+    }
+
+    private UserFunction locate(UserFunction func) {
+        func.setLocation(currentToken.beginLine, currentToken.beginColumn);
+        return func;
+    }
+}
+
+PARSER_END(XQueryParser)
+
+TOKEN_MGR_DECLS :
+{
+	final IntStack stateStack = new IntStack();
+
+	public void pushState(int state) {
+		stateStack.push(state);
+	}
+
+	private void pushState() {
+		pushState(curLexState);
+	}
+	
+	public void popState() {
+		if(stateStack.isEmpty()) {
+			System.err.println("Line: " + input_stream.getEndLine());
+		} else {
+			final int state = stateStack.pop();
+			SwitchTo(state);
+		}
+	}
+	
+    private void handleCommentAfterQName(Token matchedToken) {
+        final char c;
+        try {
+            c = input_stream.readChar();
+        } catch (IOException e) {
+            return;
+        }        
+        if(c == ':') {
+            final int len = image.length();
+            for(int i = 0; i < len; i++) {
+                switch(image.charAt(i)) {
+                    case '(':
+                        input_stream.backup(len - i + 1);
+                        image.setLength(i);
+                        matchedToken.kind = QName;
+                        matchedToken.image = image.toString();
+                        SwitchTo(OPERATOR);
+                        return;
+                    default:
+                        break;
+                }
+            }
+        } else {
+            input_stream.backup(1);
+        }
+    }
+}
+
+<DEFAULT, DECLAREORDERING, OPERATOR, XQUERYVERSION, NAMESPACEDECL, URITOOPERATOR, NAMESPACEKEYWORD, XMLSPACE_DECL, SINGLETYPE, ITEMTYPE, KINDTEST, KINDTESTFORPI, CLOSEKINDTEST, OPTION, PRAGMA, PRAGMACONTENTS, VARNAME, EXPR_COMMENT, XQUERYD>
+SKIP :
+{
+  < (<WhitespaceChar>)+ >
+}
+
+<DEFAULT>
+TOKEN :
+{
+  < DecimalLiteral : (("." <Digits>) | (<Digits> "." (["0" - "9"])*)) > : OPERATOR
+| < DotDot : ".." > : OPERATOR
+| < Dot : "." > : OPERATOR
+| < DoubleLiteral : (("." <Digits>) | (<Digits> ("." (["0" - "9"])*)?)) ["e", "E"] (["+", "-"])? <Digits> > : OPERATOR
+| < IntegerLiteral : <Digits> > : OPERATOR
+| < NotNumber : (("." <Digits>) | (<Digits> ("." (["0" - "9"])*)?)) (["e", "E"] (["+", "-"])? <Digits>)? ["a" - "z", "A" - "Z"] (["0" - "9", "a" - "z", "A" - "Z"])* > : OPERATOR
+//| < NCNameColonStar : <NCName> ":*" > : OPERATOR
+//| < StarColonNCName : "*:" <NCName> > : OPERATOR
+| < DeclareConstruction : "declare" (<skip_>)+ "construction" > : OPERATOR
+| < DeclareDefaultOrder : "declare" (<skip_>)+ "default" (<skip_>)+ "order" > : OPERATOR
+| < DeclareCollation : "declare" (<skip_>)+ "default" (<skip_>)+ "collation" > : NAMESPACEDECL
+| < DeclareNamespace : "declare" (<skip_>)+ "namespace" > : NAMESPACEDECL
+| < ModuleNamespace : "module" (<skip_>)+ "namespace" > : NAMESPACEDECL
+| < DeclareBaseURI : "declare" (<skip_>)+ "base-uri" > : NAMESPACEDECL
+| < DeclareDefaultElement : "declare" (<skip_>)+ "default" (<skip_>)+ "element" > : NAMESPACEKEYWORD
+| < DeclareDefaultFunction : "declare" (<skip_>)+ "default" (<skip_>)+ "function" > : NAMESPACEKEYWORD
+| < ImportSchemaToken : "import" (<skip_>)+ "schema" > : NAMESPACEKEYWORD
+| < ImportModuleToken : "import" (<skip_>)+ "module" > : NAMESPACEKEYWORD
+| < DeclareCopyNamespace : "declare" (<skip_>)+ "copy-namespaces" > : NAMESPACEKEYWORD
+| < Some : "some" (<skip_>)+ <VariableIndicator> > : VARNAME
+| < Every : "every" (<skip_>)+ <VariableIndicator> > : VARNAME
+| < DefineVariable : "declare" (<skip_>)+ "variable" (<skip_>)+ <VariableIndicator> > : VARNAME
+| < XmlCommentStart : "<!--" > { pushState(OPERATOR); } : XML_COMMENT
+| < ProcessingInstructionStart : "<?" > { pushState(OPERATOR); } : PROCESSING_INSTRUCTION
+| < CdataSectionStart : "<![CDATA[" > { pushState(OPERATOR); } : CDATA_SECTION
+| < StartTagOpenRoot : "<" > { pushState(OPERATOR); } : START_TAG
+| < DeclareXMLSpace : "declare" (<skip_>)+ "boundary-space" > : XMLSPACE_DECL
+| < ValidateLbrace : "validate" (<skip_>)* "{" > { pushState(OPERATOR); } : DEFAULT
+| < ValidateSchemaMode : "validate" (<skip_>)+ <ValidationMode> > { pushState(OPERATOR); } : DEFAULT
+| < TypeswitchLpar : "typeswitch" (<skip_>)* "(" > : DEFAULT
+| < ElementLbrace : "element" (<skip_>)* "{" > { pushState(OPERATOR); } : DEFAULT
+| < AttributeLbrace : "attribute" (<skip_>)* "{" > { pushState(OPERATOR); } : DEFAULT
+| < AttributeQNameLbrace : "attribute" (<skip_>)+ <QName> (<skip_>)* "{" > { pushState(OPERATOR); }
+| < ElementQNameLbrace : "element" (<skip_>)+ <QName> (<skip_>)* "{" > { pushState(OPERATOR); }
+| < DocumentLbrace : "document" (<skip_>)* "{" > { pushState(OPERATOR); }
+| < TextLbrace : "text" (<skip_>)* "{" > { pushState(OPERATOR); }
+| < PILbrace : "processing-instruction" (<skip_>)* "{" > { pushState(OPERATOR); }
+| < PINCNameLbrace : "processing-instruction" (<skip_>)+ <NCName> (<skip_>)* "{" > { pushState(OPERATOR); }
+| < CommentLbrace : "comment" (<skip_>)* "{" > { pushState(OPERATOR); }
+| < DefineFunction : "declare" (<skip_>)+ "function" > : DEFAULT
+| < OrderedOpen : "ordered" (<skip_>)* "{" > { pushState(OPERATOR); } : DEFAULT
+| < UnorderedOpen : "unordered" (<skip_>)* "{" > { pushState(OPERATOR); } : DEFAULT
+| < ExecuteAt : "execute" (<skip_>)+ "at" > : DEFAULT
+| < DeclareOrdering : "declare" (<skip_>)+ "ordering" > : DECLAREORDERING
+| < XQueryVersion : "xquery" (<skip_>)+ "version" > : XQUERYVERSION
+| < DeclareOption : "declare" (<skip_>)+ "option" > : OPTION
+| < IfLpar : "if" (<skip_>)* "(" > : DEFAULT
+| < AxisAncestorOrSelf : "ancestor-or-self::" > : NODETEST
+| < AxisAncestor : "ancestor::" > : NODETEST
+| < AxisAttribute : "attribute::" > : NODETEST
+| < AxisChild : "child::" > : NODETEST
+| < AxisDescendantOrSelf : "descendant-or-self::" > : NODETEST
+| < AxisDescendant : "descendant::" > : NODETEST
+| < AxisFollowingSibling : "following-sibling::" > : NODETEST
+| < AxisFollowing : "following::" > : NODETEST
+| < AxisParent : "parent::" > : NODETEST
+| < AxisPrecedingSibling : "preceding-sibling::" > : NODETEST
+| < AxisPreceding : "preceding::" > : NODETEST
+| < AxisSelf : "self::" > : NODETEST
+| < At : "@" > : NODETEST
+//| < QNameLpar : <QName> (<space_>)* "(" > : DEFAULT
+}
+
+<DEFAULT, NODETEST>
+TOKEN :
+{
+  < ElementType : "element" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTEST
+| < AttributeType : "attribute" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTEST
+| < SchemaElementType : "schema-element" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTEST
+| < SchemaAttributeType : "schema-attribute" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTEST
+| < CommentLparRpar : "comment" (<skip_>)* "(" (<skip_>)* ")" > : OPERATOR
+| < TextLparRpar : "text" (<skip_>)* "(" (<skip_>)* ")" > : OPERATOR
+| < NodeLparRpar : "node" (<skip_>)* "(" (<skip_>)* ")" > : OPERATOR
+| < DocumentLpar : "document-node" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTEST
+| < ProcessingInstructionLpar : "processing-instruction" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTESTFORPI
+| < NCNameColonStar : <NCName> ":*" > : OPERATOR
+| < StarColonNCName : "*:" <NCName> > : OPERATOR
+}
+
+<DEFAULT>
+TOKEN :
+{
+  < QNameLpar : <QName> (<space_>)* "(" > { handleCommentAfterQName(matchedToken); } //: DEFAULT
+}
+
+<DEFAULT, OPERATOR>
+TOKEN:
+{
+  < Rpar : ")" > : OPERATOR
+| < ForVariable : "for" (<skip_>)+ <VariableIndicator> > : VARNAME
+| < LetVariable : "let" (<skip_>)+ <VariableIndicator> > : VARNAME
+| < Rbrace : "}" > { popState(); }
+| < Plus : "+" > : DEFAULT
+| < SlashSlash : "//" > : DEFAULT
+| < Slash : "/" > : DEFAULT
+| < StringLiteral : (("\"" ((<PredefinedEntityRef> | <CharRef> | ("\"" "\"") | ~["\"", "&"]))* "\"") | ("'" ((<PredefinedEntityRef> | <CharRef> | ("'" "'") | ~["'", "&"]))* "'")) > : OPERATOR
+}
+
+<DEFAULT, OCCURRENCEINDICATOR, NODETEST>
+TOKEN:
+{
+  < Star : "*" > : OPERATOR
+}
+
+<DEFAULT, OPERATOR, ITEMTYPE>
+TOKEN :
+{
+  < VariableIndicator : "$" > : VARNAME
+| < RparAs : ")" (<skip_>)+ "as " > : ITEMTYPE /* tiny hack for `order by zero-or-one($b/location) ascending empty greatest` */
+| < Comma : "," > : DEFAULT
+| < Minus : "-" > : DEFAULT
+//| < Lpar : "(" > : DEFAULT
+}
+
+<DEFAULT, OPERATOR, KINDTEST, CLOSEKINDTEST>
+TOKEN :
+{
+  < LbraceExprEnclosure : "{" > { pushState(OPERATOR); } : DEFAULT
+}
+
+<DEFAULT, ITEMTYPE>
+TOKEN :
+{
+  < PragmaOpen : "(#" > : PRAGMA
+| < Lpar : "(" > : DEFAULT
+}
+
+<DEFAULT, NAMESPACEDECL, ITEMTYPE>
+TOKEN :
+{
+  < AtURILiteral : "at" (<skip_>)+ <URILiteral> > : NAMESPACEDECL
+}
+
+<DEFAULT, OPERATOR, XQUERYVERSION, NAMESPACEDECL, ITEMTYPE>
+TOKEN :
+{
+  < SemiColon : ";" > : DEFAULT
+}
+
+<DECLAREORDERING>
+TOKEN :
+{
+  < Ordered : "ordered" > : DEFAULT
+| < Unordered : "unordered" > : DEFAULT
+}
+
+<OPERATOR, ITEMTYPE>
+TOKEN :
+{
+  < Then : "then" > : DEFAULT
+| < Else : "else" > : DEFAULT
+| < External : "external" > : DEFAULT
+| < And : "and" > : DEFAULT
+| < AtWord : "at" > : DEFAULT
+| < ColonEquals : ":=" > : DEFAULT
+| < Div : "div" > : DEFAULT
+| < Equals : "=" > : DEFAULT
+| < Except : "except" > : DEFAULT
+| < FortranEq : "eq" > : DEFAULT
+| < FortranGe : "ge" > : DEFAULT
+| < FortranGt : "gt" > : DEFAULT
+| < FortranLe : "le" > : DEFAULT
+| < FortranLt : "lt" > : DEFAULT
+| < FortranNe : "ne" > : DEFAULT
+| < GtEquals : ">=" > : DEFAULT
+| < GtGt : ">>" > : DEFAULT
+| < Gt : ">" > : DEFAULT
+| < Idiv : "idiv" > : DEFAULT
+| < Intersect : "intersect" > : DEFAULT
+| < In : "in" > : DEFAULT
+| < Is : "is" > : DEFAULT
+| < Lbrack : "[" > : DEFAULT
+| < LtEquals : "<=" > : DEFAULT
+| < LtLt : "<<" > : DEFAULT
+| < Lt : "<" > : DEFAULT
+| < Mod : "mod" > : DEFAULT
+| < NotEquals : "!=" > : DEFAULT
+| < GroupBy : "group" (<skip_>)+ "by" > : DEFAULT
+| < OrderBy : "order" (<skip_>)+ "by" > : DEFAULT
+| < OrderByStable : "stable" (<skip_>)+ "order" (<skip_>)+ "by" > : DEFAULT
+| < Or : "or" > : DEFAULT
+| < Return : "return" > : DEFAULT
+| < Satisfies : "satisfies" > : DEFAULT
+| < To : "to" > : DEFAULT
+| < Union : "union" > : DEFAULT
+| < Vbar : "|" > : DEFAULT
+| < Where : "where" > : DEFAULT
+| < Castable : "castable" (<skip_>)+ "as" > : SINGLETYPE
+| < CastAs : "cast" (<skip_>)+ "as" > : SINGLETYPE
+| < Instanceof : "instance" (<skip_>)+ "of" > : ITEMTYPE
+| < TreatAs : "treat" (<skip_>)+ "as" > : ITEMTYPE
+| < Case : "case" > : ITEMTYPE
+| < As : "as" > : ITEMTYPE
+}
+
+<OPERATOR>
+TOKEN :
+{
+  < Multiply : "*" > : DEFAULT
+| < SchemaModeForDeclareConstruction : ("preserve" | "strip") > : DEFAULT
+| < EmptyGreatest : "empty" (<skip_>)+ "greatest" > : OPERATOR
+| < EmptyLeast : "empty" (<skip_>)+ "least" > : OPERATOR 
+| < Ascending : "ascending" > : OPERATOR
+| < Descending : "descending" > : OPERATOR
+| < Default : "default" > : OPERATOR
+| < Rbrack : "]" > : OPERATOR
+| < Collation : "collation" > : URITOOPERATOR
+//| < StringLiteralInOperator : <StringLiteral> >
+| < NotOperatorKeyword : (["0" - "9", "a" - "z", "A" - "Z"])+  >
+}
+
+<OPERATOR, OCCURRENCEINDICATOR>
+TOKEN :
+{
+  < OccurrenceZeroOrOne : "?" > : OPERATOR
+}
+
+<XQUERYVERSION>
+TOKEN :
+{
+  < StringLiteralForVersion : (("\"" ((<PredefinedEntityRef> | <CharRef> | ("\"" "\"") | ~["\"", "&"]))* "\"") | ("'" ((<PredefinedEntityRef> | <CharRef> | ("'" "'") | ~["'", "&"]))* "'")) > : XQUERYVERSION
+| < XQueryEncoding : "encoding" > : XQUERYVERSION
+}
+
+<NAMESPACEDECL, NAMESPACEKEYWORD>
+TOKEN :
+{
+  < URILiteral : (("\"" ((<PredefinedEntityRef> | <CharRef> | ("\"" "\"") | ~["\"", "&"]))* "\"") | ("'" ((<PredefinedEntityRef> | <CharRef> | ("'" "'") | ~["'", "&"]))* "'")) > : NAMESPACEDECL
+}
+
+<NAMESPACEDECL>
+TOKEN :
+{
+  < CommaForURITransition : "," > : NAMESPACEDECL
+| < AssignEquals : "=" > : NAMESPACEDECL
+| < NCNameForPrefix : <Nmstart> (<Nmchar>)* > : NAMESPACEDECL
+}
+
+<URITOOPERATOR>
+TOKEN :
+{
+  < URILiteralToOperator : (("\"" ((<PredefinedEntityRef> | <CharRef> | ("\"" "\"") | ~["\"", "&"]))* "\"") | ("'" ((<PredefinedEntityRef> | <CharRef> | ("'" "'") | ~["'", "&"]))* "'")) > : OPERATOR
+}
+
+/*
+<XQUERYD>
+TOKEN :
+{
+  < URILiteral_D : <URILiteral> > : XQUERYD
+  < Lbrace_D : "{" > { pushState(OPERATOR); } : DEFAULT
+}
+*/
+
+<NAMESPACEKEYWORD>
+TOKEN :
+{
+  < Inherit : "inherit" > : DEFAULT
+| < NoInherit : "no-inherit" > : DEFAULT
+| < Namespace : "namespace" > : NAMESPACEDECL
+| < DefaultElement : "default" (<skip_>)+ "element" > : NAMESPACEKEYWORD
+| < Preserve : "preserve" > : NAMESPACEKEYWORD
+| < NoPreserve : "no-preserve" > : NAMESPACEKEYWORD
+| < CommaForCopyNamespace : "," > : NAMESPACEKEYWORD
+}
+
+<XMLSPACE_DECL>
+TOKEN :
+{
+  < XMLSpacePreserve : "preserve" > : DEFAULT
+| < XMLSpaceStrip : "strip" > : DEFAULT
+}
+
+<ITEMTYPE>
+TOKEN :
+{
+  < EmptySequence : "empty-sequence" (<skip_>)* "(" (<skip_>)* ")" > : OPERATOR
+| < ElementTypeForKindTest : "element" (<skip_>)* "(" > { pushState(OCCURRENCEINDICATOR); } : KINDTEST
+| < AttributeTypeForKindTest : "attribute" (<skip_>)* "(" > { pushState(OCCURRENCEINDICATOR); } : KINDTEST
+| < SchemaElementTypeForKindTest : "schema-element" (<skip_>)* "(" > { pushState(OCCURRENCEINDICATOR); } : KINDTEST
+| < SchemaAttributeTypeForKindTest : "schema-attribute" (<skip_>)* "(" > { pushState(OCCURRENCEINDICATOR); } : KINDTEST
+| < CommentLparRparForKindTest : "comment" (<skip_>)* "(" (<skip_>)* ")" > : OCCURRENCEINDICATOR
+| < TextLparRparForKindTest : "text" (<skip_>)* "(" (<skip_>)* ")" > : OCCURRENCEINDICATOR
+| < NodeLparRparForKindTest : "node" (<skip_>)* "(" (<skip_>)* ")" > : OCCURRENCEINDICATOR
+| < DocumentLparForKindTest : "document-node" (<skip_>)* "(" > { pushState(OCCURRENCEINDICATOR); } : KINDTEST
+| < ProcessingInstructionLparForKindTest : "processing-instruction" (<skip_>)* "(" > { pushState(OPERATOR); } : KINDTESTFORPI
+| < QNameForSequenceType : (<Prefix> ":")? <LocalPart> > : OCCURRENCEINDICATOR
+| < Item : "item" (<skip_>)* "(" (<skip_>)* ")" > : OCCURRENCEINDICATOR
+}
+
+<SINGLETYPE, ITEMTYPE>
+TOKEN :
+{
+  < QNameForAtomicType : (<Prefix> ":")? <LocalPart> > : OPERATOR
+}
+
+<KINDTEST, KINDTESTFORPI, CLOSEKINDTEST>
+TOKEN :
+{
+  < RparForKindTest : ")" > { popState(); }
+}
+
+<KINDTEST>
+TOKEN :
+{
+  < AnyName : "*" > : CLOSEKINDTEST
+| < QNameForItemType : (<Prefix> ":")? <LocalPart> > : CLOSEKINDTEST
+| < ElementTypeForDocumentTest : "element" (<skip_>)* "(" > { pushState(KINDTEST); } : KINDTEST
+| < SchemaElementTypeForDocumentTest : "schema-element" (<skip_>)* "(" > { pushState(OCCURRENCEINDICATOR); } : KINDTEST
+}
+
+<KINDTESTFORPI>
+TOKEN :
+{
+  < NCNameForPI : <Nmstart> (<Nmchar>)* > : KINDTESTFORPI
+| < StringLiteralForKindTest : (("\"" ((<PredefinedEntityRef> | <CharRef> | ("\"" "\"") | ~["\"", "&"]))* "\"") | ("'" ((<PredefinedEntityRef> | <CharRef> | ("'" "'") | ~["'", "&"]))* "'")) > : KINDTESTFORPI
+}
+
+<CLOSEKINDTEST>
+TOKEN :
+{
+  < CommaForKindTest : "," > : KINDTEST
+| < Nillable : "?" > : CLOSEKINDTEST
+}
+
+<OCCURRENCEINDICATOR>
+TOKEN :
+{
+  < OccurrenceOneOrMore : "+" > : OPERATOR
+}
+
+<OCCURRENCEINDICATOR>
+SKIP :
+{
+  < NotOccurrenceIndicator : ~["*", "?", "+"] > { input_stream.backup(1); } : OPERATOR
+}
+
+<OPTION>
+TOKEN :
+{
+  < QNameForOption : (<Prefix> ":")? <LocalPart> > : DEFAULT
+}
+
+<PRAGMA>
+TOKEN :
+{
+  < QNameForPragma : (<Prefix> ":")? <LocalPart> > : PRAGMACONTENTS
+}
+
+<DEFAULT, SINGLETYPE, ITEMTYPE, NODETEST>
+TOKEN:
+{
+  < QName : (<Prefix> ":")? <LocalPart> > : OPERATOR
+}
+
+
+<PRAGMACONTENTS, START_TAG, END_TAG>
+TOKEN :
+{
+  < S : (<WhitespaceChar>)+  >
+}
+
+<PRAGMACONTENTS>
+TOKEN :
+{
+  < PragmaContents : (<ExtensionContentChar>)+ >
+| < PragmaClose : "#)" > : DEFAULT //OPERATOR
+}
+
+<VARNAME>
+TOKEN :
+{
+  < VarName : <QName> > : OPERATOR
+}
+
+<START_TAG>
+TOKEN :
+{
+  < EmptyTagClose : "/>" > { popState(); }
+| < StartTagClose : ">" > : ELEMENT_CONTENT
+| < OpenQuot : "\"" > : QUOT_ATTRIBUTE_CONTENT
+| < OpenApos : "'" > : APOS_ATTRIBUTE_CONTENT
+| < ValueIndicator : "=" > : START_TAG
+}
+
+<START_TAG, END_TAG>
+TOKEN :
+{
+  < TagQName : <QName> >
+}
+
+<ELEMENT_CONTENT>
+TOKEN :
+{
+  < EndTagOpen : "</" > : END_TAG
+| < XmlCommentStartForElementContent : "<!--" > { pushState(); } : XML_COMMENT
+| < ProcessingInstructionStartForElementContent : "<?" > { pushState(); } : PROCESSING_INSTRUCTION
+| < CdataSectionStartForElementContent : "<![CDATA[" > { pushState(); } : CDATA_SECTION
+| < StartTagOpen : "<" > { pushState(); } : START_TAG
+//| < ElementContentChar : <Char> > : ELEMENT_CONTENT
+}
+
+<ELEMENT_CONTENT, QUOT_ATTRIBUTE_CONTENT, APOS_ATTRIBUTE_CONTENT>
+TOKEN :
+{
+  < Lbrace : "{" > { pushState(); } : DEFAULT
+| < PredefinedEntityRef : "&" ("lt" | "gt" | "amp" | "quot" | "apos") ";" >
+| < CharRef : "&#" (<Digits> | ("x" <HexDigits>)) ";" >
+| < LCurlyBraceEscape : "{{" >
+| < RCurlyBraceEscape : "}}" >
+}
+
+<ELEMENT_CONTENT>
+TOKEN :
+{
+  < ElementContentChar : <Char> > : ELEMENT_CONTENT
+}
+
+<END_TAG>
+TOKEN :
+{
+  < EndTagClose : ">" > { popState(); }
+}
+
+<XML_COMMENT>
+TOKEN :
+{
+  < XmlCommentEnd : "-->" > { popState(); }
+| < CommentContentChar : <Char> > : XML_COMMENT
+| < CommentContentCharDash : "-" <Char> > : XML_COMMENT
+}
+
+<PROCESSING_INSTRUCTION>
+TOKEN :
+{
+  < SForPI : (<WhitespaceChar>)+  > : PROCESSING_INSTRUCTION_CONTENT
+| < PITarget : <NCName> > : PROCESSING_INSTRUCTION
+}
+
+<PROCESSING_INSTRUCTION, PROCESSING_INSTRUCTION_CONTENT>
+TOKEN :
+{
+  < ProcessingInstructionEnd : "?>" > { popState(); }
+}
+
+<PROCESSING_INSTRUCTION_CONTENT>
+TOKEN :
+{
+  < PIContentChar : ["\t", "\r", "\n", "\u0020" - "\uFFFD"] > : PROCESSING_INSTRUCTION_CONTENT
+}
+
+<CDATA_SECTION>
+TOKEN :
+{
+  < CdataSectionEnd : ("]" "]" ">") > { popState(); }
+| < CDataSectionChar : ["\t", "\r", "\n", "\u0020" - "\uFFFD"] > : CDATA_SECTION
+}
+
+<QUOT_ATTRIBUTE_CONTENT>
+TOKEN :
+{
+  < CloseQuot : "\"" > : START_TAG
+| < EscapeQuot : "\"\"" > : QUOT_ATTRIBUTE_CONTENT
+| < QuotAttrContentChar : <Char> > : QUOT_ATTRIBUTE_CONTENT
+}
+
+<APOS_ATTRIBUTE_CONTENT>
+TOKEN :
+{
+  < CloseApos : "'" > : START_TAG
+| < EscapeApos : "''" > : APOS_ATTRIBUTE_CONTENT
+| < AposAttrContentChar : <Char> > : APOS_ATTRIBUTE_CONTENT
+}
+
+SKIP :
+{
+  < #Comment : <CommentStart> (<CommentContents>)* <CommentEnd> >
+}
+
+<DEFAULT, OPERATOR, NAMESPACEDECL, NAMESPACEKEYWORD, XMLSPACE_DECL, SINGLETYPE, ITEMTYPE, KINDTEST, KINDTESTFORPI, CLOSEKINDTEST, OCCURRENCEINDICATOR, VARNAME, EXPR_COMMENT, NODETEST>
+SPECIAL_TOKEN :
+{
+  < CommentStart : "(:" > { pushState(); } : EXPR_COMMENT
+}
+
+<EXPR_COMMENT>
+SPECIAL_TOKEN: 
+{ 
+  < CommentContent : <Char> >
+}
+
+<EXPR_COMMENT>
+SPECIAL_TOKEN :
+{
+  < CommentEnd : ":)" > { popState(); }
+}
+
+<EXPR_COMMENT>
+SPECIAL_TOKEN: 
+{ 
+  < #CommentContents : (<CommentContent>)+ >
+//  < #CommentContent : <Char> >
+}
+
+TOKEN :
+{
+  < #skip_ : (<WhitespaceChar>)+ >
+| < #Prefix : <NCName> >
+| < #LocalPart : <NCName> >
+| < #ValidationMode : ("lax" | "strict") >
+| < #Nmstart : (<Letter> | "_") >
+| < #Nmchar : (<Letter> | <CombiningChar> | <Extender> | <Digit> | "." | "-" | "_") >
+| < #Digits : (["0" - "9"])+  >
+| < #HexDigits : (["0" - "9", "a" - "f", "A" - "F"])+  >
+| < #NCName : <Nmstart> (<Nmchar>)* >
+| < #Char : ["\t", "\r", "\n", "\u0020" - "\uFFFD"] >
+| < #ExtensionContentChar : [ "\t", "\r", "\n", "\u0020" - "\u0021", "\"", "\u0024" - "\uFFFD"] > // exclude '#', use "\"" since JavaCC 4.0 cannot handle "\u0022"
+| < #WhitespaceChar : ["\t", "\r", "\n", " "] >
+| < #Letter : (<BaseChar> | <Ideographic>) >
+| < #BaseChar : ["\u0041" - "\u005a", "\u0061" - "\u007a", "\u00c0" - "\u00d6", "\u00d8" - "\u00f6", "\u00f8" - "\u00ff", "\u0100" - "\u0131", "\u0134" - "\u013e", "\u0141" - "\u0148", "\u014a" - "\u017e", "\u0180" - "\u01c3", "\u01cd" - "\u01f0", "\u01f4" - "\u01f5", "\u01fa" - "\u0217", "\u0250" - "\u02a8", "\u02bb" - "\u02c1", "\u0386", "\u0388" - "\u038a", "\u038c", "\u038e" - "\u03a1", "\u03a3" - "\u03ce", "\u03d0" - "\u03d6", "\u03da", "\u03dc", "\u03de", "\u03e0", "\u03e2" - "\u03f3", "\u0401" - "\u040c", "\u040e" - "\u044f", "\u0451" - "\u045c", "\u045e" - "\u0481", "\u0490" - "\u04c4", "\u04c7" - "\u04c8", "\u04cb" - "\u04cc", "\u04d0" - "\u04eb", "\u04ee" - "\u04f5", "\u04f8" - "\u04f9", "\u0531" - "\u0556", "\u0559", "\u0561" - "\u0586", "\u05d0" - "\u05ea", "\u05f0" - "\u05f2", "\u0621" - "\u063a", "\u0641" - "\u064a", "\u0671" - "\u06b7", "\u06ba" - "\u06be", "\u06c0" - "\u06ce", "\u06d0" - "\u06d3", "\u06d5", "\u06e5" - "\u06e6", "\u0905" - "\u0939", "\u093d", "\u0958" - "\u0961", "\u0985" - "\u098c", "\u098f" - "\u0990", "\u0993" - "\u09a8", "\u09aa" - "\u09b0", "\u09b2", "\u09b6" - "\u09b9", "\u09dc" - "\u09dd", "\u09df" - "\u09e1", "\u09f0" - "\u09f1", "\u0a05" - "\u0a0a", "\u0a0f" - "\u0a10", "\u0a13" - "\u0a28", "\u0a2a" - "\u0a30", "\u0a32" - "\u0a33", "\u0a35" - "\u0a36", "\u0a38" - "\u0a39", "\u0a59" - "\u0a5c", "\u0a5e", "\u0a72" - "\u0a74", "\u0a85" - "\u0a8b", "\u0a8d", "\u0a8f" - "\u0a91", "\u0a93" - "\u0aa8", "\u0aaa" - "\u0ab0", "\u0ab2" - "\u0ab3", "\u0ab5" - "\u0ab9", "\u0abd", "\u0ae0", "\u0b05" - "\u0b0c", "\u0b0f" - "\u0b10", "\u0b13" - "\u0b28", "\u0b2a" - "\u0b30", "\u0b32" - "\u0b33", "\u0b36" - "\u0b39", "\u0b3d", "\u0b5c" - "\u0b5d", "\u0b5f" - "\u0b61", "\u0b85" - "\u0b8a", "\u0b8e" - "\u0b90", "\u0b92" - "\u0b95", "\u0b99" - "\u0b9a", "\u0b9c", "\u0b9e" - "\u0b9f", "\u0ba3" - "\u0ba4", "\u0ba8" - "\u0baa", "\u0bae" - "\u0bb5", "\u0bb7" - "\u0bb9", "\u0c05" - "\u0c0c", "\u0c0e" - "\u0c10", "\u0c12" - "\u0c28", "\u0c2a" - "\u0c33", "\u0c35" - "\u0c39", "\u0c60" - "\u0c61", "\u0c85" - "\u0c8c", "\u0c8e" - "\u0c90", "\u0c92" - "\u0ca8", "\u0caa" - "\u0cb3", "\u0cb5" - "\u0cb9", "\u0cde", "\u0ce0" - "\u0ce1", "\u0d05" - "\u0d0c", "\u0d0e" - "\u0d10", "\u0d12" - "\u0d28", "\u0d2a" - "\u0d39", "\u0d60" - "\u0d61", "\u0e01" - "\u0e2e", "\u0e30", "\u0e32" - "\u0e33", "\u0e40" - "\u0e45", "\u0e81" - "\u0e82", "\u0e84", "\u0e87" - "\u0e88", "\u0e8a", "\u0e8d", "\u0e94" - "\u0e97", "\u0e99" - "\u0e9f", "\u0ea1" - "\u0ea3", "\u0ea5", "\u0ea7", "\u0eaa" - "\u0eab", "\u0ead" - "\u0eae", "\u0eb0", "\u0eb2" - "\u0eb3", "\u0ebd", "\u0ec0" - "\u0ec4", "\u0f40" - "\u0f47", "\u0f49" - "\u0f69", "\u10a0" - "\u10c5", "\u10d0" - "\u10f6", "\u1100", "\u1102" - "\u1103", "\u1105" - "\u1107", "\u1109", "\u110b" - "\u110c", "\u110e" - "\u1112", "\u113c", "\u113e", "\u1140", "\u114c", "\u114e", "\u1150", "\u1154" - "\u1155", "\u1159", "\u115f" - "\u1161", "\u1163", "\u1165", "\u1167", "\u1169", "\u116d" - "\u116e", "\u1172" - "\u1173", "\u1175", "\u119e", "\u11a8", "\u11ab", "\u11ae" - "\u11af", "\u11b7" - "\u11b8", "\u11ba", "\u11bc" - "\u11c2", "\u11eb", "\u11f0", "\u11f9", "\u1e00" - "\u1e9b", "\u1ea0" - "\u1ef9", "\u1f00" - "\u1f15", "\u1f18" - "\u1f1d", "\u1f20" - "\u1f45", "\u1f48" - "\u1f4d", "\u1f50" - "\u1f57", "\u1f59", "\u1f5b", "\u1f5d", "\u1f5f" - "\u1f7d", "\u1f80" - "\u1fb4", "\u1fb6" - "\u1fbc", "\u1fbe", "\u1fc2" - "\u1fc4", "\u1fc6" - "\u1fcc", "\u1fd0" - "\u1fd3", "\u1fd6" - "\u1fdb", "\u1fe0" - "\u1fec", "\u1ff2" - "\u1ff4", "\u1ff6" - "\u1ffc", "\u2126", "\u212a" - "\u212b", "\u212e", "\u2180" - "\u2182", "\u3041" - "\u3094", "\u30a1" - "\u30fa", "\u3105" - "\u312c", "\uac00" - "\ud7a3"] >
+| < #Ideographic : ["\u4e00" - "\u9fa5", "\u3007", "\u3021" - "\u3029"] >
+| < #CombiningChar : ["\u0300" - "\u0345", "\u0360" - "\u0361", "\u0483" - "\u0486", "\u0591" - "\u05a1", "\u05a3" - "\u05b9", "\u05bb" - "\u05bd", "\u05bf", "\u05c1" - "\u05c2", "\u05c4", "\u064b" - "\u0652", "\u0670", "\u06d6" - "\u06dc", "\u06dd" - "\u06df", "\u06e0" - "\u06e4", "\u06e7" - "\u06e8", "\u06ea" - "\u06ed", "\u0901" - "\u0903", "\u093c", "\u093e" - "\u094c", "\u094d", "\u0951" - "\u0954", "\u0962" - "\u0963", "\u0981" - "\u0983", "\u09bc", "\u09be", "\u09bf", "\u09c0" - "\u09c4", "\u09c7" - "\u09c8", "\u09cb" - "\u09cd", "\u09d7", "\u09e2" - "\u09e3", "\u0a02", "\u0a3c", "\u0a3e", "\u0a3f", "\u0a40" - "\u0a42", "\u0a47" - "\u0a48", "\u0a4b" - "\u0a4d", "\u0a70" - "\u0a71", "\u0a81" - "\u0a83", "\u0abc", "\u0abe" - "\u0ac5", "\u0ac7" - "\u0ac9", "\u0acb" - "\u0acd", "\u0b01" - "\u0b03", "\u0b3c", "\u0b3e" - "\u0b43", "\u0b47" - "\u0b48", "\u0b4b" - "\u0b4d", "\u0b56" - "\u0b57", "\u0b82" - "\u0b83", "\u0bbe" - "\u0bc2", "\u0bc6" - "\u0bc8", "\u0bca" - "\u0bcd", "\u0bd7", "\u0c01" - "\u0c03", "\u0c3e" - "\u0c44", "\u0c46" - "\u0c48", "\u0c4a" - "\u0c4d", "\u0c55" - "\u0c56", "\u0c82" - "\u0c83", "\u0cbe" - "\u0cc4", "\u0cc6" - "\u0cc8", "\u0cca" - "\u0ccd", "\u0cd5" - "\u0cd6", "\u0d02" - "\u0d03", "\u0d3e" - "\u0d43", "\u0d46" - "\u0d48", "\u0d4a" - "\u0d4d", "\u0d57", "\u0e31", "\u0e34" - "\u0e3a", "\u0e47" - "\u0e4e", "\u0eb1", "\u0eb4" - "\u0eb9", "\u0ebb" - "\u0ebc", "\u0ec8" - "\u0ecd", "\u0f18" - "\u0f19", "\u0f35", "\u0f37", "\u0f39", "\u0f3e", "\u0f3f", "\u0f71" - "\u0f84", "\u0f86" - "\u0f8b", "\u0f90" - "\u0f95", "\u0f97", "\u0f99" - "\u0fad", "\u0fb1" - "\u0fb7", "\u0fb9", "\u20d0" - "\u20dc", "\u20e1", "\u302a" - "\u302f", "\u3099", "\u309a"] >
+| < #Digit : ["\u0030" - "\u0039", "\u0660" - "\u0669", "\u06f0" - "\u06f9", "\u0966" - "\u096f", "\u09e6" - "\u09ef", "\u0a66" - "\u0a6f", "\u0ae6" - "\u0aef", "\u0b66" - "\u0b6f", "\u0be7" - "\u0bef", "\u0c66" - "\u0c6f", "\u0ce6" - "\u0cef", "\u0d66" - "\u0d6f", "\u0e50" - "\u0e59", "\u0ed0" - "\u0ed9", "\u0f20" - "\u0f29"] >
+| < #Extender : ["\u00b7", "\u02d0", "\u02d1", "\u0387", "\u0640", "\u0e46", "\u0ec6", "\u3005", "\u3031" - "\u3035", "\u309d" - "\u309e", "\u30fc" - "\u30fe"] >
+| < #space_ : ["\t", " "] >
+}
+
+/************************************************************************
+ Modules and Prologs
+ (http://www.w3.org/TR/xquery/#id-query-prolog)
+
+[1]  Module			::=	VersionDecl? (MainModule | LibraryModule)
+[2]  VersionDecl	::=	<"xquery" "version"> StringLiteral ("encoding" StringLiteral)? Separator
+[3]  MainModule		::= Prolog QueryBody
+[27] QueryBody		::= Expr
+************************************************************************/
+XQueryModule parseModule() throws XQueryException : 
+{
+	XQExpression expr = null;
+}
+{
+	[
+		currentToken = <XQueryVersion>
+		currentToken = <StringLiteralForVersion>
+		{
+	  		String version = unquote(currentToken.image);
+	  		if(version != null && version.compareTo(XQueryConstants.XQUERY_VERSION) > 0) {
+     			error("err:XQST0031");
+    		}
+	  		currentModule.setVersion(version);
+		}
+		[
+			currentToken = <XQueryEncoding>
+			currentToken = <StringLiteralForVersion>
+			{
+				String encoding = unquote(currentToken.image);
+				currentModule.setEncoding(encoding);
+			}
+		]
+		currentToken = <SemiColon>
+	]	
+	(
+		{ this.isLibraryModule = true; }
+		parseLibraryModule()
+	  |
+		(//MainModule
+			parseProlog()
+			expr = parseExpr()
+			{
+				currentModule.setExpression(expr);
+			}
+		)
+	)
+	<EOF>
+	{
+		return currentModule;
+	}
+}
+
+/************************************************************************
+[4] LibraryModule ::= ModuleDecl Prolog
+[5] ModuleDecl ::= <"module" "namespace"> NCName "=" URILiteral Separator
+[141] URILiteral ::= StringLiteral
+
+ TODO err:XQST0048
+************************************************************************/
+void parseLibraryModule() throws XQueryException :
+{
+	String nsPrefix = null;
+	String targetNamespace = null;
+}
+{
+	(//ModuleDecl
+		currentToken = <ModuleNamespace>
+		currentToken = <NCNameForPrefix>
+		{
+			nsPrefix = currentToken.image;
+		}
+		currentToken = <AssignEquals>
+		currentToken = <URILiteral>
+		{
+			targetNamespace = unquote(currentToken.image);
+		}
+		currentToken = <SemiColon>
+	)
+	{
+		if(nsPrefix == null || targetNamespace == null) {
+			error("err:XQST0048");	
+		}
+		declarePrefix(nsPrefix, targetNamespace);
+		currentModule.setNamespace(targetNamespace);
+	}
+	parseProlog()
+}
+
+// ---------------------------------------------------------
+// Prolog entries
+
+/************************************************************************
+[6] Prolog ::= ((DefaultNamespaceDecl | Setter | NamespaceDecl | Import) Separator)* ((VarDecl | FunctionDecl | OptionDecl) Separator)*
+[7]	Setter ::= BoundarySpaceDecl | DefaultCollationDecl | BaseURIDecl | ConstructionDecl | OrderingModeDecl | EmptyOrderDecl | CopyNamespacesDecl
+[8] Import ::= SchemaImport | ModuleImport
+[13] OptionDecl ::= "declare" "option" QName StringLiteral
+
+ NOTE: There is no default namespace for options.
+************************************************************************/
+void parseProlog() throws XQueryException :
+{
+	boolean isBoundarySpaceDeclCalled = false;
+	boolean isCopyNamespacesDeclCalled = false;
+	boolean isDefaultCollationDeclCalled = false;
+	boolean isConstructionDeclCalled = false;
+	boolean isOrderingModeDeclCalled = false;
+	boolean isEmptyOrderingDeclCalled = false;
+	QualifiedName optName = null;
+	String optValue = null;
+}
+{
+	(
+		(
+			parseDefaultNamespaceDecl()
+		  |
+			(//Setter
+			    {
+			    	if(isBoundarySpaceDeclCalled) {
+			    		error("err:XQST0068");
+			    	}
+			    	isBoundarySpaceDeclCalled = true;
+			    }
+			    parseBoundarySpaceDecl()
+			  | 
+			  	{
+			    	if(isDefaultCollationDeclCalled) {
+			    		error("err:XQST0038");
+			    	}
+			    	isDefaultCollationDeclCalled = true;
+			    }
+			  	parseDefaultCollationDecl()
+			  | 
+			  	parseBaseURIDecl()
+			  | 
+			    {
+			    	if(isConstructionDeclCalled) {
+			    		error("err:XQST0067");
+			    	}
+			    	isConstructionDeclCalled = true;
+			    }
+			  	parseConstructionDecl()
+			  | 
+			  	{
+			    	if(isOrderingModeDeclCalled) {
+			    		error("err:XQST0065");
+			    	}
+			    	isOrderingModeDeclCalled = true;
+			    }
+			  	parseOrderingModeDecl()
+			  | 
+			  	{
+			    	if(isEmptyOrderingDeclCalled) {
+			    		error("err:XQST0069");
+			    	}
+			    	isEmptyOrderingDeclCalled = true;
+			    } 
+			  	parseEmptyOrderingDecl()
+			  | 
+			    {
+			    	if(isCopyNamespacesDeclCalled) {
+			    		error("err:XQST0055");
+			    	}
+			    	isCopyNamespacesDeclCalled = true;
+			    } 
+			    parseCopyNamespacesDecl()
+			)
+		  | 
+		  	parseNamespaceDecl()
+		  |
+		  	(//Import
+		  		parseSchemaImport() 
+		  	  | 
+		  	  	parseModuleImport() 
+		  	)	  
+		)
+		currentToken = <SemiColon>
+	)*
+	(
+		(
+			parseVarDecl() 
+		  |
+		  	parseFunctionDecl()
+		  |
+		  	(//OptionDecl
+		  		currentToken = <DeclareOption>
+		  		currentToken = <QNameForOption>
+				{
+					optName = QNameUtil.parse(currentToken.image, namespaceContext, null);
+				}
+				currentToken = <StringLiteral>
+				{
+					optValue = unquote(currentToken.image);
+					staticContext.putOption(optName, optValue);
+				}
+		  	)
+		)
+		currentToken = <SemiColon>
+	)*
+}
+
+/************************************************************************
+[11] BoundarySpaceDecl ::= "declare" "boundary-space" ("preserve" | "strip")
+************************************************************************/
+void parseBoundarySpaceDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareXMLSpace>
+	(
+		currentToken = <XMLSpacePreserve>
+		{
+			staticContext.setStripBoundarySpace(false);
+		}
+	  |	
+	  	currentToken = <XMLSpaceStrip>
+	 	{
+	 		staticContext.setStripBoundarySpace(true);
+	 	}
+	)
+}
+
+/************************************************************************
+[16] DefaultCollationDecl ::= <"declare" "default" "collation"> URILiteral
+************************************************************************/
+void parseDefaultCollationDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareCollation>
+	currentToken = <URILiteral>
+	{
+		String collation = unquote(currentToken.image);
+		staticContext.setDefaultCollation(collation);
+	}
+}
+
+/************************************************************************
+[17] BaseURIDecl ::= <"declare" "base-uri"> URILiteral
+************************************************************************/
+void parseBaseURIDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareBaseURI>
+	currentToken = <URILiteral>
+	{
+		if(++baseURIDeclCount > 1) {
+            error("err:XQST0032");
+        }
+		String uri = unquote(currentToken.image);
+		staticContext.setBaseURI(uri);
+	}
+}
+
+/************************************************************************
+[22] ConstructionDecl ::= <"declare" "construction"> ("preserve" | "strip")
+************************************************************************/
+void parseConstructionDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareConstruction>
+	currentToken = <SchemaModeForDeclareConstruction>
+	{
+		staticContext.setConstructionModeStrip(currentToken.image.startsWith("p"));
+	}
+}
+
+/************************************************************************
+[13] OrderingModeDecl ::= <"declare" "ordering"> ("ordered" | "unordered")
+************************************************************************/
+void parseOrderingModeDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareOrdering>
+	(
+		currentToken = <Ordered>
+		{
+			staticContext.setOrderingModeOrdered(true);
+		}
+	  | 
+	  	currentToken = <Unordered>
+	    {
+	    	staticContext.setOrderingModeOrdered(false);
+	    }
+	)
+}
+
+/************************************************************************
+[14] EmptyOrderingDecl ::= <"declare" "default" "order"> (<"empty" "greatest"> | <"empty" "least">)
+************************************************************************/
+void parseEmptyOrderingDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareDefaultOrder>
+	(
+		currentToken = <EmptyGreatest>
+		{
+			staticContext.setEmptyLeast(false);
+		}
+	  |
+		currentToken = <EmptyLeast>
+		{
+			staticContext.setEmptyLeast(true);
+		}
+	)
+}
+
+/************************************************************************
+[16] CopyNamespacesDecl ::= "declare" "copy-namespaces" PreserveMode "," InheritMode
+[17] PreserveMode 	    ::= "preserve" | "no-preserve"
+[18] InheritMode 	    ::= "inherit" | "no-inherit"
+************************************************************************/
+void parseCopyNamespacesDecl() throws XQueryException :
+{}
+{
+	currentToken = <DeclareCopyNamespace>
+	(
+		currentToken = <Preserve>
+		{
+			staticContext.setPreserveNamespace(true);
+		}
+	  |
+	 	currentToken = <NoPreserve>
+	 	{
+	 		staticContext.setPreserveNamespace(false);	
+	 	}
+	)
+	currentToken = <CommaForCopyNamespace>
+	(
+		currentToken = <Inherit>
+		{
+			staticContext.setInheritNamespace(true);
+		}
+	  |
+	    currentToken = <NoInherit>
+	    {
+	    	staticContext.setInheritNamespace(false);	
+	    }
+	)
+}
+
+/************************************************************************
+[18] SchemaImport ::= 	<"import" "schema"> SchemaPrefix? URILiteral (<"at" URILiteral> ("," URILiteral)*)?
+[19] SchemaPrefix ::= ("namespace" NCName "=") | (<"default" "element"> "namespace")
+
+ TODO: err:XQST0059, err:XQST0035, err:XQST0012
+************************************************************************/
+void parseSchemaImport() throws XQueryException :
+{
+	boolean hasNamespacePrefix = false;
+	boolean hasDefaultElementNamespace = false;
+	String nsPrefix = null;
+	final String nsuri;
+	List<String> locationHints = null; // TODO disregarded for now
+}
+{
+	currentToken = <ImportSchemaToken>
+	[
+		(
+			currentToken = <Namespace>
+			currentToken = <NCNameForPrefix>
+			{
+				hasNamespacePrefix = true;
+				nsPrefix = currentToken.image;
+			}
+			currentToken = <AssignEquals>
+		)
+	  |
+	  	(
+	  		currentToken = <DefaultElement>
+	  		currentToken = <Namespace>
+	  		{
+	  			hasDefaultElementNamespace = true;
+	  		}
+	  	)
+	]
+	currentToken = <URILiteral>
+	{
+		nsuri = unquote(currentToken.image);	
+	}
+	[
+		currentToken = <AtURILiteral>
+		{
+			String location = currentToken.image.substring(currentToken.image.indexOf('"') + 1, currentToken.image.length() - 1);
+			locationHints = new ArrayList<String>(2);
+			locationHints.add(location);
+		}
+		(
+			currentToken = <CommaForURITransition>
+			currentToken = <AtURILiteral>
+			{
+				location = unquote(currentToken.image);
+				locationHints.add(location);
+			}
+		)*
+	]
+	{
+		if(hasNamespace(nsuri)) {
+			error("err:XQST0058");
+		}
+		if(hasNamespacePrefix) {
+			if(nsuri.length() == 0) {
+				error("err:XQST0057");
+			}
+			declarePrefix(nsPrefix, nsuri);
+		} else if(hasDefaultElementNamespace) {
+			staticContext.setDefaultElementNamespace(nsuri);
+		}
+		// TODO import schemas
+	}
+}
+
+/************************************************************************
+[20] ModuleImport ::= <"import" "module"> ("namespace" NCName "=")? URILiteral 
+					(<"at" URILiteral> ("," URILiteral)*)?
+					
+ TODO: err:XQST0036
+************************************************************************/
+void parseModuleImport() throws XQueryException :
+{
+	String nsPrefix = null;
+	final String targetNamespace;
+	List<String> locationHints = null;
+}
+{
+	currentToken = <ImportModuleToken>
+	[
+		currentToken = <Namespace>
+		currentToken = <NCNameForPrefix>
+		{
+			nsPrefix = currentToken.image;	
+		}
+		currentToken = <AssignEquals>
+	]
+	currentToken = <URILiteral>
+	{
+		targetNamespace = unquote(currentToken.image);
+	}
+	[
+		currentToken = <AtURILiteral>
+		{
+			String location = currentToken.image.substring(currentToken.image.indexOf('"') + 1, currentToken.image.length() - 1);
+			locationHints = new ArrayList<String>(2);
+			locationHints.add(location);
+		}
+		(
+			currentToken = <CommaForURITransition>
+			currentToken = <URILiteral>
+			{
+				location = unquote(currentToken.image);
+				locationHints.add(location);	
+			}
+		)*
+	]
+	{
+        if(targetNamespace.length() == 0) {
+            error("err:XQST0088"); // zero length namespace
+        }
+        if(hasNamespace(targetNamespace)) {
+            error("err:XQST0047"); // multiple module imports in the same Prolog specify the same target namespace.
+        }        
+        // prevent circular reference.
+        for(Module mod = currentModule; mod != null; mod = mod.getParentModule()) {
+            if(targetNamespace.equals(mod.getNamespace())) {
+                error("err:XQST0073");
+            }
+        }
+		declarePrefix(nsPrefix, targetNamespace);
+        // load library module
+        final Module module;
+        if (locationHints != null) {
+            // TODO [Limitation] multiple location hints does not mean.
+            module = staticContext.getModuleManager().loadModule(targetNamespace, locationHints.get(0));
+        } else {
+            module = staticContext.getModuleManager().loadModule(targetNamespace);
+        }
+        currentModule.importVariables(module);
+        currentModule.importFunctions(module);
+	}
+}
+
+/************************************************************************
+[10] NamespaceDecl ::= <"declare" "namespace"> NCName "=" URILiteral
+[141] URILiteraly::= StringLiteral
+************************************************************************/
+void parseNamespaceDecl() throws XQueryException :
+{
+	String prefix = null;
+	String nsuri = null;
+}
+{
+	currentToken = <DeclareNamespace>
+	currentToken = <NCNameForPrefix>
+	{
+		prefix = currentToken.image;
+	}
+	currentToken = <AssignEquals>
+	currentToken = <URILiteral>
+	{
+		nsuri = unquote(currentToken.image);	
+	}
+	{
+		if(hasNamespacePrefix(prefix)) {
+			error("err:XQST0033");
+		}
+		declarePrefix(prefix, nsuri);
+	}
+}
+
+/************************************************************************
+[12] DefaultNamespaceDecl ::= (("declare" "default" "element") | ("declare" "default" "function")) 
+							"namespace" URILiteral
+ TODO: err:XP0017
+************************************************************************/
+void parseDefaultNamespaceDecl() throws XQueryException :
+{
+	boolean functionDecl = false;
+	String nsuri = null;
+}
+{
+	(
+		currentToken = <DeclareDefaultElement>
+	  | 
+	  	currentToken = <DeclareDefaultFunction>
+	  	{
+	  		functionDecl = true;	
+	  	}
+  	)
+  	currentToken = <Namespace>
+  	currentToken = <URILiteral>
+  	{
+  		nsuri = unquote(currentToken.image);	
+  	}
+	{
+		if(nsuri == null) {
+			error("err:XQST0046");
+		}
+		if(functionDecl) { // default function namespace declaration
+			if(staticContext.getDefaultFunctionNamespace() != null) {
+				error("err:XQST0066");	
+			}
+			if(nsuri.length() == 0) {
+				nsuri = StaticContext.DEFAULT_NAMESPACE;
+			}
+			staticContext.setDefaultFunctionNamespace(nsuri);
+		} else { // default element/type namespace declaration
+			if(staticContext.getDefaultElementNamespace() != null) {
+				error("err:XQST0066");	
+			}
+			if(nsuri.length() == 0) {
+				nsuri = StaticContext.DEFAULT_NAMESPACE;
+			}
+			staticContext.setDefaultElementNamespace(nsuri);
+		}
+	}
+}
+
+/************************************************************************
+[21]  VarDecl ::= "declare" "variable" "$" QName TypeDeclaration? ((":=" ExprSingle) | "external")
+[110] TypeDeclaration ::= "as" SequenceType
+
+ TODO: err:XPTY0004, err:XQST0054, err:XP0006
+************************************************************************/
+void parseVarDecl() throws XQueryException : 
+{
+	final QualifiedName varName;
+	Type varType = null;
+	XQExpression valueExpr = null;
+	boolean isExternal = false;
+}
+{	
+	currentToken = <DefineVariable>	// TODO spaces afrer "$"
+	currentToken = <VarName>
+	{
+		varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+	}
+	[
+		currentToken = <As>
+		varType = parseSequenceType()
+	]
+	(
+		(
+			currentToken = <ColonEquals>
+			valueExpr = parseExprSingle()
+		)
+	  |
+		(
+	    	currentToken = <External>
+	    	{
+	    		isExternal = true;
+	    	}
+	    ) 
+	)
+	{	
+		final Variable variable;
+		if(isExternal) {
+			Variable extVar = currentModule.getVariable(varName);
+            if(extVar != null) {
+                variable = extVar;
+            } else {
+                variable = ExpressionFactory.createExternalVariable(varName, currentModule);
+                currentModule.putVariable(varName, variable);
+            }
+		} else { // internal
+			if(isLibraryModule) {
+				final String expectedNamespace = currentModule.getNamespace();
+				if(expectedNamespace != null) {
+					if(!expectedNamespace.equals(varName.getNamespaceURI())) {
+						error("err:XQST0048");
+					}
+				}
+			}
+			variable = currentModule.declareGlobalVariable(varName, valueExpr);	// may causes err:XQ0049
+		}
+		locate(variable);
+		if(varType != null) {
+			variable.setType(varType);
+		}
+	}
+}
+
+/************************************************************************
+[23] FunctionDecl ::= <"declare" "function"> <QName "("> ParamList? (")" | (<")" "as"> SequenceType)) (EnclosedExpr | "external")
+[26] EnclosedExpr ::= "{" Expr "}"
+************************************************************************/
+void parseFunctionDecl() throws XQueryException :
+{
+	final UserFunction func;
+	final QualifiedName funcName;
+	List<ParametricVariable> paramList = Collections.<ParametricVariable>emptyList();
+	Type returnType = Untyped.UNTYPED;
+	final XQExpression funcBody;
+}
+{
+	{
+		currentModule.pushVarScope();
+	}
+	currentToken = <DefineFunction>	
+	currentToken = <QNameLpar>
+	{
+		funcName = QNameUtil.parse(currentToken.image.substring(0, currentToken.image.length() - 1).trim(), namespaceContext, staticContext.getDefaultFunctionNamespace());		
+	}
+	[
+		paramList = parseParamList()
+	]
+	(
+		currentToken = <Rpar>
+	  |	
+	    (
+			currentToken = <RparAs>
+			returnType = parseSequenceType()
+		)
+	)
+	{
+		final String nsuri = funcName.getNamespaceURI();
+		if(isLibraryModule) {
+			final String tn = currentModule.getNamespace();
+			if(tn == null) { // sanity check
+				error("err:XQST0046");
+			}
+			if(tn.equals(nsuri) == false) {
+				error("err:XQST0048");
+			}
+		} else {
+			UserFunction.checkAsPredefinedFunction(nsuri);
+		}
+		func = ExpressionFactory.createUserFunction(currentModule, funcName, paramList, returnType);
+	}
+	(
+		(
+			currentToken = <LbraceExprEnclosure>
+			funcBody = parseExpr()
+			{
+				func.setBodyExpression(funcBody);
+			}
+			currentToken = <Rbrace>
+		)
+	  | 
+	  	currentToken = <External>
+	  	{
+	  		func.setExternal(true);
+	  	}
+	)
+	{
+		locate(func);
+		currentModule.popVarScope();
+	}
+}
+
+/************************************************************************
+[24]  ParamList ::= Param ("," Param)*
+[25]  Param ::= "$" QName TypeDeclaration?
+[110] TypeDeclaration ::= "as" SequenceType
+************************************************************************/
+List<ParametricVariable> parseParamList() throws XQueryException :
+{
+	final List<ParametricVariable> paramList = new LinkedList<ParametricVariable>();
+	QualifiedName paramName;
+	ParametricVariable param;
+	Type paramType = null;
+}
+{
+	currentToken = <VariableIndicator>
+	currentToken = <VarName>
+	{
+		paramName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+		param = new ParametricVariable(paramName);
+		currentModule.putVariable(paramName, param);
+	}
+	[
+		currentToken = <As>
+		paramType = parseSequenceType()
+		{
+			param.setType(paramType);
+		}
+	]
+	{
+		paramList.add(param);
+	}
+	(
+		currentToken = <Comma>
+		currentToken = <VariableIndicator>
+		currentToken = <VarName>
+		{
+			paramName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			param = new ParametricVariable(paramName);
+			currentModule.putVariable(paramName, param);
+		}
+		[
+			currentToken = <As>
+			paramType = parseSequenceType()
+			{
+				param.setType(paramType);
+			}
+		]
+		{
+			if(paramList.contains(param)) {
+				error("err:XQST0039");
+			}
+			paramList.add(param);
+		}
+	)*
+	{
+		return paramList;
+	}
+}
+
+// ---------------------------------------------------------
+// SequenceType entries (http://www.w3.org/TR/xquery/#doc-xquery-SequenceType)
+
+/************************************************************************
+[119] SequenceType ::= ("empty-sequence" "(" ")") | (ItemType OccurrenceIndicator?)
+[112] OccurrenceIndicator ::= "?" | "*" | "+" 	
+[121] ItemType 	   ::= KindTest | ("item" "(" ")") | AtomicType
+AtomicType | KindTest | <"item" "(" ")">
+[114] AtomicType   ::= QName
+************************************************************************/
+Type parseSequenceType() throws XQueryException : 
+{	
+	boolean isAtomic = false;
+	final ItemType itemType;
+	Occurrence occurrenceIndicator = Occurrence.OCC_EXACTLY_ONE;
+}
+{
+	(// SequenceType
+	    (
+	    	currentToken = <EmptySequence>
+	    	{
+	    		return SequenceType.EMPTY;
+	    	}
+	    )
+	  |
+		(			
+			(// ItemType
+			    itemType = parseKindTest()
+			  |
+			    currentToken = <Item>
+			    {
+			    	itemType = ItemType.ANY_ITEM;
+			    }
+			  |
+				(// AtomicType
+					currentToken = <QNameForAtomicType>
+					{
+						isAtomic = true;
+					}
+				  |
+					currentToken = <QNameForSequenceType>
+				)
+				{
+					QualifiedName itemName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+					itemType = TypeFactory.createAtomicType(itemName, staticContext);					
+				}
+			)
+			[//OccurrenceIndicator
+				currentToken = <OccurrenceZeroOrOne>
+				{
+					occurrenceIndicator = Occurrence.OCC_ZERO_OR_ONE;
+				}
+			  |
+			  	currentToken = <Star>
+			    {
+			    	occurrenceIndicator = Occurrence.OCC_ZERO_OR_MORE;
+			    }
+			  |
+			  	currentToken = <OccurrenceOneOrMore>
+			    {
+			    	occurrenceIndicator = Occurrence.OCC_ONE_OR_MORE;
+			    }
+			]
+		)	  
+	)	
+	{
+		if (isAtomic && occurrenceIndicator == Occurrence.OCC_EXACTLY_ONE) {
+			return itemType;				
+		} else {
+			return TypeFactory.createSequenceType(itemType, occurrenceIndicator);
+		}
+	}
+}
+
+/************************************************************************
+[121] KindTest 	   ::= DocumentTest
+						| ElementTest
+						| AttributeTest
+						| SchemaElementTest
+						| SchemaAttributeTest
+						| PITest
+						| CommentTest
+						| TextTest
+						| AnyKindTest
+[122] AnyKindTest ::= <"node" "("> ")"
+[124] TextTest 	  ::= <"text" "("> ")"
+[125] CommentTest ::= <"comment" "("> ")"
+************************************************************************/
+NodeType parseKindTest() throws XQueryException :
+{
+	final NodeType nodeType;
+}
+{
+	(
+		nodeType = parseDocumentTest()
+	  | 
+	    nodeType = parseElementTest()
+	  | 
+	    nodeType = parseAttributeTest()
+	  | 
+	    nodeType = parseSchemaElementTest()
+	  |
+	    nodeType = parseSchemaAttributeTest()
+	  | 
+	    nodeType = parsePITest()
+	  |
+	    (
+		    (
+		    	(
+		    		currentToken = <CommentLparRpar>
+				  |
+					currentToken = <CommentLparRparForKindTest>
+		  		)
+		  		{
+		  			nodeType =  NodeType.COMMENT;
+		  		}
+		  	  | 
+		  	    (
+		    		currentToken = <TextLparRpar>
+				  |
+				    currentToken = <TextLparRparForKindTest>
+		    	)
+		    	{
+		    		nodeType = NodeType.TEXT;
+		    	}
+		  	  |
+		    	(
+		    		currentToken = <NodeLparRpar>
+		    	  |
+		    	    currentToken = <NodeLparRparForKindTest>
+		    	)
+		    	{
+		    		nodeType = NodeType.ANYNODE;
+		    	}
+		    )
+	    )
+	)
+	{
+		return nodeType;
+	}
+}
+
+/************************************************************************
+[123] DocumentTest ::= "document-node" "(" (ElementTest | SchemaElementTest)? ")"
+************************************************************************/
+DocumentTest parseDocumentTest() throws XQueryException :
+{
+	ItemType itemType = null;
+}
+{
+	(
+		currentToken = <DocumentLpar>
+	  |
+	  	currentToken = <DocumentLparForKindTest>
+	)
+	[
+		itemType = parseElementTest()
+	  |
+	  	itemType = parseSchemaElementTest()
+	]
+	currentToken = <RparForKindTest>
+	{
+		return TypeFactory.createDocumentTest(itemType);
+	}
+}
+
+/************************************************************************
+[126] PITest 	   ::= "processing-instruction" "(" (NCName | StringLiteral)? ")"
+************************************************************************/
+PITest parsePITest() throws XQueryException :
+{
+	String name = null;
+}
+{
+	(
+		currentToken = <ProcessingInstructionLpar>
+	  | 
+	  	currentToken = <ProcessingInstructionLparForKindTest>
+	)
+	[
+		currentToken = <NCNameForPI>
+		{
+			name = currentToken.image;	
+		}
+	  |
+	    currentToken = <StringLiteralForKindTest>
+	    {
+	    	name = unquote(currentToken.image);
+	    }
+	]
+	currentToken = <RparForKindTest>
+	{
+		return TypeFactory.createPITest(name);	
+	}
+}
+
+/************************************************************************
+[131] ElementTest ::= <"element" "("> (ElementNameOrWildcard ("," TypeName "?"?)?)? ")"
+[132] ElementNameOrWildcard ::= ElementName | "*"
+[136] ElementName ::= QName
+[137] TypeName ::= QName
+************************************************************************/
+ElementTest parseElementTest() throws XQueryException :
+{
+	QualifiedName elementName = null;
+	QualifiedName typeName = null;
+	boolean isNillable = false;
+}
+{
+	(
+		currentToken = <ElementType>
+	  |
+		currentToken = <ElementTypeForKindTest>
+	  |		
+ 		currentToken = <ElementTypeForDocumentTest>
+	)
+	[
+		(
+			currentToken = <QNameForItemType>
+			{
+				elementName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+			}
+		  |
+		  	currentToken = <AnyName>
+		)
+		[
+			currentToken = <CommaForKindTest>
+			currentToken = <QNameForItemType>
+			{
+				typeName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+			}
+			[
+				currentToken = <Nillable>
+				{
+					isNillable = true;
+				}
+			]
+		]
+	]
+	currentToken = <RparForKindTest>
+	{
+		return TypeFactory.createElementTest(elementName, typeName, isNillable);
+	}
+}
+
+/************************************************************************
+[133] SchemaElementTest  ::= <"schema-element" "("> ElementDeclaration ")"
+[134] ElementDeclaration ::= ElementName
+[136] ElementName 	     ::= QName
+************************************************************************/
+SchemaElementTest parseSchemaElementTest() throws XQueryException : 
+{
+	QualifiedName elementName = null;
+}
+{
+	(
+		currentToken = <SchemaElementType>
+	  |
+	    currentToken = <SchemaElementTypeForKindTest>
+	  |
+		currentToken = <SchemaElementTypeForDocumentTest>
+	)
+	currentToken = <QNameForItemType>
+	{
+		elementName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+	}
+	currentToken = <RparForKindTest>
+	{
+		if(elementName == null) {
+			error("err:XPST0008");
+		}
+		return TypeFactory.createSchemaElementTest(elementName);
+	}
+}
+
+/************************************************************************
+[127] AttributeTest 	   ::= <"attribute" "("> (AttribNameOrWildcard ("," TypeName)?)? ")"
+[128] AttribNameOrWildcard ::= AttributeName | "*"
+[135] AttributeName 	   ::= QName
+[137] TypeName 	           ::= QName
+************************************************************************/
+AttributeTest parseAttributeTest() throws XQueryException :
+{
+	QualifiedName attributeName = null;
+	QualifiedName typeName = null;
+}
+{
+	(
+		currentToken = <AttributeType>
+	  |
+		currentToken = <AttributeTypeForKindTest>
+	)
+	[
+		(
+			currentToken = <QNameForItemType>
+			{
+				attributeName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+			}
+		  |
+		    currentToken = <AnyName>
+		)
+		[
+			currentToken = <CommaForKindTest>
+			currentToken= <QNameForItemType>
+			{
+				typeName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+			}
+		]
+	]
+	currentToken = <RparForKindTest>
+	{
+		return TypeFactory.createAttributeTest(attributeName, typeName);
+	}	
+}
+
+/************************************************************************
+[129] SchemaAttributeTest  ::= <"schema-attribute" "("> AttributeDeclaration ")"
+[130] AttributeDeclaration ::= AttributeName
+[135] AttributeName 	   ::= QName
+************************************************************************/
+SchemaAttributeTest parseSchemaAttributeTest() throws XQueryException :
+{
+	final QualifiedName attributeName;
+}
+{
+	(
+		currentToken = <SchemaAttributeType>
+	  |
+	  	currentToken = <SchemaAttributeTypeForKindTest>
+	)
+	currentToken = <QNameForItemType>
+	{
+		attributeName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+	}
+	currentToken = <RparForKindTest>
+	{
+		if(attributeName == null) {
+			error("err:XPST0008");
+		}
+		return TypeFactory.createSchemaAttributeTest(attributeName);
+	}
+}
+
+// ---------------------------------------------------------
+// Expressions entries (http://www.w3.org/TR/xquery/#id-expressions)
+
+/************************************************************************
+[31] Expr ::= ExprSingle ("," ExprSingle)*
+************************************************************************/
+XQExpression parseExpr() throws XQueryException : 
+{
+	XQExpression expr = null;
+	final List<XQExpression> exprs;
+}
+{
+	expr = parseExprSingle()
+	{
+		exprs = new LinkedList<XQExpression>();
+		exprs.add(expr);	
+	}
+	(
+		currentToken = <Comma>
+		expr = parseExprSingle()
+		{
+			exprs.add(expr);	
+		}
+	)*
+	{
+		if(expr == null) { // sanity check
+			error("Invalid Expr.");
+		} else {
+			return ExpressionFactory.createExpression(exprs);
+		}
+	}
+}
+
+/************************************************************************
+[32] ExprSingle ::= FLWRExpr
+				| QuantifiedExpr
+				| TypeswitchExpr
+				| IfExpr
+				| OrExpr
+************************************************************************/
+XQExpression parseExprSingle() throws XQueryException :
+{
+	final XQExpression expr;
+}
+{	
+  	(
+		expr = parseFLWRExpr()
+	  |
+	  	expr = parseQuantifiedExpr()
+	  |
+	    expr = parseTypeswitchExpr()
+	  |
+	    expr = parseIfExpr()
+	  | 
+	    expr = parseOrExpr()
+    )
+	{
+		return expr;
+	}
+}
+
+/************************************************************************
+[33] FLWRExpr 	   ::= (ForClause | LetClause)+ WhereClause? OrderByClause? "return" ExprSingle
+[33] FLWORExpr 	   ::= (ForClause | LetClause | WindowClause)+ WhereClause? (GroupByClause LetClause* WhereClause?)? OrderByClause? ReturnClause
+
+[34] ForClause 	   ::= <"for" "$"> VarName TypeDeclaration? PositionalVar? "in" ExprSingle 
+						 ("," "$" VarName TypeDeclaration? PositionalVar? "in" ExprSingle)*
+[36] LetClause 	   ::= <"let" "$"> VarName TypeDeclaration? ":=" ExprSingle 
+						 ("," "$" VarName TypeDeclaration? ":=" ExprSingle)*
+[37] WhereClause   ::= "where" ExprSingle
+[38] OrderByClause ::= (<"order" "by"> | <"stable" "order" "by">) OrderSpecList
+[39] OrderSpecList ::= OrderSpec ("," OrderSpec)*
+************************************************************************/
+XQExpression parseFLWRExpr() throws XQueryException :
+{
+	final FLWRExpr flower = new FLWRExpr();
+	List<Binding> bindings = null;
+	XQExpression whereExpr = null;
+	OrderSpec order = null;
+	XQExpression returnExpr = null;
+}
+{
+	{
+		currentModule.pushVarScope();
+		locate(flower);
+	}
+	(
+		(
+			bindings = parseForClause() 
+		  | 
+		  	bindings = parseLetClause()
+	  	)
+		{
+			flower.addClauses(bindings);
+		}
+	)+
+	[
+		currentToken = <Where>
+		whereExpr = parseExprSingle()
+		{
+			flower.setWhereExpr(whereExpr);
+		}
+	]	
+	[// (GroupByClause LetClause* WhereClause?)?
+		{	
+			Grouping grouping = null;			
+		}
+		grouping = parseGroupByClause()
+		{
+			flower.setGroupByClause(grouping);
+		}
+		(
+			bindings = parseLetClause()
+			{
+				grouping.addLetClauses(bindings);
+			}
+		)*
+		[
+			currentToken = <Where>
+			whereExpr = parseExprSingle()
+			{
+				grouping.setWhereExpression(whereExpr);
+			}
+		]
+	]
+	[ 
+		(
+			currentToken = <OrderBy>
+	  	  |
+			currentToken = <OrderByStable>
+			{
+				flower.setStableOrdering(true);
+			}
+		)
+		order = parseOrderSpec()
+		{
+			flower.addOrderSpec(order);	
+		}
+		(
+			currentToken = <Comma>
+			order = parseOrderSpec()
+			{
+				flower.addOrderSpec(order);	
+			}
+		)*
+	]
+	currentToken = <Return>
+	returnExpr = parseExprSingle()
+	{
+		flower.setReturnExpr(returnExpr);	
+	}
+	{
+		currentModule.popVarScope();
+		return flower.normalize();
+	}
+}
+
+/************************************************************************
+[34]  ForClause 	  ::= <"for" "$"> VarName TypeDeclaration? PositionalVar? "in" ExprSingle 
+						    ("," "$" VarName TypeDeclaration? PositionalVar? "in" ExprSingle)*
+[144] VarName 	      ::= QName
+[116] TypeDeclaration ::= "as" SequenceType
+[35]  PositionalVar   ::= "at" "$" VarName
+************************************************************************/
+List<Binding> parseForClause() throws XQueryException :
+{
+	final List<Binding> fors;
+	ForClause clause;
+	ForVariable var;
+	Type varType = null;
+	XQExpression expr;
+}
+{
+	currentToken = <ForVariable>
+	currentToken = <VarName>
+	{
+		QualifiedName varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+		var = new ForVariable(varName);
+		currentModule.putVariable(varName, var);
+		clause = new ForClause(var);
+		locate(clause);
+	}
+	[//TypeDeclaration? 
+		currentToken = <As>
+		varType = parseSequenceType()
+		{
+			var.setType(varType);
+		}
+	]
+	[//PositionalVar?
+		currentToken = <AtWord>
+		currentToken = <VariableIndicator>
+		currentToken = <VarName>
+		{
+			QualifiedName posVarName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			PositionalVariable posVar = new PositionalVariable(posVarName);
+			currentModule.putVariable(posVarName, posVar);
+			clause.setPositionVariable(posVar);
+		}
+	]
+	currentToken = <In>
+	expr = parseExprSingle()
+	{
+		clause.setInExpr(expr);
+		fors = new LinkedList<Binding>();
+		fors.add(clause);
+	}
+	(//("," "$" VarName TypeDeclaration? PositionalVar? "in" ExprSingle)*
+		currentToken = <Comma>
+		currentToken = <VariableIndicator>
+		currentToken = <VarName>
+		{
+			varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			var = new ForVariable(varName);
+			currentModule.putVariable(varName, var);
+			clause = new ForClause(var);
+		}
+		[//TypeDeclaration? 
+			currentToken = <As>
+			varType = parseSequenceType()
+			{
+				var.setType(varType);
+			}
+		]
+		[//PositionalVar?
+			currentToken = <AtWord>
+			currentToken = <VariableIndicator>
+			currentToken = <VarName>
+			{
+				QualifiedName posVarName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+				PositionalVariable posVar = new PositionalVariable(posVarName);
+				currentModule.putVariable(posVarName, posVar);
+				clause.setPositionVariable(posVar);
+			}
+		]
+		currentToken = <In>
+		expr = parseExprSingle()
+		{
+			clause.setInExpr(expr);
+			fors.add(clause);
+		}
+	)*
+	{		
+		return fors;
+	}
+}
+
+/************************************************************************
+[36] LetClause ::= <"let" "$"> VarName TypeDeclaration? ":=" ExprSingle 
+					 ("," "$" VarName TypeDeclaration? ":=" ExprSingle)*
+[110] TypeDeclaration ::= "as" SequenceType
+************************************************************************/
+List<Binding> parseLetClause() throws XQueryException :
+{
+	final List<Binding> lets;
+	LetVariable var;
+	LetClause clause;
+	Type varType = null;
+	XQExpression expr = null;
+}
+{
+	currentToken = <LetVariable>
+	currentToken = <VarName>
+	{
+		QualifiedName varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+		var = new LetVariable(varName);
+		currentModule.putVariable(varName, var);
+		clause = new LetClause(var);
+		locate(clause);
+	}
+	[
+		currentToken = <As>
+		varType = parseSequenceType()
+		{
+			var.setType(varType);
+		}
+	]
+	currentToken = <ColonEquals>
+	expr = parseExprSingle()
+	{
+		var.setValue(expr);
+		lets = new LinkedList<Binding>();
+		lets.add(clause);
+	}	
+	(//("," "$" VarName TypeDeclaration? ":=" ExprSingle)*
+		currentToken = <Comma>
+		currentToken = <VariableIndicator>
+		currentToken = <VarName>
+		{
+			varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			var = new LetVariable(varName);
+			currentModule.putVariable(varName, var);
+			clause = new LetClause(var);
+		}
+		[
+			currentToken = <As>
+			varType = parseSequenceType()
+			{
+				var.setType(varType);
+			}
+		]
+		currentToken = <ColonEquals>
+		expr = parseExprSingle()
+		{
+			var.setValue(expr);
+			lets.add(clause);
+		}
+	)*
+	{
+		return lets;
+	}		
+}
+
+/************************************************************************
+[47] GroupByClause 	  ::= "group" "by" GroupingSpecList
+[48] GroupingSpecList ::= GroupingSpec ("," GroupingSpec)*
+************************************************************************/
+Grouping parseGroupByClause() throws XQueryException :
+{
+	final Grouping grouping = new Grouping();
+	GroupingSpec spec = null;
+}
+{
+	currentToken = <GroupBy>
+	//GroupingSpecList
+	spec = parseGroupingSpec()
+	{
+		grouping.addGroupingKey(spec);
+	}
+	(
+		currentToken = <Comma>
+		spec = parseGroupingSpec()
+		{
+			grouping.addGroupingKey(spec);	
+		}
+	)*
+	{
+		locate(grouping);
+		return grouping;
+	}
+}
+
+/************************************************************************
+[49] GroupingSpec 	  ::= "$" VarName ("collation" URILiteral)?
+************************************************************************/
+GroupingSpec parseGroupingSpec() throws XQueryException :
+{
+	final GroupingSpec spec;
+}
+{
+	currentToken = <VariableIndicator>
+    currentToken = <VarName>
+	{
+		String defaultNamespace = currentModule.getNamespace();
+      	if(defaultNamespace == null) {
+      		defaultNamespace = "";
+      	}
+      	QualifiedName vn = QNameUtil.parse(currentToken.image, namespaceContext, defaultNamespace);
+		Variable var = currentModule.getVariable(vn);
+		if(var == null) {
+			error("err:XPST0008");
+		}
+		if(!(var instanceof ForVariable || var instanceof LetVariable)) {
+			error("err:XQST0094");
+		}
+		BindingVariable bindingVar = (BindingVariable) var;
+ 		spec = new GroupingSpec(bindingVar);
+		locate(spec);
+	}
+	[// ("collation" URILiteral)?
+		currentToken = <Collation>
+		currentToken = <URILiteralToOperator>
+		{
+			String collation = unquote(currentToken.image);
+			if(collation != null) {
+				try{
+					URI url = new URI(collation);
+					spec.setCollation(url);
+				} catch(URISyntaxException e) {
+					error("err:XQST0046");
+				}
+			}
+		}			
+	]
+	{
+		return spec;
+	}
+}
+
+/************************************************************************
+[40] OrderSpec 	   ::=  ExprSingle OrderModifier
+[41] OrderModifier ::= ("ascending" | "descending")? (<"empty" "greatest"> | <"empty" "least">)? ("collation" URILiteral)?
+************************************************************************/
+OrderSpec parseOrderSpec() throws XQueryException :
+{
+	final OrderSpec spec;
+	final XQExpression keyExpr;
+	String collation = null;
+}
+{
+	keyExpr = parseExprSingle()
+	{
+		spec = new OrderSpec(keyExpr);
+		locate(spec);
+	}
+	(
+		currentToken = <Ascending>
+	  |
+	  	currentToken = <Descending>
+	  	{
+	  		spec.setDescending(true);
+	  	}
+	)?
+	(
+		currentToken = <EmptyGreatest>
+		{
+			spec.setEmptyGreatest(true);
+		}
+	  |
+	    currentToken = <EmptyLeast>
+	)?
+	[
+		currentToken = <Collation>
+		currentToken = <URILiteralToOperator>
+		{
+			collation = unquote(currentToken.image);
+			if(collation != null) {
+				try{
+					URI url = new URI(collation);
+					spec.setCollation(url);
+				} catch(URISyntaxException e) {
+					error("err:XQST0046");
+				}					
+			}
+		}			
+	]
+	{
+		return spec;
+	}
+}
+
+// ---------------------------------------------------------
+// 3.11 Quantified Expressions
+
+/************************************************************************
+[42] QuantifiedExpr ::= (<"some" "$"> | <"every" "$">) VarName TypeDeclaration? "in" ExprSingle 
+			   								  ("," "$" VarName TypeDeclaration? "in" ExprSingle)*
+						"satisfies" ExprSingle
+[137] VarName ::= QName
+[110] TypeDeclaration ::= "as" SequenceType
+*************************************************************************/
+QuantifiedExpr parseQuantifiedExpr() throws XQueryException :
+{
+	final QuantifiedExpr outermost;
+	boolean isEveryQuantifier = false;
+	QualifiedName varName;
+	QuantifiedVariable var;
+	Type varType = null;
+	XQExpression valueExpr;
+	final XQExpression condExpr;
+}
+{
+	{
+		currentModule.pushVarScope();
+	}
+	(
+		currentToken = <Some>
+	  |
+	    currentToken = <Every>
+	    {
+	    	isEveryQuantifier = true;
+	    }
+	)
+	currentToken = <VarName>
+	{
+		varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+		var = new QuantifiedVariable(varName);
+		currentModule.putVariable(varName, var);
+	}
+	[
+		currentToken = <As>
+		varType = parseSequenceType()
+		{
+			var.setType(varType);
+		}
+	]
+	currentToken = <In>
+	valueExpr = parseExprSingle()
+	{
+		var.setValue(valueExpr);
+		outermost = new QuantifiedExpr(isEveryQuantifier, var);
+		QuantifiedExpr outer = outermost;
+	}
+	(
+		currentToken = <Comma>
+		currentToken = <VariableIndicator>
+		currentToken = <VarName>
+		{
+			varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			var = new QuantifiedVariable(varName);
+			currentModule.putVariable(varName, var);
+		}
+		[
+			currentToken = <As>
+			varType = parseSequenceType()
+			{
+				var.setType(varType);
+			}
+		]
+		currentToken = <In>
+		valueExpr = parseExprSingle()
+		{
+			var.setValue(valueExpr);
+			QuantifiedExpr inner = new QuantifiedExpr(isEveryQuantifier, var);
+			outer.setCondExpr(inner);
+			outer = inner;
+		}
+	)*
+	currentToken = <Satisfies>
+	condExpr = parseExprSingle()
+	{
+		assert (outer.getCondExpr() == null);
+		outer.setCondExpr(condExpr);
+		currentModule.popVarScope();
+		return outermost;
+	}
+}
+
+/************************************************************************
+[43] TypeswitchExpr ::= <"typeswitch" "("> Expr ")" CaseClause+
+						"default" ("$" VarName)? "return" ExprSingle
+************************************************************************/
+TypeswitchExpr parseTypeswitchExpr() throws XQueryException :
+{
+	final TypeswitchExpr switchExpr;
+	XQExpression expr = null;
+	CaseClause cc = null;
+	QualifiedName varName = null;
+}
+{
+	currentToken = <TypeswitchLpar>
+	expr = parseExpr()
+	{
+		switchExpr = new TypeswitchExpr(expr);
+		locate(switchExpr);
+	}
+	currentToken = <Rpar>
+	(
+		cc = parseCaseClause()
+		{
+			switchExpr.addCaseClause(cc);
+		}
+	)+
+	(
+		{
+			currentModule.pushVarScope();
+		}
+		currentToken = <Default>
+		[
+			currentToken = <VariableIndicator>
+			currentToken = <VarName>
+			{
+				varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			}
+		]
+		currentToken = <Return>
+		expr = parseExprSingle()
+		{
+			CaseVariable var = new CaseVariable(varName);
+	        CaseClause dc = new CaseClause(var, expr);
+			switchExpr.setDefaultClause(dc);
+		}
+		{
+			currentModule.popVarScope();
+		}
+	)
+	{		
+		return switchExpr;
+	}	
+}
+
+/************************************************************************
+[44] CaseClause 	::= "case" ("$" VarName "as")? SequenceType "return" ExprSingle
+************************************************************************/
+CaseClause parseCaseClause() throws XQueryException :
+{
+	QualifiedName varName = null;
+	CaseVariable caseVar = null;
+	final Type varType;
+	final XQExpression retExpr;
+}
+{
+	{
+		currentModule.pushVarScope();
+	}
+	currentToken = <Case>
+	[// ("$" VarName "as")?
+		currentToken = <VariableIndicator>
+		currentToken = <VarName>
+		{
+			varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+			caseVar = new CaseVariable(varName);
+			currentModule.putVariable(varName, caseVar);
+		}
+		currentToken = <As>
+	]
+	{
+		if(caseVar == null) {
+			caseVar = new CaseVariable(null);
+		}
+	}
+	varType = parseSequenceType()
+	{
+		caseVar.setType(varType);	
+	}
+	currentToken = <Return>
+	retExpr = parseExprSingle()
+	{
+		currentModule.popVarScope();
+		final CaseClause cc = new CaseClause(caseVar, retExpr);
+		locate(cc);
+		return cc;
+	}
+}	
+
+/************************************************************************
+[45] IfExpr ::= "if" "(" Expr ")" "then" ExprSingle "else" ExprSingle
+************************************************************************/
+IfExpr parseIfExpr() throws XQueryException :
+{
+	final XQExpression condExpr, thenExpr, elseExpr;
+}
+{
+	currentToken = <IfLpar>
+	condExpr = parseExpr()
+	currentToken = <Rpar>
+	currentToken = <Then>
+	thenExpr = parseExprSingle()
+	currentToken = <Else>
+	elseExpr = parseExprSingle()
+	{
+		final IfExpr expr = new IfExpr(condExpr, thenExpr, elseExpr);
+		locate(expr);
+		return expr;
+	}
+}
+
+/************************************************************************
+[46] OrExpr 	   ::=    	AndExpr ( "or" AndExpr )*
+************************************************************************/
+XQExpression parseOrExpr() throws XQueryException :
+{
+	XQExpression expr;
+	final List<XQExpression> exprs = new LinkedList<XQExpression>();
+}
+{
+	expr = parseAndExpr()
+	{
+		exprs.add(expr);
+	}
+	(
+		currentToken = <Or>
+		expr = parseAndExpr()
+		{
+			exprs.add(expr);
+		}
+	)*
+	{
+		if(exprs.size() == 1) {
+			return exprs.get(0);
+		} else {
+			return locate(new OrExpr(exprs));
+		}
+	}	
+}
+
+/************************************************************************
+[47] AndExpr 	   ::=    	ComparisonExpr ( "and" ComparisonExpr )*
+************************************************************************/
+XQExpression parseAndExpr() throws XQueryException :
+{
+	XQExpression expr;
+	final List<XQExpression> exprs = new LinkedList<XQExpression>();
+}
+{
+	expr = parseComparisonExpr()
+	{
+		exprs.add(expr);
+	}
+	(
+		currentToken = <And>
+		expr = parseComparisonExpr()
+		{
+			exprs.add(expr);
+		}
+	)*
+	{
+		if(exprs.size() == 1) {
+			return exprs.get(0);
+		} else {
+			return locate(new AndExpr(exprs));
+		}
+	}	
+}
+
+/************************************************************************
+[48] ComparisonExpr ::=    	RangeExpr ( (ValueComp | GeneralComp | NodeComp) RangeExpr )?
+[61] ValueComp 	    ::=    	"eq" | "ne" | "lt" | "le" | "gt" | "ge"
+[60] GeneralComp 	::=    	"=" | "!=" | "<" | "<=" | ">" | ">="
+[62] NodeComp 	    ::=    	"is" | "<<" | ">>"
+************************************************************************/
+XQExpression parseComparisonExpr() throws XQueryException :
+{
+	XQExpression expr;
+	XQExpression rightExpr = null;
+}
+{
+	expr = parseRangeExpr()
+	[
+		{
+			final ComparisonOp op;
+		}
+		(
+			{
+				final ValueComp.Operator vcmp;
+			}
+			( // "eq" | "ne" | "lt" | "le" | "gt" | "ge"	
+				currentToken = <FortranEq>
+				{
+					vcmp = ValueComp.Operator.EQ;
+				}
+			  |
+				currentToken = <FortranNe>
+				{
+					vcmp = ValueComp.Operator.NE;
+				}
+			  |
+				currentToken = <FortranLt>
+				{
+					vcmp = ValueComp.Operator.LT;
+				}
+			  |
+				currentToken = <FortranLe>
+				{
+					vcmp = ValueComp.Operator.LE;
+				}
+			  |
+				currentToken = <FortranGt>
+				{
+					vcmp = ValueComp.Operator.GT;
+				}
+			  |
+				currentToken = <FortranGe>
+				{
+					vcmp = ValueComp.Operator.GE;
+				}
+			)
+			{
+				op = new ValueComp(vcmp, expr);
+			}
+		  | 
+		  	{
+		  		final GeneralComp.Operator gcmp;
+		  	}
+		    ( // "=" | "!=" | "<" | "<=" | ">" | ">="
+				currentToken = <Equals>
+				{
+					gcmp = GeneralComp.Operator.EQ;
+				}
+			  |
+				currentToken = <NotEquals>
+				{
+					gcmp = GeneralComp.Operator.NE;
+				}
+			  |
+				currentToken = <Lt>
+				{
+					gcmp = GeneralComp.Operator.LT;
+				}
+			  |
+				currentToken = <LtEquals>
+				{
+					gcmp = GeneralComp.Operator.LE;
+				}
+			  |
+				currentToken = <Gt>
+				{
+					gcmp = GeneralComp.Operator.GT;
+				}
+			  |
+				currentToken = <GtEquals>
+				{
+					gcmp = GeneralComp.Operator.GE;
+				}
+		    )
+			{
+				op = new GeneralComp(gcmp, expr);
+			}
+		  |
+		  	{
+		  		final NodeComp.Operator ncmp;
+		  	}
+		    ( // "is" | "<<" | ">>"
+				currentToken = <Is>
+				{
+					ncmp = NodeComp.Operator.IS;
+				}
+			  |
+				currentToken = <LtLt>
+				{
+					ncmp = NodeComp.Operator.PRECEDES;
+				}
+			  |
+				currentToken = <GtGt>
+				{
+					ncmp = NodeComp.Operator.FOLLOWS;
+				}
+		    )
+		    {
+		    	op = new NodeComp(ncmp, expr);
+		    }
+		)
+	    rightExpr = parseRangeExpr()
+	    {
+	    	op.setRightOperand(rightExpr);
+	    	expr = locate(op);
+	    }
+	]
+	{
+		return expr;
+	}
+}
+
+/************************************************************************
+[49] RangeExpr ::= AdditiveExpr ( "to" AdditiveExpr )?
+************************************************************************/
+XQExpression parseRangeExpr() throws XQueryException :
+{
+	final XQExpression e1;
+	XQExpression e2 = null;
+}
+{
+	e1 = parseAdditiveExpr()
+	[
+		currentToken = <To>
+		e2 = parseAdditiveExpr()
+	]
+	{
+		if(e2 == null) {
+			return e1;
+		} else {
+			return locate(new RangeExpr(e1, e2));	
+		}
+	}
+}
+
+/************************************************************************
+[50] AdditiveExpr  		::= MultiplicativeExpr ( ("+" | "-") MultiplicativeExpr )*
+************************************************************************/
+XQExpression parseAdditiveExpr() throws XQueryException :
+{
+	XQExpression e1;
+	XQExpression e2 = null;
+	boolean isPlus = true;
+}
+{
+	e1 = parseMultiplicativeExpr()
+	(
+		(
+			currentToken = <Plus>
+			{
+				isPlus = true;
+			}
+		  |
+		    currentToken = <Minus>
+		    {
+		    	isPlus = false;
+		    }
+		)
+		e2 = parseMultiplicativeExpr()
+		{
+			e1 = locate(new AdditiveExpr(isPlus, e1, e2));
+		}
+	)*
+	{
+		return e1;
+	}	
+}
+
+/************************************************************************
+[51] MultiplicativeExpr ::= UnionExpr ( ("*" | "div" | "idiv" | "mod") UnionExpr )*
+************************************************************************/
+XQExpression parseMultiplicativeExpr() throws XQueryException :
+{
+	XQExpression e1;
+	String operator = null;
+	XQExpression e2 = null;
+}
+{
+	e1 = parseUnionExpr()
+	(
+		(
+			currentToken = <Multiply>
+			{
+				operator = MultiplicativeExpr.MULTIPLY;
+			}
+		  |
+		    currentToken = <Div>
+		    {
+		    	operator = MultiplicativeExpr.DIV;
+		    }
+		  |
+		    currentToken = <Idiv>
+		    {
+		    	operator = MultiplicativeExpr.IDIV;
+		    }
+		  |
+		    currentToken = <Mod>
+		    {
+		    	operator = MultiplicativeExpr.MOD;
+		    }
+		)
+		e2 = parseUnionExpr()
+		{
+			e1 = locate(new MultiplicativeExpr(operator, e1, e2));
+		}
+	)*
+	{
+		return e1;
+	}	
+}
+
+/************************************************************************
+[52] UnionExpr ::= IntersectExceptExpr ( ("union" | "|") IntersectExceptExpr )*
+************************************************************************/
+XQExpression parseUnionExpr() throws XQueryException :
+{
+	XQExpression e1;
+	XQExpression e2 = null;
+}
+{
+	e1 = parseIntersectExceptExpr()
+	(
+		(
+			currentToken = <Union>
+		  |
+		    currentToken = <Vbar>
+		)
+		e2 = parseIntersectExceptExpr()
+		{
+			e1 = locate(new UnionOp(e1, e2));	
+		}
+	)*
+	{
+		return e1;
+	}	
+}
+
+/************************************************************************
+[53] IntersectExceptExpr ::= InstanceofExpr ( ("intersect" | "except") InstanceofExpr )*
+************************************************************************/
+XQExpression parseIntersectExceptExpr() throws XQueryException :
+{
+	XQExpression e1;
+	boolean isExcept = false;
+	XQExpression e2 = null;
+}
+{
+	e1 = parseInstanceofExpr()
+	(
+		(
+			currentToken = <Intersect>
+			{
+				isExcept = false;
+			}
+		  |
+		    currentToken = <Except>
+		    {
+		    	isExcept = true;
+		    }
+		)
+		e2 = parseInstanceofExpr()
+		{
+			if(isExcept) {
+				e1 = locate(new ExceptOp(e1, e2));	
+			} else {
+				e1 = locate(new IntersectOp(e1, e2));
+			}
+		}
+	)*
+	{
+		return e1;
+	}	
+}
+
+/************************************************************************
+[54] InstanceofExpr ::= TreatExpr ( "instance" "of" SequenceType )?
+************************************************************************/
+XQExpression parseInstanceofExpr() throws XQueryException :
+{
+	XQExpression expr;
+	Type type = null;
+}
+{
+	expr = parseTreatExpr()
+	[
+		currentToken = <Instanceof>
+		type = parseSequenceType()
+		{
+			expr = locate(new InstanceofOp(expr, type));
+		}
+	]
+	{
+		return expr;
+	}	
+}
+
+/************************************************************************
+[55] TreatExpr ::= CastableExpr ( "treat" "as" SequenceType )?
+************************************************************************/
+XQExpression parseTreatExpr() throws XQueryException :
+{
+	XQExpression expr;
+	Type type = null;
+}
+{
+	expr = parseCastableExpr()
+	[
+		currentToken = <TreatAs>
+		type = parseSequenceType()
+		{
+			expr = locate(new TreatExpr(expr, type));
+		}
+	]
+	{
+		return expr;
+	}
+}
+
+/************************************************************************
+[56]  CastableExpr ::= CastExpr ( "castable" "as" SingleType )?
+[115] SingleType   ::= AtomicType "?"?
+[120] AtomicType   ::= QName
+************************************************************************/
+XQExpression parseCastableExpr() throws XQueryException :
+{
+	XQExpression expr;
+}
+{
+	expr = parseCastExpr()
+	[
+		currentToken = <Castable>
+		(
+			currentToken = <QNameForAtomicType>
+		  |
+		  	currentToken = <QNameForSequenceType>
+		)
+		{
+			QualifiedName typeName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+			Type type = TypeFactory.createAtomicType(typeName, staticContext);
+		}
+		[
+			currentToken = <OccurrenceZeroOrOne>
+			{
+				type = TypeFactory.createSequenceType((AtomicType) type, Occurrence.OCC_ZERO_OR_ONE);
+			}
+		]
+		{
+			expr = locate(new CastableExpr(expr, type));
+		}
+	]
+	{
+		return expr; 
+	}	
+}
+
+/************************************************************************
+[57] CastExpr ::= UnaryExpr ( "cast" "as" SingleType )?
+[115] SingleType   ::= AtomicType "?"?
+[120] AtomicType   ::= QName
+************************************************************************/
+XQExpression parseCastExpr() throws XQueryException :
+{
+	XQExpression expr;
+}
+{
+	expr = parseUnaryExpr()
+	[
+		currentToken = <CastAs>
+		(
+			currentToken = <QNameForAtomicType>
+		  |
+		  	currentToken = <QNameForSequenceType>
+		)
+		{
+			QualifiedName typeName = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+			Type type = TypeFactory.createAtomicType(typeName, staticContext);			
+		}
+		[
+			currentToken = <OccurrenceZeroOrOne>
+			{
+				type = TypeFactory.createSequenceType((AtomicType) type, Occurrence.OCC_ZERO_OR_ONE);
+			}
+		]
+		{
+			expr = locate(new CastExpr(expr, type));
+		}
+	]
+	{
+		return expr;
+	}
+}
+
+/************************************************************************
+[58] UnaryExpr ::= ("-" | "+")* ValueExpr
+[59] ValueExpr ::= ValidateExpr | PathExpr | ExtensionExpr
+[64] ExtensionExpr ::= Pragma+ "{" Expr? "}"
+************************************************************************/
+XQExpression parseUnaryExpr() throws XQueryException :
+{
+	boolean isMinus = false;
+	final XQExpression valueExpr;
+}
+{
+	(
+		currentToken = <Minus>
+		{
+			isMinus = !isMinus;
+		}
+	  |
+	    currentToken = <Plus>
+	)*
+	(
+		valueExpr = parseValidateExpr()
+	  |
+	    valueExpr = parsePathExpr()
+	  |
+	  	valueExpr = parseExtensionExpr()
+	)
+	{
+		if(isMinus) {
+			return locate(new NegativeExpr(valueExpr));
+		} else {
+			return valueExpr;	
+		}
+	}
+}
+
+/************************************************************************
+[63]  ValidateExpr 	   ::= 	(<"validate" "{"> | (<"validate" ValidationMode> "{")) Expr "}"
+[145] ValidationMode   ::= "lax" | "strict"
+************************************************************************/
+ValidateOp parseValidateExpr() throws XQueryException :
+{
+	final XQExpression expr;
+	boolean isStrict = true;
+}
+{
+	(
+		currentToken = <ValidateLbrace>
+      |
+		(
+			currentToken = <ValidateSchemaMode>
+			{
+				if(currentToken.image.indexOf("lax") != -1) {
+					isStrict = false;
+				}
+			}
+			currentToken = <LbraceExprEnclosure>
+		)
+	)
+	expr = parseExpr()
+  	currentToken = <Rbrace>
+	{
+		final ValidateOp vop = new ValidateOp(expr, isStrict);
+		locate(vop);
+		return vop;
+	}	
+}
+
+/************************************************************************
+[67] PathExpr ::= ("/" RelativePathExpr?)
+				| ("//" RelativePathExpr)
+				| RelativePathExpr
+************************************************************************/
+XQExpression parsePathExpr() throws XQueryException :
+{
+	final XQExpression expr;
+	List<XQExpression> steps = null;
+}
+{
+	(
+		(
+			currentToken = <Slash>
+			[
+				steps = parseRelativePathExpr()
+			]
+			{
+				expr = new AbsolutePath(steps);	
+			}
+		)
+	  |
+	  	(
+	  		currentToken = <SlashSlash>
+	  		steps = parseRelativePathExpr()
+	  		{
+	  			expr = new AbsolutePath(steps, true);
+	  		}
+	  	)
+	  |
+	 	steps = parseRelativePathExpr()
+	 	{
+	 		if(steps.size() == 1 && !(steps instanceof StepExpr)) {
+	 			expr = steps.get(0);
+	 		} else {
+		 		expr = new RelativePath(steps);
+	 		}
+	 	}
+	)
+	{
+		return locate(expr);
+	}
+}
+
+/************************************************************************
+[68] RelativePathExpr ::=  StepExpr (("/" | "//") StepExpr)*
+************************************************************************/
+List<XQExpression> parseRelativePathExpr() throws XQueryException :
+{
+	final List<XQExpression> steps = new LinkedList<XQExpression>();
+	XQExpression expr;
+}
+{
+	expr = parseStepExpr()
+	{
+		steps.add(expr);
+	}
+	(
+		(
+			currentToken = <Slash>
+		  |
+		    currentToken = <SlashSlash>
+		    {
+		    	steps.add(locate(new DescendantOrSelfStep.RootDescStep()));
+		    }
+		)
+		expr = parseStepExpr()
+		{
+			steps.add(locate(expr));
+		}
+	)*
+	{	
+		return steps;
+	}
+}
+
+/************************************************************************
+[64] ExtensionExpr  ::= Pragma+ "{" Expr? "}"
+[65] Pragma 	    ::= "(#" S? QName PragmaContents "#)"
+[66] PragmaContents ::= (Char* - (Char* '#)' Char*))
+************************************************************************/
+ExtensionExpr parseExtensionExpr() throws XQueryException :
+{
+	final List<Pragma> pragmas = new LinkedList<Pragma>();
+	QualifiedName pragma;
+	XQExpression expr = null;
+}
+{	
+	(//Pragma+
+		LOOKAHEAD(5)
+		currentToken = <PragmaOpen>
+		[
+			currentToken = <S>
+		]
+		currentToken = <QNameForPragma>
+		{
+			pragma = QNameUtil.parse(currentToken.image, namespaceContext, null);
+			StringBuilder buf = new StringBuilder();
+		}
+		[
+			currentToken = <PragmaContents>
+			{
+				buf.append(currentToken.image);
+			}
+		]
+		{
+			String content = buf.toString().trim();
+			if(content.indexOf("#)") != -1) {
+				error("err:XQST0013");  // Invalid pragma content
+			}
+			Pragma p = new Pragma(pragma, content);
+			pragmas.add(p);
+		}
+		currentToken = <PragmaClose>
+	)+
+	currentToken = <LbraceExprEnclosure>
+	[
+		expr = parseExpr()
+	]
+	{
+		if(expr == null) {
+			error("err:XQST0079");	// expression is absent
+		}
+	}
+	currentToken = <Rbrace>
+	{
+		final ExtensionExpr ee = new ExtensionExpr(expr, pragmas);
+		locate(ee);
+		return ee;
+	}
+}
+
+/************************************************************************
+[69] StepExpr	   ::= AxisStep | FilterExpr
+[70] AxisStep	   ::= (ReverseStep | ForwardStep) PredicateList
+[81] PredicateList ::= Predicate*
+[82] Predicate 	   ::= "[" Expr "]"
+[80] FilterExpr    ::= PrimaryExpr PredicateList
+************************************************************************/
+XQExpression parseStepExpr() throws XQueryException :
+{
+	XQExpression expr;
+	XQExpression predicate = null;
+}
+{	
+	( 
+		expr = parseReverseStep()
+	  |
+		expr = parseForwardStep()
+	  | 
+	    expr = parsePrimaryExpr()
+	)
+	(//Predicate*
+		currentToken = <Lbrack>
+		predicate = parseExpr()
+		currentToken = <Rbrack>
+		{
+			FilterExpr filter = new FilterExpr(expr);
+			filter.addPredicate(predicate);
+			expr = filter;
+		}
+	)*
+	{
+		return locate(expr);
+	}	
+}
+
+/************************************************************************
+[71] ForwardStep ::= (ForwardAxis NodeTest) | AbbrevForwardStep
+[72] ForwardAxis ::=  ("child" "::")
+					| ("descendant" "::")
+					| ("attribute" "::")
+					| ("self" "::")
+					| ("descendant-or-self" "::")
+					| ("following-sibling" "::")
+					| ("following" "::")
+[73] AbbrevForwardStep ::= "@"? NodeTest
+************************************************************************/
+AxisStep parseForwardStep() throws XQueryException :
+{
+	int kind = AxisStep.CHILD;
+	final NodeTest nodeTest;
+}
+{
+	[
+		currentToken = <AxisChild>
+		{
+			kind = AxisStep.CHILD;
+		}
+	  |
+	    currentToken = <AxisDescendant>
+	    {
+	    	kind = AxisStep.DESC;
+	    }
+	  |
+	  	(
+		    currentToken = <AxisAttribute>
+		  |
+		    currentToken = <At>
+		)
+		{
+			kind = AxisStep.ATTR;
+		}
+	  |
+	    currentToken = <AxisSelf>
+	    {
+	    	kind = AxisStep.SELF;
+	    }
+	  |
+	    currentToken = <AxisDescendantOrSelf>
+	    {
+	    	kind = AxisStep.DESC_OR_SELF;
+	    }
+	  |
+	    currentToken = <AxisFollowingSibling>
+	    {
+	    	kind = AxisStep.FOLLOWING_SIBLING;
+	    }
+	  |
+	    currentToken = <AxisFollowing>	
+	    {
+	    	kind = AxisStep.FOLLOWING;
+	    }
+	]
+	nodeTest = parseNodeTest(kind)
+	{
+		final AxisStep axis = ExpressionFactory.createAxisStep(kind, nodeTest);
+		locate(axis);
+		return axis;
+	}	
+}
+
+/************************************************************************
+[74] ReverseStep ::= (ReverseAxis NodeTest) | AbbrevReverseStep
+[75] ReverseAxis ::= ("parent" "::")
+					| ("ancestor" "::")
+					| ("preceding-sibling" "::")
+					| ("preceding" "::")
+					| ("ancestor-or-self" "::")
+[76] AbbrevReverseStep :: ".."
+************************************************************************/
+AxisStep parseReverseStep() throws XQueryException :
+{
+	final int kind;
+	final NodeTest nodeTest;
+}
+{
+	( 	
+		(
+			(
+				currentToken = <AxisParent>
+				{
+					kind = AxisStep.PARENT;
+				}
+			  |
+			    currentToken = <AxisAncestor>
+			    {
+			    	kind = AxisStep.ANCESTOR;
+			    }
+			  |
+			    currentToken = <AxisPrecedingSibling>
+			    {
+			    	kind = AxisStep.PRECEDING_SIBLING;
+			    }
+			  |
+			    currentToken = <AxisPreceding>
+			    {
+			    	kind = AxisStep.PRECEDING;
+			    }
+			  |
+			    currentToken = <AxisAncestorOrSelf>
+			    {
+			    	kind = AxisStep.ANCESTOR_OR_SELF;
+			    }
+			)
+			nodeTest = parseNodeTest(kind)
+		)
+	  |
+	    currentToken = <DotDot>
+	    {
+	    	kind = AxisStep.PARENT;
+	    	nodeTest = NodeTest.ANYNODE;
+	    }
+	)
+	{
+		final AxisStep axis = ExpressionFactory.createAxisStep(kind, nodeTest);
+		locate(axis);
+		return axis;
+	}
+}
+
+/************************************************************************
+[77] NodeTest 	   ::= KindTest | NameTest
+[78] NameTest 	   ::= QName | Wildcard
+[79] Wildcard 	   ::= "*" | (NCName ":" "*") | ("*" ":" NCName)
+************************************************************************/
+NodeTest parseNodeTest(int axis) throws XQueryException :
+{
+	final NodeTest nt;
+	NodeType kind = null;
+}
+{
+	(			
+		kind = parseKindTest()
+		{
+			nt = new NodeTest(kind);
+		}
+	  |	 
+	  	LOOKAHEAD(3)
+	  	(//NameTest	  		
+	  		currentToken = <QName>
+	  		{
+	  			QualifiedName name = QNameUtil.parse(currentToken.image, namespaceContext, staticContext.getDefaultElementNamespace());
+	  			nt = new NodeTest(axis, name);
+	  		}
+	  	  |
+	  	    (//Wildcard
+  	    		currentToken = <Star>
+  	    		{
+  	    			nt = new NodeTest(axis);
+  	    		}
+	  	      |//NCName ":" "*"
+  	      		currentToken = <NCNameColonStar>
+  	      		{
+  	      			String prefix = currentToken.image.substring(0, currentToken.image.indexOf(':'));
+  	      			String uri = namespaceContext.getNamespaceURI(prefix);
+  	      			if(uri == null) {
+                    	error("err:XPST0081");
+                    }
+  	      			name = QNameTable.instantiate(uri, NodeTest.ANY, prefix);
+                    nt = new NodeTest(axis, name);
+  	      		}
+	  	      |//"*" ":" NCName
+  	        	currentToken = <StarColonNCName>
+  	        	{
+  	        		String ncname = currentToken.image.substring(currentToken.image.indexOf(':') + 1);
+  	        		name = QNameTable.instantiate(XMLUtils.NULL_NS_URI, ncname, NodeTest.ANY);
+                    nt = new NodeTest(axis, name);
+  	        	}
+	  	    )
+	  	)
+	)
+	{
+		locate(nt);
+		return nt;
+	}
+}
+	
+/************************************************************************
+[83] PrimaryExpr     ::= Literal | VarRef | ParenthesizedExpr | ContextItemExpr 
+					   | FunctionCall | Constructor | UnorderedExpr | OrderedExpr
+[86] VarRef 	   	 ::= "$" VarName
+[87] ParenthesizedExpr ::= "(" Expr? ")"
+[88] ContextItemExpr   ::= "."
+[89] OrderedExpr 	 ::= "ordered" "{" Expr "}"
+[90] UnorderedExpr   ::= "unordered" "{" Expr "}"
+************************************************************************/
+XQExpression parsePrimaryExpr() throws XQueryException :
+{
+	boolean isUnordered = false;
+	XQExpression expr = null;
+}
+{
+	(   //Literal
+		expr = parseLiteral()
+	  |
+	    (//VarRef
+	    	currentToken = <VariableIndicator>
+	    	currentToken = <VarName>
+	    	{
+	    		String defaultNamespace = currentModule.getNamespace();
+              	if(defaultNamespace == null) {
+              		defaultNamespace = "";
+              	}
+              	QualifiedName vn = QNameUtil.parse(currentToken.image, namespaceContext, defaultNamespace);
+				Variable var = currentModule.getVariable(vn);
+				if(var == null) {
+					error("err:XPST0008");
+				}
+            	expr = new VarRef(var);                
+	    	}
+	    )
+	  |
+	    (//ParenthesizedExpr
+	    	currentToken = <Lpar>
+	    	[
+	    		expr = parseExpr()
+	    	]
+			{
+				if(expr == null) {
+					expr = SequenceExpression.EMPTY_SEQUENCE;
+				} else {
+		    		expr = ParenthesizedExpr.normalize(expr);
+				}
+			}
+	    	currentToken = <Rpar>
+	    )
+	 |  
+	 	(//ContextItemExpr
+			currentToken = <Dot>
+			{
+				expr = new ContextItemExpr();
+			}
+		)
+	 |	//FunctionCall
+	 	expr = parseFunctionCall()
+	 |  //Constructor
+	 	expr = parseConstructor()
+	 |	//OrderedExpr || UnorderedExpr
+	 	(
+	 		(
+	 			currentToken = <UnorderedOpen>
+			    {
+			    	isUnordered = true;
+			    }
+			  |
+				currentToken = <OrderedOpen>
+			)
+			expr = parseExpr()
+			{
+				if(isUnordered) {
+					expr = UnorderedExpr.normalize(new UnorderedExpr(expr));
+				}
+			}
+			currentToken = <Rbrace>
+	 	)
+	 |  // BDQEXPR extention ; execute at URL { }
+	    expr = parseBDQExpr()
+	)
+	{
+		return locate(expr);
+	}
+}
+
+/************************************************************************
+ BDQExpr ::= "execute at" [ VarRef "in" ] Expr "{" Expr "}"
+************************************************************************/
+BDQExpr parseBDQExpr() throws XQueryException :
+{
+	final XQExpression endpoint, expr;
+	ExecHostVariable hostVar = null;
+}
+{	
+	(		
+		currentToken = <ExecuteAt>		
+		[
+			LOOKAHEAD(3)
+	    	currentToken = <VariableIndicator>
+	    	currentToken = <VarName>
+	    	{
+              QualifiedName varName = QNameUtil.parse(currentToken.image, namespaceContext, currentModule.getNamespace());
+				hostVar = new ExecHostVariable(varName);
+				currentModule.putVariable(varName, hostVar);
+	    	}
+			currentToken = <In>
+		]
+		endpoint = parseExpr()
+		currentToken = <LbraceExprEnclosure>
+		expr = parseExpr()
+		currentToken = <Rbrace>
+	)
+	{
+		final BDQExpr remoteExpr = new BDQExpr(endpoint, hostVar, expr); 
+		locate(remoteExpr);
+		return remoteExpr;
+	}
+}
+
+/************************************************************************
+[84]  Literal 	     ::= NumericLiteral | StringLiteral
+[85]  NumericLiteral ::= IntegerLiteral | DecimalLiteral | DoubleLiteral
+[138] IntegerLiteral ::= Digits
+[139] DecimalLiteral ::= ("." Digits) | (Digits "." [0-9]*)
+[140] DoubleLiteral  ::= (("." Digits) | (Digits ("." [0-9]*)?)) [eE] [+-]? Digits
+************************************************************************/
+LiteralExpr parseLiteral() throws XQueryException :
+{
+	final AtomicValue value;
+}
+{	
+	(   // IntegerLiteral
+		currentToken = <IntegerLiteral>
+		{
+			value = new XInteger(currentToken.image);
+		}
+	  | // DecimalLiteral
+	  	currentToken = <DecimalLiteral>
+	  	{
+	  		value = new XDecimal(currentToken.image);
+	  	}
+	  |
+	    currentToken = <DoubleLiteral>
+	    {
+	    	value = new XDouble(currentToken.image);
+	    }
+	  |
+	    currentToken = <StringLiteral>
+	    {
+	    	String s = unescape(unquote(currentToken.image));
+	    	if(s.indexOf('&') != -1) {
+            	s = replaceReference(s);
+            }
+	    	value = new XString(s);
+	    }
+	)
+	{
+		final LiteralExpr ve = new LiteralExpr(value);
+		locate(ve);
+		return ve;
+	}
+}
+
+/************************************************************************
+[91] FunctionCall ::= <QName "("> (ExprSingle ("," ExprSingle)*)? ")"
+************************************************************************/
+XQExpression parseFunctionCall() throws XQueryException :
+{
+	final QualifiedName funcName;
+	final List<XQExpression> params = new LinkedList<XQExpression>();
+	XQExpression expr = null;
+}
+{		
+	// workaround: Reserved Function Names handling
+	// 			   "if(foo)" may be comes here.
+	// @link http://www.w3.org/TR/xquery/#parse-note-reserved-function-names
+	// @link http://www.w3.org/TR/xquery/#id-reserved-fn-names	
+	[	
+		(
+		    expr = parseIfExpr()		 // if	
+		  |
+		    expr = parseTypeswitchExpr() // typeswitch
+	    )
+	    {
+	    	assert (expr != null);
+	    	return expr;
+	    }
+	]
+	{	assert (expr == null);	}
+	currentToken = <QNameLpar>
+	{							
+		funcName = QNameUtil.parse(currentToken.image.substring(0, currentToken.image.length() - 1).trim(), namespaceContext, staticContext.getDefaultFunctionNamespace());
+	}
+	[
+		expr = parseExprSingle()
+		{
+			params.add(expr);
+		}
+		(
+			currentToken = <Comma>
+			expr = parseExprSingle()
+			{
+				params.add(expr);
+			}
+		)*
+	]
+	currentToken = <Rpar>
+	{
+		return locate(ExpressionFactory.createFunctionCall(currentModule, funcName, params, staticContext));
+	}	
+}
+
+/************************************************************************
+[92] Constructor 	   ::= DirectConstructor | ComputedConstructor
+[93] DirectConstructor ::= DirElemConstructor | DirCommentConstructor | DirPIConstructor
+[107] ComputedConstructor ::= CompDocConstructor
+							| CompElemConstructor
+							| CompAttrConstructor
+							| CompTextConstructor
+							| CompCommentConstructor
+							| CompPIConstructor
+************************************************************************/
+NodeConstructor parseConstructor() throws XQueryException :
+{
+	final NodeConstructor expr;
+}
+{
+	(	//DirectConstructor
+		expr = parseDirElemConstructor()
+	  |
+	  	expr = parseDirCommentConstructor()
+	  |
+	  	expr = parseDirPIConstructor()
+	  |	//ComputedConstructor
+	  	expr = parseCompDocConstructor()
+	  |
+	  	expr = parseCompElemConstructor()
+	  |
+	  	expr = parseCompAttrConstructor()
+	  |
+	  	expr = parseCompTextConstructor()
+	  | 
+	  	expr = parseCompCommentConstructor()
+	  |
+	  	expr = parseCompPIConstructor()
+	)
+	{
+		locate(expr);
+		return expr;
+	}	
+}
+
+/************************************************************************
+[94] DirElemConstructor ::= "<" QName DirAttributeList ("/>" | (">" DirElemContent* "</" QName S? ">"))
+************************************************************************/
+ElementConstructor parseDirElemConstructor() throws XQueryException :
+{
+	final String startTag;
+	final List<AttributeConstructorBase> atts;
+	final ElementConstructor ec;
+}
+{
+	(
+		currentToken = <StartTagOpenRoot>
+	  |
+	  	currentToken = <StartTagOpen>
+	)
+	{
+		namespaceContext.pushContext();
+	}
+	currentToken = <TagQName>
+	{
+		startTag = currentToken.image;		
+	}
+	atts = parseDirAttributeList()	//DirAttributeList
+	{
+		final QualifiedName elem = QNameUtil.parse(startTag, namespaceContext, staticContext.getDefaultElementNamespace());
+		ec = new ElementConstructor(elem, atts);
+	}
+	(	
+		currentToken = <EmptyTagClose>	//"/>"
+	  |
+	  	(
+	  		currentToken = <StartTagClose>
+	  		{
+	  			XQExpression content = null;
+	  		}
+	  		(//DirElemContent*
+		  		content = parseDirElemContent()
+		  		{
+		  			ec.addContent(content);
+		  		}
+	  		)*
+	  		currentToken = <EndTagOpen>
+	  		currentToken = <TagQName>
+	  		[
+	  			currentToken = <S>
+	  		]
+	  		{
+	  			if(!startTag.equals(currentToken.image)) {	//sanity check
+	  				error("Invalid DirElemConstructor expression");
+	  			}
+	  		}
+	  		currentToken = <EndTagClose>
+	  	)
+	)
+	{
+		namespaceContext.popContext();
+	}
+	{
+		locate(ec);
+		return ec;
+	}
+}
+
+/************************************************************************
+[99] DirElemContent 	::= DirectConstructor
+						| CDataSection
+						| CommonContent
+						| ElementContentChar
+[93] DirectConstructor 	::= DirElemConstructor | DirCommentConstructor | DirPIConstructor
+[100] CommonContent 	::= PredefinedEntityRef | CharRef | "{{" | "}}" | EnclosedExpr
+[105] CDataSection 	    ::= "<![CDATA[" CDataSectionContents "]]>"
+[106] CDataSectionContents ::= (Char* - (Char* ']]>' Char*))
+************************************************************************/
+XQExpression parseDirElemContent() throws XQueryException :
+{
+	final XQExpression expr;
+}
+{
+  	(
+  		(//	DirectConstructor
+	 		expr = parseDirElemConstructor()
+		  | 
+			expr = parseDirCommentConstructor()
+		  |
+			expr = parseDirPIConstructor()
+		)
+	  | 			  	
+		(//CDataSection()
+			{
+				final StringBuilder cdata = new StringBuilder();
+			}	
+			(
+				currentToken = <CdataSectionStartForElementContent>
+		  	  |
+		  	    currentToken = <CdataSectionStart>
+		  	)
+		  	(
+			  	currentToken = <CDataSectionChar>
+			  	{
+			  		cdata.append(currentToken.image);
+			  	}
+			)*
+		  	{
+		  		expr = new TextContent(cdata.toString(), true);
+		  	}
+		  	currentToken = <CdataSectionEnd>
+		)
+	  | //CommonContent
+	   	expr = parseCommonContent()
+	  |		
+		{
+			final StringBuilder tc = new StringBuilder();
+		}
+		(//ElementContentChar			
+			currentToken = <ElementContentChar>
+			{
+				tc.append(currentToken.image);
+			}			
+		)+
+		{
+            final String tcStr;
+            if(staticContext.isConstructionModeStrip()) {
+                tcStr = XMLUtils.normalizeString(tc.toString());
+            } else {
+                tcStr = tc.toString();
+            }
+            assert (tcStr != null);
+            if(tcStr.length() == 0) {
+                expr = TextContent.TrimedText.INSTANCE;
+            } else {
+                expr = new TextContent(tcStr);
+            }
+		}
+	)
+	{
+		return locate(expr);
+	}
+}
+
+/************************************************************************
+[100] CommonContent 	  ::= PredefinedEntityRef | CharRef | "{{" | "}}" | EnclosedExpr
+************************************************************************/
+XQExpression parseCommonContent() throws XQueryException :
+{
+	final XQExpression expr;
+}
+{
+	(
+		(
+			(
+		      	currentToken = <PredefinedEntityRef>
+		      |
+		      	currentToken = <CharRef>
+	      	)
+	      	{	expr = new TextContent(parseCharRef(currentToken.image));	}
+	      |
+		    (
+		      	currentToken = <LCurlyBraceEscape>
+		      |
+		      	currentToken = <RCurlyBraceEscape>
+	      	)
+	      	{	expr = new TextContent(currentToken.image);	}
+	    )
+	  |
+      	(//EnclosedExpr
+   			(
+   				currentToken = <Lbrace>
+			  |
+			  	currentToken = <LbraceExprEnclosure>
+			)
+   			expr = parseExpr()
+   			currentToken = <Rbrace>
+      	)
+	)
+	{
+		return locate(expr);
+	}	
+}
+
+/************************************************************************
+[95] DirAttributeList 	::= (S (QName S? "=" S? DirAttributeValue)?)*
+[96] DirAttributeValue 	::= ('"' (EscapeQuot | QuotAttrValueContent)* '"')	
+						  | ("'" (EscapeApos | AposAttrValueContent)* "'")
+[149] EscapeQuot ::= '""'
+[97]  QuotAttrValueContent ::= QuotAttrContentChar | CommonContent
+[152] QuotAttrContentChar ::= Char - ["{}<&]
+[150] EscapeApos ::= "''"
+[98] AposAttrValueContent ::= AposAttrContentChar | CommonContent
+[153] AposAttrContentChar ::= Char - ['{}<&]
+[100] CommonContent 	  ::= PredefinedEntityRef | CharRef | "{{" | "}}" | EnclosedExpr
+************************************************************************/
+List<AttributeConstructorBase> parseDirAttributeList() throws XQueryException :
+{
+	final List<AttributeConstructorBase> atts = new ArrayList<AttributeConstructorBase>(4);
+	List<Pair<String, List<XQExpression> > > lazyAtts = null;
+	XQExpression valueExpr = null;
+}
+{
+	(//DirAttributeList
+		currentToken = <S>
+		[
+			currentToken = <TagQName>
+			{
+				String attname = currentToken.image;				
+			}
+			[
+				currentToken = <S>
+			]			
+			currentToken = <ValueIndicator>
+			[
+				currentToken = <S>
+			]
+			{
+				StringBuilder attval = new StringBuilder();
+				List<XQExpression> valueList = new LinkedList<XQExpression>();
+			}
+			(//DirAttributeValue
+				(
+					currentToken = <OpenQuot>
+					(
+						currentToken = <EscapeQuot>
+						{
+							 attval.append("\"");
+						}
+					  |
+			  			(//QuotAttrValueContent
+					    	currentToken = <QuotAttrContentChar>
+					    	{
+						    	attval.append(currentToken.image);	
+					    	}
+					      |
+					     	//CommonContent
+					      	valueExpr = parseCommonContent()
+					      	{
+					      		if(valueExpr instanceof TextContent) {
+					      			attval.append(((TextContent) valueExpr).getValue().toString());
+					      		} else {
+					      			if(attval.length() > 0) {
+					      				valueList.add(new TextContent(attval.toString()));
+					      				attval.delete(0, attval.length());
+					      			}
+					      			valueList.add(valueExpr);
+					      		}
+					      	}
+					    )
+					)*
+					currentToken = <CloseQuot>
+				)
+			  |
+			    (
+					currentToken = <OpenApos>
+					(
+						currentToken = <EscapeApos>
+						{
+							attval.append("'");
+						}
+					  |//AposAttrValueContent
+				  		(
+						    currentToken = <AposAttrContentChar>
+					    	{
+						    	attval.append(currentToken.image);	
+					    	}
+					      |
+					      //CommonContent
+					      	valueExpr = parseCommonContent()
+					      	{
+					      		if(valueExpr instanceof TextContent) {
+					      			attval.append(((TextContent) valueExpr).getValue().toString());
+					      		} else {
+					      			if(attval.length() > 0) {
+					      				valueList.add(new TextContent(attval.toString()));
+					      				attval.delete(0, attval.length());
+					      			}
+					      			valueList.add(valueExpr);
+					      		}
+					      	}
+					    )
+					)*
+					currentToken = <CloseApos>
+			    )
+			)
+			{// process an attribute.
+				String[] str = attname.split(":");
+				if(XMLConstants.XMLNS_ATTRIBUTE.equals(str[0])) { // namespace decl						
+					if(valueExpr != null) { // the value of namespace decl must be an URI.
+						error("err:XQST0022");
+					}					
+					final String prefix;
+					if(str.length == 1) {
+						prefix = "";							
+					} else {
+						prefix = str[1];
+					}
+					final String val = attval.toString();
+					declarePrefix(prefix, val);
+					NamespaceConstructor nc = new NamespaceConstructor(prefix, val);
+					locate(nc);
+					atts.add(nc);
+				} else { // attribute
+					if(attval.length() > 0) {
+						valueList.add(new TextContent(attval.toString()));
+					}
+					if(lazyAtts == null) {
+						lazyAtts = new LinkedList<Pair<String, List<XQExpression> > >();
+					}					
+					lazyAtts.add(new Pair<String, List<XQExpression> >(attname, valueList));
+				}
+			}
+		]
+	)*
+	{
+		// for dynamic namaspace declaration
+		// TODO consider declared namespace is used in the attribute value.
+		if(lazyAtts != null) {			
+			for(Pair<String, List<XQExpression> > p: lazyAtts) {
+				QualifiedName att = QNameUtil.parse(p.first, namespaceContext, staticContext.getDefaultElementNamespace());
+				AttributeConstructor ac = new AttributeConstructor(att, p.second);
+				locate(ac);
+				atts.add(ac);
+			}
+		}
+		return atts;
+	}
+}
+
+/************************************************************************
+[101] DirCommentConstructor ::= "<!--" DirCommentContents "-->"
+[102] DirCommentContents    ::= ((Char - '-') | ('-' (Char - '-')))*
+************************************************************************/
+CommentConstructor parseDirCommentConstructor() throws XQueryException :
+{
+	final StringBuilder content = new StringBuilder();
+}
+{
+	(
+		currentToken = <XmlCommentStartForElementContent>
+	  |
+	    currentToken = <XmlCommentStart>
+	)
+	(
+		currentToken = <CommentContentChar>
+		{
+			content.append(currentToken.image);
+		}
+	)*
+	currentToken = <XmlCommentEnd>
+	{
+		final CommentConstructor cc = new CommentConstructor(content.toString());
+		locate(cc);
+		return cc;
+	}	
+}
+
+/************************************************************************
+[103] DirPIConstructor ::= "<?" PITarget (S DirPIContents)? "?>"
+[104] DirPIContents    ::= (Char* - (Char* '?>' Char*))
+[17]  PITarget	   	   ::= Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
+[5]   Name	   		   ::= (Letter | '_' | ':') (NameChar)*
+************************************************************************/
+PIConstructor parseDirPIConstructor() throws XQueryException :
+{
+	final String target;
+	StringBuilder contentBuf = new StringBuilder(64);
+}
+{
+	(
+		currentToken = <ProcessingInstructionStartForElementContent>
+	  |
+		currentToken = <ProcessingInstructionStart>
+	)
+	currentToken = <PITarget>
+	{
+		target = currentToken.image;
+	}
+	[
+		currentToken = <SForPI>
+		(
+			currentToken = <PIContentChar>
+			{
+				contentBuf.append(currentToken.image);
+			}
+		)*
+	]
+	currentToken = <ProcessingInstructionEnd>
+	{
+		final String content = contentBuf.toString();
+		final PIConstructor pi = new PIConstructor(target, content.length() == 0 ? null : content);
+		locate(pi);
+		return pi;
+	}	
+}
+
+/************************************************************************
+[108]    	CompDocConstructor 	   ::=    	<"document" "{"> Expr "}"
+************************************************************************/
+DocConstructor parseCompDocConstructor() throws XQueryException :
+{
+	final XQExpression expr;
+}
+{
+	currentToken = <DocumentLbrace>
+	expr = parseExpr()
+	currentToken = <Rbrace>
+	{
+		final DocConstructor dc = new DocConstructor(expr);
+		locate(dc);
+		return dc;
+	}
+}
+
+/************************************************************************
+[109] CompElemConstructor ::= (("element" QName "{") | ("element" "{" Expr "}" "{")) ContentExpr? "}"
+************************************************************************/
+ElementConstructor parseCompElemConstructor() throws XQueryException :
+{
+	final ElementConstructor ec;
+	XQExpression nameExpr = null;
+	XQExpression content = null;
+}
+{
+	(
+		(
+			currentToken = <ElementQNameLbrace>
+			{
+				QualifiedName name = QNameUtil.parse(currentToken.image.substring(8, currentToken.image.length() - 1).trim(), namespaceContext, staticContext.getDefaultElementNamespace());
+				ec = new ElementConstructor(name);
+			}
+		)
+	  |
+	  	(
+	  		currentToken = <ElementLbrace>
+	  		nameExpr = parseExpr()
+	  		{
+	  			ec = new ElementConstructor(nameExpr);
+	  		}
+	  		currentToken = <Rbrace>
+	  		currentToken = <LbraceExprEnclosure>
+	  	)
+	)
+	[//ContentExpr?
+		content = parseExpr()
+		{
+			ec.addContent(content);
+		}
+	]
+	currentToken = <Rbrace>
+	{
+		locate(ec);
+		return ec;
+	}	
+}
+
+/************************************************************************
+[111] CompAttrConstructor ::= (("attribute" QName "{") | ("attribute" "{" Expr "}" "{")) Expr? "}"
+************************************************************************/
+AttributeConstructor parseCompAttrConstructor() throws XQueryException :
+{
+	final AttributeConstructor ac;
+	XQExpression nameExpr = null;
+	XQExpression valueExpr = null;
+}
+{
+	(
+		(
+			currentToken = <AttributeQNameLbrace>
+			{
+				QualifiedName name = QNameUtil.parse(currentToken.image.substring(10, currentToken.image.length() - 1).trim(), namespaceContext, staticContext.getDefaultElementNamespace());
+				ac = new AttributeConstructor(name);
+			}
+		)
+	  |
+	  	(
+	  		currentToken = <AttributeLbrace>
+	  		nameExpr = parseExpr()
+	  		{
+	  			ac = new AttributeConstructor(nameExpr);
+	  		}
+	  		currentToken = <Rbrace>
+	  		currentToken = <LbraceExprEnclosure>
+	  	)
+	)
+	[
+		valueExpr = parseExpr()
+		{
+			ac.addValue(valueExpr);
+		}
+	]
+	currentToken = <Rbrace>
+	{
+		locate(ac);
+		return ac;
+	}	
+}
+
+/************************************************************************
+[112] CompTextConstructor ::= <"text" "{"> Expr "}"
+************************************************************************/
+TextConstructor parseCompTextConstructor() throws XQueryException :
+{
+	final XQExpression content;
+}
+{
+	currentToken = <TextLbrace>
+	content = parseExpr()
+	currentToken = <Rbrace>
+	{
+		final TextConstructor tc = new TextConstructor(content);
+		locate(tc);
+		return tc;
+	}	
+}
+
+/************************************************************************
+[113] CompCommentConstructor ::= <"comment" "{"> Expr "}"
+************************************************************************/
+CommentConstructor parseCompCommentConstructor() throws XQueryException :
+{
+	final XQExpression content;
+}
+{
+	currentToken = <CommentLbrace>
+	content = parseExpr()
+	currentToken = <Rbrace>
+	{
+		final CommentConstructor cc = new CommentConstructor(content);
+		locate(cc);
+		return cc;
+	}	
+}
+
+/************************************************************************
+[114] CompPIConstructor ::= (("processing-instruction" NCName "{") | 
+							 ("processing-instruction" "{" Expr "}" "{")
+							) Expr? "}"
+************************************************************************/
+PIConstructor parseCompPIConstructor() throws XQueryException :
+{
+	String target = null;
+	XQExpression targetExpr = null;
+	XQExpression contentExpr = null;
+}
+{
+	(
+		(
+			currentToken = <PINCNameLbrace>
+			{
+				target = currentToken.image.substring(23, currentToken.image.length() - 1).trim();
+			}
+		)
+	  |
+	  	(
+	  		currentToken = <PILbrace>
+	  		targetExpr = parseExpr()
+	  		currentToken = <Rbrace>
+	  		currentToken = <LbraceExprEnclosure>
+	  	)
+	)
+	[
+		contentExpr = parseExpr()
+	]
+	currentToken = <Rbrace>
+	{
+		final PIConstructor pi;
+		if(target != null) {
+			pi = new PIConstructor(target, contentExpr);
+		} else {
+			pi = new PIConstructor(targetExpr, contentExpr);
+		}
+		locate(pi);
+		return pi;
+	}	
+}

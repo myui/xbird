@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+	
+	<properties>
+		<title>User's Guide</title>
+	</properties>
+
+	<body>
+	
+		<navbar home="../index.html"/>
+	
+		<section name="User's Guide">
+			<p>
+				This documents intended to provide information for users to use XBird.
+			</p>
+		</section>
+			
+	</body>
+
+</document>

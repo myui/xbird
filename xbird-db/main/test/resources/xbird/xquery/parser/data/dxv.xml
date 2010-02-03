@@ -1,0 +1,22 @@
+<?xml version="1.0"?><dxv>
+	<book>
+		<row>
+			<bid>001</bid>
+			<title>TCP/IP Illustrated</title>
+		</row>
+		<row>
+			<bid>002</bid>
+			<title>Data on the Web</title>
+		</row>
+	</book>
+	<prices>
+		<row>
+			<bid>001</bid>
+			<price>65.95</price>
+		</row>
+		<row>
+			<bid>002</bid>
+			<price>34.95</price>
+		</row>
+	</prices>
+</dxv>
