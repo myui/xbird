@@ -1,0 +1,117 @@
+/*
+ * @(#)$Id: ScalarHandler.java 3619 2008-03-26 07:23:03Z yui $
+ *
+ * Copyright 2006-2008 Makoto YUI
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * Contributors:
+ *     Makoto YUI - ported from jakarta commons DBUtils
+ */
+/*
+ * Copyright 2003-2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package xbird.util.jdbc.handlers;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import xbird.util.jdbc.ResultSetHandler;
+
+/**
+ * <code>ResultSetHandler</code> implementation that converts one
+ * <code>ResultSet</code> column into an Object. This class is thread safe.
+ * 
+ * @see ResultSetHandler
+ */
+public class ScalarHandler implements ResultSetHandler {
+
+    /**
+     * The column number to retrieve.
+     */
+    private int columnIndex = 1;
+
+    /**
+     * The column name to retrieve.  Either columnName or columnIndex
+     * will be used but never both.
+     */
+    private String columnName = null;
+
+    /** 
+     * Creates a new instance of ScalarHandler.  The first column will
+     * be returned from <code>handle()</code>.
+     */
+    public ScalarHandler() {
+        super();
+    }
+
+    /** 
+     * Creates a new instance of ScalarHandler.
+     * 
+     * @param columnIndex The index of the column to retrieve from the 
+     * <code>ResultSet</code>.
+     */
+    public ScalarHandler(int columnIndex) {
+        this.columnIndex = columnIndex;
+    }
+
+    /** 
+     * Creates a new instance of ScalarHandler.
+     * 
+     * @param columnName The name of the column to retrieve from the 
+     * <code>ResultSet</code>.
+     */
+    public ScalarHandler(String columnName) {
+        this.columnName = columnName;
+    }
+
+    /**
+     * Returns one <code>ResultSet</code> column as an object via the
+     * <code>ResultSet.getObject()</code> method that performs type 
+     * conversions.
+     * 
+     * @return The column or <code>null</code> if there are no rows in
+     * the <code>ResultSet</code>.
+     */
+    public Object handle(ResultSet rs) throws SQLException {
+        if(rs.next()) {
+            if(this.columnName == null) {
+                return rs.getObject(this.columnIndex);
+            } else {
+                return rs.getObject(this.columnName);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public static final ScalarHandler getInstance() {
+        return Singleton.instance;
+    }
+
+    protected static final class Singleton {
+        static final ScalarHandler instance = new ScalarHandler();
+    }
+}

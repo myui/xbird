@@ -1,0 +1,58 @@
+<!--
+	Copyright 2006-2008 Makoto YUI and Project XBird
+-->
+
+<config>
+	<UDP ip_mcast="true"
+		 mcast_addr="228.1.2.3" 
+	     mcast_port="45566"
+	     ip_ttl="3"
+	     use_incoming_packet_handler="true"
+	     enable_bundling="false"
+	     loopback="false"
+	     discard_incompatible_packets="true"	 
+	     mcast_send_buf_size="640000"   
+	     mcast_recv_buf_size="25000000"
+	     ucast_send_buf_size="640000"
+	     ucast_recv_buf_size="20000000"	   
+	     tos="8"/>
+
+	<PING timeout="3000" 
+		  num_initial_members="3"/>
+
+	<!-- <MERGEFAST/> -->
+    <MERGE2 max_interval="30000"
+            min_interval="10000"/>
+
+	<FD_SOCK/>
+	<FD timeout="10000" 
+		max_tries="5"
+		shun="true"/>	
+	<VERIFY_SUSPECT timeout="1500"/>
+
+    <UNICAST timeout="300,600,1200,2400,4800"/>
+    
+    <FC max_credits="500000"
+        min_threshold="0.20"/>
+	
+	<FRAG2 frag_size="60000"/>
+    
+    <pbcast.NAKACK
+    	retransmit_timeout="300,600,1200,2400,4800"
+        use_mcast_xmit="false"
+        discard_delivered_msgs="true"
+        gc_lag="0"/>
+    <pbcast.GMS
+        join_timeout="5000"
+        print_local_addr="false"
+        shun="false"
+        view_bundling="true"
+        view_ack_collection_timeout="5000"/>
+	<pbcast.STATE_TRANSFER/>
+    <pbcast.STABLE
+        stability_delay="1000"
+        desired_avg_gossip="50000"
+        max_bytes="500000"/>
+	<!-- <pbcast.FLUSH timeout="0"/> -->
+
+</config>

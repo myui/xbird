@@ -1,0 +1,1 @@
+count(doc()/site//description | doc()/site//annotation | doc()/site//emailaddress)

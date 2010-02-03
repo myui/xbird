@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>BNF for XQueryParser.jj</TITLE>
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>BNF for XQueryParser.jj</H1>
+<H2 ALIGN=CENTER>NON-TERMINALS</H2>
+<TABLE>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod1">parseModule</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;XQueryVersion&gt; &lt;StringLiteralForVersion&gt; ( &lt;XQueryEncoding&gt; &lt;StringLiteralForVersion&gt; )? &lt;SemiColon&gt; )? ( <A HREF="#prod2">parseLibraryModule</A> | ( <A HREF="#prod3">parseProlog</A> <A HREF="#prod4">parseExpr</A> ) ) &lt;EOF&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod2">parseLibraryModule</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;ModuleNamespace&gt; &lt;NCNameForPrefix&gt; &lt;AssignEquals&gt; &lt;URILiteral&gt; &lt;SemiColon&gt; ) <A HREF="#prod3">parseProlog</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod3">parseProlog</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( <A HREF="#prod5">parseDefaultNamespaceDecl</A> | ( <A HREF="#prod6">parseBoundarySpaceDecl</A> | <A HREF="#prod7">parseDefaultCollationDecl</A> | <A HREF="#prod8">parseBaseURIDecl</A> | <A HREF="#prod9">parseConstructionDecl</A> | <A HREF="#prod10">parseOrderingModeDecl</A> | <A HREF="#prod11">parseEmptyOrderingDecl</A> | <A HREF="#prod12">parseCopyNamespacesDecl</A> ) | <A HREF="#prod13">parseNamespaceDecl</A> | ( <A HREF="#prod14">parseSchemaImport</A> | <A HREF="#prod15">parseModuleImport</A> ) ) &lt;SemiColon&gt; )* ( ( <A HREF="#prod16">parseVarDecl</A> | <A HREF="#prod17">parseFunctionDecl</A> | ( &lt;DeclareOption&gt; &lt;QNameForOption&gt; &lt;StringLiteral&gt; ) ) &lt;SemiColon&gt; )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod6">parseBoundarySpaceDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareXMLSpace&gt; ( &lt;XMLSpacePreserve&gt; | &lt;XMLSpaceStrip&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod7">parseDefaultCollationDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareCollation&gt; &lt;URILiteral&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod8">parseBaseURIDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareBaseURI&gt; &lt;URILiteral&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod9">parseConstructionDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareConstruction&gt; &lt;SchemaModeForDeclareConstruction&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod10">parseOrderingModeDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareOrdering&gt; ( &lt;Ordered&gt; | &lt;Unordered&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod11">parseEmptyOrderingDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareDefaultOrder&gt; ( &lt;EmptyGreatest&gt; | &lt;EmptyLeast&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod12">parseCopyNamespacesDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareCopyNamespace&gt; ( &lt;Preserve&gt; | &lt;NoPreserve&gt; ) &lt;CommaForCopyNamespace&gt; ( &lt;Inherit&gt; | &lt;NoInherit&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod14">parseSchemaImport</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;ImportSchemaToken&gt; ( ( &lt;Namespace&gt; &lt;NCNameForPrefix&gt; &lt;AssignEquals&gt; ) | ( &lt;DefaultElement&gt; &lt;Namespace&gt; ) )? &lt;URILiteral&gt; ( &lt;AtURILiteral&gt; ( &lt;CommaForURITransition&gt; &lt;AtURILiteral&gt; )* )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod15">parseModuleImport</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;ImportModuleToken&gt; ( &lt;Namespace&gt; &lt;NCNameForPrefix&gt; &lt;AssignEquals&gt; )? &lt;URILiteral&gt; ( &lt;AtURILiteral&gt; ( &lt;CommaForURITransition&gt; &lt;URILiteral&gt; )* )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod13">parseNamespaceDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DeclareNamespace&gt; &lt;NCNameForPrefix&gt; &lt;AssignEquals&gt; &lt;URILiteral&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod5">parseDefaultNamespaceDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;DeclareDefaultElement&gt; | &lt;DeclareDefaultFunction&gt; ) &lt;Namespace&gt; &lt;URILiteral&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod16">parseVarDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DefineVariable&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? ( ( &lt;ColonEquals&gt; <A HREF="#prod19">parseExprSingle</A> ) | ( &lt;External&gt; ) )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod17">parseFunctionDecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DefineFunction&gt; &lt;QNameLpar&gt; ( <A HREF="#prod20">parseParamList</A> )? ( &lt;Rpar&gt; | ( &lt;RparAs&gt; <A HREF="#prod18">parseSequenceType</A> ) ) ( ( &lt;LbraceExprEnclosure&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; ) | &lt;External&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod20">parseParamList</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VariableIndicator&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? ( &lt;Comma&gt; &lt;VariableIndicator&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod18">parseSequenceType</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( &lt;EmptySequence&gt; ) | ( ( <A HREF="#prod21">parseKindTest</A> | &lt;Item&gt; | ( &lt;QNameForAtomicType&gt; | &lt;QNameForSequenceType&gt; ) ) ( &lt;OccurrenceZeroOrOne&gt; | &lt;Star&gt; | &lt;OccurrenceOneOrMore&gt; )? ) )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod21">parseKindTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod22">parseDocumentTest</A> | <A HREF="#prod23">parseElementTest</A> | <A HREF="#prod24">parseAttributeTest</A> | <A HREF="#prod25">parseSchemaElementTest</A> | <A HREF="#prod26">parseSchemaAttributeTest</A> | <A HREF="#prod27">parsePITest</A> | ( ( ( &lt;CommentLparRpar&gt; | &lt;CommentLparRparForKindTest&gt; ) | ( &lt;TextLparRpar&gt; | &lt;TextLparRparForKindTest&gt; ) | ( &lt;NodeLparRpar&gt; | &lt;NodeLparRparForKindTest&gt; ) ) ) )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod22">parseDocumentTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;DocumentLpar&gt; | &lt;DocumentLparForKindTest&gt; ) ( <A HREF="#prod23">parseElementTest</A> | <A HREF="#prod25">parseSchemaElementTest</A> )? &lt;RparForKindTest&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod27">parsePITest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;ProcessingInstructionLpar&gt; | &lt;ProcessingInstructionLparForKindTest&gt; ) ( &lt;NCNameForPI&gt; | &lt;StringLiteralForKindTest&gt; )? &lt;RparForKindTest&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod23">parseElementTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;ElementType&gt; | &lt;ElementTypeForKindTest&gt; | &lt;ElementTypeForDocumentTest&gt; ) ( ( &lt;QNameForItemType&gt; | &lt;AnyName&gt; ) ( &lt;CommaForKindTest&gt; &lt;QNameForItemType&gt; ( &lt;Nillable&gt; )? )? )? &lt;RparForKindTest&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod25">parseSchemaElementTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;SchemaElementType&gt; | &lt;SchemaElementTypeForKindTest&gt; | &lt;SchemaElementTypeForDocumentTest&gt; ) &lt;QNameForItemType&gt; &lt;RparForKindTest&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod24">parseAttributeTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;AttributeType&gt; | &lt;AttributeTypeForKindTest&gt; ) ( ( &lt;QNameForItemType&gt; | &lt;AnyName&gt; ) ( &lt;CommaForKindTest&gt; &lt;QNameForItemType&gt; )? )? &lt;RparForKindTest&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod26">parseSchemaAttributeTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;SchemaAttributeType&gt; | &lt;SchemaAttributeTypeForKindTest&gt; ) &lt;QNameForItemType&gt; &lt;RparForKindTest&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod4">parseExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod19">parseExprSingle</A> ( &lt;Comma&gt; <A HREF="#prod19">parseExprSingle</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod19">parseExprSingle</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod28">parseFLWRExpr</A> | <A HREF="#prod29">parseQuantifiedExpr</A> | <A HREF="#prod30">parseTypeswitchExpr</A> | <A HREF="#prod31">parseIfExpr</A> | <A HREF="#prod32">parseOrExpr</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod28">parseFLWRExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( <A HREF="#prod33">parseForClause</A> | <A HREF="#prod34">parseLetClause</A> ) )+ ( &lt;Where&gt; <A HREF="#prod19">parseExprSingle</A> )? ( ( &lt;OrderBy&gt; | &lt;OrderByStable&gt; ) <A HREF="#prod35">parseOrderSpec</A> ( &lt;Comma&gt; <A HREF="#prod35">parseOrderSpec</A> )* )? &lt;Return&gt; <A HREF="#prod19">parseExprSingle</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod33">parseForClause</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;ForVariable&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? ( &lt;AtWord&gt; &lt;VariableIndicator&gt; &lt;VarName&gt; )? &lt;In&gt; <A HREF="#prod19">parseExprSingle</A> ( &lt;Comma&gt; &lt;VariableIndicator&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? ( &lt;AtWord&gt; &lt;VariableIndicator&gt; &lt;VarName&gt; )? &lt;In&gt; <A HREF="#prod19">parseExprSingle</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod34">parseLetClause</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LetVariable&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? &lt;ColonEquals&gt; <A HREF="#prod19">parseExprSingle</A> ( &lt;Comma&gt; &lt;VariableIndicator&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? &lt;ColonEquals&gt; <A HREF="#prod19">parseExprSingle</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod35">parseOrderSpec</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod19">parseExprSingle</A> ( &lt;Ascending&gt; | &lt;Descending&gt; )? ( &lt;EmptyGreatest&gt; | &lt;EmptyLeast&gt; )? ( &lt;Collation&gt; &lt;URILiteralToOperator&gt; )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod29">parseQuantifiedExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;Some&gt; | &lt;Every&gt; ) &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? &lt;In&gt; <A HREF="#prod19">parseExprSingle</A> ( &lt;Comma&gt; &lt;VariableIndicator&gt; &lt;VarName&gt; ( &lt;As&gt; <A HREF="#prod18">parseSequenceType</A> )? &lt;In&gt; <A HREF="#prod19">parseExprSingle</A> )* &lt;Satisfies&gt; <A HREF="#prod19">parseExprSingle</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod30">parseTypeswitchExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;TypeswitchLpar&gt; <A HREF="#prod4">parseExpr</A> &lt;Rpar&gt; ( <A HREF="#prod36">parseCaseClause</A> )+ ( &lt;Default&gt; ( &lt;VariableIndicator&gt; &lt;VarName&gt; )? &lt;Return&gt; <A HREF="#prod19">parseExprSingle</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod36">parseCaseClause</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;Case&gt; ( &lt;VariableIndicator&gt; &lt;VarName&gt; &lt;As&gt; )? <A HREF="#prod18">parseSequenceType</A> &lt;Return&gt; <A HREF="#prod19">parseExprSingle</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod31">parseIfExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;IfLpar&gt; <A HREF="#prod4">parseExpr</A> &lt;Rpar&gt; &lt;Then&gt; <A HREF="#prod19">parseExprSingle</A> &lt;Else&gt; <A HREF="#prod19">parseExprSingle</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod32">parseOrExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod37">parseAndExpr</A> ( &lt;Or&gt; <A HREF="#prod37">parseAndExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod37">parseAndExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod38">parseComparisonExpr</A> ( &lt;And&gt; <A HREF="#prod38">parseComparisonExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod38">parseComparisonExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod39">parseRangeExpr</A> ( ( ( &lt;FortranEq&gt; | &lt;FortranNe&gt; | &lt;FortranLt&gt; | &lt;FortranLe&gt; | &lt;FortranGt&gt; | &lt;FortranGe&gt; ) | ( &lt;Equals&gt; | &lt;NotEquals&gt; | &lt;Lt&gt; | &lt;LtEquals&gt; | &lt;Gt&gt; | &lt;GtEquals&gt; ) | ( &lt;Is&gt; | &lt;LtLt&gt; | &lt;GtGt&gt; ) ) <A HREF="#prod39">parseRangeExpr</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod39">parseRangeExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod40">parseAdditiveExpr</A> ( &lt;To&gt; <A HREF="#prod40">parseAdditiveExpr</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod40">parseAdditiveExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod41">parseMultiplicativeExpr</A> ( ( &lt;Plus&gt; | &lt;Minus&gt; ) <A HREF="#prod41">parseMultiplicativeExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod41">parseMultiplicativeExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod42">parseUnionExpr</A> ( ( &lt;Multiply&gt; | &lt;Div&gt; | &lt;Idiv&gt; | &lt;Mod&gt; ) <A HREF="#prod42">parseUnionExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod42">parseUnionExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod43">parseIntersectExceptExpr</A> ( ( &lt;Union&gt; | &lt;Vbar&gt; ) <A HREF="#prod43">parseIntersectExceptExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod43">parseIntersectExceptExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod44">parseInstanceofExpr</A> ( ( &lt;Intersect&gt; | &lt;Except&gt; ) <A HREF="#prod44">parseInstanceofExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod44">parseInstanceofExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod45">parseTreatExpr</A> ( &lt;Instanceof&gt; <A HREF="#prod18">parseSequenceType</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod45">parseTreatExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod46">parseCastableExpr</A> ( &lt;TreatAs&gt; <A HREF="#prod18">parseSequenceType</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod46">parseCastableExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod47">parseCastExpr</A> ( &lt;Castable&gt; ( &lt;QNameForAtomicType&gt; | &lt;QNameForSequenceType&gt; ) ( &lt;OccurrenceZeroOrOne&gt; )? )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod47">parseCastExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod48">parseUnaryExpr</A> ( &lt;CastAs&gt; ( &lt;QNameForAtomicType&gt; | &lt;QNameForSequenceType&gt; ) ( &lt;OccurrenceZeroOrOne&gt; )? )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod48">parseUnaryExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;Minus&gt; | &lt;Plus&gt; )* ( <A HREF="#prod49">parseValidateExpr</A> | <A HREF="#prod50">parsePathExpr</A> | <A HREF="#prod51">parseExtensionExpr</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod49">parseValidateExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;ValidateLbrace&gt; | ( &lt;ValidateSchemaMode&gt; &lt;LbraceExprEnclosure&gt; ) ) <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod50">parsePathExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( &lt;Slash&gt; ( <A HREF="#prod52">parseRelativePathExpr</A> )? ) | ( &lt;SlashSlash&gt; <A HREF="#prod52">parseRelativePathExpr</A> ) | <A HREF="#prod52">parseRelativePathExpr</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod52">parseRelativePathExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod53">parseStepExpr</A> ( ( &lt;Slash&gt; | &lt;SlashSlash&gt; ) <A HREF="#prod53">parseStepExpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod51">parseExtensionExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;PragmaOpen&gt; ( &lt;S&gt; )? &lt;QNameForPragma&gt; ( &lt;PragmaContents&gt; )? &lt;PragmaClose&gt; )+ &lt;LbraceExprEnclosure&gt; ( <A HREF="#prod4">parseExpr</A> )? &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod53">parseStepExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod54">parseReverseStep</A> | <A HREF="#prod55">parseForwardStep</A> | <A HREF="#prod56">parsePrimaryExpr</A> ) ( &lt;Lbrack&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrack&gt; )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod55">parseForwardStep</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;AxisChild&gt; | &lt;AxisDescendant&gt; | ( &lt;AxisAttribute&gt; | &lt;At&gt; ) | &lt;AxisSelf&gt; | &lt;AxisDescendantOrSelf&gt; | &lt;AxisFollowingSibling&gt; | &lt;AxisFollowing&gt; )? <A HREF="#prod57">parseNodeTest</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod54">parseReverseStep</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( ( &lt;AxisParent&gt; | &lt;AxisAncestor&gt; | &lt;AxisPrecedingSibling&gt; | &lt;AxisPreceding&gt; | &lt;AxisAncestorOrSelf&gt; ) <A HREF="#prod57">parseNodeTest</A> ) | &lt;DotDot&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod57">parseNodeTest</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod21">parseKindTest</A> | ( &lt;QName&gt; | ( &lt;Star&gt; | &lt;NCNameColonStar&gt; | &lt;StarColonNCName&gt; ) ) )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod56">parsePrimaryExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod58">parseLiteral</A> | ( &lt;VariableIndicator&gt; &lt;VarName&gt; ) | ( &lt;Lpar&gt; ( <A HREF="#prod4">parseExpr</A> )? &lt;Rpar&gt; ) | ( &lt;Dot&gt; ) | <A HREF="#prod59">parseFunctionCall</A> | <A HREF="#prod60">parseConstructor</A> | ( ( &lt;UnorderedOpen&gt; | &lt;OrderedOpen&gt; ) <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; ) | <A HREF="#prod61">parseBDQExpr</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod61">parseBDQExpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;ExecuteAt&gt; ( &lt;VariableIndicator&gt; &lt;VarName&gt; &lt;In&gt; )? <A HREF="#prod4">parseExpr</A> &lt;LbraceExprEnclosure&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod58">parseLiteral</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;IntegerLiteral&gt; | &lt;DecimalLiteral&gt; | &lt;DoubleLiteral&gt; | &lt;StringLiteral&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod59">parseFunctionCall</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( <A HREF="#prod31">parseIfExpr</A> | <A HREF="#prod30">parseTypeswitchExpr</A> ) )? &lt;QNameLpar&gt; ( <A HREF="#prod19">parseExprSingle</A> ( &lt;Comma&gt; <A HREF="#prod19">parseExprSingle</A> )* )? &lt;Rpar&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod60">parseConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod62">parseDirElemConstructor</A> | <A HREF="#prod63">parseDirCommentConstructor</A> | <A HREF="#prod64">parseDirPIConstructor</A> | <A HREF="#prod65">parseCompDocConstructor</A> | <A HREF="#prod66">parseCompElemConstructor</A> | <A HREF="#prod67">parseCompAttrConstructor</A> | <A HREF="#prod68">parseCompTextConstructor</A> | <A HREF="#prod69">parseCompCommentConstructor</A> | <A HREF="#prod70">parseCompPIConstructor</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod62">parseDirElemConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;StartTagOpenRoot&gt; | &lt;StartTagOpen&gt; ) &lt;TagQName&gt; <A HREF="#prod71">parseDirAttributeList</A> ( &lt;EmptyTagClose&gt; | ( &lt;StartTagClose&gt; ( <A HREF="#prod72">parseDirElemContent</A> )* &lt;EndTagOpen&gt; &lt;TagQName&gt; ( &lt;S&gt; )? &lt;EndTagClose&gt; ) )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod72">parseDirElemContent</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( <A HREF="#prod62">parseDirElemConstructor</A> | <A HREF="#prod63">parseDirCommentConstructor</A> | <A HREF="#prod64">parseDirPIConstructor</A> ) | ( ( &lt;CdataSectionStartForElementContent&gt; | &lt;CdataSectionStart&gt; ) ( &lt;CDataSectionChar&gt; )* &lt;CdataSectionEnd&gt; ) | <A HREF="#prod73">parseCommonContent</A> | ( &lt;ElementContentChar&gt; )+ )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod73">parseCommonContent</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( ( &lt;PredefinedEntityRef&gt; | &lt;CharRef&gt; ) | ( &lt;LCurlyBraceEscape&gt; | &lt;RCurlyBraceEscape&gt; ) ) | ( ( &lt;Lbrace&gt; | &lt;LbraceExprEnclosure&gt; ) <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; ) )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod71">parseDirAttributeList</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;S&gt; ( &lt;TagQName&gt; ( &lt;S&gt; )? &lt;ValueIndicator&gt; ( &lt;S&gt; )? ( ( &lt;OpenQuot&gt; ( &lt;EscapeQuot&gt; | ( &lt;QuotAttrContentChar&gt; | <A HREF="#prod73">parseCommonContent</A> ) )* &lt;CloseQuot&gt; ) | ( &lt;OpenApos&gt; ( &lt;EscapeApos&gt; | ( &lt;AposAttrContentChar&gt; | <A HREF="#prod73">parseCommonContent</A> ) )* &lt;CloseApos&gt; ) ) )? )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod63">parseDirCommentConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;XmlCommentStartForElementContent&gt; | &lt;XmlCommentStart&gt; ) ( &lt;CommentContentChar&gt; )* &lt;XmlCommentEnd&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod64">parseDirPIConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;ProcessingInstructionStartForElementContent&gt; | &lt;ProcessingInstructionStart&gt; ) &lt;PITarget&gt; ( &lt;SForPI&gt; ( &lt;PIContentChar&gt; )* )? &lt;ProcessingInstructionEnd&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod65">parseCompDocConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;DocumentLbrace&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod66">parseCompElemConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( &lt;ElementQNameLbrace&gt; ) | ( &lt;ElementLbrace&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; &lt;LbraceExprEnclosure&gt; ) ) ( <A HREF="#prod4">parseExpr</A> )? &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod67">parseCompAttrConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( &lt;AttributeQNameLbrace&gt; ) | ( &lt;AttributeLbrace&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; &lt;LbraceExprEnclosure&gt; ) ) ( <A HREF="#prod4">parseExpr</A> )? &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod68">parseCompTextConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;TextLbrace&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod69">parseCompCommentConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;CommentLbrace&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod70">parseCompPIConstructor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( &lt;PINCNameLbrace&gt; ) | ( &lt;PILbrace&gt; <A HREF="#prod4">parseExpr</A> &lt;Rbrace&gt; &lt;LbraceExprEnclosure&gt; ) ) ( <A HREF="#prod4">parseExpr</A> )? &lt;Rbrace&gt;</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

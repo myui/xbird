@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rdf:RDF
+	xmlns="http://purl.org/rss/1.0/"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:sy="http://purl.org/rss/modules/syndication/"
+	xml:lang="ja">
+	<channel rdf:about="http://japan.zdnet.com/">
+		<title>ZDNet Japan ニュース</title>
+		<link>http://japan.zdnet.com/news/</link>
+		<description />
+		<dc:language>ja</dc:language>
+		<dc:rights>Copyright (c) 2005 CNET Networks Japan K.K. All rights reserved.</dc:rights>
+		<dc:date>2006-02-28T18:23:00+09:00</dc:date>
+		<items>
+			<rdf:Seq>
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/internet/story/0,2000052524,20097388,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097389,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/nw/story/0,2000052526,20097378,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/nw/story/0,2000052526,20097377,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/devsys/story/0,2000052522,20097371,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097366,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/sec/story/0,2000052528,20097349,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/db/story/0,2000052521,20097246,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/itm/story/0,2000052525,20097330,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097327,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097325,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097323,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097319,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097318,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097317,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097316,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097315,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097304,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/devsys/story/0,2000052522,20097293,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097287,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097281,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097280,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/nw/story/0,2000052526,20097278,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097241,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097239,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097238,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097234,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/nw/story/0,2000052526,20097237,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097205,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/sec/story/0,2000052528,20097206,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/itm/story/0,2000052525,20097204,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/sec/story/0,2000052528,20097193,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/itm/story/0,2000052525,20097190,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/devsys/story/0,2000052522,20097188,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097170,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097161,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097150,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/os/story/0,2000052527,20097149,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097147,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/os/story/0,2000052527,20097142,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097140,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097135,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/itm/story/0,2000052525,20097119,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097117,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/ir/story/0,2000054251,20097111,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097108,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/sec/story/0,2000052528,20097104,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/software/story/0,2000052520,20097059,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/sec/story/0,2000052528,20097098,00.htm?ref=rss" />
+				<rdf:li rdf:resource="http://japan.zdnet.com/news/itm/story/0,2000052525,20097074,00.htm?ref=rss" />
+			</rdf:Seq>
+		</items>
+	</channel>
+	<item rdf:about="http://japan.zdnet.com/news/internet/story/0,2000052524,20097388,00.htm?ref=rss">
+		<title>シックス・アパート、企業向けブログプラットフォーム「Movable Type Enterprise日本語版」を発表</title>
+		<link>http://japan.zdnet.com/news/internet/story/0,2000052524,20097388,00.htm?ref=rss</link>
+		<description>シックス・アパートは、企業システム向けの機能を強化したブログプラットフォームの新製品「Movable Type Enterprise日本語版」の販売を2006年3月1日より開始することを発表した。</description>
+		<dc:date>2006-02-28T18:23:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097389,00.htm?ref=rss">
+		<title>日本IBM、グリッド普及に向けて低価格インフラを提供--中堅・中小企業も狙う</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097389,00.htm?ref=rss</link>
+		<description>日本IBMは、グリッドコンピューティング普及に向けてハード、ソフト、関連サービスをパッケージ化した「IBM Grid and Growオファリング」の販売を開始した。価格は最小構成で275万円からとなっている。同社によれば「別々に購入するよりも約35％割安な価格」だという。</description>
+		<dc:date>2006-02-28T18:19:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/nw/story/0,2000052526,20097378,00.htm?ref=rss">
+		<title>日立など3社、無線LAN位置検知とバーコードを連携した倉庫管理システム</title>
+		<link>http://japan.zdnet.com/news/nw/story/0,2000052526,20097378,00.htm?ref=rss</link>
+		<description>日立製作所など3社は、位置検知システムとバーコード読み取り機能を連携した「倉庫管理ソリューション」を発表した。日立、日本シンボルテクノロジー、東北システムズ・サポートが共同開発した。</description>
+		<dc:date>2006-02-28T17:32:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/nw/story/0,2000052526,20097377,00.htm?ref=rss">
+		<title>オムロンソフトとITX-EG、Symbian OS向け高速赤外線通信技術を共同開発</title>
+		<link>http://japan.zdnet.com/news/nw/story/0,2000052526,20097377,00.htm?ref=rss</link>
+		<description>オムロンソフトウェアとITXイー・グローバレッジは、赤外線通信技術「IrSimple」をSymbian OS対応化する開発作業を共同で進めると発表した。Symbian OS向け赤外線通信プロトコルスタックの提供を2006年5月に予定している。</description>
+		<dc:date>2006-02-28T17:04:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/devsys/story/0,2000052522,20097371,00.htm?ref=rss">
+		<title>NEC、ウェブアプリ性能監視ソフト「Wily Introscope」--通信事業者向けに販売</title>
+		<link>http://japan.zdnet.com/news/devsys/story/0,2000052522,20097371,00.htm?ref=rss</link>
+		<description>NECは、米Wily Technologyのウェブアプリケーション性能監視ソフト「Wily Introscope」の販売と出荷を開始した。税別価格は117万円から。</description>
+		<dc:date>2006-02-28T16:44:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097366,00.htm?ref=rss">
+		<title>日立、1UサイズでRAID5構成が可能なサーバ「HA8000/110W 1wayモデル」を発売</title>
+		<link>http://japan.zdnet.com/news/hardware/story/0,2000052523,20097366,00.htm?ref=rss</link>
+		<description>日立製作所は、1UサイズでRAID5構成ハードディスクの選択が可能なサーバ「HA8000/110W 1wayモデル」の販売を開始した。3月1日に出荷を始める。</description>
+		<dc:date>2006-02-28T16:27:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/sec/story/0,2000052528,20097349,00.htm?ref=rss">
+		<title>Mac OS Xはいまでも安全といえるのか</title>
+		<link>http://japan.zdnet.com/news/sec/story/0,2000052528,20097349,00.htm?ref=rss</link>
+		<description>これまで安全性が高いとされてきたMac OS Xだが、ここ2週間で2つのワームと深刻な脆弱性が見つかったことから、多くの専門家が今後はMacを狙う悪質なコードが増えると考えている。</description>
+		<dc:date>2006-02-28T12:34:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/db/story/0,2000052521,20097246,00.htm?ref=rss">
+		<title>サイバーテック、XMLデータベース「Cyber Luxeon Ver.1」を発売</title>
+		<link>http://japan.zdnet.com/news/db/story/0,2000052521,20097246,00.htm?ref=rss</link>
+		<description>サイバーテックは、XMLデータベース「Cyber Luxeon Ver.1」を3月28日より出荷開始すると発表した。同社が2005年に取得した「eXcelon」（Sonic XIS）をベースにパフォーマンスの向上やサポートサービスの強化を行った製品だ。</description>
+		<dc:date>2006-02-28T12:00:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/itm/story/0,2000052525,20097330,00.htm?ref=rss">
+		<title>日本のITILファンデーションが1万人突破</title>
+		<link>http://japan.zdnet.com/news/itm/story/0,2000052525,20097330,00.htm?ref=rss</link>
+		<description>エクシン・ジャパンは、ITILの基礎知識を習得した「ITILファンデーション認定資格」取得者が日本で1万人を突破したことを発表した。</description>
+		<dc:date>2006-02-28T07:25:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097327,00.htm?ref=rss">
+		<title>特集：本格的なSOA実装の年となる2006年</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097327,00.htm?ref=rss</link>
+		<description>2006年は日本市場におけるシステム構築に、いよいよSOAが本格的に導入される年になるといわれている。そこで、ガートナー、BEA Systems、日立製作所などに、SOA市場の現状やSOAを実現するテクノロジについて話を聞いた。</description>
+		<dc:date>2006-02-28T06:23:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097325,00.htm?ref=rss">
+		<title>「データ分析」を超える：“再離陸”するビジネスインテリジェンス（1）</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097325,00.htm?ref=rss</link>
+		<description>ユーザー企業が現在注目するアプリケーションのひとつにビジネスインテリジェンス（BI）がある。2月21日、22日に開催されたイベント「ガートナー ビジネス インテリジェンス サミット 2006」で展開された議論をもとに、“BIの現在”をまとめた。</description>
+		<dc:date>2006-02-28T06:09:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097323,00.htm?ref=rss">
+		<title>SOA対応アプリ連携の開発効率を約3倍向上させる日立の「Cosminexus Version 7」</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097323,00.htm?ref=rss</link>
+		<description>日立は、SOA実現の中核となるユニバーサルアプリケーションプラットフォームの最新版「Cosminexus Version 7」を発表した。そこで同社のSOA戦略について日立製作所 情報・通信グループ ソフトウェア事業部の阿部淳氏に話を聞いた。</description>
+		<dc:date>2006-02-28T05:55:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097319,00.htm?ref=rss">
+		<title>SAPジャパン、公共機関向け統合人事・給与テンプレートの提供を開始</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097319,00.htm?ref=rss</link>
+		<description>SAPジャパンは、NTTデータウェーブ、サン・マイクロシステムズ、日本HP、日立情報システムズの4社と協力し、公共機関向けの人事／給与システムを短期間、低コストで構築できる「公共機関向け統合人事・給与テンプレート」の提供を開始する。</description>
+		<dc:date>2006-02-28T00:24:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097318,00.htm?ref=rss">
+		<title>日本オラクル、SOA実装パッケージ「Oracle SOA Suite」の提供を開始</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097318,00.htm?ref=rss</link>
+		<description>日本オラクルは、SOAを実現する基本コンポーネント群をパッケージ化した製品群「Oracle SOA Suite」の提供を同日より日本国内において開始すると発表した。</description>
+		<dc:date>2006-02-28T00:20:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097317,00.htm?ref=rss">
+		<title>日本オラクルなど3社、製造業向けのSOA実装で協業</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097317,00.htm?ref=rss</link>
+		<description>東芝ソリューション、イー・ビー・ソリューションズおよび日本オラクルの3社は、製造業向けSOA実装の分野で協業することを発表した。</description>
+		<dc:date>2006-02-28T00:16:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097316,00.htm?ref=rss">
+		<title>IBMとダッソー、企業規模のイノベーションを促すインダストリーイニシアティブを始動</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097316,00.htm?ref=rss</link>
+		<description>IBMとダッソー・システムズは、リレーショナルプロダクトディベロップメント、サプライチェーンコラボレーション、およびエンタープライズインテグレーションの分野で、両社が今後ソリューションとサービスを開発し、共同展開すると発表した。</description>
+		<dc:date>2006-02-28T00:11:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097315,00.htm?ref=rss">
+		<title>2005年日本サーバ市場出荷実績は台数14.3％、金額0.2％の増加--ガートナー調べ</title>
+		<link>http://japan.zdnet.com/news/hardware/story/0,2000052523,20097315,00.htm?ref=rss</link>
+		<description>ガートナージャパンは、2005年の日本サーバ市場の出荷実績を発表した。同社によると、2005年の日本サーバ市場は、台数が58万682台と14.3％増加したものの、金額では0.2％増の6140億円とほぼ横ばいとなっている。</description>
+		<dc:date>2006-02-28T00:09:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097304,00.htm?ref=rss">
+		<title>日本AMD、日本HP、ノベルが、仮想化技術の普及を目指した協業を発表</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097304,00.htm?ref=rss</link>
+		<description>日本AMD、日本HP、ノベルの3社は、仮想化技術を利用したITインフラのサービス提供において協業を発表した。Opteron搭載のProLiantに、Novell SUSE Linux、VMwareなどを組み合わせたシステムをパッケージ化し、共同で各種のサービスを提供する。</description>
+		<dc:date>2006-02-27T21:14:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/devsys/story/0,2000052522,20097293,00.htm?ref=rss">
+		<title>住商情報システム、リッチクライアント言語「Curl」の導入サービス</title>
+		<link>http://japan.zdnet.com/news/devsys/story/0,2000052522,20097293,00.htm?ref=rss</link>
+		<description>住商情報システムは、ウェブアプリケーション開発言語「Curl」の導入サービス「リッチ・クライアント環境構築サービス」を3月1日より開始する。</description>
+		<dc:date>2006-02-27T20:05:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097287,00.htm?ref=rss">
+		<title>アドビとシックス・アパート、Movable Type対応のDreamweaver拡張機能</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097287,00.htm?ref=rss</link>
+		<description>アドビ システムズとシックス・アパートは、ウェブサイト作成ソフト「Macromedia Dreamweaver 8.0.1」の拡張機能「Dreamweaver 8.0.1 拡張機能 for Movable Type 3.2」を共同開発したと発表した。</description>
+		<dc:date>2006-02-27T20:01:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097281,00.htm?ref=rss">
+		<title>三菱電機、データ分析レポーティングソフトの機能強化版「XEpro」を発売</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097281,00.htm?ref=rss</link>
+		<description>三菱電機は、データ分析レポーティングソフトの新製品「XEpro」の販売を2月28日に開始する。既存の「高速データ分析レポーティングシステムXE」をベースに、データ収集処理を自動化し、操作性と安全性を向上させた。</description>
+		<dc:date>2006-02-27T14:48:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097280,00.htm?ref=rss">
+		<title>NEC、デュアルコアXeonを8個搭載可能なラック型サーバ「Express5800/180Re-3」</title>
+		<link>http://japan.zdnet.com/news/hardware/story/0,2000052523,20097280,00.htm?ref=rss</link>
+		<description>NECは、デュアルコアインテルXeonプロセッサ7020または同7040を最大8個搭載可能なラック型サーバ「Express5800/180Re-3」の販売を開始した。</description>
+		<dc:date>2006-02-27T14:34:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/nw/story/0,2000052526,20097278,00.htm?ref=rss">
+		<title>アッカとNICT、モバイルWiMAXサービスの実証実験を2006年6月に実施</title>
+		<link>http://japan.zdnet.com/news/nw/story/0,2000052526,20097278,00.htm?ref=rss</link>
+		<description>アッカ・ネットワークスは、無線ブロードバンド規格IEEE802.16eを用いる固定および無線通信の融合サービスを想定し、接続およびサービスの実証実験を2006年6月より情報通信研究機構と共同で実施する。</description>
+		<dc:date>2006-02-27T14:05:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097241,00.htm?ref=rss">
+		<title>NECインフロンティア、外食産業向け本部／店舗システム統合ソリューションを発表</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097241,00.htm?ref=rss</link>
+		<description>NECインフロンティアは、外食企業の店舗システムと本部システムを一本化し、情報の流れを一元的に管理できるフードビジネストータルソリューション「FoodFrontia」を開発したと発表した。</description>
+		<dc:date>2006-02-24T20:22:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097239,00.htm?ref=rss">
+		<title>マクニカの「FaxPressPremier」、富士通の「Interstage Enabled」に認定</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097239,00.htm?ref=rss</link>
+		<description>マクニカネットワークスは、SuperG3対応のCastelle製FAXサーバ「FaxPress Premier」とその関連ソフトウェアが、富士通の「Interstage帳票ソリューション」と製品連携し、富士通の認定制度「Interstage Enabled」として認定されたことを発表した。</description>
+		<dc:date>2006-02-24T20:22:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097238,00.htm?ref=rss">
+		<title>イーズとサイエンスパーク、情報資産活用のためのソリューション提供で協業</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097238,00.htm?ref=rss</link>
+		<description>イーズ・コミュニケーションズとサイエンスパークは、社内に蓄積された情報資産を安全かつ自由に活用することを支援する「情報資産運用基盤」の構築に向けたソリューション提供を共同で行うことに合意したと発表した。</description>
+		<dc:date>2006-02-24T20:16:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097234,00.htm?ref=rss">
+		<title>「Notes/Dominoの進化形」としてのWorkplaceを披露--IBM Workplace Forum</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097234,00.htm?ref=rss</link>
+		<description>日本アイ・ビー・エムは2月24日、東京で「IBM Workplace Forum」を開催した。「Lotus Notes/Domino」および、その進化形としての「IBM Workplace」製品群を、ユーザーやパートナーに向けて紹介するイベントだ。</description>
+		<dc:date>2006-02-24T20:13:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/nw/story/0,2000052526,20097237,00.htm?ref=rss">
+		<title>Symbian OS、NTTドコモの「FOMA F702iD」「FOMA SH702iD」に採用</title>
+		<link>http://japan.zdnet.com/news/nw/story/0,2000052526,20097237,00.htm?ref=rss</link>
+		<description>シンビアンは、NTTドコモから同日発売された富士通製の携帯電話「FOMA F702iD」およびシャープ製の携帯電話「FOMA SH702iD」にSymbian OSが利用されていることを発表した。</description>
+		<dc:date>2006-02-24T20:13:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097205,00.htm?ref=rss">
+		<title>iPodにもインテル入ってくる--インテルとマイクロンの共同事業で</title>
+		<link>http://japan.zdnet.com/news/hardware/story/0,2000052523,20097205,00.htm?ref=rss</link>
+		<description>インテルとマイクロン・テクノロジーが共同で設立したNAND型フラッシュメモリ事業の最初の顧客は、アップルコンピュータであるという。</description>
+		<dc:date>2006-02-24T18:12:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/sec/story/0,2000052528,20097206,00.htm?ref=rss">
+		<title>日本エフ・セキュア、Linux対応のウェブアプリ用ファイアウォールソフトを販売開始</title>
+		<link>http://japan.zdnet.com/news/sec/story/0,2000052528,20097206,00.htm?ref=rss</link>
+		<description>日本エフ・セキュアは、ウェブアプリケーション用ファイアウォールソフト「F-Secureサイトガード」のLinuxサーバ版の販売を開始した。</description>
+		<dc:date>2006-02-24T17:05:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/itm/story/0,2000052525,20097204,00.htm?ref=rss">
+		<title>MS、内部統制構築に対応した文書作成の支援サイトを公開</title>
+		<link>http://japan.zdnet.com/news/itm/story/0,2000052525,20097204,00.htm?ref=rss</link>
+		<description>マイクロソフトは、ビジネスグラフィックスソフトウェア「Office Visio 2003」を使用した内部統制対応文書の作成支援ガイドを公開した。</description>
+		<dc:date>2006-02-24T16:52:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/sec/story/0,2000052528,20097193,00.htm?ref=rss">
+		<title>ソニックウォール、UTMアプライアンスを発表--ギガビットイーサを10ポート搭載</title>
+		<link>http://japan.zdnet.com/news/sec/story/0,2000052528,20097193,00.htm?ref=rss</link>
+		<description>米SonicWALLは、ギガビットイーサネットを10ポート備えるUTMアプライアンス「PRO 4100」の日本語版を3月2日から販売する。</description>
+		<dc:date>2006-02-24T15:16:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/itm/story/0,2000052525,20097190,00.htm?ref=rss">
+		<title>HP、コンプライアンスと変更管理を自動化するソフトを発表</title>
+		<link>http://japan.zdnet.com/news/itm/story/0,2000052525,20097190,00.htm?ref=rss</link>
+		<description>米HPは、コンプライアンス支援を目的とするID管理ソフト「HP OpenView Select Audit」と変更管理ソフトの新版「HP OpenView Select Identity 4.0」を発表した。</description>
+		<dc:date>2006-02-24T15:11:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/devsys/story/0,2000052522,20097188,00.htm?ref=rss">
+		<title>ジャストシステムとIBM、XMLデータ処理に関する共同研究を開始</title>
+		<link>http://japan.zdnet.com/news/devsys/story/0,2000052522,20097188,00.htm?ref=rss</link>
+		<description>ジャストシステムと米IBMは、クライアント環境におけるXMLデータ処理について共同研究を進めると発表した。</description>
+		<dc:date>2006-02-24T14:26:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097170,00.htm?ref=rss">
+		<title>IBM、ホスティングアプリケーション事業推進のための新施策を発表</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097170,00.htm?ref=rss</link>
+		<description>IBMは米国時間2月23日、急成長を遂げるホスティングアプリケーション事業を利用した新施策を発表した。</description>
+		<dc:date>2006-02-24T11:23:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097161,00.htm?ref=rss">
+		<title>「今後のIT投資にはSOAへの投資が不可欠」--BEAのチュアングCEO</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097161,00.htm?ref=rss</link>
+		<description>BEA Systemsは、2006年1月31日に終わった第4四半期および年間の決算報告を発表した。年間の総売上は対前年比11％増の11億9980万ドル。好調の要因をBEAの会長兼CEO、Alfred Chuang氏に聞いた。</description>
+		<dc:date>2006-02-24T10:48:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/hardware/story/0,2000052523,20097150,00.htm?ref=rss">
+		<title>2005年世界サーバ市場は台数12.7％増、金額4.5％増と堅調--ガートナー調べ</title>
+		<link>http://japan.zdnet.com/news/hardware/story/0,2000052523,20097150,00.htm?ref=rss</link>
+		<description>ガートナーは、世界全体のサーバ市場について、2005年の出荷台数が前年比12.7％増、出荷金額が前年比4.5％増となったことを発表した。</description>
+		<dc:date>2006-02-24T03:21:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/os/story/0,2000052527,20097149,00.htm?ref=rss">
+		<title>ミラクル・リナックス、教育機関向けライセンスを発表</title>
+		<link>http://japan.zdnet.com/news/os/story/0,2000052527,20097149,00.htm?ref=rss</link>
+		<description>ミラクル・リナックスは、Linux技術者の育成支援を目的とした教育向けライセンス「MIRACLE LINUX V4.0 Education Pack」の出荷を、2006年2月24日より開始することを発表した</description>
+		<dc:date>2006-02-24T03:18:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097147,00.htm?ref=rss">
+		<title>富国生命、日立の指静脈認証装置による入室管理システムを採用</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097147,00.htm?ref=rss</link>
+		<description>日立製作所は、富国生命が本社の入室管理システムに採用した日立の指静脈認証装置が2006年2月1日から稼働したことを明らかにした。</description>
+		<dc:date>2006-02-24T03:14:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/os/story/0,2000052527,20097142,00.htm?ref=rss">
+		<title>マウンテンビューデータ、「PowerCockpit 2.2」の販売を開始</title>
+		<link>http://japan.zdnet.com/news/os/story/0,2000052527,20097142,00.htm?ref=rss</link>
+		<description>マウンテンビューデータは、Linuxシステムリカバリ／プロビジョニング用ソフトウェア「PowerCockpit」の新バージョン2.2の販売活動を開始すると発表した。</description>
+		<dc:date>2006-02-24T00:00:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097140,00.htm?ref=rss">
+		<title>日本ユニシス、「LUCINA for .NET」で「Visual Studio 2005 Team System」をサポート</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097140,00.htm?ref=rss</link>
+		<description>日本ユニシスは、同社の開発手法「LUCINA for .NET」において「Microsoft Visual Studio 2005 Team System」をサポートし、開発プロジェクトへの適用を開始したと発表した</description>
+		<dc:date>2006-02-23T23:57:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097135,00.htm?ref=rss">
+		<title>検索プラットフォームは企業システムでミドルウェアとしての地位を獲得する</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097135,00.htm?ref=rss</link>
+		<description>ビジネスに必要な情報を、あらゆる情報ソースから効率的に探し出し、活用するシステムとして注目が集まるエンタープライズサーチプラットフォーム。ウチダスペクトラム主催の「エンタープライズサーチカンファレンス」で、その最新動向が紹介された。</description>
+		<dc:date>2006-02-23T23:35:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/itm/story/0,2000052525,20097119,00.htm?ref=rss">
+		<title>「堀江メール」に足りないログ管理、オラクルとインサイトが共同ソリューションで解決</title>
+		<link>http://japan.zdnet.com/news/itm/story/0,2000052525,20097119,00.htm?ref=rss</link>
+		<description>日本オラクルとインサイトテクノロジーは、企業の内部統制を支援するデータベース監査ソリューションを共同開発した。提供開始は4月以降となる。</description>
+		<dc:date>2006-02-23T21:26:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097117,00.htm?ref=rss">
+		<title>松下、ネット関連4事業会社をパナソニック ネットワークサービシズに統合</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097117,00.htm?ref=rss</link>
+		<description>松下電器産業は、eネット事業本部傘下の100％子会社4社を4月1日付けで合併し、同日付けで「パナソニック ネットワークサービシズ」として新たに発足する。</description>
+		<dc:date>2006-02-23T19:55:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/ir/story/0,2000054251,20097111,00.htm?ref=rss">
+		<title>ヤフーとあおぞら銀行、「方向性の違い」からネットバンキング業務の合意解約</title>
+		<link>http://japan.zdnet.com/news/ir/story/0,2000054251,20097111,00.htm?ref=rss</link>
+		<description>ヤフーは、あおぞら銀行と昨年4月28日付けで締結した、あおぞら信託銀行を母体とする共同のインターネットバンキング業務に関する契約に関して合意解約することを決定した。</description>
+		<dc:date>2006-02-23T18:41:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097108,00.htm?ref=rss">
+		<title>日本HP、「SOAコンピテンシー・センタ」を市ヶ谷事業所内にオープン</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097108,00.htm?ref=rss</link>
+		<description>日本HPは、SOAに関する入門的知識の提供、SOA導入の方法とメリットの紹介、SOAに関する技術情報の提供を目的に、市ヶ谷事業所内に「SOAコンピテンシー・センタ」をオープンしたことを発表した。</description>
+		<dc:date>2006-02-23T18:13:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/sec/story/0,2000052528,20097104,00.htm?ref=rss">
+		<title>スパム対策のワーキンググループ「JEAG」、迷惑メール対策についての提言書を策定</title>
+		<link>http://japan.zdnet.com/news/sec/story/0,2000052528,20097104,00.htm?ref=rss</link>
+		<description>Japan Email Anti-Abuse Groupは、迷惑メール対策を検討する事業者やメールサーバーを運営する管理者に向けたリコメンデーション（提言書）を策定した。</description>
+		<dc:date>2006-02-23T18:09:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/software/story/0,2000052520,20097059,00.htm?ref=rss">
+		<title>Cellプログラマを支援する「Octopiler」--概要がまもなく明らかに</title>
+		<link>http://japan.zdnet.com/news/software/story/0,2000052520,20097059,00.htm?ref=rss</link>
+		<description>IBMは「Octopiler」プロジェクトを通じて、「Cell」チップ用のプログラムに取り組む開発者らを支援する計画だ。同社はこのプロジェクトに関するチュートリアルを3月に開催し、概要を説明する。</description>
+		<dc:date>2006-02-23T17:34:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/sec/story/0,2000052528,20097098,00.htm?ref=rss">
+		<title>KDDI、情報漏えい防止機能付きファイル交換サービス「KDDI セキュアシェア」</title>
+		<link>http://japan.zdnet.com/news/sec/story/0,2000052528,20097098,00.htm?ref=rss</link>
+		<description>KDDIは、情報漏えい防止機能を備えるファイル交換サービス「KDDI セキュアシェア」を3月1日に開始すると発表した。企業内や企業間での大容量ファイルの受け渡しといった用途に向ける</description>
+		<dc:date>2006-02-23T17:04:00+09:00</dc:date>
+	</item>
+	<item rdf:about="http://japan.zdnet.com/news/itm/story/0,2000052525,20097074,00.htm?ref=rss">
+		<title>XMLコンソーシアム、Web 2.0を企業システムで活用するための勉強会を開催</title>
+		<link>http://japan.zdnet.com/news/itm/story/0,2000052525,20097074,00.htm?ref=rss</link>
+		<description>XMLコンソーシアムは、ウェブアプリケーションの新しい概念であるWeb 2.0を企業情報システムに活用するための取り組みとして、3月3日に「Web 2.0勉強会」を開催すると発表した。</description>
+		<dc:date>2006-02-23T14:29:00+09:00</dc:date>
+	</item>
+</rdf:RDF>

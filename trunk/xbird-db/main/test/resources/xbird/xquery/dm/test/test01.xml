@@ -1,0 +1,15 @@
+<article title="att01">
+	<section xmlns="http://test.ns01" title="att02">
+		text01
+		<section title="att03">
+			text02
+		</section>
+		<title:section xmlns:title="att04">
+			text02
+		</title:section>
+	</section>
+	<section title="att05">
+		test0
+		4.
+	</section>
+</article>

@@ -1,0 +1,74 @@
+<project name="xbird/db" default="jar" basedir=".">
+
+	<property file="build.properties" />
+
+	<path id="classpath">
+		<fileset dir="${lib.dir}">
+			<exclude name="**/obsolete/**"/>
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${subproject.xbird-open.dir}/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile" depends="clean,precompile">
+		<javac failonerror="true"
+			   srcdir="${src.dir}"
+		       destdir="${build.dir}"
+		       source="${javac.source}"
+		       target="${javac.target}"
+		       optimize="${javac.optimize}"
+		       debug="${javac.debug}"
+		       debuglevel="${javac.debuglevel}">
+			<src path="${src.dir}" />
+			<!-- start building test classes -->
+			<!-- <src path="${test.src.dir}"/> -->
+			<!-- end building test classes -->
+			<classpath>
+				<path refid="classpath" />
+				<path location="${build.dir}.tmp" />
+			</classpath>
+		</javac>
+		<copy todir="${build.dir}" verbose="on">
+			<fileset dir="${conf.dir}">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<delete dir="${build.dir}.tmp" />
+	</target>
+
+	<target name="precompile">
+		<javac failonerror="true"
+		       destdir="${build.dir}.tmp"
+		       target="${javac.target}"
+		       optimize="${javac.optimize}"
+		       debug="${javac.debug}"
+		       debuglevel="${javac.debuglevel}">
+			<src path="${src.dir}" />
+			<src path="${subproject.xbird-open.dir}/main/src/java" />												
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${target.dir}/xbird-db-${version}.jar"
+		     basedir="${build.dir}">
+			<manifest>
+				<attribute name="Implementation-Title" value="${jar.title}" />
+				<attribute name="Implementation-Vendor" value="${jar.vendor}" />
+				<attribute name="Implementation-Version" value="${version}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean">
+		<delete failonerror="false" dir="${build.dir}" />
+		<delete failonerror="false" dir="${build.dir}.tmp" />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}.tmp" />
+	</target>
+
+</project>

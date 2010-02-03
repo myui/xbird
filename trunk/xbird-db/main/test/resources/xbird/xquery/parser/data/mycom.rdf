@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns="http://purl.org/rss/1.0/"
+ xmlns:taxo="http://purl.org/rss/1.0/modules/taxonomy/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:syn="http://purl.org/rss/1.0/modules/syndication/"
+ xmlns:admin="http://webns.net/mvcb/"
+>
+
+<channel rdf:about="http://pcweb.mycom.co.jp">
+<title>MYCOM PC WEB</title>
+<link>http://pcweb.mycom.co.jp</link>
+<description>パソコンやITに関する総合ニュースサイトです。日本と米国の2箇所で24時間体制で更新する最新ニュースのほか、ボリュームある特集やレビュー、個性派の執筆陣によるコラムなど、魅力溢れる記事が満載です。是非ご覧下さい。</description>
+<dc:language>ja</dc:language>
+<dc:rights>Copyright (C) 1997-2006 Mainichi Communications Inc. All rights reserved. 掲載記事の無断転載を禁じます.</dc:rights>
+<dc:date>2006-03-01T03:30:00+09:00</dc:date>
+<dc:publisher>株式会社 毎日コミュニケーションズ</dc:publisher>
+<dc:creator>MYCOM PC WEB編集部 &lt;pcmail@pc.mycom.co.jp></dc:creator>
+<dc:subject>MYCOM PC WEB</dc:subject>
+<items>
+ <rdf:Seq>
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/009.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/03/01/343.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/03/01/342.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/03/01/341.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/03/01/340.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/i-ram/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/yarv/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/010.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/pma4/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/008.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/005.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/column/svalley/167/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/382.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/column/yetanother/099/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/006.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/001.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/007.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/361.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/solarispg/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/bizgres/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/342.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/341.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/340.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/381.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/323.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/003.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/pma3/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/pma2/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/321.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/320.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/articles/2006/02/28/pma1/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/101.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/28/100.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/011.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/010.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/344.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/column/java/038/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/361.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/series/interview/206/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/338.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/003.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/008.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/009.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/343.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/006.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/005.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/007.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/column/kaden/011/" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/342.html" />
+  <rdf:li rdf:resource="http://pcweb.mycom.co.jp/news/2006/02/27/002.html" />
+ </rdf:Seq>
+</items>
+</channel>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/009.html">
+<title>NuCORE、高ISO/顔認識の新世代イメージプロセッサ「CleanCapture II」発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/009.html</link>
+<dc:date>2006-03-01T03:30:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/03/01/343.html">
+<title>日本IBM、グリッド普及に向け、導入容易なソリューション発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/03/01/343.html</link>
+<dc:date>2006-03-01T03:02:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/03/01/342.html">
+<title>Fosdem 2006、OSSのJava API GNU Classpathデベロッパーセッション開催</title>
+<link>http://pcweb.mycom.co.jp/news/2006/03/01/342.html</link>
+<dc:date>2006-03-01T03:02:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/03/01/341.html">
+<title>DIコンテナSpring Framework 1.2.7公開、次は2.x系へ</title>
+<link>http://pcweb.mycom.co.jp/news/2006/03/01/341.html</link>
+<dc:date>2006-03-01T03:02:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/03/01/340.html">
+<title>IBM、AJAX Toolkit Framework 初の成果物を公開</title>
+<link>http://pcweb.mycom.co.jp/news/2006/03/01/340.html</link>
+<dc:date>2006-03-01T03:02:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/i-ram/">
+<title>【ハウツー】i-RAMで作るファンレスPC - ハードウェア構成とOS軽量化を考える</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/i-ram/</link>
+<dc:date>2006-02-28T23:57:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/yarv/">
+<title>【レポート】未踏ソフトウェア創造事業 千葉PM 成果報告会 - Ruby 2.0の新仮想マシンYARVとは?</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/yarv/</link>
+<dc:date>2006-02-28T23:21:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/010.html">
+<title>OCZから低レイテンシでDDR500に対応した2GBデュアルチャネルメモリキット</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/010.html</link>
+<dc:date>2006-02-28T22:56:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/pma4/">
+<title>【レポート】PMA 2006 - カシオ、国内未発表の薄型エントリーモデルEX-Z60を展示</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/pma4/</link>
+<dc:date>2006-02-28T22:22:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/008.html">
+<title>「タカラトミー」第1弾はコラボ商品「ポケットモンスターAG人生ゲーム」</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/008.html</link>
+<dc:date>2006-02-28T22:15:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/005.html">
+<title>世界に先駆けて日本で発売 - 企業向けブログソフト「Movable Type Enterprise」</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/005.html</link>
+<dc:date>2006-02-28T22:12:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/column/svalley/167/">
+<title>【コラム】シリコンバレー101 第167回 1つの街に6つの提案 - SFの無料Wi-Fiサービス計画</title>
+<link>http://pcweb.mycom.co.jp/column/svalley/167/</link>
+<dc:date>2006-02-28T21:11:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/382.html">
+<title>SamsungとMPIO、新MP3プレイヤーを発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/382.html</link>
+<dc:date>2006-02-28T21:05:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/column/yetanother/099/">
+<title>【コラム】Yet Another 仕事のツール 第99回 プロジェクト管理を効率化しよう - JProjectTimerとGanttPV</title>
+<link>http://pcweb.mycom.co.jp/column/yetanother/099/</link>
+<dc:date>2006-02-28T20:28:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/006.html">
+<title>バルクながらSocket 939のSempronが流通、ほかパイオニアのDVR-A11など</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/006.html</link>
+<dc:date>2006-02-28T20:10:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/001.html">
+<title>Macintosh版が登場! 　アドビ、「Adobe Photoshop Elements 4.0」4月中旬発売</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/001.html</link>
+<dc:date>2006-02-28T20:04:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/007.html">
+<title>日本車輌製造、山手線の駅の発車メロディを奏でる目覚まし時計発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/007.html</link>
+<dc:date>2006-02-28T19:37:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/361.html">
+<title>Def Tech書き下ろし曲をつかまえろ!--音楽携帯「W41S」購入者に無料提供</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/361.html</link>
+<dc:date>2006-02-28T19:15:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/solarispg/">
+<title>【レポート】PostgreSQLエグゼクティブセミナー - サン、PostgreSQLとSolarisの相性向上狙う</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/solarispg/</link>
+<dc:date>2006-02-28T18:23:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/bizgres/">
+<title>【レポート】PostgreSQLエグゼクティブセミナー - PostgreSQLで高速データウェアハウスBizGres - 大規模クラスタリング対応も</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/bizgres/</link>
+<dc:date>2006-02-28T18:22:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/342.html">
+<title>Windowsの新しいコマンドシェル「Monad」の最新ベータ版が公開</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/342.html</link>
+<dc:date>2006-02-28T18:10:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/341.html">
+<title>BPEL 1.1に対応、ActiveBPEL Engine 2.0 公開</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/341.html</link>
+<dc:date>2006-02-28T18:10:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/340.html">
+<title>日本HP、日本AMD、ノベル、ITインフラ仮想化サービス</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/340.html</link>
+<dc:date>2006-02-28T18:10:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/381.html">
+<title>Hanaro Telecom、資本金の減資とナスダック上場廃止を決定</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/381.html</link>
+<dc:date>2006-02-28T18:03:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/323.html">
+<title>シャープ、設置面席が文庫本サイズのデジタルコードレスフォン発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/323.html</link>
+<dc:date>2006-02-28T16:35:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/003.html">
+<title>アスク、ZALMAN製ホームシアター向けPCケース「HD160」を発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/003.html</link>
+<dc:date>2006-02-28T12:59:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/pma3/">
+<title>【レポート】PMA 2006 - ペンタックスが1,000万画素のデジタル一眼レフを参考出品</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/pma3/</link>
+<dc:date>2006-02-28T12:49:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/pma2/">
+<title>【レポート】PMA 2006 - 光学式手ブレ補正と高感度撮影でブレ防止 - ソニー</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/pma2/</link>
+<dc:date>2006-02-28T12:18:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/321.html">
+<title>松下電器、ダブルセンサー搭載のホームネットワークカメラを2機種発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/321.html</link>
+<dc:date>2006-02-28T12:17:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/320.html">
+<title>カシオ、読み上げ機能搭載の電子辞書全14機種を発売</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/320.html</link>
+<dc:date>2006-02-28T12:14:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/articles/2006/02/28/pma1/">
+<title>【レポート】PMA 2006 - 前日イベントにキヤノンの国内未発表カメラやHPのプロ向けプリンタ</title>
+<link>http://pcweb.mycom.co.jp/articles/2006/02/28/pma1/</link>
+<dc:date>2006-02-28T10:23:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/101.html">
+<title>IBMとNovell、個人情報保護を目指した「Project Higgins」へコード提供</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/101.html</link>
+<dc:date>2006-02-28T10:06:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/28/100.html">
+<title>米Microsoft、「Windows Vista」の製品ラインナップ発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/28/100.html</link>
+<dc:date>2006-02-28T03:07:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/011.html">
+<title>イーレッツ、DVD/CDメディアを完全にバラバラにする新型「記録喪失」</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/011.html</link>
+<dc:date>2006-02-28T00:20:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/010.html">
+<title>マイルストーン、Socket 754でSLIが可能なEPoX製マザー「EP-8NPA SLi」</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/010.html</link>
+<dc:date>2006-02-27T23:51:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/344.html">
+<title>ワークフローエンジン - OpenWFE 1.6.2公開</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/344.html</link>
+<dc:date>2006-02-27T23:47:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/column/java/038/">
+<title>【コラム】ライトニングJava 第38回 AspectJ 5(3) - 逆コンパイルで探るアスペクトの裏側</title>
+<link>http://pcweb.mycom.co.jp/column/java/038/</link>
+<dc:date>2006-02-27T22:36:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/361.html">
+<title>フジテレビなど3社がショッピングサイト - 中田英寿/冨永愛が商品チョイス</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/361.html</link>
+<dc:date>2006-02-27T22:34:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/series/interview/206/">
+<title>【連載】ストリートインタビュー 第206回 人気ゲームの本気グッズを企画する会社員(6)</title>
+<link>http://pcweb.mycom.co.jp/series/interview/206/</link>
+<dc:date>2006-02-27T22:15:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/338.html">
+<title>富士通、Web限定モデルのAthlon 64 X2搭載FMVを11万円台で発売</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/338.html</link>
+<dc:date>2006-02-27T22:14:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/003.html">
+<title>アスク、HD出力対応メディアプレイヤー機能を備える3.5インチHDDケース発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/003.html</link>
+<dc:date>2006-02-27T22:06:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/008.html">
+<title>日本ビクター、アウトドアでも使用可能なヘッドホンサラウンドアダプター発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/008.html</link>
+<dc:date>2006-02-27T22:01:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/009.html">
+<title>松下、1BOXカーなどで後方の視界を確保する小型リアビューカメラを発表</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/009.html</link>
+<dc:date>2006-02-27T22:01:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/343.html">
+<title>オンメモリDBで高速にBI - 数理技研Core Saver利用でNECがパッケージ</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/343.html</link>
+<dc:date>2006-02-27T21:36:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/006.html">
+<title>3Dlabsがプロ向けグラフィックス事業から撤退</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/006.html</link>
+<dc:date>2006-02-27T21:15:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/005.html">
+<title>NEC、Xeon 7000番台を搭載した8way IAサーバExpress5800/100</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/005.html</link>
+<dc:date>2006-02-27T21:15:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/007.html">
+<title>快眠環境を部屋ごと提供               ― 松下電工が「快眠システム」の受注を開始</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/007.html</link>
+<dc:date>2006-02-27T20:47:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/column/kaden/011/">
+<title>【コラム】男の家電 第11回 2006年型のエアコンの機能比較(2)</title>
+<link>http://pcweb.mycom.co.jp/column/kaden/011/</link>
+<dc:date>2006-02-27T20:47:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/342.html">
+<title>ソニー、PLAYLOGを開始 - 音楽を日記のように、iTunesにも対応</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/342.html</link>
+<dc:date>2006-02-27T19:57:00+09:00</dc:date>
+</item>
+
+<item rdf:about="http://pcweb.mycom.co.jp/news/2006/02/27/002.html">
+<title>松下電器がLet'snoteイベント - スタイリッシュな新モバイルに来場者も多数</title>
+<link>http://pcweb.mycom.co.jp/news/2006/02/27/002.html</link>
+<dc:date>2006-02-27T18:56:00+09:00</dc:date>
+</item>
+
+</rdf:RDF>
