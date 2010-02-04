@@ -1,0 +1,77 @@
+#!/bin/sh
+
+iter=2
+timeout=600
+profile=false
+
+xmark_dir="/share/xmark"
+xbird_home="/root/.eclipse/xbird"
+out_dir="$xmark_dir/benchmark/xbird/sf100"
+#out_dir="$xmark_dir/benchmark/xbird/sf10_heap256m_p64c32"
+#out_dir="$xmark_dir/benchmark/xbird/sf10_heap64m_p12c8_q10"
+#out_dir="$xmark_dir/benchmark/xbird/sf10_heap128m_p32c16"
+#out_dir="$xmark_dir/benchmark/xbird/sf1_profile"
+
+VMARGS="-Xms1400m -Xmx1400m -da -server -XX:+UseBiasedLocking -XX:+AggressiveOpts"
+#VMARGS="-Xms1024m -Xmx1400m -da"
+#VMARGS="-Xms128m -Xmx128m -da"
+#VMARGS="-Xms256m -Xmx256m -da"
+#VMARGS="-Xms64m -Xmx64m -da"
+
+#VMARGS="$VMARGS -Dxbird.page_caches=256 -Dxbird.cchunk_caches=32"
+#VMARGS="$VMARGS -Dxbird.page_caches=128 -Dxbird.cchunk_caches=32"
+#VMARGS="$VMARGS -Dxbird.page_caches=64 -Dxbird.cchunk_caches=32"
+#VMARGS="$VMARGS -Dxbird.page_caches=32 -Dxbird.cchunk_caches=16"
+#VMARGS="$VMARGS -Dxbird.page_caches=12 -Dxbird.cchunk_caches=8"
+
+VMARGS="$VMARGS -Dxbird.disable_index_access"
+#VMARGS="$VMARGS -Dxbird.cache.disable_2q"
+#VMARGS="$VMARGS -Djava.library.path=$xbird_home/lib/native"
+
+cp="$xbird_home/lib/optional/args4j-2.0.4.jar:$xbird_home/lib/commons-logging-1.0.4.jar"
+#cp="$xbird_home/lib/optional/args4j-2.0.4.jar:$xbird_home/lib/optional/asm-3.0.jar:$xbird_home/lib/commons-logging-1.0.4.jar:$xbird_home/lib/optional/log4j-1.2.13.jar"
+#export LD_LIBRARY_PATH="$xbird_home/lib/native:$LD_LIBRARY_PATH"
+
+rm -rf $out_dir
+mkdir $out_dir
+
+querylist=$(seq 1 20)
+#querylist="19"
+
+for i in $querylist
+do
+	cp "$xmark_dir/queries/q$i.xq" "$xmark_dir/queries/q$i.xq.run"
+	perl -pi -e 's|doc\("auction.xml"\)|collection\("/xmark100/xmark100.xml"\)|g' "$xmark_dir/queries/q$i.xq.run"
+#	perl -pi -e 's|doc\("auction.xml"\)|doc\("/windows/C/Software/xmark/xmark1.xml"\)|g' "$xmark_dir/queries/q$i.xq.run"
+done
+
+cd ..
+maven java:compile java:jar-resources 
+sleep 3
+
+for it in `seq 1 $iter`
+do	
+	echo "----------------------" >> $out_dir/out.txt
+ 	echo "[iteration $it]" | tee -a $out_dir/out.txt
+	for i in $querylist
+	do
+	  echo -n "q$i: " | tee -a "$out_dir/out.txt"
+	  if $profile; then
+	    java $VMARGS -Dxbird.profile_dtm=$out_dir/profile_q$i.dat -cp "$cp:$xbird_home/target/classes" xbird.client.InteractiveShell -t -tms -o "${out_dir}/res${i}_iter${it}.txt" -q "$xmark_dir/queries/q${i}.xq.run" -encoding "UTF-8" | tee -a "$out_dir/out.txt"	
+	  else
+	    java $VMARGS -cp "$cp:$xbird_home/target/classes" xbird.client.InteractiveShell -t -tms -timeout $timeout -o "${out_dir}/res${i}_iter${it}.txt" -q "$xmark_dir/queries/q${i}.xq.run" -encoding "UTF-8" | tee -a "$out_dir/out.txt"
+	  fi
+	  echo >> $out_dir/out.txt
+	  sleep 3
+	done
+done
+
+for i in $querylist
+do
+  echo -n "q$i: " | tee -a $out_dir/result.txt
+  grep "q$i:" $out_dir/out.txt | awk 'BEGIN {sum=0;}{sum+=$2;} END{print sum/'$iter',"msec";}' | tee -a $out_dir/result.txt
+done
+
+rm -rf "$out_dir/*.run"
+
+cat "$out_dir/out.txt" | grep -iE "Compiling|Execution time:|error|exception|fail"
