@@ -1,0 +1,65 @@
+#!/bin/bash
+
+ITER=3
+
+#export LD_LIBRARY_PATH="$xbird_home/lib/native:$LD_LIBRARY_PATH"
+
+xbird_home="/root/.eclipse/xbird"
+
+VMARGS="-Xms1400m -Xmx1400m -da -server -XX:+UseBiasedLocking"
+#VMARGS="$VMARGS -XX:+AggressiveOpts"
+#VMARGS="$VMARGS -d64"
+#VMARGS="$VMARGS -Djava.library.path=$xbird_home/lib/native"
+#VMARGS="$VMARGS -Dxbird.page_caches=128"
+VMARGS="$VMARGS -Dxbird.disable_index_access"
+#VMARGS="$VMARGS -Dxbird.cache.disable_2q"
+
+#VMARGS="$VMARGS -Dxbird.paging.fix -Dxbird.paging.rf_fwd=1"
+#VMARGS="$VMARGS -Dxbird.paging.rf_fwd=16 -Dxbird.paging.rf_nextsib=4 -Dxbird.paging.rf_ser=32"
+
+cp="$xbird_home/lib/optional/args4j-2.0.4.jar:$xbird_home/lib/commons-logging-1.0.4.jar"
+
+PROGOPTS=""
+#PROGOPTS="-perfmon"
+#cp="$cp:$xbird_home/lib/optional/log4j-1.2.13.jar"
+
+TARGET_DOC="fn:collection\('/xmark10/xmark10.xml'\)"
+BENCH_DIR=/teradisk/benchmark/xpathmark
+OUT_DIR="${BENCH_DIR}/result/xbird_sf10_nommap"
+
+cd $xbird_home
+maven java:compile java:jar-resources
+cd $BENCH_DIR
+
+QUERYLIST=`ls *.xpath | sort`
+#QUERYLIST='q04.xpath q05.xpath'
+
+#if false; then
+if [ ! -d "$OUT_DIR" ]; then
+  mkdir $OUT_DIR
+else
+  rm -rf $OUT_DIR/*
+fi
+
+for iter in `seq 1 ${ITER}`
+do
+	for i in $QUERYLIST
+	do
+	  cd $BENCH_DIR
+	  cp $i $i.run
+	  perl -pi -e "s|doc\(\)|$TARGET_DOC|g" $i.run
+	  echo -n "$i: " | tee -a ${OUT_DIR}/result.txt
+	  java $VMARGS -cp "$cp:$xbird_home/target/classes" xbird.client.InteractiveShell \
+	  	$PROGOPTS -t -tms -o "${OUT_DIR}/${i}.iter${iter}.result" -q "$BENCH_DIR/$i.run" -encoding "UTF-8" 2>&1 | grep msec | tee -a ${OUT_DIR}/result.txt
+	  echo >> ${OUT_DIR}/result.txt
+	  sleep 3
+	done
+	echo "------------------------" >> $OUT_DIR/result.txt
+done
+#fi
+
+for i in $QUERYLIST 
+do
+  echo -n "$i: " | tee -a $out_dir/result_avg.txt
+  grep "$i:" $OUT_DIR/result.txt | awk 'BEGIN {sum=0;}{sum+=$2;} END{print sum/'$ITER'}' | tee -a $OUT_DIR/result.csv
+done

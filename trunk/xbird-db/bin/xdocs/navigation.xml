@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="XBird">
+
+  <title>XBird, a light-weight XQuery Processor</title>
+
+  <body>
+    
+    <links>
+      <item name="Home" href="/index.html"/>
+    </links>
+
+    <sitemap/>
+
+    <menu name="Documentation">
+
+    	<item name="User's Guide" href="/user/references.html" collapse="true">
+			<item name="QuickStart" href="/docbook/QuickStart.html" target="_blank"/>
+    	</item>
+
+    	<item name="Developer's Guide" href="/developer/references.html" collapse="true"/>
+
+		<item name="Community" collapse="true">
+			<item name="Blog" href="http://xbird.sourceforge.net/wp/" target="_blank"/>
+    	</item>
+
+    </menu>
+    
+  </body>
+  
+</project>
