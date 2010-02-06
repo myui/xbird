@@ -23,16 +23,13 @@ package xbird.util.jdbc;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,7 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.config.Settings;
-import xbird.util.struct.Pair;
 
 /**
  * 
@@ -540,96 +536,4 @@ public final class JDBCUtils {
             conn.close();
         }
     }
-
-    @Nonnull
-    public static Pair<int[], int[]> getPartitioningKeys(@Nonnull final Connection conn, @Nonnull final String tableName)
-            throws SQLException {
-        return getPartitioningKeys(conn, tableName, true, true);
-    }
-
-    @Nonnull
-    public static Pair<int[], int[]> getPartitioningKeys(@Nonnull final Connection conn, @Nonnull final String tableName, final boolean sort, final boolean removeDup)
-            throws SQLException {
-        final List<String> keys = new ArrayList<String>();
-        final DatabaseMetaData meta = conn.getMetaData();
-        final String catalog = conn.getCatalog();
-
-        // primary key
-        final ResultSet rs1 = meta.getPrimaryKeys(catalog, null, tableName);
-        try {
-            while(rs1.next()) {
-                String pk = rs1.getString("COLUMN_NAME");
-                keys.add(pk);
-            }
-        } finally {
-            rs1.close();
-        }
-        int[] pkeyIdxs = null;
-        String pkColumnName = null;
-        final int pkeyColumns = keys.size();
-        if(pkeyColumns != 0) {
-            final int[] idxs = new int[pkeyColumns];
-            for(int i = 0; i < pkeyColumns; i++) {
-                String columnName = keys.get(i);
-                if(pkeyColumns == 1 && i == 0) {
-                    pkColumnName = columnName;
-                }
-                ResultSet rs = meta.getColumns(catalog, null, tableName, columnName);
-                if(!rs.next()) {
-                    throw new IllegalStateException("Existing primary key '" + columnName
-                            + "' was not defined in the catalog");
-                }
-                int pos = rs.getInt("ORDINAL_POSITION");
-                idxs[i] = pos;
-                rs.close();
-            }
-            if(sort) {
-                Arrays.sort(idxs);
-            }
-            pkeyIdxs = idxs;
-        }
-        keys.clear();
-
-        // foreign key 
-        final ResultSet rs2 = meta.getImportedKeys(catalog, null, tableName);
-        try {
-            while(rs2.next()) {
-                final String fkColumnName = rs2.getString("FKCOLUMN_NAME");
-                if(!keys.contains(fkColumnName)) {
-                    if(removeDup) {
-                        if(!fkColumnName.equals(pkColumnName)) {
-                            keys.add(fkColumnName);
-                        }
-                    } else {
-                        keys.add(fkColumnName);
-                    }
-                }
-            }
-        } finally {
-            rs2.close();
-        }
-        final int fkeyColumns = keys.size();
-        int[] fkeyIdxs = null;
-        if(fkeyColumns != 0) {
-            final int[] idxs = new int[fkeyColumns];
-            for(int i = 0; i < fkeyColumns; i++) {
-                String columnName = keys.get(i);
-                ResultSet rs = meta.getColumns(catalog, null, tableName, columnName);
-                if(!rs.next()) {
-                    throw new IllegalStateException("Existing foreign key '" + columnName
-                            + "' was not defined in the catalog");
-                }
-                int pos = rs.getInt("ORDINAL_POSITION");
-                idxs[i] = pos;
-                rs.close();
-            }
-            if(sort) {
-                Arrays.sort(idxs);
-            }
-            fkeyIdxs = idxs;
-        }
-
-        return new Pair<int[], int[]>(pkeyIdxs, fkeyIdxs);
-    }
-
 }
