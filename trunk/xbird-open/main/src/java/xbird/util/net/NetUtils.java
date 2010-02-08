@@ -217,6 +217,10 @@ public final class NetUtils {
         }
     }
 
+    public static InetSocketAddress getAnyLocalInetSocketAddress() {
+        return new InetSocketAddress(0);
+    }
+
     public static URI toURI(final URL url) {
         try {
             return url.toURI();
