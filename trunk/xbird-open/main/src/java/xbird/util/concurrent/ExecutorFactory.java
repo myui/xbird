@@ -103,8 +103,8 @@ public final class ExecutorFactory {
         return Executors.newScheduledThreadPool(corePoolSize, new NamedThreadFactory(threadName));
     }
 
-    public static ExecutorService newSingleThreadExecutor(String threadName) {
-        return Executors.newSingleThreadExecutor(new NamedThreadFactory(threadName));
+    public static ExecutorService newSingleThreadExecutor(String threadName, boolean daemon) {
+        return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName, daemon));
     }
 
     public static ThreadPoolExecutor newFixedThreadPool(int nThreads, String threadName) {
