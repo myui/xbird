@@ -20,6 +20,7 @@
  */
 package xbird.util.concurrent;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -100,6 +101,10 @@ public final class ExecutorFactory {
 
     public static ScheduledExecutorService newScheduledExecutor(int corePoolSize, String threadName) {
         return Executors.newScheduledThreadPool(corePoolSize, new NamedThreadFactory(threadName));
+    }
+
+    public static ExecutorService newSingleThreadExecutor(String threadName) {
+        return Executors.newSingleThreadExecutor(new NamedThreadFactory(threadName));
     }
 
     public static ThreadPoolExecutor newFixedThreadPool(int nThreads, String threadName) {

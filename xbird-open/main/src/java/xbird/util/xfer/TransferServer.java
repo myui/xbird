@@ -91,14 +91,15 @@ public final class TransferServer implements Runnable {
                 SocketChannel channel = serverChannel.accept();
                 execPool.execute(new RequestHandler(channel, handler));
             }
-        } catch (IOException e) {
-            LOG.warn(e);
+        } catch (IOException ioe) {
+            LOG.error(ioe);
+        } finally {
             execPool.shutdown();
             try {
                 serverChannel.close();
             } catch (IOException ie) {
                 if(LOG.isDebugEnabled()) {
-                    LOG.debug(PrintUtils.prettyPrintStackTrace(e, -1));
+                    LOG.debug(PrintUtils.prettyPrintStackTrace(ie, -1));
                 }
             }
         }
