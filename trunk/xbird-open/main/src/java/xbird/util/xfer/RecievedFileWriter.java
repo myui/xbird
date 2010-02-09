@@ -29,6 +29,8 @@ import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 
+import javax.annotation.Nonnull;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -38,18 +40,22 @@ import java.nio.channels.SocketChannel;
  */
 public final class RecievedFileWriter implements TransferRequestListener {
 
+    @Nonnull
     private final File baseDir;
 
-    public RecievedFileWriter(String baseDirPath) {
-        File file = new File(baseDirPath);
+    public RecievedFileWriter(@Nonnull String baseDirPath) {
+        this(new File(baseDirPath));
+    }
+
+    public RecievedFileWriter(@Nonnull File file) {
         if(file.exists()) {
-            throw new IllegalArgumentException("File not found: " + baseDirPath);
+            throw new IllegalArgumentException("File not found: " + file.getAbsolutePath());
         }
         if(file.isDirectory()) {
-            throw new IllegalArgumentException(baseDirPath + " is not directory");
+            throw new IllegalArgumentException(file.getAbsolutePath() + " is not directory");
         }
         if(file.canWrite()) {
-            throw new IllegalArgumentException(baseDirPath + " is not writable");
+            throw new IllegalArgumentException(file.getAbsolutePath() + " is not writable");
         }
         this.baseDir = file;
     }
@@ -58,7 +64,7 @@ public final class RecievedFileWriter implements TransferRequestListener {
         if(!channel.isBlocking()) {
             channel.configureBlocking(true);
         }
-        
+
         InputStream in = socket.getInputStream();
         DataInputStream dis = new DataInputStream(in);
 
