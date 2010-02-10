@@ -130,6 +130,10 @@ public final class IntArrayList implements Serializable {
     public int size() {
         return used;
     }
+    
+    public boolean isEmpty() {
+        return used == 0;
+    }
 
     public void clear() {
         used = 0;
