@@ -567,7 +567,7 @@ public final class ArrayUtils {
         return 0;
     }
 
-    public static int compare(final byte[] b1, final int off1, final int len1, final byte[] b2, final int off2, final int len2) {
+    public static int compareTo(final byte[] b1, final int off1, final int len1, final byte[] b2, final int off2, final int len2) {
         for(int i = 0; i < len1 && i < len2; i++) {
             final int d = (b1[off1 + i] & 0xFF) - (b2[off2 + i] & 0xFF);
             if(d != 0) {
@@ -575,6 +575,19 @@ public final class ArrayUtils {
             }
         }
         return len1 - len2;
+    }
+
+    public static int compareTo(final int lhs[], final int rhs[]) {
+        if(lhs == rhs) {
+            return 0;
+        }
+        final int len = Math.min(lhs.length, rhs.length);
+        for(int i = 0; i < len; i++) {
+            if(lhs[i] != rhs[i]) {
+                return lhs[i] - rhs[i];
+            }
+        }
+        return lhs.length - rhs.length;
     }
 
     public static <T> boolean contains(final T[] array, final T value) {
