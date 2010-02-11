@@ -158,7 +158,7 @@ public final class DispatchQueryExecTask extends GridTaskAdapter {
     public Map<GridTask, GridNode> mapQueryTask(QueryExecJob execJob) throws GridException {
         checkInjectedResources();
 
-        final GridNodeInfo localNode = GridUtils.getLocalNode(config);
+        final GridNodeInfo localNode = config.getLocalNode();
         if(!_excludeNodeList.contains(localNode)) {
             _excludeNodeList.add(localNode);
         }
@@ -233,7 +233,7 @@ public final class DispatchQueryExecTask extends GridTaskAdapter {
     }
 
     @Override
-    public List<GridNode> listFailoverCandidates(GridTask task, GridTaskRouter router) {
+    public List<GridNode> listFailoverCandidates(GridNode localNode, GridTaskRouter router) {
         final GridNode[] liveNodes = router.getAllNodes();
         return GridUtils.selectSuperNodes(liveNodes);
     }

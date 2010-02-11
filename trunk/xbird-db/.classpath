@@ -40,8 +40,8 @@
 	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-integration-ognl-2.0.0-M4.jar"/>
 	<classpathentry kind="lib" path="/xbird-open/lib/optional/mina-transport-apr-2.0.0-M4.jar"/>
 	<classpathentry kind="lib" path="/xbird-open/lib/optional/tomcat-apr-5.5.23.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/gridool"/>
 	<classpathentry kind="lib" path="/xbird-open/lib/optional/testng-5.9-jdk15.jar"/>
 	<classpathentry kind="lib" path="/xbird-open/lib/optional/args4j-2.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/optional/gridool-1.0.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
