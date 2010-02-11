@@ -89,7 +89,7 @@ public final class JDBCUtils {
      * @return The number of rows updated per statement.
      * @throws SQLException
      */
-    public static int[] batch(Connection conn, String sql, Object[]... params) throws SQLException {
+    public static int[] batch(Connection conn, String sql, Object[][] params) throws SQLException {
         PreparedStatement stmt = null;
         int[] rows = null;
         try {
@@ -143,7 +143,7 @@ public final class JDBCUtils {
      * 
      * @param params Query replacement parameters; <code>null</code> is a valid value to pass in.
      */
-    public static void fillStatement(PreparedStatement stmt, Object... params) throws SQLException {
+    public static void fillStatement(PreparedStatement stmt, Object[] params) throws SQLException {
         if(params == null) {
             return;
         }
@@ -243,8 +243,7 @@ public final class JDBCUtils {
      * @param params The replacement parameters.
      * @return The object represents ResultSet.
      */
-    public static ResultSet fetch(Connection conn, String sql, Object... params)
-            throws SQLException {
+    public static ResultSet fetch(Connection conn, String sql, Object[] params) throws SQLException {
         ResultSet rs = null;
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -286,7 +285,7 @@ public final class JDBCUtils {
      * @param params The query replacement paramaters; <code>null</code> is a 
      * valid value to pass in.
      */
-    private static void rethrow(SQLException cause, String sql, Object... params)
+    private static void rethrow(SQLException cause, String sql, Object[] params)
             throws SQLException {
         StringBuilder msg = new StringBuilder(cause.getMessage());
         msg.append(" Query: ");
@@ -302,7 +301,7 @@ public final class JDBCUtils {
         throw e;
     }
 
-    private static void rethrow(SQLException cause, String... sqls) throws SQLException {
+    private static void rethrow(SQLException cause, String[] sqls) throws SQLException {
         StringBuilder msg = new StringBuilder(cause.getMessage());
         msg.append(" Query: ");
         if(sqls == null) {
@@ -336,7 +335,7 @@ public final class JDBCUtils {
      * @param params The query replacement parameters.
      * @return The number of rows updated.
      */
-    public static int update(Connection conn, String sql, Object... params) throws SQLException {
+    public static int update(Connection conn, String sql, Object[] params) throws SQLException {
         PreparedStatement stmt = null;
         int rows = 0;
         try {
@@ -375,7 +374,7 @@ public final class JDBCUtils {
         return rows;
     }
 
-    public static boolean call(Connection conn, String sql, Object... params) throws SQLException {
+    public static boolean call(Connection conn, String sql, Object[] params) throws SQLException {
         CallableStatement proc = null;
         try {
             proc = conn.prepareCall(sql);
@@ -398,7 +397,7 @@ public final class JDBCUtils {
         return call(conn, sql, (Object[]) null);
     }
 
-    private static void verboseQuery(String sql, Object... params) {
+    private static void verboseQuery(String sql, Object[] params) {
         if(showSQL) {
             StringBuilder msg = new StringBuilder(128);
             msg.append("Executing: ").append(sql);
