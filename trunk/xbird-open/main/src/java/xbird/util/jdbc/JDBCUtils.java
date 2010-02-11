@@ -90,6 +90,10 @@ public final class JDBCUtils {
      * @throws SQLException
      */
     public static int[] batch(Connection conn, String sql, Object[][] params) throws SQLException {
+        final boolean autoCommit = conn.getAutoCommit();
+        if(autoCommit) {
+            conn.setAutoCommit(false);
+        }
         PreparedStatement stmt = null;
         int[] rows = null;
         try {
@@ -100,7 +104,6 @@ public final class JDBCUtils {
             }
             verboseQuery(sql, (Object[]) params);
             rows = stmt.executeBatch();
-
         } catch (SQLException e) {
             rethrow(e, sql, (Object[]) params);
         } finally {
