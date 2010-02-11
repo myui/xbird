@@ -42,8 +42,6 @@ import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.io.IOUtils;
 
-import com.sun.forte.st.collector.CollectorAPI;
-
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -55,14 +53,8 @@ public class CacheBenchmark5a {
 
     private static final int TIME_TO_EST = 60000;
     private static final boolean showstdout = false;
-    private static final boolean emuratePageIn;
-    private static final boolean enableDprofile;
+    private static final boolean emuratePageIn = System.getProperty("xbird.disable_enum_pagein") == null;
     private static final byte[] dummy = new byte[8192];
-
-    static {
-        emuratePageIn = System.getProperty("xbird.disable_enum_pagein") == null;
-        enableDprofile = System.getProperty("xbird.enable_dprofile") != null;
-    }
 
     public CacheBenchmark5a() {}
 
@@ -73,13 +65,7 @@ public class CacheBenchmark5a {
         testng.setTestClasses(new Class[] { CacheBenchmark5a.class });
         TestListenerAdapter tla = new TestListenerAdapter();
         testng.addListener(tla);
-        if(enableDprofile) {
-            CollectorAPI.sample("bench5.1.er");
-            testng.run();
-            //CollectorAPI.terminate();
-        } else {
-            testng.run();
-        }
+        testng.run();
     }
 
     @DataProvider(name = "zipf")

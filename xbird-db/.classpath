@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="main/test/secrets"/>
 	<classpathentry kind="src" path="main/test/resources"/>
 	<classpathentry kind="src" path="main/src/java"/>
-	<classpathentry kind="lib" path="lib/proprietary/collector.jar"/>
 	<classpathentry kind="src" path="/xbird-open"/>
 	<classpathentry kind="lib" path="/xbird-open/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="/xbird-open/lib/optional/high-scale-lib-0.8.1.jar"/>
