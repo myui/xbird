@@ -20,6 +20,14 @@
  */
 package xbird.xquery.ext.grid;
 
+import gridool.GridException;
+import gridool.GridNode;
+import gridool.GridTask;
+import gridool.GridTaskResult;
+import gridool.GridTaskResultPolicy;
+import gridool.construct.GridJobBase;
+import gridool.routing.GridTaskRouter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +37,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import gridool.GridException;
-import gridool.GridNode;
-import gridool.GridTask;
-import gridool.GridTaskResult;
-import gridool.GridTaskResultPolicy;
-import gridool.construct.GridJobBase;
-import gridool.routing.GridTaskRouter;
 import xbird.util.lang.ClassUtils;
 import xbird.xquery.dm.value.Item;
 import xbird.xquery.dm.value.Sequence;
@@ -70,7 +71,7 @@ public final class QueryExecJob extends
         return tasks;
     }
 
-    public GridTaskResultPolicy result(GridTask task, GridTaskResult result) throws GridException {
+    public GridTaskResultPolicy result(GridTaskResult result) throws GridException {
         if(results == null) {
             throw new IllegalStateException();
         }

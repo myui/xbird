@@ -180,7 +180,7 @@ public final class MapQueryJob extends GridJobBase<MapExpr, Sequence<? extends I
         return map;
     }
 
-    public GridTaskResultPolicy result(GridTask task, GridTaskResult result) throws GridException {
+    public GridTaskResultPolicy result(GridTaskResult result) throws GridException {
         if(LOG.isInfoEnabled()) {
             if(LOG.isTraceEnabled()) {
                 LOG.trace("GridTask [" + result.getTaskId() + "] is returned");
