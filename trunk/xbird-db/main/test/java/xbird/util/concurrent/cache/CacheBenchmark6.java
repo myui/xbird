@@ -45,8 +45,6 @@ import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.io.IOUtils;
 
-import com.sun.forte.st.collector.CollectorAPI;
-
 /**
  * 
  * <DIV lang="en"></DIV> <DIV lang="ja"></DIV>
@@ -61,7 +59,6 @@ public class CacheBenchmark6 {
     private static final boolean volatilesync;
     private static final boolean useNIO;
     private static final boolean emuratePageIn;
-    private static final boolean enableDprofile;
     private static final byte[] dummy = new byte[8192];
     private static final long[] distribution;
 
@@ -69,7 +66,6 @@ public class CacheBenchmark6 {
         System.setProperty("xbird.bufman.trace_cachemiss", "false");
         useNIO = System.getProperty("xbird.disable_nio") == null;
         emuratePageIn = System.getProperty("xbird.disable_enum_pagein") == null;
-        enableDprofile = System.getProperty("xbird.enable_dprofile") != null;
         volatilesync = System.getProperty("xbird.enable_volatilesync") != null;
         try {
             distribution = readDistribution("/experiment/zipfgen/1000k_zipf0.86_N50k.dat");
@@ -88,13 +84,7 @@ public class CacheBenchmark6 {
         testng.setTestClasses(new Class[] { CacheBenchmark6.class });
         TestListenerAdapter tla = new TestListenerAdapter();
         testng.addListener(tla);
-        if(enableDprofile) {
-            CollectorAPI.sample("bench5.1.er");
-            testng.run();
-            // CollectorAPI.terminate();
-        } else {
-            testng.run();
-        }
+        testng.run();
     }
 
     @DataProvider(name = "zipf")
