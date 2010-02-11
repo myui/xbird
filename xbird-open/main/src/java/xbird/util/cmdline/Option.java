@@ -135,4 +135,25 @@ public abstract class Option<T> {
 
     }
 
+    public static final class BooleanOption extends Option<Boolean> {
+
+        public BooleanOption(String name, boolean required) {
+            super(name, null, required);
+        }
+
+        public BooleanOption(String name, Boolean defaultValue, boolean required) {
+            super(name, defaultValue, required);
+        }
+
+        public BooleanOption(String name, Boolean defaultValue, boolean required, String help) {
+            super(name, defaultValue, required, help);
+        }
+
+        @Override
+        protected Boolean parseValue(String value) {
+            return Boolean.valueOf(value);
+        }
+
+    }
+
 }

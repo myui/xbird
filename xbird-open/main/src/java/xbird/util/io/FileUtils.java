@@ -37,6 +37,7 @@ package xbird.util.io;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -236,6 +237,15 @@ public final class FileUtils {
             throw new IllegalStateException(ioe);
         } finally {
             IOUtils.closeQuietly(raf);
+        }
+    }
+
+    public static String toString(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            return IOUtils.toString(fis);
+        } catch (IOException e) {
+            throw new IllegalStateException("failed reading a file: " + file.getAbsolutePath(), e);
         }
     }
 
