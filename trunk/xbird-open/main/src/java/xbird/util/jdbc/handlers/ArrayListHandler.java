@@ -35,15 +35,14 @@ import xbird.util.jdbc.ResultSetHandler;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class ArrayListHandler<E> implements ResultSetHandler {
+public final class ArrayListHandler implements ResultSetHandler {
 
     public ArrayListHandler() {}
 
-    @SuppressWarnings("unchecked")
-    public List<E[]> handle(ResultSet rs) throws SQLException {
-        final List<E[]> result = new ArrayList<E[]>();
+    public List<Object[]> handle(ResultSet rs) throws SQLException {
+        final List<Object[]> result = new ArrayList<Object[]>();
         while(rs.next()) {
-            result.add((E[]) toArray(rs));
+            result.add(toArray(rs));
         }
         return result;
     }

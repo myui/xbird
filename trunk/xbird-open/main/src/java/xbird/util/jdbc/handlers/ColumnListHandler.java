@@ -39,6 +39,11 @@ public final class ColumnListHandler<E> implements ResultSetHandler {
     private final int columnIndex;
     private final String columnName;
     
+    public ColumnListHandler() {
+        this.columnIndex = 1;
+        this.columnName = null;
+    }
+    
     public ColumnListHandler(int columnIndex) {
         this.columnIndex = columnIndex;
         this.columnName = null;
