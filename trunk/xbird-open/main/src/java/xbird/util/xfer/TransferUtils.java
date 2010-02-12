@@ -38,6 +38,7 @@ import javax.annotation.Nonnull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import xbird.util.datetime.StopWatch;
 import xbird.util.io.IOUtils;
 import xbird.util.lang.PrintUtils;
 import xbird.util.net.NetUtils;
@@ -83,8 +84,10 @@ public final class TransferUtils {
             throw e;
         }
 
-        FileInputStream src = null;
         final DataOutputStream dos = new DataOutputStream(out);
+        final StopWatch sw = new StopWatch();
+        FileInputStream src = null;
+        final long nbytes;
         try {
             src = new FileInputStream(file);
             FileChannel in = src.getChannel();
@@ -95,7 +98,9 @@ public final class TransferUtils {
             dos.writeLong(filelen);
             dos.writeBoolean(true);
 
-            in.transferTo(0, filelen, channel);
+            // send file using zero-copy send            
+            nbytes = in.transferTo(0, filelen, channel);
+
             src.close();
         } catch (FileNotFoundException e) {
             LOG.error(PrintUtils.prettyPrintStackTrace(e, -1));
@@ -108,7 +113,10 @@ public final class TransferUtils {
             IOUtils.closeQuietly(channel);
             NetUtils.closeQuietly(socket);
         }
-
+        if(LOG.isInfoEnabled()) {
+            LOG.info("Sent a file '" + file.getAbsolutePath() + "' of " + nbytes + " bytes to "
+                    + dstSockAddr.toString() + " in " + sw.toString());
+        }
     }
 
 }
