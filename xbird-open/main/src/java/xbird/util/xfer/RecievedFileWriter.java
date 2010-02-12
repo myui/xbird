@@ -26,10 +26,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 
 import javax.annotation.Nonnull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import xbird.util.datetime.StopWatch;
 
 /**
  * 
@@ -39,6 +45,7 @@ import javax.annotation.Nonnull;
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
 public final class RecievedFileWriter implements TransferRequestListener {
+    private static final Log LOG = LogFactory.getLog(RecievedFileWriter.class);
 
     @Nonnull
     private final File baseDir;
@@ -47,20 +54,22 @@ public final class RecievedFileWriter implements TransferRequestListener {
         this(new File(baseDirPath));
     }
 
-    public RecievedFileWriter(@Nonnull File file) {
-        if(file.exists()) {
-            throw new IllegalArgumentException("File not found: " + file.getAbsolutePath());
+    public RecievedFileWriter(@Nonnull File baseDir) {
+        if(!baseDir.exists()) {
+            throw new IllegalArgumentException("Directory not found: " + baseDir.getAbsolutePath());
         }
-        if(file.isDirectory()) {
-            throw new IllegalArgumentException(file.getAbsolutePath() + " is not directory");
+        if(!baseDir.isDirectory()) {
+            throw new IllegalArgumentException(baseDir.getAbsolutePath() + " is not directory");
         }
-        if(file.canWrite()) {
-            throw new IllegalArgumentException(file.getAbsolutePath() + " is not writable");
+        if(!baseDir.canWrite()) {
+            throw new IllegalArgumentException(baseDir.getAbsolutePath() + " is not writable");
         }
-        this.baseDir = file;
+        this.baseDir = baseDir;
     }
 
-    public void handleRequest(SocketChannel channel, Socket socket) throws IOException {
+    public void handleRequest(@Nonnull final SocketChannel channel, @Nonnull final Socket socket)
+            throws IOException {
+        final StopWatch sw = new StopWatch();
         if(!channel.isBlocking()) {
             channel.configureBlocking(true);
         }
@@ -77,5 +86,11 @@ public final class RecievedFileWriter implements TransferRequestListener {
         FileChannel out = dst.getChannel();
 
         out.transferFrom(channel, 0, len);
+        if(LOG.isInfoEnabled()) {
+            SocketAddress remoteAddr = socket.getRemoteSocketAddress();
+            LOG.info("Received a " + (append ? "part of file '" : "file '")
+                    + file.getAbsolutePath() + "' of " + len + " bytes from + " + remoteAddr
+                    + " in " + sw.toString());
+        }
     }
 }
