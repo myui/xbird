@@ -25,8 +25,12 @@ import java.net.*;
 import java.nio.channels.SocketChannel;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
+import javax.annotation.Nullable;
 
 import xbird.config.Settings;
+import xbird.util.string.StringUtils;
 import xbird.util.system.SystemUtils;
 
 /**
@@ -39,6 +43,7 @@ import xbird.util.system.SystemUtils;
 public final class NetUtils {
 
     private static final String BIND_NIC;
+    private static final int MAC_ADDRESS_TOKENS = 6;
     static {
         BIND_NIC = Settings.getThroughSystemProperty("xbird.net.bind_interface");
     }
@@ -302,15 +307,14 @@ public final class NetUtils {
         if(mac == null) {
             return null;
         }
-        return formatMacAddr(mac);
+        return encodeMacAddress(mac);
     }
 
-    public static String formatMacAddr(final byte[] mac) {
-        final StringBuilder buf = new StringBuilder(30);
-        /*
-         * Extract each array of mac address and convert it to hexa with the
-         * following format 08-00-27-DC-4A-9E.
-         */
+    /**
+     * Extract each array of mac address and convert it to hexa with the following format 08-00-27-DC-4A-9E.
+     */
+    public static String encodeMacAddress(final byte[] mac) {
+        final StringBuilder buf = new StringBuilder(20);
         final int macLength = mac.length;
         final int last = macLength - 1;
         for(int i = 0; i < macLength; i++) {
@@ -318,5 +322,27 @@ public final class NetUtils {
             buf.append(s);
         }
         return buf.toString();
+    }
+
+    public static byte[] decodeMacAddress(final String mac) {
+        final StringTokenizer tokens = new StringTokenizer(mac, "-");
+        if(tokens.countTokens() != MAC_ADDRESS_TOKENS) {
+            throw new IllegalArgumentException("Unexpected mac address representation: " + mac);
+        }
+        final StringBuilder buf = new StringBuilder(MAC_ADDRESS_TOKENS * 2);
+        for(int i = 0; i < MAC_ADDRESS_TOKENS; i++) {
+            buf.append(tokens.nextToken());
+        }
+        char[] c = buf.toString().toCharArray();
+        return StringUtils.decodeHex(c);
+    }
+
+    @Nullable
+    public static InetAddress getInetAddressByName(final String host) {
+        try {
+            return InetAddress.getByName(host);
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("Cannot find InetAddress for host: " + host);
+        }
     }
 }
