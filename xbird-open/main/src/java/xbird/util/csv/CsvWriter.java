@@ -20,8 +20,21 @@
  */
 package xbird.util.csv;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.apache.commons.logging.LogFactory;
+
+import xbird.util.io.FastBufferedWriter;
 import xbird.util.lang.PrintUtils;
 
 /**
@@ -34,42 +47,61 @@ import xbird.util.lang.PrintUtils;
 public class CsvWriter {
 
     private static final char QUOTE = '\"';
+    private static final String JAVA_STRING_CLASS_NAME = "java.lang.String";
 
     private char separator = ',';
     private String lineSeparator = System.getProperty("line.separator");
     private final Writer _writer;
 
-    public CsvWriter(File file) {
-        this(file, System.getProperty("file.encoding"));
+    /**
+     * Write in UTF-8 encoding.
+     */
+    public CsvWriter(@CheckForNull File file) {
+        this(file, "UTF-8", false);
     }
 
-    public CsvWriter(File file, String encoding) {
+    public CsvWriter(@CheckForNull File file, @CheckForNull String encoding, boolean append) {
+        if(file == null) {
+            throw new IllegalArgumentException();
+        }
+        if(encoding == null) {
+            throw new IllegalArgumentException();
+        }
         try {
-            this._writer = new FileWriter(file);
+            FileOutputStream out = new FileOutputStream(file, append);
+            OutputStreamWriter osw = new OutputStreamWriter(out, encoding);
+            this._writer = new FastBufferedWriter(osw, 16384);
         } catch (IOException e) {
             throw new IllegalStateException("failed to writer to file: " + file.getAbsolutePath(), e);
         }
     }
 
-    public CsvWriter(Writer writer) {
+    public CsvWriter(@CheckForNull Writer writer) {
+        if(writer == null) {
+            throw new IllegalArgumentException();
+        }
         this._writer = writer;
     }
 
-    public void setSeparator(char chr) {
+    public void setFieldSeparator(char chr) {
         this.separator = chr;
     }
 
-    public void writeRow(String... cols) {
+    public void setLineSeparator(String str) {
+        this.lineSeparator = str;
+    }
+
+    public void writeRow(final String... cols) {
         assert (cols != null);
         final int collen = cols.length;
         for(int i = 0; i < collen; i++) {
-            if (i > 0) {
+            if(i > 0) {
                 write(separator);
             }
             final String data = cols[i];
-            if (data != null) {
+            if(data != null) {
                 final boolean doQuote = needQuotes(data);
-                if (doQuote) {
+                if(doQuote) {
                     write(QUOTE);
                     write(quoteData(data));
                     write(QUOTE);
@@ -81,16 +113,71 @@ public class CsvWriter {
         write(lineSeparator);
     }
 
+    public void writeAll(@Nonnull final ResultSet rs, @Nonnull final String nullStr, final boolean includeHeaders)
+            throws SQLException {
+        final ResultSetMetaData meta = rs.getMetaData();
+        if(includeHeaders) {
+            writeColumnNames(meta);
+        }
+        final int numColumns = meta.getColumnCount();
+        final String[] columnClasses = new String[numColumns + 1];
+        for(int i = 1; i <= numColumns; i++) {
+            String className = meta.getColumnClassName(i);
+            columnClasses[i] = JAVA_STRING_CLASS_NAME.equals(className) ? JAVA_STRING_CLASS_NAME
+                    : className;
+        }
+        while(rs.next()) {
+            for(int i = 1; i <= numColumns; i++) {
+                if(i != 1) {
+                    write(separator);
+                }
+                final String column = rs.getString(i);
+                if(column == null) {
+                    write(nullStr);
+                } else if(JAVA_STRING_CLASS_NAME == columnClasses[i]) { // for speed optimization
+                    write(QUOTE);
+                    write(quoteData(column));
+                    write(QUOTE);
+                } else {
+                    write(column);
+                }
+            }
+            write(lineSeparator);
+        }
+        flush();
+    }
+
+    private void writeColumnNames(final ResultSetMetaData metadata) throws SQLException {
+        final int numColumns = metadata.getColumnCount();
+        for(int i = 1; i <= numColumns; i++) {
+            if(i != 1) {
+                write(separator);
+            }
+            String columnName = metadata.getColumnName(i);
+            write(columnName);
+        }
+        write(lineSeparator);
+    }
+
+    public void flush() {
+        try {
+            _writer.flush();
+        } catch (IOException e) {
+            LogFactory.getLog(CsvWriter.class).warn("Failed to flush", e);
+        }
+    }
+
     public void close() {
+        flush();
         try {
             _writer.close();
         } catch (IOException e) {
             // fall through within error message
-            System.err.print(PrintUtils.prettyPrintStackTrace(e));
+            LogFactory.getLog(CsvWriter.class).debug(PrintUtils.prettyPrintStackTrace(e));
         }
     }
 
-    private void write(String s) {
+    private void write(final String s) {
         try {
             _writer.write(s);
         } catch (IOException e) {
@@ -98,7 +185,7 @@ public class CsvWriter {
         }
     }
 
-    private void write(char c) {
+    private void write(final char c) {
         try {
             _writer.write(c);
         } catch (IOException e) {
@@ -106,13 +193,18 @@ public class CsvWriter {
         }
     }
 
-    private static String quoteData(String data) {
+    private boolean needQuotes(final String data) {
+        assert (data != null);
+        return data.indexOf(separator) != -1 || data.indexOf(lineSeparator) != -1;
+    }
+
+    private static String quoteData(final String data) {
         final StringBuilder buf = new StringBuilder((int) (data.length() * 1.2));
         final int strlen = data.length();
         for(int i = 0; i < strlen; i++) {
             final char c = data.charAt(i);
             buf.append(c);
-            switch (c) {
+            switch(c) {
                 case QUOTE:
                     buf.append(QUOTE);
                     break;
@@ -121,11 +213,6 @@ public class CsvWriter {
             }
         }
         return buf.toString();
-    }
-
-    private boolean needQuotes(String data) {
-        assert (data != null);
-        return data.indexOf(separator) != -1 || data.indexOf(lineSeparator) != -1;
     }
 
 }
