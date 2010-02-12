@@ -223,7 +223,9 @@ public final class NetUtils {
     }
 
     public static InetSocketAddress getAnyLocalInetSocketAddress() {
-        return new InetSocketAddress(0);
+        InetAddress addr = getLocalHost(false);
+        int port = getAvailablePort();
+        return new InetSocketAddress(addr, port);
     }
 
     public static URI toURI(final URL url) {
