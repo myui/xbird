@@ -353,7 +353,7 @@ public final class StringUtils {
         buf.append(HEX_DIGITS[lower]);
     }
 
-    public static String encodeHex(final byte buf[]) {
+    public static String encodeHex(final byte[] buf) {
         final int buflen = buf.length;
         final char[] ch = new char[buflen * 2];
         for(int i = 0, j = 0; i < buf.length; i++, j += 2) {
@@ -364,6 +364,31 @@ public final class StringUtils {
             ch[j + 1] = HEX_DIGITS[lower];
         }
         return new String(ch);
+    }
+
+    public static byte[] decodeHex(final char[] data) {
+        final int len = data.length;
+        if((len & 0x01) != 0) {
+            throw new IllegalArgumentException("Illegal HexaDecimal character");
+        }
+        final byte[] out = new byte[len >> 1];
+        for(int i = 0, j = 0; j < len; i++) {
+            int f = hexToDigit(data[j], j) << 4;
+            j++;
+            f = f | hexToDigit(data[j], j);
+            j++;
+            out[i] = (byte) (f & 0xFF);
+        }
+        return out;
+    }
+
+    private static int hexToDigit(final char ch, final int index) {
+        final int digit = Character.digit(ch, 16);
+        if(digit == -1) {
+            throw new IllegalArgumentException("Illegal HexaDecimal character '" + ch
+                    + "' at index " + index);
+        }
+        return digit;
     }
 
     public static boolean isEmpty(final String str) {
