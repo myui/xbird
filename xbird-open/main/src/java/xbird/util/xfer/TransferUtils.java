@@ -70,7 +70,6 @@ public final class TransferUtils {
         }
 
         final SocketAddress dstSockAddr = new InetSocketAddress(dstAddr, dstPort);
-
         SocketChannel channel = null;
         Socket socket = null;
         final OutputStream out;
@@ -102,12 +101,17 @@ public final class TransferUtils {
             String fileName = file.getName();
             dos.writeUTF(fileName);
             long filelen = fc.size();
+            if(filelen != file.length()) {
+                throw new IllegalStateException("File.length '" + file.length()
+                        + "' != FileChannel.length '" + filelen + '\'');
+            }
             dos.writeLong(filelen);
             dos.writeBoolean(true);
 
             // send file using zero-copy send
             nbytes = fc.transferTo(0, filelen, channel);
-            if(din != null) {
+
+            if(sync) {
                 // receive ack in sync mode
                 long remoteRecieved = din.readLong();
                 if(remoteRecieved != filelen) {
