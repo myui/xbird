@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
@@ -91,8 +92,14 @@ public final class TransferServer implements Runnable {
                 SocketChannel channel = serverChannel.accept();
                 execPool.execute(new RequestHandler(channel, handler));
             }
+        } catch (ClosedByInterruptException interrupted) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Avoidable interrupt happened (Normal case): " + interrupted.getMessage());
+            }
         } catch (IOException ioe) {
             LOG.error(ioe);
+        } catch (Throwable th) {
+            LOG.error(th);
         } finally {
             execPool.shutdown();
             try {

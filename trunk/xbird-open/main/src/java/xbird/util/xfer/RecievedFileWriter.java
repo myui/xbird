@@ -21,10 +21,12 @@
 package xbird.util.xfer;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.FileChannel;
@@ -49,12 +51,13 @@ public final class RecievedFileWriter implements TransferRequestListener {
 
     @Nonnull
     private final File baseDir;
+    private final boolean ackRequired;
 
-    public RecievedFileWriter(@Nonnull String baseDirPath) {
-        this(new File(baseDirPath));
+    public RecievedFileWriter(@Nonnull String baseDirPath, boolean sendAck) {
+        this(new File(baseDirPath), sendAck);
     }
 
-    public RecievedFileWriter(@Nonnull File baseDir) {
+    public RecievedFileWriter(@Nonnull File baseDir, boolean sendAck) {
         if(!baseDir.exists()) {
             throw new IllegalArgumentException("Directory not found: " + baseDir.getAbsolutePath());
         }
@@ -65,6 +68,7 @@ public final class RecievedFileWriter implements TransferRequestListener {
             throw new IllegalArgumentException(baseDir.getAbsolutePath() + " is not writable");
         }
         this.baseDir = baseDir;
+        this.ackRequired = sendAck;
     }
 
     public void handleRequest(@Nonnull final SocketChannel channel, @Nonnull final Socket socket)
@@ -83,9 +87,19 @@ public final class RecievedFileWriter implements TransferRequestListener {
 
         File file = new File(baseDir, fname);
         FileOutputStream dst = new FileOutputStream(file, append);
-        FileChannel out = dst.getChannel();
+        FileChannel fileCh = dst.getChannel();
 
-        out.transferFrom(channel, 0, len);
+        long wrote = fileCh.transferFrom(channel, 0, len);
+        if(wrote != len) {
+            throw new IllegalStateException("Received " + len + " bytes, but wrote only " + wrote
+                    + " bytes");
+        }
+        if(ackRequired) {
+            OutputStream out = socket.getOutputStream();
+            DataOutputStream dos = new DataOutputStream(out);
+            dos.writeLong(wrote);
+        }
+
         if(LOG.isInfoEnabled()) {
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
             LOG.info("Received a " + (append ? "part of file '" : "file '")
