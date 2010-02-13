@@ -20,11 +20,13 @@
  */
 package xbird.util.xfer;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -55,7 +57,7 @@ public final class TransferUtils {
 
     private TransferUtils() {}
 
-    public static void sendfile(@Nonnull File file, @Nonnull InetAddress dstAddr, int dstPort)
+    public static void sendfile(@Nonnull File file, @Nonnull InetAddress dstAddr, int dstPort, boolean sync)
             throws IOException {
         if(!file.exists()) {
             throw new IllegalArgumentException(file.getAbsolutePath() + " does not exist");
@@ -84,24 +86,36 @@ public final class TransferUtils {
             throw e;
         }
 
+        DataInputStream din = null;
+        if(sync) {
+            InputStream in = socket.getInputStream();
+            din = new DataInputStream(in);
+        }
         final DataOutputStream dos = new DataOutputStream(out);
         final StopWatch sw = new StopWatch();
         FileInputStream src = null;
         final long nbytes;
         try {
             src = new FileInputStream(file);
-            FileChannel in = src.getChannel();
+            FileChannel fc = src.getChannel();
 
             String fileName = file.getName();
             dos.writeUTF(fileName);
-            long filelen = in.size();
+            long filelen = fc.size();
             dos.writeLong(filelen);
             dos.writeBoolean(true);
 
-            // send file using zero-copy send            
-            nbytes = in.transferTo(0, filelen, channel);
+            // send file using zero-copy send
+            nbytes = fc.transferTo(0, filelen, channel);
+            if(din != null) {
+                // receive ack in sync mode
+                long remoteRecieved = din.readLong();
+                if(remoteRecieved != filelen) {
+                    throw new IllegalStateException("Sent " + filelen
+                            + " bytes, but remote node received " + remoteRecieved + " bytes");
+                }
+            }
 
-            src.close();
         } catch (FileNotFoundException e) {
             LOG.error(PrintUtils.prettyPrintStackTrace(e, -1));
             throw e;
@@ -110,6 +124,7 @@ public final class TransferUtils {
             throw e;
         } finally {
             IOUtils.closeQuietly(src);
+            IOUtils.closeQuietly(din, dos);
             IOUtils.closeQuietly(channel);
             NetUtils.closeQuietly(socket);
         }
