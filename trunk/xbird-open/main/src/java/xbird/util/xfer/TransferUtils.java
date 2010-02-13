@@ -101,12 +101,10 @@ public final class TransferUtils {
             String fileName = file.getName();
             dos.writeUTF(fileName);
             long filelen = fc.size();
-            if(filelen != file.length()) {
-                throw new IllegalStateException("File.length '" + file.length()
-                        + "' != FileChannel.length '" + filelen + '\'');
-            }
+            assert (filelen == file.length()) : "File.length '" + file.length()
+                    + "' != FileChannel.length '" + filelen + '\'';
             dos.writeLong(filelen);
-            dos.writeBoolean(true);
+            dos.writeBoolean(false); // append=false
 
             // send file using zero-copy send
             nbytes = fc.transferTo(0, filelen, channel);
