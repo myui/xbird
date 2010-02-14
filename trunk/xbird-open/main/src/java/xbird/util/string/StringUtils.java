@@ -543,4 +543,8 @@ public final class StringUtils {
         }
     }
 
+    public static void clear(final StringBuilder buf) {
+        buf.setLength(0);
+    }
+
 }
