@@ -108,6 +108,10 @@ public final class TransferUtils {
 
             // send file using zero-copy send
             nbytes = fc.transferTo(0, filelen, channel);
+            if(LOG.isInfoEnabled()) {
+                LOG.info("Sent a file '" + file.getAbsolutePath() + "' of " + nbytes + " bytes to "
+                        + dstSockAddr.toString() + " in " + sw.toString());
+            }
 
             if(sync) {
                 // receive ack in sync mode
@@ -129,10 +133,6 @@ public final class TransferUtils {
             IOUtils.closeQuietly(din, dos);
             IOUtils.closeQuietly(channel);
             NetUtils.closeQuietly(socket);
-        }
-        if(LOG.isInfoEnabled()) {
-            LOG.info("Sent a file '" + file.getAbsolutePath() + "' of " + nbytes + " bytes to "
-                    + dstSockAddr.toString() + " in " + sw.toString());
         }
     }
 
