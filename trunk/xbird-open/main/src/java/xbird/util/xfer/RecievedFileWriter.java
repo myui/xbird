@@ -86,10 +86,14 @@ public final class RecievedFileWriter implements TransferRequestListener {
         boolean append = dis.readBoolean();
 
         File file = new File(baseDir, fname);
-        FileOutputStream dst = new FileOutputStream(file, append);
-        FileChannel fileCh = dst.getChannel();
-
-        long wrote = fileCh.transferFrom(channel, 0, len);
+        final FileOutputStream dst = new FileOutputStream(file, append);
+        final long wrote;
+        try {
+            FileChannel fileCh = dst.getChannel();
+            wrote = fileCh.transferFrom(channel, 0, len);
+        } finally {
+            dst.close();
+        }
         if(wrote != len) {
             throw new IllegalStateException("Received " + len + " bytes, but wrote only " + wrote
                     + " bytes");
@@ -103,8 +107,8 @@ public final class RecievedFileWriter implements TransferRequestListener {
         if(LOG.isInfoEnabled()) {
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
             LOG.info("Received a " + (append ? "part of file '" : "file '")
-                    + file.getAbsolutePath() + "' of " + len + " bytes from + " + remoteAddr
-                    + " in " + sw.toString());
+                    + file.getAbsolutePath() + "' of " + len + " bytes from " + remoteAddr + " in "
+                    + sw.toString());
         }
     }
 }
