@@ -57,7 +57,7 @@ public final class TransferUtils {
 
     private TransferUtils() {}
 
-    public static void sendfile(@Nonnull File file, @Nonnull InetAddress dstAddr, int dstPort, boolean sync)
+    public static void sendfile(@Nonnull File file, @Nonnull InetAddress dstAddr, int dstPort, boolean append, boolean sync)
             throws IOException {
         if(!file.exists()) {
             throw new IllegalArgumentException(file.getAbsolutePath() + " does not exist");
@@ -104,7 +104,7 @@ public final class TransferUtils {
             assert (filelen == file.length()) : "File.length '" + file.length()
                     + "' != FileChannel.length '" + filelen + '\'';
             dos.writeLong(filelen);
-            dos.writeBoolean(false); // append=false
+            dos.writeBoolean(append); // append=false
 
             // send file using zero-copy send
             nbytes = fc.transferTo(0, filelen, channel);

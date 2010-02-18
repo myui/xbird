@@ -21,6 +21,7 @@
 package xbird.util.xfer;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -82,6 +83,14 @@ public final class TransferServer implements Runnable {
         InetSocketAddress sockaddr = NetUtils.getAnyLocalInetSocketAddress();
         servSocket.bind(sockaddr);
         return sockaddr;
+    }
+
+    public void setup(int port) throws IOException {
+        ServerSocket servSocket = serverChannel.socket();
+        servSocket.setReuseAddress(true);
+        InetAddress addr = NetUtils.getLocalHost(false);
+        InetSocketAddress sockaddr = new InetSocketAddress(addr, port);
+        servSocket.bind(sockaddr);
     }
 
     public void run() {
