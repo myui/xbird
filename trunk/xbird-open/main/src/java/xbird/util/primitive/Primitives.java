@@ -99,6 +99,11 @@ public final class Primitives {
         b[off] = (byte) (val >>> 24);
     }
 
+    public static void putShort(final byte[] b, int off, short val) {
+        b[off + 1] = (byte) (val >>> 0);
+        b[off] = (byte) (val >>> 8);
+    }
+
     public static void putLong(byte[] b, int off, long val) {
         b[off + 7] = (byte) (val >>> 0);
         b[off + 6] = (byte) (val >>> 8);
@@ -116,6 +121,13 @@ public final class Primitives {
         b[1] = (byte) (v >>> 16);
         b[2] = (byte) (v >>> 8);
         b[3] = (byte) (v >>> 0);
+        return b;
+    }
+
+    public static byte[] toBytes(short v) {
+        final byte[] b = new byte[2];
+        b[0] = (byte) (v >>> 8);
+        b[1] = (byte) (v >>> 0);
         return b;
     }
 
@@ -275,11 +287,26 @@ public final class Primitives {
 
     public static int getInt(final byte[] b, final int off) {
         return ((b[off + 3] & 0xFF) << 0) + ((b[off + 2] & 0xFF) << 8)
-                + ((b[off + 1] & 0xFF) << 16) + ((b[off + 0]) << 24);
+                + ((b[off + 1] & 0xFF) << 16) + ((b[off]) << 24);
+    }
+
+    public static short getShort(final byte[] b) {
+        if(b.length != 2) {
+            throw new IllegalArgumentException("Illegal byte size as a short value: " + b.length);
+        }
+        return getShort(b, 0);
+    }
+
+    public static short getShort(final byte[] b, final int off) {
+        return (short) (((b[off + 1] & 0xFF) << 0) + ((b[off] & 0xFF) << 8));
+    }
+
+    public static int getShortAsInt(final byte[] b, final int off) {
+        return (((b[off + 1] & 0xFF) << 0) + ((b[off] & 0xFF) << 8));
     }
 
     public static char getChar(final byte[] b, final int off) {
-        return (char) (((b[off + 1] & 0xFF) << 0) + ((b[off + 0]) << 8));
+        return (char) (((b[off + 1] & 0xFF) << 0) + ((b[off]) << 8));
     }
 
     public static long getLong(final byte[] b) {
