@@ -113,7 +113,7 @@ public class CsvWriter {
         write(lineSeparator);
     }
 
-    public void writeAll(@Nonnull final ResultSet rs, @Nonnull final String nullStr, final boolean includeHeaders)
+    public int writeAll(@Nonnull final ResultSet rs, @Nonnull final String nullStr, final boolean includeHeaders)
             throws SQLException {
         final ResultSetMetaData meta = rs.getMetaData();
         if(includeHeaders) {
@@ -126,6 +126,7 @@ public class CsvWriter {
             columnClasses[i] = JAVA_STRING_CLASS_NAME.equals(className) ? JAVA_STRING_CLASS_NAME
                     : className;
         }
+        int numRows = 0;
         while(rs.next()) {
             for(int i = 1; i <= numColumns; i++) {
                 if(i != 1) {
@@ -143,8 +144,10 @@ public class CsvWriter {
                 }
             }
             write(lineSeparator);
+            numRows++;
         }
         flush();
+        return numRows;
     }
 
     private void writeColumnNames(final ResultSetMetaData metadata) throws SQLException {
