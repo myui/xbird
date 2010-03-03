@@ -49,7 +49,7 @@ import xbird.util.primitive.Primitives;
 public class BIndexFile extends BTree {
 
     private static final byte DATA_RECORD = 10;
-    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 512); // 4k * 512 = 2m
+    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 1024); // 4k * 1024 = 4m
     public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 12);
 
     private final LongLRUMap<DataPage> dataCache;
@@ -60,13 +60,17 @@ public class BIndexFile extends BTree {
     }
 
     public BIndexFile(File file, boolean duplicateAllowed) {
-        this(file, DEFAULT_PAGESIZE, 1024, duplicateAllowed);
+        this(file, DEFAULT_IN_MEMORY_NODES, duplicateAllowed);
     }
 
-    public BIndexFile(File file, int pageSize, int caches, boolean duplicateAllowed) {
-        super(file, pageSize, caches, duplicateAllowed);
+    public BIndexFile(File file, int idxPageCaches, boolean duplicateAllowed) {
+        this(file, DEFAULT_PAGESIZE, idxPageCaches, DATA_CACHE_SIZE, duplicateAllowed);
+    }
+
+    public BIndexFile(File file, int pageSize, int idxPageCaches, int dataPageCaches, boolean duplicateAllowed) {
+        super(file, pageSize, idxPageCaches, duplicateAllowed);
         final Synchronizer sync = new Synchronizer();
-        this.dataCache = new ObservableLongLRUMap<DataPage>(DATA_CACHE_SIZE, DATA_CACHE_PURGE_UNIT, sync);
+        this.dataCache = new ObservableLongLRUMap<DataPage>(dataPageCaches, DATA_CACHE_PURGE_UNIT, sync);
     }
 
     @Override

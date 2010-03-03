@@ -67,8 +67,8 @@ import xbird.util.lang.ArrayUtils;
 public class BTree extends Paged {
     private static final Log LOG = LogFactory.getLog(BTree.class);
 
-    /** If page size is 4k, 2m (4k * 512) cache */
-    public static final int DEFAULT_IN_MEMORY_NODES = 512;
+    /** If page size is 4k, 4m (4k * 1024) cache */
+    public static final int DEFAULT_IN_MEMORY_NODES = 1024;
     public static final int KEY_NOT_FOUND = -1;
 
     private static final int LEAST_KEYS = 5;
