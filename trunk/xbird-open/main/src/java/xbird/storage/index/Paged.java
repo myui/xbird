@@ -64,7 +64,7 @@ import xbird.util.io.FastMultiByteArrayOutputStream;
 public abstract class Paged {
     private static final Log LOG = LogFactory.getLog(Paged.class);
 
-    protected static final int DEFAULT_PAGESIZE = 1024 * 4; // 4KB page
+    public static final int DEFAULT_PAGESIZE = 1024 * 4; // 4KB page
 
     protected static final byte UNUSED = 0;
     protected static final byte OVERFLOW = 126;

@@ -49,8 +49,8 @@ public final class BIndexMultiValueFile extends BIndexFile {
         fh.setMultiValue(true);
     }
 
-    public BIndexMultiValueFile(File file, int pageSize, int caches) {
-        super(file, pageSize, caches, false);
+    public BIndexMultiValueFile(File file, int pageSize, int idxCaches, int dataCaches) {
+        super(file, pageSize, idxCaches, dataCaches, false);
         BFileHeader fh = getFileHeader();
         fh.setMultiValue(true);
     }
