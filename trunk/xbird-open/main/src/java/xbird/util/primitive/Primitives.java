@@ -44,6 +44,13 @@ public final class Primitives {
         return Integer.parseInt(v);
     }
 
+    public static long parseLong(final String v, final long defaultValue) {
+        if(v == null || v.length() == 0) {
+            return defaultValue;
+        }
+        return Long.parseLong(v);
+    }
+
     public static float parseFloat(final String v, final float defaultValue) {
         if(v == null || v.length() == 0) {
             return defaultValue;
