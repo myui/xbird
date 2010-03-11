@@ -696,8 +696,32 @@ public final class ArrayUtils {
         final T[] array = (T[]) Array.newInstance(newType.getComponentType(), length);
         if(length > 0) {
             int i = 0;
-            for(T elem : c) {
+            for(final T elem : c) {
                 array[i++] = elem;
+            }
+        }
+        return array;
+    }
+
+    public static byte[][] toArray(final Collection<byte[]> c) {
+        final int length = c.size();
+        final byte[][] array = new byte[length][];
+        if(length > 0) {
+            int i = 0;
+            for(final byte[] b : c) {
+                array[i++] = b;
+            }
+        }
+        return array;
+    }
+
+    public static String[] toArray(final Collection<String> c) {
+        final int length = c.size();
+        final String[] array = new String[length];
+        if(length > 0) {
+            int i = 0;
+            for(final String s : c) {
+                array[i++] = s;
             }
         }
         return array;
