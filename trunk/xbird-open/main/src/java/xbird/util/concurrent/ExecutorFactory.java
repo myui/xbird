@@ -96,7 +96,14 @@ public final class ExecutorFactory {
      * Allow N active & N queued Thread.
      */
     public static ThreadPoolExecutor newBoundedWorkQueueFixedThreadPool(int size, String threadName, boolean daemon) {
-        return new ThreadPoolExecutor(size, size, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(size), new NamedThreadFactory(threadName, daemon), new WaitPolicy());
+        return newBoundedWorkQueueFixedThreadPool(size, threadName, daemon, new WaitPolicy());
+    }
+
+    /**
+     * Allow N active & N queued Thread.
+     */
+    public static ThreadPoolExecutor newBoundedWorkQueueFixedThreadPool(int size, String threadName, boolean daemon, RejectedExecutionHandler rejectHandler) {
+        return new ThreadPoolExecutor(size, size, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(size), new NamedThreadFactory(threadName, daemon), rejectHandler);
     }
 
     public static ScheduledExecutorService newScheduledExecutor(int corePoolSize, String threadName) {
