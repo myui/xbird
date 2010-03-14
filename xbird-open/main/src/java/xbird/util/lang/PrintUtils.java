@@ -215,4 +215,31 @@ public final class PrintUtils {
         return percent + '%';
     }
 
+    public static String toString(final StackTraceElement[] trace) {
+        final int depth = trace.length;
+        if(depth == 0) {
+            return "\t no stack traces...";
+        }
+        final StringBuilder buf = new StringBuilder(512);
+        for(int i = 0; i < depth; i++) {
+            buf.append("\tat ");
+            buf.append(trace[i]);
+            buf.append('\n');
+        }
+        return buf.toString();
+    }
+
+    public static String toString(final StackTraceElement[] trace, final int maxDepth) {
+        if(trace.length == 0) {
+            return "\t no stack traces...";
+        }
+        final StringBuilder buf = new StringBuilder(512);
+        final int depth = Math.min(trace.length, maxDepth);
+        for(int i = 0; i < depth; i++) {
+            buf.append("\tat ");
+            buf.append(trace[i]);
+            buf.append('\n');
+        }
+        return buf.toString();
+    }
 }
