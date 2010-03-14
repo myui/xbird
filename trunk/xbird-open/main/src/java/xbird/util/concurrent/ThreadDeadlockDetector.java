@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 
@@ -35,66 +36,73 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  * @link http://www.javaspecialists.co.za/archive/newsletter.do?issue=130
+ * @since 1.6
  */
 public final class ThreadDeadlockDetector {
 
     private final Timer threadCheck = new Timer("ThreadDeadlockDetector", true);
-    private final ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
+    private final ThreadMXBean mbean;
+    private final boolean isObjectMonitorUsageSupported;
+    private final boolean isSynchronizerUsageSupported;
+    private final long deadlockCheckPeriod;
+
     private final Set<Listener> listeners = new CopyOnWriteArraySet<Listener>();
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
      * The number of milliseconds between checking for deadlocks.
      * It may be expensive to check for deadlocks, and it is not
      * critical to know so quickly.
      */
-    private static final int DEFAULT_DEADLOCK_CHECK_PERIOD = 10000;
+    private static final long DEFAULT_DEADLOCK_CHECK_PERIOD = 10000L;
 
     public ThreadDeadlockDetector() {
         this(DEFAULT_DEADLOCK_CHECK_PERIOD);
     }
 
-    public ThreadDeadlockDetector(int deadlockCheckPeriod) {
-        threadCheck.schedule(new TimerTask() {
-            public void run() {
-                checkForDeadlocks();
-            }
-        }, 10, deadlockCheckPeriod);
+    public ThreadDeadlockDetector(long deadlockCheckPeriod) {
+        this.mbean = ManagementFactory.getThreadMXBean();
+        this.isObjectMonitorUsageSupported = mbean.isObjectMonitorUsageSupported();
+        this.isSynchronizerUsageSupported = mbean.isSynchronizerUsageSupported();
+        this.deadlockCheckPeriod = deadlockCheckPeriod;
+    }
+
+    public void start() {
+        if(started.compareAndSet(false, true)) {
+            threadCheck.schedule(new TimerTask() {
+                public void run() {
+                    checkForDeadlocks();
+                }
+            }, 10, deadlockCheckPeriod);
+        }
+    }
+
+    public void stop() {
+        threadCheck.cancel();
     }
 
     private void checkForDeadlocks() {
         long[] ids = findDeadlockedThreads();
         if(ids != null && ids.length > 0) {
-            Thread[] threads = new Thread[ids.length];
-            for(int i = 0; i < threads.length; i++) {
-                threads[i] = findMatchingThread(mbean.getThreadInfo(ids[i]));
-            }
-            fireDeadlockDetected(threads);
+            ThreadInfo[] infos = mbean.getThreadInfo(ids, isObjectMonitorUsageSupported, isSynchronizerUsageSupported);
+            fireDeadlockDetected(infos);
         }
     }
 
     private long[] findDeadlockedThreads() {
         // JDK 1.5 only supports the findMonitorDeadlockedThreads()
         // method, so you need to comment out the following three lines
-        if(mbean.isSynchronizerUsageSupported()) {
+        if(isSynchronizerUsageSupported) {
             return mbean.findDeadlockedThreads();
         } else {
             return mbean.findMonitorDeadlockedThreads();
         }
     }
 
-    private void fireDeadlockDetected(Thread[] threads) {
+    private void fireDeadlockDetected(ThreadInfo[] threadInfos) {
         for(Listener l : listeners) {
-            l.deadlockDetected(threads);
+            l.deadlockDetected(threadInfos);
         }
-    }
-
-    private Thread findMatchingThread(ThreadInfo inf) {
-        for(Thread thread : Thread.getAllStackTraces().keySet()) {
-            if(thread.getId() == inf.getThreadId()) {
-                return thread;
-            }
-        }
-        throw new IllegalStateException("Deadlocked Thread not found");
     }
 
     public boolean addListener(Listener l) {
@@ -109,19 +117,15 @@ public final class ThreadDeadlockDetector {
      * This is called whenever a problem with threads is detected.
      */
     public interface Listener {
-        void deadlockDetected(Thread[] deadlockedThreads);
+        void deadlockDetected(ThreadInfo[] deadlockedThreads);
     }
 
-    public static final class StderrPrintDeadlockListener
-            implements ThreadDeadlockDetector.Listener {
-        public void deadlockDetected(Thread[] threads) {
+    public static final class StderrDeadlockReporter implements ThreadDeadlockDetector.Listener {
+        public void deadlockDetected(ThreadInfo[] threads) {
             System.err.println("Deadlocked Threads:");
             System.err.println("-------------------");
-            for(Thread thread : threads) {
-                System.err.println(thread);
-                for(StackTraceElement ste : thread.getStackTrace()) {
-                    System.err.println("\t" + ste);
-                }
+            for(ThreadInfo ti : threads) {
+                System.err.println(ti);
             }
         }
     }
