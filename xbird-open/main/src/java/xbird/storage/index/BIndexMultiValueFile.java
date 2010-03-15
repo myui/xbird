@@ -158,10 +158,11 @@ public final class BIndexMultiValueFile extends BIndexFile {
 
         public void addPointer(final long ptr) {
             final byte[] oldData = _data;
-            final int offset = (_used + 1) << 3; //8 + (_used * 8);
+            final int offset = (1 + _used) << 3; // 8 + (_used * 8);
             _ptrs.add(ptr);
             _used++;
-            if((_free--) > 0) {
+            _free--;
+            if(_free > 0) {
                 Primitives.putInt(oldData, 0, _used);
                 Primitives.putLong(oldData, offset, ptr);
             } else {
@@ -181,7 +182,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
         }
 
         private static byte[] initData(long ptr) {
-            final byte[] b = new byte[40]; // 8 + (8 * (3 + 1))
+            final byte[] b = new byte[40]; // 4 + 4 + 8 + (8 * 3)
             Primitives.putInt(b, 0, 1);
             Primitives.putInt(b, 4, 3);
             Primitives.putLong(b, 8, ptr);
@@ -192,10 +193,8 @@ public final class BIndexMultiValueFile extends BIndexFile {
             final int used = Primitives.getInt(b, 0);
             final int free = Primitives.getInt(b, 4);
             final long[] ptrs = new long[(used * 3) / 2];
-            int idx = 8;
-            for(int i = 0; i < used; i++) {
-                ptrs[i] = Primitives.getLong(b, idx);
-                idx += 8;
+            for(int i = 0, idx = 8; i < used; i++, idx += 8) {
+                ptrs[i] = Primitives.getLong(b, idx);                
             }
             return new MultiPtrs(b, ptrs, used, free);
         }
