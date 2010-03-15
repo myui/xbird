@@ -58,14 +58,14 @@ public final class ObservableLongLRUMap<V> extends LongLRUMap<V> {
         this._buckets[bucket] = newEntry;
         newEntry.addBefore(entryChainHeader);
         ++_size;
-        ChainedEntry eldest = entryChainHeader.next;
+        ChainedEntry<V> eldest = entryChainHeader.next;
         if(removeEldestEntry()) {
             V removed = remove(eldest.key);
             if(removed != null) {
                 cleaner.cleanup(eldest.key, removed);
             }
             for(int i = 1; i < purgeUnits; i++) {
-                final ChainedEntry iEldest = entryChainHeader.next;
+                final ChainedEntry<V> iEldest = entryChainHeader.next;
                 final V iRemoved = remove(iEldest.key);
                 if(iRemoved != null) {
                     cleaner.cleanup(iEldest.key, iRemoved);
