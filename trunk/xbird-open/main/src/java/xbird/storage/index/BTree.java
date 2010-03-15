@@ -695,11 +695,12 @@ public class BTree extends Paged {
             int rightIdx = isDuplicateAllowed() ? searchRightmostKey(keys, searchKey, keys.length)
                     : leftIdx;
             switch(ph.getStatus()) {
-                case BRANCH:
+                case BRANCH: {
                     leftIdx = (leftIdx < 0) ? -(leftIdx + 1) : leftIdx + 1;
                     //FIXME keys may be separated nodes
                     return getChildNode(leftIdx).removeValue(searchKey, pointer);
-                case LEAF:
+                }
+                case LEAF: {
                     if(leftIdx < 0) {
                         return new long[0];
                     } else {
@@ -721,6 +722,7 @@ public class BTree extends Paged {
                         return (founds == matched.length) ? matched
                                 : ArrayUtils.copyOfRange(matched, 0, founds);
                     }
+                }
                 default:
                     throw new BTreeCorruptException("Invalid page type '" + ph.getStatus()
                             + "' in removeValue");
@@ -850,7 +852,7 @@ public class BTree extends Paged {
                 if(pageType == LEAF) {
                     setLeavesLinked(this, rNode);
                     if(leftLookup > 0) {
-                        rNode.ph.setLeftLookup((short) leftLookup);
+                        rNode.ph.setLeftLookup(leftLookup);
                     }
                 }
 
@@ -1443,7 +1445,7 @@ public class BTree extends Paged {
 
         private short valueCount = 0;
         private short prefixLength = 0;
-        private short leftLookup = 0;
+        private int leftLookup = 0;
 
         public BTreePageHeader() {
             super();
@@ -1462,7 +1464,7 @@ public class BTree extends Paged {
             }
             valueCount = buf.getShort();
             prefixLength = buf.getShort();
-            leftLookup = buf.getShort();
+            leftLookup = buf.getInt();
         }
 
         @Override
@@ -1470,7 +1472,7 @@ public class BTree extends Paged {
             super.write(buf);
             buf.putShort(valueCount);
             buf.putShort(prefixLength);
-            buf.putShort(leftLookup);
+            buf.putInt(leftLookup);
         }
 
         /** The number of values stored by this page */
@@ -1500,11 +1502,11 @@ public class BTree extends Paged {
             this.prefixLength = prefixLength;
         }
 
-        public final short getLeftLookup() {
+        public final int getLeftLookup() {
             return leftLookup;
         }
 
-        public final void setLeftLookup(short leftLookup) {
+        public final void setLeftLookup(int leftLookup) {
             this.leftLookup = leftLookup;
         }
     }

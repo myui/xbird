@@ -4,26 +4,11 @@
 
 	<!-- Properties for Fat-Jar Eclipse Plug-in -->
 	<property name="fjepPath" value="${lib.dir}/tools/fatjar.jar" />
-	<taskdef name="fatjar.build"
-	         classname="net.sf.fjep.anttask.FJBuildTask"
-	         classpath="${fjepPath}"
-	         loaderref="${fjepPath}" />
-	<typedef name="fatjar.manifest"
-	         classname="net.sf.fjep.anttask.FJManifestType"
-	         classpath="${fjepPath}"
-	         loaderref="${fjepPath}" />
-	<typedef name="fatjar.exclude"
-	         classname="net.sf.fjep.anttask.FJExcludeType"
-	         classpath="${fjepPath}"
-	         loaderref="${fjepPath}" />
-	<typedef name="fatjar.jarsource"
-	         classname="net.sf.fjep.anttask.FJJarSourceType"
-	         classpath="${fjepPath}"
-	         loaderref="${fjepPath}" />
-	<typedef name="fatjar.filesource"
-	         classname="net.sf.fjep.anttask.FJFileSourceType"
-	         classpath="${fjepPath}"
-	         loaderref="${fjepPath}" />
+	<taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="${fjepPath}" />
+	<typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}" loaderref="${fjepPath}" />
+	<typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="${fjepPath}" />
+	<typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="${fjepPath}" />
+	<typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="${fjepPath}" />
 
 	<path id="classpath">
 		<fileset dir="${lib.dir}">
@@ -32,13 +17,7 @@
 	</path>
 
 	<target name="compile">
-		<javac srcdir="${src.dir}/java"
-		       destdir="${build.dir}"
-		       source="${javac.source}"
-		       target="${javac.target}"
-		       optimize="${javac.optimize}"
-		       debug="${javac.debug}"
-		       debuglevel="${javac.debuglevel}">
+		<javac srcdir="${src.dir}/java" destdir="${build.dir}" source="${javac.source}" target="${javac.target}" optimize="${javac.optimize}" debug="${javac.debug}" debuglevel="${javac.debuglevel}">
 			<classpath>
 				<path refid="classpath" />
 			</classpath>
@@ -60,10 +39,8 @@
 	</target>
 
 	<target name="jar" depends="clean,compile,rmic">
-		<delete failonerror="false"
-		        file="${target.dir}/xbird-open-${version}.jar" />
-		<jar destfile="${target.dir}/xbird-open-${version}.jar"
-		     basedir="${build.dir}">
+		<delete failonerror="false" file="${target.dir}/xbird-open-${version}.jar" />
+		<jar destfile="${target.dir}/xbird-open-${version}.jar" basedir="${build.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="${jar.mainclass}" />
 				<attribute name="Implementation-Title" value="${jar.title}" />
@@ -75,9 +52,7 @@
 
 	<target name="war" depends="jar">
 		<delete failonerror="false" file="${target.dir}/xbird-${version}.war" />
-		<war destfile="${target.dir}/xbird-${version}.war"
-		     webxml="${war.webxml}"
-		     update="true">
+		<war destfile="${target.dir}/xbird-${version}.war" webxml="${war.webxml}" update="true">
 			<fileset dir="${war.src}" excludes="**/web.xml" />
 			<lib dir="${lib.dir}" includes="*.jar" />
 			<lib file="${target.dir}/xbird-open-${version}.jar" />
@@ -92,11 +67,8 @@
 	</target>
 
 	<target name="makedist" depends="jar">
-		<delete failonerror="false"
-		        file="${target.dir}/xbird-${version}-src.zip" />
-		<zip destfile="${target.dir}/xbird-${version}-src.zip"
-		     basedir="."
-		     excludes="${target.dir}/**,build/**,**/*.log,**/*.bak,**/.svn/**,test-output/**" />
+		<delete failonerror="false" file="${target.dir}/xbird-${version}-src.zip" />
+		<zip destfile="${target.dir}/xbird-${version}-src.zip" basedir="." excludes="${target.dir}/**,build/**,**/*.log,**/*.bak,**/.svn/**,test-output/**" />
 	</target>
 
 	<target name="makeall" depends="jar,war,makedist" />
@@ -104,26 +76,17 @@
 	<target name="fatjar" depends="jar">
 		<fatjar.build output="${target.dir}/xbird-open-${version}_fat.jar">
 			<fatjar.manifest mainclass="${jar.mainclass}" />
-			<fatjar.jarsource file="${target.dir}/xbird-open-${version}.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/xbird-db-${version}.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/commons-logging-1.0.4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.12.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/high-scale-lib-0.8.1.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/nekohtml-1.9.7.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/resolver-1.2.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/stax-api-1.0.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/xercesImpl-2.9.1.jar"
-			                  relpath="" />
+			<fatjar.jarsource file="${target.dir}/xbird-open-${version}.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/xbird-db-${version}.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/commons-logging-1.0.4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.12.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/high-scale-lib-0.8.1.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/nekohtml-1.9.7.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/resolver-1.2.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/stax-api-1.0.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/xercesImpl-2.9.1.jar" relpath="" />
 		</fatjar.build>
-		
+
 		<fatjar.build output="${target.dir}/xbird-full_fat.jar">
 			<fatjar.manifest mainclass="xbird.server.Server" />
 			<!--
@@ -140,50 +103,30 @@
                 <fatjar.exclude relpath="logging.properties"/>
             </fatjar.filesource>
 			-->
-			<fatjar.jarsource file="${target.dir}/xbird-open-${version}.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/xbird-db-${version}.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/commons-logging-1.0.4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.12.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/log4j-1.2.13.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/xercesImpl-2.9.1.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/stax-api-1.0.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/high-scale-lib-0.8.1.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/resolver-1.2.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/nekohtml-1.9.7.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/xstream-1.3.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/jsr305.jar"
-			                  relpath="" />
+			<fatjar.jarsource file="${target.dir}/xbird-open-${version}.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/xbird-db-${version}.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/commons-logging-1.0.4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/args4j-2.0.12.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/log4j-1.2.13.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/xercesImpl-2.9.1.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/stax-api-1.0.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/high-scale-lib-0.8.1.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/resolver-1.2.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/nekohtml-1.9.7.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/xstream-1.3.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/jsr305.jar" relpath="" />
 			<!--
 			<fatjar.jarsource file="${lib.dir}/optional/jgroups-core-2.6.3.GA.jar"
 			                  relpath="" />
 			-->
-			<fatjar.jarsource file="${lib.dir}/optional/mina-core-2.0.0-M4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-jmx-2.0.0-M4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-ognl-2.0.0-M4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-beans-2.0.0-M4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/mina-transport-apr-2.0.0-M4.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/slf4j-api-1.4.3.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/slf4j-log4j12-1.4.3.jar"
-			                  relpath="" />
-			<fatjar.jarsource file="${lib.dir}/optional/ognl-2.6.9.jar"
-			                  relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/mina-core-2.0.0-M4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-jmx-2.0.0-M4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-ognl-2.0.0-M4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/mina-integration-beans-2.0.0-M4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/mina-transport-apr-2.0.0-M4.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/slf4j-api-1.4.3.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/slf4j-log4j12-1.4.3.jar" relpath="" />
+			<fatjar.jarsource file="${lib.dir}/optional/ognl-2.6.9.jar" relpath="" />
 			<!--
 			<fatjar.jarsource file="${lib.dir}/optional/tokyocabinet-1.14.jar"
 			                  relpath="" />
@@ -194,20 +137,7 @@
 	<target name="javadoc" depends="compile">
 		<delete failonerror="false" dir="${javadoc.dstdir}" />
 		<mkdir dir="${javadoc.dstdir}" />
-		<javadoc windowtitle="${javadoc.title}"
-		         doctitle="${javadoc.title}"
-		         bottom="${javadoc.bottom}"
-		         failonerror="true"
-		         classpathref="classpath"
-		         excludepackagenames="${javadoc.excludepackagenames}"
-		         linksource="${javadoc.linksource}"
-		         destdir="${javadoc.dstdir}"
-		         sourcepath="${src.dir}/java"
-		         useexternalfile="true"
-		         docencoding="${javadoc.docencoding}"
-		         locale="${javadoc.locale}"
-		         link="${javadoc.link}"
-		         private="${javadoc.private}" />
+		<javadoc windowtitle="${javadoc.title}" doctitle="${javadoc.title}" bottom="${javadoc.bottom}" failonerror="true" classpathref="classpath" excludepackagenames="${javadoc.excludepackagenames}" linksource="${javadoc.linksource}" destdir="${javadoc.dstdir}" sourcepath="${src.dir}/java" useexternalfile="true" docencoding="${javadoc.docencoding}" locale="${javadoc.locale}" link="${javadoc.link}" private="${javadoc.private}" />
 	</target>
 
 	<target name="clean">
