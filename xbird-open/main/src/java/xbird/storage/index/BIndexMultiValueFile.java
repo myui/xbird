@@ -128,6 +128,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
     }
 
     private static final class MultiPtrs extends Value {
+        static final int HEADER_LENGTH = 8;
 
         private LongArrayList _ptrs;
         private int _used;
@@ -158,16 +159,16 @@ public final class BIndexMultiValueFile extends BIndexFile {
 
         public void addPointer(final long ptr) {
             final byte[] oldData = _data;
-            final int offset = (1 + _used) << 3; // 8 + (_used * 8);
+            final int offset = HEADER_LENGTH + (_used << 3);
             _ptrs.add(ptr);
-            _used++;
-            _free--;
-            if(_free > 0) {
+            _used++;                 
+            if((_free--) > 0) {
                 Primitives.putInt(oldData, 0, _used);
+                Primitives.putInt(oldData, 4, _free);
                 Primitives.putLong(oldData, offset, ptr);
             } else {
                 this._free = _used; // doubling spaces
-                int newLen = 8 + (_used << 4); //8 + ((_used + _free) << 3);
+                int newLen = HEADER_LENGTH + (_used << 4); //8 + ((_used + _free) * 8);
                 final byte[] newData = new byte[newLen];
 
                 System.arraycopy(oldData, 0, newData, 0, oldData.length);
@@ -182,9 +183,9 @@ public final class BIndexMultiValueFile extends BIndexFile {
         }
 
         private static byte[] initData(long ptr) {
-            final byte[] b = new byte[40]; // 4 + 4 + 8 + (8 * 3)
-            Primitives.putInt(b, 0, 1);
-            Primitives.putInt(b, 4, 3);
+            final byte[] b = new byte[40]; // HEADER_LENGTH + 8 + (8 * 3)
+            Primitives.putInt(b, 0, 1); // used
+            Primitives.putInt(b, 4, 3); // free
             Primitives.putLong(b, 8, ptr);
             return b;
         }
