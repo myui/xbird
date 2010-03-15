@@ -563,7 +563,7 @@ public abstract class Paged {
         public static final int DEFAULT_PAGE_HEADER_SIZE = 64;
 
         //--------------------------------------------
-        // persistant entry        
+        // persistent entry        
 
         private byte _status = UNUSED;
         private int _dataLen;
