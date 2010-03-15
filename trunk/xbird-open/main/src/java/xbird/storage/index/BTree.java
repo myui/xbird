@@ -46,16 +46,17 @@ import java.util.Arrays;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import xbird.config.Settings;
 import xbird.storage.DbException;
 import xbird.storage.indexer.BasicIndexQuery;
 import xbird.storage.indexer.IndexQuery;
 import xbird.util.codec.VariableByteCodec;
-import xbird.util.collections.longs.LongHash;
 import xbird.util.collections.longs.PurgeOptObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 import xbird.util.lang.ArrayUtils;
+import xbird.util.primitive.Primitives;
 
 /**
  * BTree represents a Variable Magnitude Simple-Prefix B+Tree File.
@@ -67,10 +68,15 @@ import xbird.util.lang.ArrayUtils;
 public class BTree extends Paged {
     private static final Log LOG = LogFactory.getLog(BTree.class);
 
-    /** If page size is 4k, 4m (4k * 1024) cache */
-    public static final int DEFAULT_IN_MEMORY_NODES = 1024;
-    public static final int KEY_NOT_FOUND = -1;
+    /** If page size is 4k, 16m (4k * 4096) cache */
+    public static final int DEFAULT_IN_MEMORY_NODES;
+    private static final int BTREE_NODECACHE_PURGE_UNIT;
+    static {
+        DEFAULT_IN_MEMORY_NODES = Primitives.parseInt(Settings.get("xbird.storage.index.btree.nodecache_size"), 4096); // 16m
+        BTREE_NODECACHE_PURGE_UNIT = Primitives.parseInt(Settings.get("xbird.storage.index.bfile.nodecache_purgeunit"), 8); // 32k
+    }
 
+    public static final int KEY_NOT_FOUND = -1;
     private static final int LEAST_KEYS = 5;
 
     private static final byte[] EmptyBytes = new byte[0];
@@ -85,7 +91,8 @@ public class BTree extends Paged {
      * Cache contains weak references to the BTreeNode objects, keys are page numbers (Long objects).
      * Access synchronized by this map itself.
      */
-    private final LongHash<BTreeNode> _cache;
+    private final PurgeOptObservableLongLRUMap<BTreeNode> _cache;
+    private final int numNodeCaches;
 
     private final BTreeFileHeader _fileHeader;
 
@@ -107,8 +114,8 @@ public class BTree extends Paged {
         fh._duplicateAllowed = duplicateAllowed;
         this._fileHeader = fh;
         final Synchronizer sync = new Synchronizer();
-        final int purgeSize = Math.max(caches >>> 2, 16); // perge 1/4 pages or 16 pages at a time
-        this._cache = new PurgeOptObservableLongLRUMap<BTreeNode>(caches, purgeSize, sync);
+        this._cache = new PurgeOptObservableLongLRUMap<BTreeNode>(caches, BTREE_NODECACHE_PURGE_UNIT, sync);
+        this.numNodeCaches = caches;
     }
 
     public void init(boolean bulkload) throws DbException {
@@ -120,6 +127,19 @@ public class BTree extends Paged {
             }
         } else {
             open();
+        }
+    }
+
+    public void setBulkloading(boolean enable, float nodeCachePurgePerc) {
+        if(enable) {
+            if(nodeCachePurgePerc <= 0 || nodeCachePurgePerc > 1) {
+                throw new IllegalArgumentException("nodeCachePurgePerc is illegal as percentage: "
+                        + nodeCachePurgePerc);
+            }
+            int units = Math.max((int) (numNodeCaches * nodeCachePurgePerc), numNodeCaches);
+            _cache.setPurgeUnits(units);
+        } else {
+            _cache.setPurgeUnits(numNodeCaches);
         }
     }
 
@@ -551,10 +571,11 @@ public class BTree extends Paged {
             }
             int idx = searchRightmostKey(keys, value, keys.length);
             switch(ph.getStatus()) {
-                case BRANCH:
+                case BRANCH: {
                     idx = idx < 0 ? -(idx + 1) : idx + 1;
                     return getChildNode(idx).addValue(value, pointer);
-                case LEAF:
+                }
+                case LEAF: {
                     final boolean found = idx >= 0;
                     final long oldPtr;
                     if(found) {
@@ -577,6 +598,7 @@ public class BTree extends Paged {
                         split();
                     }
                     return oldPtr;
+                }
                 default:
                     throw new BTreeCorruptException("Invalid Page Type '" + ph.getStatus()
                             + "' was detected for page#" + page.getPageNum());
@@ -912,7 +934,7 @@ public class BTree extends Paged {
                 final int prefixLen = prefix.getLength();
                 assert (prefixLen <= Short.MAX_VALUE) : prefixLen;
                 if(prefixLen != prevPreixLen) {
-                    final int diff = prefixLen - prevPreixLen;
+                    int diff = prefixLen - prevPreixLen;
                     currentDataLen += diff;
                     ph.setPrefixLength((short) prefixLen);
                 }

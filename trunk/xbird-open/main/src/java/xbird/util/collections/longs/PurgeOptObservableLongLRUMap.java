@@ -36,7 +36,7 @@ import xbird.util.collections.longs.LongHash.LongLRUMap;
 public final class PurgeOptObservableLongLRUMap<V extends Comparable<V>> extends LongLRUMap<V> {
     private static final long serialVersionUID = 2481614187542943334L;
 
-    private final int purgeUnits;
+    private int purgeUnits;
     private final Cleaner<V> cleaner;
 
     public PurgeOptObservableLongLRUMap(int limit, Cleaner<V> cleaner) {
@@ -54,6 +54,13 @@ public final class PurgeOptObservableLongLRUMap<V extends Comparable<V>> extends
         }
         this.purgeUnits = purgeUnits;
         this.cleaner = cleaner;
+    }
+
+    public void setPurgeUnits(int units) {
+        if(units < 1) {
+            throw new IllegalArgumentException("Illegal purgeUnits: " + units);
+        }
+        this.purgeUnits = units;
     }
 
     @Override
