@@ -636,7 +636,7 @@ public abstract class Paged {
         }
     }
 
-    public final class Page implements Comparable {
+    public final class Page implements Comparable<Page> {
 
         private final long _pageNum;
         private final PageHeader _pageHeader;
@@ -737,8 +737,8 @@ public abstract class Paged {
             _pageHeader.setStatus(UNUSED);
         }
 
-        public int compareTo(Object o) {
-            return (int) (_pageNum - ((Page) o)._pageNum);
+        public int compareTo(Page other) {
+            return (int) (_pageNum - other._pageNum);
         }
 
         @Override

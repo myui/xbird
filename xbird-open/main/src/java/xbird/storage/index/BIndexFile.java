@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import xbird.config.Settings;
 import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
 import xbird.storage.indexer.IndexQuery;
@@ -36,7 +37,6 @@ import xbird.util.collections.LRUMap;
 import xbird.util.collections.longs.PurgeOptObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
-import xbird.util.collections.longs.LongHash.LongLRUMap;
 import xbird.util.primitive.Primitives;
 
 /**
@@ -49,10 +49,16 @@ import xbird.util.primitive.Primitives;
 public class BIndexFile extends BTree {
 
     private static final byte DATA_RECORD = 10;
-    public static final int DATA_CACHE_SIZE = Integer.getInteger("bfile.cache_size", 1024); // 4k * 1024 = 4m
-    public static final int DATA_CACHE_PURGE_UNIT = Integer.getInteger("bfile.cache_purgeunit", 12);
 
-    private final LongLRUMap<DataPage> dataCache;
+    public static final int DATA_CACHE_SIZE;
+    public static final int DATA_CACHE_PURGE_UNIT;
+    static {
+        DATA_CACHE_SIZE = Primitives.parseInt(Settings.get("xbird.storage.index.bfile.datacache_size"), 2048); // 4k * 2048 = 8m
+        DATA_CACHE_PURGE_UNIT = Primitives.parseInt(Settings.get("xbird.storage.index.bfile.datacache_purgeunit"), 16); // 4k * 16 = 64k
+    }
+
+    private final PurgeOptObservableLongLRUMap<DataPage> dataCache;
+    private final int numDataCaches;
     private final Map<Value, Long> storeCache = new LRUMap<Value, Long>(64);
 
     public BIndexFile(File file) {
@@ -71,6 +77,21 @@ public class BIndexFile extends BTree {
         super(file, pageSize, idxPageCaches, duplicateAllowed);
         final Synchronizer sync = new Synchronizer();
         this.dataCache = new PurgeOptObservableLongLRUMap<DataPage>(dataPageCaches, DATA_CACHE_PURGE_UNIT, sync);
+        this.numDataCaches = dataPageCaches;
+    }
+
+    public void setBulkloading(boolean enable, float nodeCachePurgePerc, float dataCachePurgePerc) {
+        setBulkloading(enable, nodeCachePurgePerc);
+        if(enable) {
+            if(dataCachePurgePerc <= 0 || dataCachePurgePerc > 1) {
+                throw new IllegalArgumentException("dataCachePurgePerc is illegal as percentage: "
+                        + nodeCachePurgePerc);
+            }
+            int units = Math.max((int) (numDataCaches * dataCachePurgePerc), numDataCaches);
+            dataCache.setPurgeUnits(units);
+        } else {
+            dataCache.setPurgeUnits(numDataCaches);
+        }
     }
 
     @Override
