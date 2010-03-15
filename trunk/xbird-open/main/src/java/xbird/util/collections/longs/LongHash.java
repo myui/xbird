@@ -54,6 +54,7 @@ public class LongHash<V>
      * entries. The actual table created to be is the smallest prime greater
      * than size * 2.
      */
+    @SuppressWarnings("unchecked")
     public LongHash(int size, float loadFactor) {
         final int bucketSize = HashUtils.nextPowerOfTwo(size);
         this._buckets = new BucketEntry[bucketSize];
@@ -180,7 +181,7 @@ public class LongHash<V>
     public boolean contains(final long key) {
         final BucketEntry<V>[] buckets = _buckets;
         final int bucket = indexFor(key, _mask);
-        for(BucketEntry e = buckets[bucket]; e != null; e = e.next) {
+        for(BucketEntry<V> e = buckets[bucket]; e != null; e = e.next) {
             if(key == e.key) {
                 return true;
             }
@@ -189,7 +190,7 @@ public class LongHash<V>
     }
 
     public synchronized void clear() {
-        BucketEntry tab[] = _buckets;
+        BucketEntry<V> tab[] = _buckets;
         for(int i = tab.length; --i >= 0;) {
             tab[i] = null;
         }
@@ -243,6 +244,7 @@ public class LongHash<V>
             return value;
         }
 
+        @SuppressWarnings("unchecked")
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             this.key = in.readLong();
             this.value = (V) in.readObject();
@@ -278,9 +280,9 @@ public class LongHash<V>
             return new StringBuilder(64).append(key).append('/').append(value).toString();
         }
 
-        protected void recordAccess(LongHash m) {}
+        protected void recordAccess(LongHash<V> m) {}
 
-        protected void recordRemoval(LongHash m) {}
+        protected void recordRemoval(LongHash<V> m) {}
 
     }
 
@@ -292,6 +294,7 @@ public class LongHash<V>
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void resize(int newCapacity) {
         final int cap = HashUtils.nextPowerOfTwo(newCapacity);
         BucketEntry<V>[] newTable = new BucketEntry[cap];
@@ -316,11 +319,10 @@ public class LongHash<V>
     }
 
     private static int indexFor(final long key, final int mask) {
-        return ((int) (key ^ (key >>> 32))) & 0x7fffffff & mask; // TODO
-        // REVIEWME
-        // modulo
+        return ((int) (key ^ (key >>> 32))) & 0x7fffffff & mask; // REVIEWME
     }
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this._threshold = in.readInt();
         this._size = in.readInt();
@@ -342,13 +344,13 @@ public class LongHash<V>
     }
 
     public Iterator<BucketEntry<V>> iterator() {
-        return new LongIterator<V>();
+        return new LongIterator();
     }
 
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder(512);
-        for(BucketEntry e : this) {
+        for(BucketEntry<V> e : this) {
             if(buf.length() > 0) {
                 buf.append(", ");
             }
@@ -361,7 +363,7 @@ public class LongHash<V>
         return buf.toString();
     }
 
-    private final class LongIterator<V> implements Iterator<BucketEntry<V>> {
+    private final class LongIterator implements Iterator<BucketEntry<V>> {
 
         private int cursor = 0;
         private int curBucketIndex = 0;
@@ -377,7 +379,7 @@ public class LongHash<V>
             ++cursor;
             if(curBucket == null) {
                 for(int i = curBucketIndex; i < _buckets.length; i++) {
-                    BucketEntry e = _buckets[i];
+                    BucketEntry<V> e = _buckets[i];
                     if(e != null) {
                         this.curBucket = e;
                         this.curBucketIndex = i + 1;
@@ -422,7 +424,7 @@ public class LongHash<V>
             this._buckets[bucket] = newEntry;
             newEntry.addBefore(entryChainHeader);
             ++_size;
-            ChainedEntry eldest = entryChainHeader.next;
+            ChainedEntry<V> eldest = entryChainHeader.next;
             if(removeEldestEntry()) {
                 remove(eldest.key);
             } else {
@@ -437,7 +439,7 @@ public class LongHash<V>
             return size() > maxCapacity;
         }
 
-        protected static final class ChainedEntry<V> extends BucketEntry<V> {
+        protected static class ChainedEntry<V> extends BucketEntry<V> {
             private static final long serialVersionUID = 8853020653416971039L;
 
             protected ChainedEntry<V> prev, next;
@@ -446,15 +448,16 @@ public class LongHash<V>
                 super(key, value, next);
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            protected void recordAccess(LongHash m) {
+            protected void recordAccess(LongHash<V> m) {
                 remove();
-                LongLRUMap lm = (LongLRUMap) m;
+                LongLRUMap<V> lm = (LongLRUMap) m;
                 addBefore(lm.entryChainHeader);
             }
 
             @Override
-            protected void recordRemoval(LongHash m) {
+            protected void recordRemoval(LongHash<V> m) {
                 remove();
             }
 

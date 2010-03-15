@@ -155,8 +155,8 @@ public class Long2QCache<V> extends LongHash<V> {
 
         @SuppressWarnings("unchecked")
         @Override
-        protected void recordAccess(LongHash m) {
-            final Long2QCache lm = (Long2QCache) m;
+        protected void recordAccess(LongHash<V> m) {
+            final Long2QCache<V> lm = (Long2QCache) m;
             switch(type) {
                 case MAIN: // move tail entry to head of Am
                     remove();
@@ -190,7 +190,7 @@ public class Long2QCache<V> extends LongHash<V> {
         }
 
         @Override
-        protected void recordRemoval(LongHash m) {
+        protected void recordRemoval(LongHash<V> m) {
             remove();
         }
 

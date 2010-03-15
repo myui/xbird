@@ -51,7 +51,7 @@ import xbird.storage.indexer.BasicIndexQuery;
 import xbird.storage.indexer.IndexQuery;
 import xbird.util.codec.VariableByteCodec;
 import xbird.util.collections.longs.LongHash;
-import xbird.util.collections.longs.ObservableLongLRUMap;
+import xbird.util.collections.longs.PurgeOptObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.io.FastMultiByteArrayOutputStream;
@@ -108,7 +108,7 @@ public class BTree extends Paged {
         this._fileHeader = fh;
         final Synchronizer sync = new Synchronizer();
         final int purgeSize = Math.max(caches >>> 2, 16); // perge 1/4 pages or 16 pages at a time
-        this._cache = new ObservableLongLRUMap<BTreeNode>(caches, purgeSize, sync);
+        this._cache = new PurgeOptObservableLongLRUMap<BTreeNode>(caches, purgeSize, sync);
     }
 
     public void init(boolean bulkload) throws DbException {
@@ -514,7 +514,7 @@ public class BTree extends Paged {
         }
     }
 
-    private final class BTreeNode {
+    private final class BTreeNode implements Comparable<BTreeNode> {
 
         private final BTreeRootInfo root;
         private final Page page;
@@ -1374,6 +1374,10 @@ public class BTree extends Paged {
                 }
             }
             return buf.toString();
+        }
+
+        public int compareTo(BTreeNode other) {
+            return page.compareTo(other.page);
         }
     }
 

@@ -33,7 +33,7 @@ import xbird.storage.DbException;
 import xbird.storage.index.FreeList.FreeSpace;
 import xbird.storage.indexer.IndexQuery;
 import xbird.util.collections.LRUMap;
-import xbird.util.collections.longs.ObservableLongLRUMap;
+import xbird.util.collections.longs.PurgeOptObservableLongLRUMap;
 import xbird.util.collections.longs.LongHash.BucketEntry;
 import xbird.util.collections.longs.LongHash.Cleaner;
 import xbird.util.collections.longs.LongHash.LongLRUMap;
@@ -70,7 +70,7 @@ public class BIndexFile extends BTree {
     public BIndexFile(File file, int pageSize, int idxPageCaches, int dataPageCaches, boolean duplicateAllowed) {
         super(file, pageSize, idxPageCaches, duplicateAllowed);
         final Synchronizer sync = new Synchronizer();
-        this.dataCache = new ObservableLongLRUMap<DataPage>(dataPageCaches, DATA_CACHE_PURGE_UNIT, sync);
+        this.dataCache = new PurgeOptObservableLongLRUMap<DataPage>(dataPageCaches, DATA_CACHE_PURGE_UNIT, sync);
     }
 
     @Override
@@ -277,7 +277,7 @@ public class BIndexFile extends BTree {
         return dataPage;
     }
 
-    private final class DataPage {
+    private final class DataPage implements Comparable<DataPage> {
         private final Page page;
         private final BFilePageHeader ph;
 
@@ -410,6 +410,10 @@ public class BIndexFile extends BTree {
             }
             writeValue(page, new Value(dest));
             this.dirty = false;
+        }
+
+        public int compareTo(DataPage other) {
+            return page.compareTo(other.page);
         }
     }
 
