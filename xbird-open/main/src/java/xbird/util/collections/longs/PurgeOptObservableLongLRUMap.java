@@ -36,7 +36,7 @@ import xbird.util.collections.longs.LongHash.LongLRUMap;
 public final class PurgeOptObservableLongLRUMap<V extends Comparable<V>> extends LongLRUMap<V> {
     private static final long serialVersionUID = 2481614187542943334L;
 
-    private int purgeUnits;
+    private volatile int purgeUnits;
     private final Cleaner<V> cleaner;
 
     public PurgeOptObservableLongLRUMap(int limit, Cleaner<V> cleaner) {
@@ -70,8 +70,9 @@ public final class PurgeOptObservableLongLRUMap<V extends Comparable<V>> extends
         newEntry.addBefore(entryChainHeader);
         ++_size;
         if(removeEldestEntry()) {
-            final List<ComparableChainedEntry<V>> list = new ArrayList<ComparableChainedEntry<V>>(purgeUnits);
-            for(int i = 0; i < purgeUnits; i++) {
+            final int purgeSize = purgeUnits;
+            final List<ComparableChainedEntry<V>> list = new ArrayList<ComparableChainedEntry<V>>(purgeSize);
+            for(int i = 0; i < purgeSize; i++) {
                 final ComparableChainedEntry<V> eldest = (ComparableChainedEntry<V>) entryChainHeader.next;
                 final V removed = remove(eldest.key);
                 if(removed != null) {
