@@ -94,7 +94,7 @@ public class BIndexMultiValueFileTest extends TestCase {
         ArrayUtils.shuffle(values);
 
         final StopWatch watchdog1 = new StopWatch("Construction of " + repeat + " objects");
-        btree.setBulkloading(true, 0.2f, 0.1f);
+        btree.setBulkloading(true, 0.1f, 0.1f);
         final SortedMap<Integer, Set<Integer>> expected = new TreeMap<Integer, Set<Integer>>();
         for(int i = 0; i < repeat; i++) {
             int k = keys[i];

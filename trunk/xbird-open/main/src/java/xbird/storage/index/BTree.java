@@ -824,11 +824,11 @@ public class BTree extends Paged {
             // Promote the pivot to the parent branch
             if(parent == null) {
                 // This can only happen if this is the root     
-                final BTreeNode lNode = createBTreeNode(root, pageType, this);
+                BTreeNode lNode = createBTreeNode(root, pageType, this);
                 lNode.set(leftVals, leftPtrs);
                 lNode.calculateDataLength();
 
-                final BTreeNode rNode = createBTreeNode(root, pageType, this);
+                BTreeNode rNode = createBTreeNode(root, pageType, this);
                 rNode.set(rightVals, rightPtrs);
                 rNode.calculateDataLength();
 
@@ -845,7 +845,7 @@ public class BTree extends Paged {
                 set(leftVals, leftPtrs);
                 calculateDataLength();
 
-                final BTreeNode rNode = createBTreeNode(root, pageType, parent);
+                BTreeNode rNode = createBTreeNode(root, pageType, parent);
                 rNode.set(rightVals, rightPtrs);
                 rNode.calculateDataLength();
 
@@ -856,8 +856,9 @@ public class BTree extends Paged {
                     }
                 }
 
-                final long leftPtr = page.getPageNum();
-                parent.promoteValue(separator, rNode.page.getPageNum(), leftPtr);
+                long leftPtr = page.getPageNum();
+                long rightPtr = rNode.page.getPageNum();
+                parent.promoteValue(separator, rightPtr, leftPtr);
             }
         }
 
@@ -945,7 +946,7 @@ public class BTree extends Paged {
                 ph.setPrefixLength((short) 0);
             }
             setDirty(true);
-            _cache.put(page.getPageNum(), this); // required? REVIEWME
+            //_cache.put(page.getPageNum(), this); // required? REVIEWME
         }
 
         private void setDirty(final boolean dirt) {
