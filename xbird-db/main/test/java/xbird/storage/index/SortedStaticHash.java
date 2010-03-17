@@ -105,11 +105,11 @@ public class SortedStaticHash extends Paged {
         return super.create(close);
     }
 
-    public FileHeader createFileHeader(int pageSize) {
+    protected FileHeader createFileHeader(int pageSize) {
         return new HashFileHeader(pageSize);
     }
 
-    public PageHeader createPageHeader() {
+    protected PageHeader createPageHeader() {
         return new HashPageHeader();
     }
 
