@@ -313,7 +313,7 @@ public class BIndexFile extends BTree {
             ph = (BFilePageHeader) page.getPageHeader();
             ph.setStatus(DATA_RECORD);
         }
-
+        
         public long getPageNum() {
             return page.getPageNum();
         }

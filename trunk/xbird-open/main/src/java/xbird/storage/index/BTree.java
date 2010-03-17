@@ -439,7 +439,7 @@ public class BTree extends Paged {
     public synchronized void flush(boolean purge, boolean clear) throws DbException {
         if(purge) {
             try {
-                _rootNode.write();
+                //_rootNode.write();
                 for(BucketEntry<BTreeNode> e : _cache) {
                     BTreeNode node = e.getValue();
                     if(node != null) {
@@ -838,7 +838,7 @@ public class BTree extends Paged {
                     insertPoint = i;
                     found = true;
                     break;
-                } else {                   
+                } else {
                     continue; // just for debugging
                 }
             }
@@ -1413,7 +1413,7 @@ public class BTree extends Paged {
         }
 
         @Override
-        public synchronized void read(ByteBuffer buf) {
+        public void read(ByteBuffer buf) {
             super.read(buf);
             if(getStatus() == UNUSED) {
                 return;
@@ -1425,7 +1425,7 @@ public class BTree extends Paged {
         }
 
         @Override
-        public synchronized void write(ByteBuffer buf) {
+        public void write(ByteBuffer buf) {
             super.write(buf);
             buf.putLong(parentPage);
             buf.putShort(valueCount);
