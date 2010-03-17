@@ -312,8 +312,6 @@ public final class LabelingHandler extends Serializer {
             throw new XQRTException("failed flushing indexer", dbe);
         }
 
-        final long pathPages = pathIndexer.getPageCount();
-        docProps.setProperty(PATHS_IDX_PAGES + docName, String.valueOf(pathPages));
         docProps.setProperty(PATHS_IDX_ENTRIES + docName, String.valueOf(pathIdxEntries));
         docProps.setProperty(PATHS_IDX_DUPLICATES + docName, String.valueOf(pathIdxDuplicates));
         docProps.setProperty(PATHS_IDX_UNIQUES + docName, String.valueOf(pathIdxEntries

@@ -23,8 +23,9 @@ package xbird.storage.indexer;
 import java.io.File;
 
 import xbird.storage.DbException;
-import xbird.storage.index.*;
-import xbird.storage.index.Paged.FileHeader;
+import xbird.storage.index.BTree;
+import xbird.storage.index.BTreeCallback;
+import xbird.storage.index.Value;
 
 /**
  * 
@@ -68,11 +69,6 @@ public class BTreeIndexer implements Indexer {
 
     public String getName() {
         return name;
-    }
-
-    public long getPageCount() {
-        final FileHeader header = btree.getFileHeader();
-        return header.getTotalPageCount();
     }
 
     public long add(byte[] key, long value) throws DbException {

@@ -61,11 +61,14 @@ public final class BIndexMultiValueFile extends BIndexFile {
         final long ptr = findValue(key);
         if(ptr != KEY_NOT_FOUND) {// key found
             // update the page
-            MultiPtrs ptrs = ptrsCache.get(ptr);
-            if(ptrs == null) {//TODO concurrent insertion is too slow..
-                byte[] ptrTuple = retrieveTuple(ptr);
-                ptrs = MultiPtrs.readFrom(ptrTuple);
-                ptrsCache.put(ptr, ptrs);
+            MultiPtrs ptrs;
+            synchronized(ptrsCache) {
+                ptrs = ptrsCache.get(ptr);
+                if(ptrs == null) {//TODO concurrent insertion is too slow..
+                    byte[] ptrTuple = retrieveTuple(ptr);
+                    ptrs = MultiPtrs.readFrom(ptrTuple);
+                    ptrsCache.put(ptr, ptrs);
+                }
             }
             ptrs.addPointer(valuePtr);
             updateValue(ptr, ptrs);
@@ -75,7 +78,9 @@ public final class BIndexMultiValueFile extends BIndexFile {
             MultiPtrs ptrs = new MultiPtrs(valuePtr);
             long newPtr = storeValue(ptrs);
             addValue(key, newPtr);
-            ptrsCache.put(newPtr, ptrs);
+            synchronized(ptrsCache) {
+                ptrsCache.put(newPtr, ptrs);
+            }
             return newPtr;
         }
     }
@@ -94,15 +99,19 @@ public final class BIndexMultiValueFile extends BIndexFile {
         }
 
         public boolean indexInfo(Value key, long pointer) {
-            MultiPtrs ptrs = ptrsCache.get(pointer);
-            if(ptrs == null) {
-                final byte[] ptrTuple;
-                try {
-                    ptrTuple = retrieveTuple(pointer);
-                } catch (DbException e) {
-                    throw new IllegalStateException(e);
+            MultiPtrs ptrs;
+            synchronized(ptrsCache) {
+                ptrs = ptrsCache.get(pointer);
+                if(ptrs == null) {
+                    final byte[] ptrTuple;
+                    try {
+                        ptrTuple = retrieveTuple(pointer);
+                    } catch (DbException e) {
+                        throw new IllegalStateException(e);
+                    }
+                    ptrs = MultiPtrs.readFrom(ptrTuple);
                 }
-                ptrs = MultiPtrs.readFrom(ptrTuple);
+                ptrsCache.put(pointer, ptrs);
             }
             final LongArrayList lptrs = ptrs.getPointers();
             final int size = lptrs.size();
@@ -161,7 +170,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
             final byte[] oldData = _data;
             final int offset = HEADER_LENGTH + (_used << 3);
             _ptrs.add(ptr);
-            _used++;                 
+            _used++;
             if((_free--) > 0) {
                 Primitives.putInt(oldData, 0, _used);
                 Primitives.putInt(oldData, 4, _free);
@@ -195,7 +204,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
             final int free = Primitives.getInt(b, 4);
             final long[] ptrs = new long[(used * 3) / 2];
             for(int i = 0, idx = 8; i < used; i++, idx += 8) {
-                ptrs[i] = Primitives.getLong(b, idx);                
+                ptrs[i] = Primitives.getLong(b, idx);
             }
             return new MultiPtrs(b, ptrs, used, free);
         }

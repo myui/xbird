@@ -46,12 +46,15 @@ import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Map;
-import java.util.WeakHashMap;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.storage.DbException;
+import xbird.util.concurrent.reference.ReferenceMap;
+import xbird.util.concurrent.reference.ReferenceType;
 import xbird.util.io.FastMultiByteArrayOutputStream;
 
 /**
@@ -61,6 +64,7 @@ import xbird.util.io.FastMultiByteArrayOutputStream;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
+@NotThreadSafe
 public abstract class Paged {
     private static final Log LOG = LogFactory.getLog(Paged.class);
 
@@ -73,7 +77,7 @@ public abstract class Paged {
 
     //--------------------------------------------
 
-    private final Map<Long, Reference<Page>> _pages = new WeakHashMap<Long, Reference<Page>>(32);
+    private final Map<Long, Reference<Page>> _pages = new ReferenceMap<Long, Reference<Page>>(ReferenceType.WEAK, ReferenceType.SOFT, 64);
 
     private final FileHeader _fileHeader;
     protected final File _file;
@@ -150,7 +154,7 @@ public abstract class Paged {
         return _raf;
     }
 
-    public synchronized boolean close() throws DbException {
+    public boolean close() throws DbException {
         if(_opened) {
             this._opened = false;
             // close resources
@@ -208,35 +212,33 @@ public abstract class Paged {
      *
      * @return a new FileHeader
      */
-    public abstract FileHeader createFileHeader(int pageSize);
+    protected abstract FileHeader createFileHeader(int pageSize);
 
     /**
      * createPageHeader must be implemented by a Paged implementation
      * in order to create an appropriate subclass instance of a PageHeader.
      */
-    public abstract PageHeader createPageHeader();
+    protected abstract PageHeader createPageHeader();
 
     /**
      * getPage returns the page specified by pageNum.
      */
     protected final Page getPage(long pageNum) throws DbException {
         Page p = null;
-        synchronized(this) {
-            // if not check if it's already loaded in the page cache
-            Reference<Page> ref = _pages.get(pageNum); // Check if required page is in the volatile cache
-            if(ref != null) {
-                p = ref.get();
+        // if not check if it's already loaded in the page cache
+        Reference<Page> ref = _pages.get(pageNum); // Check if required page is in the volatile cache
+        if(ref != null) {
+            p = ref.get();
+        }
+        if(p == null) {
+            // if still not found we need to create it and add it to the page cache.
+            p = new Page(pageNum);
+            try {
+                p.read(); // Load the page from disk if necessary
+            } catch (IOException e) {
+                throw new DbException(e);
             }
-            if(p == null) {
-                // if still not found we need to create it and add it to the page cache.
-                p = new Page(pageNum);
-                try {
-                    p.read(); // Load the page from disk if necessary
-                } catch (IOException e) {
-                    throw new DbException(e);
-                }
-                _pages.put(pageNum, new WeakReference<Page>(p));
-            }
+            _pages.put(pageNum, new WeakReference<Page>(p));
         }
         return p;
     }
@@ -248,14 +250,12 @@ public abstract class Paged {
     protected final Page getFreePage() throws DbException {
         Page p = null;
         // Synchronize read and write to the fileHeader.firstFreePage
-        synchronized(_fileHeader) {
-            if(_fileHeader._firstFreePage != NO_PAGE) {
-                // Steal a deleted page
-                p = getPage(_fileHeader._firstFreePage);
-                _fileHeader.setFirstFreePage(p._pageHeader._nextPage);
-                if(_fileHeader._firstFreePage == NO_PAGE) {
-                    _fileHeader.setLastFreePage(NO_PAGE);
-                }
+        if(_fileHeader._firstFreePage != NO_PAGE) {
+            // Steal a deleted page
+            p = getPage(_fileHeader._firstFreePage);
+            _fileHeader.setFirstFreePage(p._pageHeader._nextPage);
+            if(_fileHeader._firstFreePage == NO_PAGE) {
+                _fileHeader.setLastFreePage(NO_PAGE);
             }
         }
         if(p == null) { // No deleted pages, grow the file
@@ -288,17 +288,15 @@ public abstract class Paged {
             }
             long lastPage = nextPage.getPageNum();
             // Free the chain
-            synchronized(_fileHeader) {
-                if(_fileHeader._lastFreePage != NO_PAGE) {
-                    Page p = getPage(_fileHeader._lastFreePage);
-                    p._pageHeader.setNextPage(firstPage);
-                    p.write();
-                }
-                if(_fileHeader._firstFreePage == NO_PAGE) {
-                    _fileHeader.setFirstFreePage(firstPage);
-                }
-                _fileHeader.setLastFreePage(lastPage);
+            if(_fileHeader._lastFreePage != NO_PAGE) {
+                Page p = getPage(_fileHeader._lastFreePage);
+                p._pageHeader.setNextPage(firstPage);
+                p.write();
             }
+            if(_fileHeader._firstFreePage == NO_PAGE) {
+                _fileHeader.setFirstFreePage(firstPage);
+            }
+            _fileHeader.setLastFreePage(lastPage);
         }
     }
 
@@ -467,21 +465,19 @@ public abstract class Paged {
             this._workSize = calculateWorkSize();
         }
 
-        public synchronized final void write() throws IOException {
+        public final void write() throws IOException {
             if(!_fhDirty) {
                 return;
             }
-            synchronized(_raf) {
-                _raf.seek(0);
-                write(_raf);
-            }
+            _raf.seek(0);
+            write(_raf);
             if(LOG.isDebugEnabled()) {
                 LOG.debug("wrote file header");
             }
             this._fhDirty = false;
         }
 
-        protected synchronized void write(RandomAccessFile raf) throws IOException {
+        protected void write(RandomAccessFile raf) throws IOException {
             raf.writeShort(_fhSize);
             raf.writeInt(_pageSize);
             raf.writeLong(_totalPageCount);
@@ -490,15 +486,13 @@ public abstract class Paged {
             raf.writeByte(_pageHeaderSize);
         }
 
-        public synchronized final void read() throws IOException {
-            synchronized(_raf) {
-                _raf.seek(0);
-                read(_raf);
-                this._workSize = calculateWorkSize();
-            }
+        public final void read() throws IOException {
+            _raf.seek(0);
+            read(_raf);
+            this._workSize = calculateWorkSize();
         }
 
-        protected synchronized void read(RandomAccessFile raf) throws IOException {
+        protected void read(RandomAccessFile raf) throws IOException {
             this._fhSize = raf.readShort();
             this._pageSize = raf.readInt();
             this._totalPageCount = raf.readLong();
@@ -509,7 +503,7 @@ public abstract class Paged {
 
         //--------------------------------------------
 
-        public synchronized final void setFirstFreePage(long page) {
+        public final void setFirstFreePage(long page) {
             this._firstFreePage = page;
             this._fhDirty = true;
         }
@@ -518,7 +512,7 @@ public abstract class Paged {
             return _firstFreePage;
         }
 
-        public synchronized final void setLastFreePage(long page) {
+        public final void setLastFreePage(long page) {
             this._lastFreePage = page;
             this._fhDirty = true;
         }
@@ -527,21 +521,21 @@ public abstract class Paged {
             return _lastFreePage;
         }
 
-        public synchronized final long incrTotalPageCount() {
+        public final long incrTotalPageCount() {
             this._fhDirty = true;
             return _totalPageCount++;
         }
 
-        public synchronized final void setDirty(boolean dirty) {
+        public final void setDirty(boolean dirty) {
             this._fhDirty = dirty;
         }
 
-        public synchronized void setTotalPageCount(long pageCount) {
+        public void setTotalPageCount(long pageCount) {
             this._fhDirty = true;
             this._totalPageCount = pageCount;
         }
 
-        public synchronized final long getTotalPageCount() {
+        public final long getTotalPageCount() {
             return _totalPageCount;
         }
 
@@ -560,7 +554,7 @@ public abstract class Paged {
 
     public static abstract class PageHeader {
 
-        public static final int DEFAULT_PAGE_HEADER_SIZE = 64;
+        public static final int DEFAULT_PAGE_HEADER_SIZE = 127;
 
         //--------------------------------------------
         // persistent entry        
@@ -578,7 +572,7 @@ public abstract class Paged {
             read(buf);
         }
 
-        public synchronized void read(ByteBuffer buf) {
+        public void read(ByteBuffer buf) {
             this._status = buf.get();
             if(_status == UNUSED) {
                 return;
@@ -588,7 +582,7 @@ public abstract class Paged {
             this._nextPage = buf.getLong();
         }
 
-        public synchronized void write(ByteBuffer buf) {
+        public void write(ByteBuffer buf) {
             buf.put(_status);
             buf.putInt(_dataLen);
             buf.putInt(_recordLen);
@@ -654,7 +648,7 @@ public abstract class Paged {
             this._pageOffset = _fileHeader._fhSize + (pageNum * _fileHeader._pageSize);
         }
 
-        public synchronized void read() throws IOException {
+        public void read() throws IOException {
             if(_pageData == null) {
                 if(LOG.isDebugEnabled()) {
                     LOG.debug("read in page#" + _pageNum + " from page offset " + _pageOffset);
@@ -669,24 +663,20 @@ public abstract class Paged {
         }
 
         public void write() throws DbException {
-            synchronized(this) {
-                _pageData.rewind();
-                _pageHeader.write(_pageData);
-            }
-            synchronized(_raf) {
-                try {
-                    _raf.seek(_pageOffset);
-                    _raf.write(_pageData.array());
-                } catch (IOException e) {
-                    throw new DbException(e);
-                }
+            _pageData.rewind();
+            _pageHeader.write(_pageData);
+            try {
+                _raf.seek(_pageOffset);
+                _raf.write(_pageData.array());
+            } catch (IOException e) {
+                throw new DbException(e);
             }
         }
 
         /**
          * Flushes content of the dirty page into the file
          */
-        public synchronized void flush() throws IOException {
+        public void flush() throws IOException {
             if(LOG.isDebugEnabled()) {
                 LOG.debug("write out page#" + _pageNum + " to page offset " + _pageOffset);
             }
@@ -694,7 +684,7 @@ public abstract class Paged {
             _raf.write(_pageData.array());
         }
 
-        public synchronized void writeData(OutputStream os) throws IOException {
+        public void writeData(OutputStream os) throws IOException {
             if(_pageHeader._dataLen > 0) {
                 byte[] b = new byte[_pageHeader._dataLen];
                 _pageData.position(_dataPos);
@@ -703,7 +693,7 @@ public abstract class Paged {
             }
         }
 
-        public synchronized void readData(InputStream is) throws IOException {
+        public void readData(InputStream is) throws IOException {
             // set data length in the page header
             int avail = is.available();
             int datalen = _fileHeader._workSize;
