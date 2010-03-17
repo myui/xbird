@@ -43,6 +43,8 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import javax.annotation.CheckForNull;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -158,6 +160,7 @@ public class BTree extends Paged {
             } catch (DbException e) {
                 throw new IllegalStateException(e);
             }
+            node.clear();
         }
 
     }
@@ -165,9 +168,9 @@ public class BTree extends Paged {
     @Override
     public boolean open() throws DbException {
         if(super.open()) {
-            final long p = _fileHeader.getRootPage();
+            long p = _fileHeader.getRootPage();
             this._rootInfo = new BTreeRootInfo(p);
-            this._rootNode = getBTreeNode(_rootInfo, p, null);
+            this._rootNode = getBTreeNode(_rootInfo, p);
             return true;
         } else {
             return false;
@@ -182,7 +185,7 @@ public class BTree extends Paged {
             // Initialize root node
             long p = _fileHeader.getRootPage();
             this._rootInfo = new BTreeRootInfo(p);
-            this._rootNode = new BTreeNode(_rootInfo, getPage(p));
+            this._rootNode = new BTreeNode(_rootInfo, getPage(p), null);
             _rootNode.ph.setStatus(LEAF);
             _rootNode.set(new Value[0], new long[0]);
             try {
@@ -215,28 +218,9 @@ public class BTree extends Paged {
      * @param pointer The pointer to associate with it
      * @return The previous value for the pointer (or -1)
      */
-    public long addValue(Value value, long pointer) throws DbException {
+    public synchronized long addValue(Value value, long pointer) throws DbException {
         try {
-            return getRootNode().addValue(value, pointer);
-        } catch (IOException e) {
-            throw new DbException(e);
-        }
-    }
-
-    /**
-     * addValue adds a Value to the BTree and associates a pointer with
-     * it.  The pointer can be used for referencing any type of data, it
-     * just so happens that Xindice uses it for referencing pages of
-     * associated data in the BTree file or other files.
-     *
-     * @param root The BTree's root information (for nested trees)
-     * @param value The Value to add
-     * @param pointer The pointer to associate with it
-     * @return The previous value for the pointer (or -1)
-     */
-    public long addValue(BTreeRootInfo root, Value value, long pointer) throws DbException {
-        try {
-            return getRootNode(root).addValue(value, pointer);
+            return _rootNode.addValue(value, pointer);
         } catch (IOException e) {
             throw new DbException(e);
         }
@@ -249,33 +233,17 @@ public class BTree extends Paged {
      * @param value The Value to remove
      * @return The pointer that was associated with it
      */
-    public long removeValue(Value value) throws DbException {
+    public synchronized long removeValue(Value value) throws DbException {
         try {
-            return getRootNode().removeValue(value);
+            return _rootNode.removeValue(value);
         } catch (IOException e) {
             throw new DbException(e);
         }
     }
 
-    public long[] removeValue(Value value, long pointer) throws DbException {
+    public synchronized long[] removeValue(Value value, long pointer) throws DbException {
         try {
-            return getRootNode().removeValue(value, pointer);
-        } catch (IOException e) {
-            throw new DbException(e);
-        }
-    }
-
-    /**
-     * removeValue removes a Value from the BTree and returns the
-     * associated pointer for it.
-     *
-     * @param root The BTree's root information (for nested trees)
-     * @param value The Value to remove
-     * @return The pointer that was associated with it
-     */
-    public long removeValue(BTreeRootInfo root, Value value) throws DbException {
-        try {
-            return getRootNode(root).removeValue(value);
+            return _rootNode.removeValue(value, pointer);
         } catch (IOException e) {
             throw new DbException(e);
         }
@@ -288,21 +256,8 @@ public class BTree extends Paged {
      * @param value The Value to find
      * @return The pointer that was associated with it
      */
-    public long findValue(Value value) throws DbException {
-        return getRootNode().findValue(value);
-    }
-
-    /**
-     * findValue finds a Value in the BTree and returns the associated
-     * pointer for it.
-     *
-     * @param root The BTree's root information (for nested trees)
-     * @param value The Value to find
-     * @return The pointer that was associated with it
-     */
-    @Deprecated
-    public long findValue(BTreeRootInfo root, Value value) throws DbException {
-        return getRootNode(root).findValue(value);
+    public synchronized long findValue(Value value) throws DbException {
+        return _rootNode.findValue(value);
     }
 
     public enum SearchType {
@@ -316,13 +271,12 @@ public class BTree extends Paged {
      * @param query The IndexQuery to use
      * @param callback The callback instance
      */
-    public void search(IndexQuery query, BTreeCallback callback) throws DbException {
+    public synchronized void search(IndexQuery query, BTreeCallback callback) throws DbException {
         if(query == null) {
             throw new IllegalArgumentException();
         }
-        BTreeNode root = getRootNode();
-        Value[] keys = query.getOperands();
-        assert (keys.length >= 1) : keys.length;
+        final BTreeNode root = _rootNode;
+        final Value[] keys = query.getOperands();
         final int op = query.getOperator();
         try {
             switch(op) {
@@ -412,31 +366,24 @@ public class BTree extends Paged {
             } else if(next == -1L) {
                 throw new IllegalStateException("range scan failed... bug?");
             }
-            cur = getBTreeNode(_rootInfo, next, null);
+            cur = getBTreeNode(_rootInfo, next);
         }
         if(LOG.isDebugEnabled()) {
             LOG.debug("scan range end. total scaned pages: " + scaned);
         }
     }
 
-    public FileHeader createFileHeader(int pageSize) {
+    protected FileHeader createFileHeader(int pageSize) {
         return new BTreeFileHeader(pageSize);
     }
 
-    public PageHeader createPageHeader() {
+    protected PageHeader createPageHeader() {
         return new BTreePageHeader();
     }
 
     @Override
-    public BTreeFileHeader getFileHeader() {
+    protected BTreeFileHeader getFileHeader() {
         return (BTreeFileHeader) super.getFileHeader();
-    }
-
-    /**
-     * getRootNode retreives the BTree node for the file's root.
-     */
-    protected final BTreeNode getRootNode() {
-        return _rootNode;
     }
 
     /**
@@ -450,17 +397,16 @@ public class BTree extends Paged {
         if(root.page == _rootInfo.page) {
             return _rootNode;
         } else {
-            return getBTreeNode(root, root.getPage(), null);
+            return getBTreeNode(root, root.getPage());
         }
     }
 
-    private final BTreeNode getBTreeNode(BTreeRootInfo root, long page, BTreeNode parent)
-            throws DbException {
+    private final BTreeNode getBTreeNode(BTreeRootInfo root, long page) throws DbException {
         BTreeNode node;
         synchronized(_cache) {
             node = _cache.get(page);
             if(node == null) {
-                node = new BTreeNode(root, getPage(page), parent);
+                node = new BTreeNode(root, getPage(page));
                 try {
                     node.read();
                 } catch (IOException e) {
@@ -470,15 +416,16 @@ public class BTree extends Paged {
                     LOG.debug("read node page#" + page + ", keys: " + node.keys.length);
                 }
                 _cache.put(node.page.getPageNum(), node);
-            } else {
-                node.parent = parent;
             }
         }
         return node;
     }
 
-    private final BTreeNode createBTreeNode(BTreeRootInfo root, byte status, BTreeNode parent)
+    private final BTreeNode createBTreeNode(BTreeRootInfo root, byte status, @CheckForNull BTreeNode parent)
             throws DbException {
+        if(parent == null) {
+            throw new IllegalArgumentException();
+        }
         Page p = getFreePage();
         BTreeNode node = new BTreeNode(root, p, parent);
         //node.set(new Value[0], new long[0]);
@@ -489,18 +436,18 @@ public class BTree extends Paged {
         return node;
     }
 
-    public void flush(boolean purge, boolean clear) throws DbException {
+    public synchronized void flush(boolean purge, boolean clear) throws DbException {
         if(purge) {
-            for(BucketEntry<BTreeNode> e : _cache) {
-                BTreeNode node = e.getValue();
-                if(node == null) {
-                    continue;
+            try {
+                _rootNode.write();
+                for(BucketEntry<BTreeNode> e : _cache) {
+                    BTreeNode node = e.getValue();
+                    if(node != null) {
+                        node.write();
+                    }
                 }
-                try {
-                    node.write();
-                } catch (IOException ioe) {
-                    throw new DbException(ioe);
-                }
+            } catch (IOException ioe) {
+                throw new DbException(ioe);
             }
         }
         if(clear) {
@@ -511,26 +458,14 @@ public class BTree extends Paged {
 
     private static final class BTreeRootInfo {
 
-        private final BTreeRootInfo parent;
-        private final Value name;
         private final long page;
 
-        private BTreeRootInfo(final long page) {
-            this.parent = null;
-            this.name = null;
+        private BTreeRootInfo(long page) {
             this.page = page;
-        }
-
-        public Value getName() {
-            return name;
         }
 
         public long getPage() {
             return page;
-        }
-
-        public BTreeRootInfo getParent() {
-            return parent;
         }
     }
 
@@ -539,7 +474,6 @@ public class BTree extends Paged {
         private final BTreeRootInfo root;
         private final Page page;
         private final BTreePageHeader ph;
-        private BTreeNode parent;
 
         private Value[] keys;
         private long[] ptrs;
@@ -553,19 +487,32 @@ public class BTree extends Paged {
 
         //--------------------------------------------
 
-        protected BTreeNode(final BTreeRootInfo root, final Page page, final BTreeNode parent) {
+        protected BTreeNode(final BTreeRootInfo root, final Page page, final BTreeNode parentNode) {
             this.root = root;
             this.page = page;
             this.ph = (BTreePageHeader) page.getPageHeader();
-            this.parent = parent;
+            ph.setParent(parentNode);
         }
 
         protected BTreeNode(final BTreeRootInfo root, final Page page) {
-            this(root, page, null);
+            this.root = root;
+            this.page = page;
+            this.ph = (BTreePageHeader) page.getPageHeader();
         }
 
-        private synchronized long addValue(Value value, long pointer) throws IOException,
-                DbException {
+        private BTreeNode getParent() {
+            long page = ph.parentPage;
+            if(page != Paged.NO_PAGE) {
+                try {
+                    return getBTreeNode(_rootInfo, page);
+                } catch (DbException e) {
+                    throw new IllegalStateException("failed to get parent page #" + page, e);
+                }
+            }
+            return null;
+        }
+
+        long addValue(Value value, long pointer) throws IOException, DbException {
             if(value == null) {
                 throw new IllegalArgumentException("Can't add a null Value");
             }
@@ -666,7 +613,7 @@ public class BTree extends Paged {
         }
 
         /** @return pointer of left-most matched item */
-        private synchronized long removeValue(Value searchKey) throws IOException, DbException {
+        long removeValue(Value searchKey) throws IOException, DbException {
             int leftIdx = searchLeftmostKey(keys, searchKey, keys.length);
             switch(ph.getStatus()) {
                 case BRANCH:
@@ -689,8 +636,7 @@ public class BTree extends Paged {
 
         /** @return pointer of matched items */
         @Deprecated
-        private synchronized long[] removeValue(Value searchKey, long pointer) throws IOException,
-                DbException {
+        long[] removeValue(Value searchKey, long pointer) throws IOException, DbException {
             int leftIdx = searchLeftmostKey(keys, searchKey, keys.length);
             int rightIdx = isDuplicateAllowed() ? searchRightmostKey(keys, searchKey, keys.length)
                     : leftIdx;
@@ -736,7 +682,7 @@ public class BTree extends Paged {
          */
         private BTreeNode getChildNode(final int idx) throws DbException {
             if(ph.getStatus() == BRANCH && idx >= 0 && idx < ptrs.length) {
-                return getBTreeNode(root, ptrs[idx], this);
+                return getBTreeNode(root, ptrs[idx]);
             }
             return null;
         }
@@ -779,7 +725,7 @@ public class BTree extends Paged {
             final byte pageType = ph.getStatus();
             int leftLookup = 0;
             switch(pageType) {
-                case BRANCH:
+                case BRANCH: {
                     leftVals = new Value[pivot];
                     leftPtrs = new long[leftVals.length + 1];
                     rightVals = new Value[vc - (pivot + 1)];
@@ -792,7 +738,8 @@ public class BTree extends Paged {
 
                     separator = keys[leftVals.length];
                     break;
-                case LEAF:
+                }
+                case LEAF: {
                     Value pivotLeft = keys[pivot - 1];
                     Value pivotRight = keys[pivot];
                     if(pivotLeft.equals(pivotRight)) {
@@ -817,11 +764,13 @@ public class BTree extends Paged {
 
                     separator = getSeparator(leftVals[leftVals.length - 1], rightVals[0]);
                     break;
+                }
                 default:
                     throw new BTreeCorruptException("Invalid page type in split: " + pageType);
             }
 
             // Promote the pivot to the parent branch
+            final BTreeNode parent = getParent(); // this node may be GC'd
             if(parent == null) {
                 // This can only happen if this is the root     
                 BTreeNode lNode = createBTreeNode(root, pageType, this);
@@ -840,7 +789,6 @@ public class BTree extends Paged {
                 set(new Value[] { separator }, new long[] { lNode.page.getPageNum(),
                         rNode.page.getPageNum() });
                 calculateDataLength();
-
             } else {
                 set(leftVals, leftPtrs);
                 calculateDataLength();
@@ -858,7 +806,7 @@ public class BTree extends Paged {
 
                 long leftPtr = page.getPageNum();
                 long rightPtr = rNode.page.getPageNum();
-                parent.promoteValue(separator, rightPtr, leftPtr);
+                parent.promoteValue(separator, leftPtr, rightPtr);
             }
         }
 
@@ -871,7 +819,7 @@ public class BTree extends Paged {
             final long origNext = left._next;
             if(origNext != -1L) {
                 right._next = origNext;
-                BTreeNode origNextNode = getBTreeNode(root, origNext, parent);
+                BTreeNode origNextNode = getBTreeNode(root, origNext);
                 origNextNode._prev = rightPageNum;
                 origNextNode.setDirty(true);
             }
@@ -879,7 +827,7 @@ public class BTree extends Paged {
             right._prev = leftPageNum;
         }
 
-        private void promoteValue(final Value key, final long rightPointer, final long leftPtr)
+        private void promoteValue(final Value key, final long leftPtr, final long rightPtr)
                 throws IOException, DbException {
             final int leftIdx = searchRightmostKey(keys, key, keys.length);
             int insertPoint = (leftIdx < 0) ? -(leftIdx + 1) : leftIdx + 1;
@@ -890,7 +838,7 @@ public class BTree extends Paged {
                     insertPoint = i;
                     found = true;
                     break;
-                } else {
+                } else {                   
                     continue; // just for debugging
                 }
             }
@@ -899,8 +847,8 @@ public class BTree extends Paged {
                         + insertPoint + ", leftPtr: " + leftPtr + ", ptrs: "
                         + Arrays.toString(ptrs));
             }
-            set(ArrayUtils.<Value> insert(keys, insertPoint, key), ArrayUtils.insert(ptrs, insertPoint + 1, rightPointer));
-            incrDataLength(key, rightPointer);
+            set(ArrayUtils.<Value> insert(keys, insertPoint, key), ArrayUtils.insert(ptrs, insertPoint + 1, rightPtr));
+            incrDataLength(key, rightPtr);
 
             // Check to see if we've exhausted the block
             if(needSplit()) {
@@ -966,7 +914,7 @@ public class BTree extends Paged {
         /**
          * Reads node only if it is not loaded yet
          */
-        private synchronized void read() throws IOException, DbException {
+        private void read() throws IOException, DbException {
             if(!this.loaded) {
                 Value v = readValue(page);
                 DataInputStream in = new DataInputStream(v.getInputStream());
@@ -1018,7 +966,7 @@ public class BTree extends Paged {
             }
         }
 
-        private synchronized void write() throws IOException, DbException {
+        private void write() throws IOException, DbException {
             if(!dirty) {
                 return;
             }
@@ -1062,6 +1010,11 @@ public class BTree extends Paged {
 
             writeValue(page, new Value(bos.toByteArray()));
             setDirty(false);
+        }
+
+        void clear() {//help GC
+            this.keys = null;
+            this.ptrs = null;
         }
 
         private int calculateDataLength() {
@@ -1116,7 +1069,7 @@ public class BTree extends Paged {
         }
 
         /** find lest-most value which matches to the key */
-        private synchronized long findValue(Value serarchKey) throws DbException {
+        long findValue(Value serarchKey) throws DbException {
             if(serarchKey == null) {
                 throw new DbException("Can't search on null Value");
             }
@@ -1132,7 +1085,7 @@ public class BTree extends Paged {
                         if(idx == 0 && (ph.getLeftLookup() > 0)) {
                             BTreeNode leftmostNode = this;
                             while(true) {
-                                leftmostNode = getBTreeNode(root, leftmostNode._prev, parent);
+                                leftmostNode = getBTreeNode(root, leftmostNode._prev);
                                 final Value[] lmKeys = leftmostNode.keys;
                                 assert (lmKeys.length > 0);
                                 if(!lmKeys[0].equals(serarchKey)) {
@@ -1165,7 +1118,7 @@ public class BTree extends Paged {
          * Scan the leaf node. 
          * Note that keys might be shortest-possible value.
          */
-        private void scanLeaf(IndexQuery query, BTreeCallback callback, boolean edge) {
+        void scanLeaf(IndexQuery query, BTreeCallback callback, boolean edge) {
             assert (ph.getStatus() == LEAF) : ph.getStatus();
             Value[] conds = query.getOperands();
             switch(query.getOperator()) {
@@ -1301,8 +1254,7 @@ public class BTree extends Paged {
             }
         }
 
-        private BTreeNode getLeafNode(SearchType searchType, Value key) throws IOException,
-                DbException {
+        BTreeNode getLeafNode(SearchType searchType, Value key) throws IOException, DbException {
             final byte nodeType = ph.getStatus();
             switch(nodeType) {
                 case BRANCH:
@@ -1336,7 +1288,7 @@ public class BTree extends Paged {
                             if(keys[0].equals(key)) {
                                 int lookup = ph.getLeftLookup();
                                 while(lookup > 0) {
-                                    leftmostNode = getBTreeNode(root, leftmostNode._prev, parent);
+                                    leftmostNode = getBTreeNode(root, leftmostNode._prev);
                                     int keylen = leftmostNode.keys.length;
                                     if(lookup < keylen) {
                                         break;
@@ -1355,7 +1307,8 @@ public class BTree extends Paged {
                         }
                         case RIGHT_MOST:
                             if(_next != -1L) {
-                                BTreeNode nextNode = getBTreeNode(root, _next, parent);
+                                BTreeNode nextNode = getBTreeNode(root, _next);
+                                BTreeNode parent = getParent();
                                 throw new IllegalStateException("next=" + _next + ".. more leaf ["
                                         + nextNode + "] exists on the right side of leaf ["
                                         + this.toString() + "]\n parent-ptrs: "
@@ -1364,7 +1317,8 @@ public class BTree extends Paged {
                             break;
                         case LEFT_MOST:
                             if(_prev != -1L) {
-                                BTreeNode prevNode = getBTreeNode(root, _prev, parent);
+                                BTreeNode prevNode = getBTreeNode(root, _prev);
+                                BTreeNode parent = getParent();
                                 throw new IllegalStateException("prev=" + _prev + ".. more leaf ["
                                         + prevNode + "] exists on the left side of leaf ["
                                         + this.toString() + "]\n parent-ptrs: "
@@ -1388,7 +1342,7 @@ public class BTree extends Paged {
             while(true) {
                 final long curPageNum = pn.page.getPageNum();
                 buf.append(curPageNum);
-                pn = pn.parent;
+                pn = pn.getParent();
                 if(pn == null) {
                     if(curPageNum != rootPage) {
                         buf.append("<-?");
@@ -1444,6 +1398,7 @@ public class BTree extends Paged {
 
     protected class BTreePageHeader extends PageHeader {
 
+        private long parentPage;
         private short valueCount = 0;
         private short prefixLength = 0;
         private int leftLookup = 0;
@@ -1463,6 +1418,7 @@ public class BTree extends Paged {
             if(getStatus() == UNUSED) {
                 return;
             }
+            parentPage = buf.getLong();
             valueCount = buf.getShort();
             prefixLength = buf.getShort();
             leftLookup = buf.getInt();
@@ -1471,9 +1427,18 @@ public class BTree extends Paged {
         @Override
         public synchronized void write(ByteBuffer buf) {
             super.write(buf);
+            buf.putLong(parentPage);
             buf.putShort(valueCount);
             buf.putShort(prefixLength);
             buf.putInt(leftLookup);
+        }
+
+        public void setParent(BTreeNode parentNode) {
+            if(parentNode == null) {
+                this.parentPage = Paged.NO_PAGE;
+            } else {
+                this.parentPage = parentNode.page.getPageNum();
+            }
         }
 
         /** The number of values stored by this page */

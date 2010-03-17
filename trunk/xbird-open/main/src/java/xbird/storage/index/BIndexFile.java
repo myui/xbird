@@ -95,17 +95,17 @@ public class BIndexFile extends BTree {
     }
 
     @Override
-    public BFileHeader createFileHeader(int pageSize) {
+    protected BFileHeader createFileHeader(int pageSize) {
         return new BFileHeader(pageSize);
     }
 
     @Override
-    public BFileHeader getFileHeader() {
+    protected BFileHeader getFileHeader() {
         return (BFileHeader) super.getFileHeader();
     }
 
     @Override
-    public BFilePageHeader createPageHeader() {
+    protected BFilePageHeader createPageHeader() {
         return new BFilePageHeader();
     }
 
@@ -238,7 +238,7 @@ public class BIndexFile extends BTree {
         }
     }
 
-    public byte[][] remove(Value key) throws DbException {
+    public synchronized byte[][] remove(Value key) throws DbException {
         final List<byte[]> list = new ArrayList<byte[]>(4);
         while(true) {
             final long ptr = findValue(key);
@@ -312,10 +312,6 @@ public class BIndexFile extends BTree {
             this.page = page;
             ph = (BFilePageHeader) page.getPageHeader();
             ph.setStatus(DATA_RECORD);
-        }
-
-        public BFilePageHeader getPageHeader() {
-            return ph;
         }
 
         public long getPageNum() {
@@ -456,14 +452,14 @@ public class BIndexFile extends BTree {
         }
 
         @Override
-        public synchronized void read(RandomAccessFile raf) throws IOException {
+        public void read(RandomAccessFile raf) throws IOException {
             super.read(raf);
             this.multiValue = raf.readBoolean();
             freeList.read(raf);
         }
 
         @Override
-        public synchronized void write(RandomAccessFile raf) throws IOException {
+        public void write(RandomAccessFile raf) throws IOException {
             super.write(raf);
             raf.writeBoolean(multiValue);
             freeList.write(raf);
@@ -491,13 +487,13 @@ public class BIndexFile extends BTree {
         }
 
         @Override
-        public synchronized void read(ByteBuffer buf) {
+        public void read(ByteBuffer buf) {
             super.read(buf);
             this.tupleCount = buf.getInt();
         }
 
         @Override
-        public synchronized void write(ByteBuffer buf) {
+        public void write(ByteBuffer buf) {
             super.write(buf);
             buf.putInt(tupleCount);
         }
@@ -560,7 +556,7 @@ public class BIndexFile extends BTree {
     }
 
     @Override
-    public void flush(boolean purge, boolean clear) throws DbException {
+    public synchronized void flush(boolean purge, boolean clear) throws DbException {
         if(purge) {
             for(BucketEntry<DataPage> e : dataCache) {
                 DataPage dataPage = e.getValue();
