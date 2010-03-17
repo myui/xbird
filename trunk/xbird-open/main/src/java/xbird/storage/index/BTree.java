@@ -160,7 +160,6 @@ public class BTree extends Paged {
             } catch (DbException e) {
                 throw new IllegalStateException(e);
             }
-            node.clear();
         }
 
     }
@@ -170,7 +169,7 @@ public class BTree extends Paged {
         if(super.open()) {
             long p = _fileHeader.getRootPage();
             this._rootInfo = new BTreeRootInfo(p);
-            this._rootNode = getBTreeNode(_rootInfo, p);
+            this._rootNode = getBTreeNode(_rootInfo, p, null);
             return true;
         } else {
             return false;
@@ -366,7 +365,7 @@ public class BTree extends Paged {
             } else if(next == -1L) {
                 throw new IllegalStateException("range scan failed... bug?");
             }
-            cur = getBTreeNode(_rootInfo, next);
+            cur = getBTreeNode(_rootInfo, next, null);
         }
         if(LOG.isDebugEnabled()) {
             LOG.debug("scan range end. total scaned pages: " + scaned);
@@ -397,8 +396,33 @@ public class BTree extends Paged {
         if(root.page == _rootInfo.page) {
             return _rootNode;
         } else {
-            return getBTreeNode(root, root.getPage());
+            return getBTreeNode(root, root.getPage(), null);
         }
+    }
+
+    private final BTreeNode getBTreeNode(BTreeRootInfo root, long page, BTreeNode parent)
+            throws DbException {
+        BTreeNode node;
+        synchronized(_cache) {
+            node = _cache.get(page);
+            if(node == null) {
+                node = new BTreeNode(root, getPage(page), parent);
+                try {
+                    node.read();
+                } catch (IOException e) {
+                    throw new DbException("failed to read page#" + page, e);
+                }
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("read node page#" + page + ", keys: " + node.keys.length);
+                }
+                _cache.put(page, node);
+            } else {
+                if(parent != null) {
+                    node.setParent(parent);
+                }
+            }
+        }
+        return node;
     }
 
     private final BTreeNode getBTreeNode(BTreeRootInfo root, long page) throws DbException {
@@ -415,7 +439,7 @@ public class BTree extends Paged {
                 if(LOG.isDebugEnabled()) {
                     LOG.debug("read node page#" + page + ", keys: " + node.keys.length);
                 }
-                _cache.put(node.page.getPageNum(), node);
+                _cache.put(page, node);
             }
         }
         return node;
@@ -439,7 +463,6 @@ public class BTree extends Paged {
     public synchronized void flush(boolean purge, boolean clear) throws DbException {
         if(purge) {
             try {
-                //_rootNode.write();
                 for(BucketEntry<BTreeNode> e : _cache) {
                     BTreeNode node = e.getValue();
                     if(node != null) {
@@ -475,6 +498,9 @@ public class BTree extends Paged {
         private final Page page;
         private final BTreePageHeader ph;
 
+        // cached entry
+        private BTreeNode parentCache;
+
         private Value[] keys;
         private long[] ptrs;
         private long _next = -1;
@@ -492,6 +518,7 @@ public class BTree extends Paged {
             this.page = page;
             this.ph = (BTreePageHeader) page.getPageHeader();
             ph.setParent(parentNode);
+            this.parentCache = parentNode;
         }
 
         protected BTreeNode(final BTreeRootInfo root, final Page page) {
@@ -501,15 +528,28 @@ public class BTree extends Paged {
         }
 
         private BTreeNode getParent() {
+            if(parentCache != null) {
+                return parentCache;
+            }
             long page = ph.parentPage;
             if(page != Paged.NO_PAGE) {
                 try {
-                    return getBTreeNode(_rootInfo, page);
+                    parentCache = getBTreeNode(_rootInfo, page);
                 } catch (DbException e) {
                     throw new IllegalStateException("failed to get parent page #" + page, e);
                 }
+                return parentCache;
             }
             return null;
+        }
+
+        private void setParent(BTreeNode node) {
+            long parentPage = node.page.getPageNum();
+            if(parentPage != ph.parentPage) {
+                ph.parentPage = parentPage;
+                this.parentCache = node;
+                this.dirty = true;
+            }
         }
 
         long addValue(Value value, long pointer) throws IOException, DbException {
@@ -682,7 +722,7 @@ public class BTree extends Paged {
          */
         private BTreeNode getChildNode(final int idx) throws DbException {
             if(ph.getStatus() == BRANCH && idx >= 0 && idx < ptrs.length) {
-                return getBTreeNode(root, ptrs[idx]);
+                return getBTreeNode(root, ptrs[idx], this);
             }
             return null;
         }
@@ -776,10 +816,12 @@ public class BTree extends Paged {
                 BTreeNode lNode = createBTreeNode(root, pageType, this);
                 lNode.set(leftVals, leftPtrs);
                 lNode.calculateDataLength();
+                lNode.setAsParent();
 
                 BTreeNode rNode = createBTreeNode(root, pageType, this);
                 rNode.set(rightVals, rightPtrs);
                 rNode.calculateDataLength();
+                rNode.setAsParent();
 
                 if(pageType == LEAF) {
                     setLeavesLinked(lNode, rNode);
@@ -796,6 +838,7 @@ public class BTree extends Paged {
                 BTreeNode rNode = createBTreeNode(root, pageType, parent);
                 rNode.set(rightVals, rightPtrs);
                 rNode.calculateDataLength();
+                rNode.setAsParent();
 
                 if(pageType == LEAF) {
                     setLeavesLinked(this, rNode);
@@ -810,8 +853,17 @@ public class BTree extends Paged {
             }
         }
 
-        /** Set leaves linked 
-         * @throws DbException */
+        /**  Set the parent-link in all child nodes to point to this node */
+        private void setAsParent() throws DbException {
+            if(ph.getStatus() == BRANCH) {
+                for(final long ptr : ptrs) {
+                    BTreeNode child = getBTreeNode(_rootInfo, ptr, this);
+                    child.setParent(this);
+                }
+            }
+        }
+
+        /** Set leaves linked */
         private void setLeavesLinked(final BTreeNode left, final BTreeNode right)
                 throws DbException {
             final long leftPageNum = left.page.getPageNum();
@@ -1009,12 +1061,8 @@ public class BTree extends Paged {
             }
 
             writeValue(page, new Value(bos.toByteArray()));
+            this.parentCache = null;
             setDirty(false);
-        }
-
-        void clear() {//help GC
-            this.keys = null;
-            this.ptrs = null;
         }
 
         private int calculateDataLength() {

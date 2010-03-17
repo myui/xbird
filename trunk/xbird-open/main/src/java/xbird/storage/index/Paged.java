@@ -648,7 +648,7 @@ public abstract class Paged {
             this._pageOffset = _fileHeader._fhSize + (pageNum * _fileHeader._pageSize);
         }
 
-        public void read() throws IOException {
+        public synchronized void read() throws IOException {
             if(_pageData == null) {
                 if(LOG.isDebugEnabled()) {
                     LOG.debug("read in page#" + _pageNum + " from page offset " + _pageOffset);
@@ -662,7 +662,7 @@ public abstract class Paged {
             }
         }
 
-        public void write() throws DbException {
+        public synchronized void write() throws DbException {
             _pageData.rewind();
             _pageHeader.write(_pageData);
             try {
