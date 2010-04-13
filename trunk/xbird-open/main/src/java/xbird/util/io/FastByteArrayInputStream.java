@@ -27,9 +27,11 @@ import java.io.InputStream;
  */
 public final class FastByteArrayInputStream extends InputStream {
 
-    protected final byte[] buf;
-    protected final int count;
+    protected/* final */byte[] buf;
+    protected/* final */int count;
     protected int pos = 0;
+
+    public FastByteArrayInputStream() {}
 
     public FastByteArrayInputStream(byte[] buf) {
         this(buf, buf.length);
@@ -44,6 +46,16 @@ public final class FastByteArrayInputStream extends InputStream {
         this.buf = buf;
         this.pos = offset;
         this.count = Math.min(offset + length, buf.length);
+    }
+
+    public void init(byte[] buf) {
+        init(buf, buf.length);
+    }
+
+    public void init(byte[] buf, int count) {
+        this.buf = buf;
+        this.count = count;
+        this.pos = 0;
     }
 
     @Override
