@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import xbird.util.io.FastByteArrayInputStream;
+
 /**
  * First 1 bit of each byte is frag to judge whether more lookahead is required or not. 
  * <DIV lang="en"></DIV>
@@ -134,8 +136,44 @@ public final class VariableByteCodec {
         while(true) {
             b = is.read();
             x |= (b & 0x7F) << shift;
-            final int more = b & 0x80;
-            if(more != 0x80) {
+            if((b & 0x80) != 0x80) {
+                break;
+            }
+            shift += 7;
+        }
+        return x;
+    }
+
+    public static int decodeInt(final FastByteArrayInputStream is) {
+        int x = 0;
+        int b = 0;
+        int shift = 0;
+
+        while(true) {
+            b = is.read();
+            x |= (b & 0x7F) << shift;
+            if((b & 0x80) != 0x80) {
+                break;
+            }
+            shift += 7;
+        }
+        return x;
+    }
+
+    public static int decodeInt(final byte[] val) {
+        return decodeInt(val, 0);
+    }
+
+    public static int decodeInt(final byte[] val, final int from) {
+        int x = 0;
+        int b = 0;
+        int shift = 0;
+
+        final int vlen = val.length;
+        for(int i = from; i < vlen; i++) {
+            b = val[i];
+            x |= (b & 0x7F) << shift;
+            if((b & 0x80) != 0x80) {
                 break;
             }
             shift += 7;
