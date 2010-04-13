@@ -36,6 +36,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +59,11 @@ public final class TransferUtils {
     private TransferUtils() {}
 
     public static void sendfile(@Nonnull File file, @Nonnull InetAddress dstAddr, int dstPort, boolean append, boolean sync)
+            throws IOException {
+        sendfile(file, null, dstAddr, dstPort, append, sync);
+    }
+
+    public static void sendfile(@Nonnull File file, @Nullable String writeDirPath, @Nonnull InetAddress dstAddr, int dstPort, boolean append, boolean sync)
             throws IOException {
         if(!file.exists()) {
             throw new IllegalArgumentException(file.getAbsolutePath() + " does not exist");
@@ -100,6 +106,7 @@ public final class TransferUtils {
 
             String fileName = file.getName();
             dos.writeUTF(fileName);
+            dos.writeUTF(writeDirPath);
             long filelen = fc.size();
             assert (filelen == file.length()) : "File.length '" + file.length()
                     + "' != FileChannel.length '" + filelen + '\'';

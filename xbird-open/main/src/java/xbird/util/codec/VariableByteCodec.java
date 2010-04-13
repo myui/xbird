@@ -20,7 +20,9 @@
  */
 package xbird.util.codec;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * First 1 bit of each byte is frag to judge whether more lookahead is required or not. 
@@ -101,9 +103,39 @@ public final class VariableByteCodec {
 
         while(true) {
             b = is.read();
-            final long more = b & 0x80L;
             x |= (b & 0x7FL) << shift;
+            final long more = b & 0x80L;
             if(more != 0x80L) {
+                break;
+            }
+            shift += 7;
+        }
+        return x;
+    }
+
+    public static void encodeInt(int val, final OutputStream os) throws IOException {
+        if(val < 0) {
+            throw new IllegalArgumentException("Illegal value: " + val);
+        }
+        while(val > 0x7F) {
+            final byte b = (byte) ((val & 0x7F) | 0x80);
+            os.write(b);
+            val >>= 7;
+        }
+        final byte b = (byte) val;
+        os.write(b);
+    }
+
+    public static int decodeInt(final InputStream is) throws IOException {
+        int x = 0;
+        int b = 0;
+        int shift = 0;
+
+        while(true) {
+            b = is.read();
+            x |= (b & 0x7F) << shift;
+            final int more = b & 0x80;
+            if(more != 0x80) {
                 break;
             }
             shift += 7;

@@ -123,6 +123,11 @@ public final class FileUtils {
         }
     }
 
+    public static List<File> listFiles(File directory, boolean recursive) {
+        return listFiles(directory, TrueFileFilter.INSTANCE, (recursive ? TrueFileFilter.INSTANCE
+                : FalseFileFilter.INSTANCE));
+    }
+
     public static List<File> listFiles(File directory, String suffix, boolean recursive) {
         return listFiles(directory, new String[] { suffix }, recursive);
     }
@@ -133,7 +138,7 @@ public final class FileUtils {
      */
     public static List<File> listFiles(File directory, String[] suffixes, boolean recursive) {
         final IOFileFilter filter;
-        if(suffixes == null) {
+        if(suffixes == null || suffixes.length == 0) {
             filter = TrueFileFilter.INSTANCE;
         } else {
             filter = new SuffixFileFilter(suffixes);
@@ -172,19 +177,6 @@ public final class FileUtils {
                 throw new IOException("Unable to delete file: " + files[i].getAbsolutePath());
             }
         }
-    }
-
-    /**
-     * Converts an array of file extensions to suffixes for use
-     * with IOFileFilters.
-     */
-    @Deprecated
-    private static String[] toSuffixes(String[] extensions) {
-        String[] suffixes = new String[extensions.length];
-        for(int i = 0; i < extensions.length; i++) {
-            suffixes[i] = "." + extensions[i];
-        }
-        return suffixes;
     }
 
     public static String getFileName(File file) {
@@ -247,6 +239,11 @@ public final class FileUtils {
         } catch (IOException e) {
             throw new IllegalStateException("failed reading a file: " + file.getAbsolutePath(), e);
         }
+    }
+
+    public static File resolvePath(File base, String path) {
+        File f = new File(path);
+        return f.isAbsolute() ? f : new File(base, path);
     }
 
     public interface IOFileFilter extends FileFilter, FilenameFilter {

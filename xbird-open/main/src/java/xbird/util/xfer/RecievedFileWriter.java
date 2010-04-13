@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import xbird.util.datetime.StopWatch;
+import xbird.util.io.FileUtils;
 
 /**
  * 
@@ -82,10 +83,17 @@ public final class RecievedFileWriter implements TransferRequestListener {
         DataInputStream dis = new DataInputStream(in);
 
         String fname = dis.readUTF();
+        String dirPath = dis.readUTF();
         long len = dis.readLong();
         boolean append = dis.readBoolean();
 
-        File file = new File(baseDir, fname);
+        final File file;
+        if(dirPath == null) {
+            File dir = FileUtils.resolvePath(baseDir, dirPath);
+            file = new File(dir, fname);
+        } else {
+            file = new File(baseDir, fname);
+        }
         final FileOutputStream dst = new FileOutputStream(file, append);
         final long wrote;
         try {
