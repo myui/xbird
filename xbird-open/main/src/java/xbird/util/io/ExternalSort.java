@@ -51,10 +51,10 @@ public final class ExternalSort {
     @Nonnull
     private final Comparator<byte[]> comparator;
 
-    private int inputFileBufSize = 8192;
-    private int outputBufSize = 4 * 1024 * 1024;
+    private int inputFileBufSize = 8192;            // 8KB
+    private int outputBufSize = 4 * 1024 * 1024;    // 40MB
     private boolean deleteInputFiles = true;
-    private int maxMergeOnce = -1;
+    private int maxMergeOnce = -1;                  // mergeAllAtOnce
 
     public ExternalSort(Comparator<byte[]> comparator) {
         this.reader = new DefaultRecordReader();
