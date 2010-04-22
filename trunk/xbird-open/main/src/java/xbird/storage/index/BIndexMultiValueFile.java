@@ -136,7 +136,7 @@ public final class BIndexMultiValueFile extends BIndexFile {
         }
     }
 
-    private static final class MultiPtrs extends Value {
+    static final class MultiPtrs extends Value {
         static final int HEADER_LENGTH = 8;
 
         private LongArrayList _ptrs;
