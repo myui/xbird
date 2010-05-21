@@ -79,7 +79,7 @@ public class BTreeScenarioTest {
                 f.open();
                 FileOutputStream fos = new FileOutputStream(args[1]);
                 final PrintStream ps = new PrintStream(fos);
-                f.search(new BasicIndexQuery.IndexConditionANY(), new BTreeCallback() {
+                f.search(new BasicIndexQuery.IndexConditionANY(), new CallbackHandler() {
                     public boolean indexInfo(Value value, long pointer) {
                         ps.println(value);
                         return true;
