@@ -23,6 +23,8 @@ package xbird.util.collections.ints;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import xbird.util.lang.ArrayUtils;
+
 /**
  * Dynamic Integer array.
  * <DIV lang="en">
@@ -124,7 +126,7 @@ public final class IntArrayList implements Serializable {
     }
 
     public int indexOf(int key) {
-        return Arrays.binarySearch(data, key);
+        return ArrayUtils.indexOf(data, key);
     }
 
     public int size() {

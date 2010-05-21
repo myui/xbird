@@ -112,6 +112,16 @@ public final class ArrayUtils {
         return INDEX_NOT_FOUND;
     }
 
+    public static int indexOf(final int[] array, final int value) {
+        final int alen = array.length;
+        for(int i = 0; i < alen; i++) {
+            if(value == array[i]) {
+                return i;
+            }
+        }
+        return INDEX_NOT_FOUND;
+    }
+
     public static int indexOf(final byte[] array, final byte valueToFind, int startIndex) {
         if(array == null) {
             return INDEX_NOT_FOUND;

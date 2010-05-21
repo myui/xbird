@@ -20,6 +20,7 @@
  */
 package xbird.util.codec;
 
+import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -61,6 +62,17 @@ public final class VariableByteCodec {
         final byte[] rbuf = new byte[i];
         System.arraycopy(buf, 0, rbuf, 0, i);
         return rbuf;
+    }
+
+    public static void encodeLong(long val, byte[] out, int offset) {
+        if(val < 0) {
+            throw new IllegalArgumentException("Illegal value: " + val);
+        }
+        while(val > 0x7FL) {
+            out[offset++] = (byte) ((val & 0x7F) | 0x80);
+            val >>= 7;
+        }
+        out[offset++] = (byte) val;
     }
 
     public static void encodeLong(long val, final OutputStream os) throws IOException {

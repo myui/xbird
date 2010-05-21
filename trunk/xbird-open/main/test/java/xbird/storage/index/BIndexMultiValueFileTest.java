@@ -112,7 +112,7 @@ public class BIndexMultiValueFileTest extends TestCase {
         final StopWatch watchdog2 = new StopWatch("Searching " + repeat + " objects");
         btree.setBulkloading(false, 0.1f, 0.1f);
         final SortedMap<Integer, Set<Integer>> actual = new TreeMap<Integer, Set<Integer>>();
-        btree.search(new IndexConditionANY(), new BTreeCallback() {
+        btree.search(new IndexConditionANY(), new CallbackHandler() {
             public boolean indexInfo(Value value, long pointer) {
                 throw new UnsupportedOperationException();
             }

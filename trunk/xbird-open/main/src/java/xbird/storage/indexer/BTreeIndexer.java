@@ -24,7 +24,7 @@ import java.io.File;
 
 import xbird.storage.DbException;
 import xbird.storage.index.BTree;
-import xbird.storage.index.BTreeCallback;
+import xbird.storage.index.CallbackHandler;
 import xbird.storage.index.Value;
 
 /**
@@ -90,7 +90,7 @@ public class BTreeIndexer implements Indexer {
         return match;
     }
 
-    private static final class Callback implements BTreeCallback {
+    private static final class Callback implements CallbackHandler {
 
         private final IndexMatch match;
 

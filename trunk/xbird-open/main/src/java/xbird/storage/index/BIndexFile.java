@@ -134,11 +134,11 @@ public class BIndexFile extends BTree {
     }
 
     @Override
-    public final void search(IndexQuery query, BTreeCallback callback) throws DbException {
+    public final void search(IndexQuery query, CallbackHandler callback) throws DbException {
         super.search(query, getHandler(callback));
     }
 
-    protected BTreeCallback getHandler(BTreeCallback handler) {
+    protected CallbackHandler getHandler(CallbackHandler handler) {
         return new BFileCallback(handler);
     }
 
@@ -500,11 +500,11 @@ public class BIndexFile extends BTree {
 
     }
 
-    private final class BFileCallback implements BTreeCallback {
+    private final class BFileCallback implements CallbackHandler {
 
-        final BTreeCallback handler;
+        final CallbackHandler handler;
 
-        public BFileCallback(BTreeCallback handler) {
+        public BFileCallback(CallbackHandler handler) {
             this.handler = handler;
         }
 

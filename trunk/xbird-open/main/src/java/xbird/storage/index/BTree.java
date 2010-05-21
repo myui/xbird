@@ -270,7 +270,7 @@ public class BTree extends Paged {
      * @param query The IndexQuery to use
      * @param callback The callback instance
      */
-    public synchronized void search(IndexQuery query, BTreeCallback callback) throws DbException {
+    public synchronized void search(IndexQuery query, CallbackHandler callback) throws DbException {
         if(query == null) {
             throw new IllegalArgumentException();
         }
@@ -341,7 +341,7 @@ public class BTree extends Paged {
         }
     }
 
-    private final void scanRange(BTreeNode left, BTreeNode right, IndexQuery query, BTreeCallback callback)
+    private final void scanRange(BTreeNode left, BTreeNode right, IndexQuery query, CallbackHandler callback)
             throws DbException {
         final long rightmostPageNum = right.page.getPageNum();
         if(LOG.isDebugEnabled()) {
@@ -1166,7 +1166,7 @@ public class BTree extends Paged {
          * Scan the leaf node. 
          * Note that keys might be shortest-possible value.
          */
-        void scanLeaf(IndexQuery query, BTreeCallback callback, boolean edge) {
+        void scanLeaf(IndexQuery query, CallbackHandler callback, boolean edge) {
             assert (ph.getStatus() == LEAF) : ph.getStatus();
             Value[] conds = query.getOperands();
             switch(query.getOperator()) {

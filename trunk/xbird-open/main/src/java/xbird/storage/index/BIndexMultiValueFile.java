@@ -86,15 +86,15 @@ public final class BIndexMultiValueFile extends BIndexFile {
     }
 
     @Override
-    protected BTreeCallback getHandler(BTreeCallback handler) {
+    protected CallbackHandler getHandler(CallbackHandler handler) {
         return new BIndexMultiValueCallback(handler);
     }
 
-    private final class BIndexMultiValueCallback implements BTreeCallback {
+    private final class BIndexMultiValueCallback implements CallbackHandler {
 
-        final BTreeCallback handler;
+        final CallbackHandler handler;
 
-        public BIndexMultiValueCallback(BTreeCallback handler) {
+        public BIndexMultiValueCallback(CallbackHandler handler) {
             this.handler = handler;
         }
 

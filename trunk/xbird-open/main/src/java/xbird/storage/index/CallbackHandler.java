@@ -36,9 +36,9 @@
 package xbird.storage.index;
 
 /**
- * BTreeCallback is a callback interface for BTree queries.
+ * CallbackHandler is a callback interface for index lookups.
  */
-public interface BTreeCallback {
+public interface CallbackHandler {
 
     /**
      * indexInfo is a callback method for index enumeration.
