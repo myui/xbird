@@ -691,7 +691,7 @@ public class BTreeTest extends TestCase {
         return new Value(v);
     }
 
-    private static class Callback implements BTreeCallback {
+    private static class Callback implements CallbackHandler {
         final List<Long> pointers = new ArrayList<Long>(8);
 
         public boolean indexInfo(Value value, long pointer) {
