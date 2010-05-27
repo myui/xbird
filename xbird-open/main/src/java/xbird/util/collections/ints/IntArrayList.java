@@ -53,8 +53,8 @@ public final class IntArrayList implements Serializable {
     }
 
     public IntArrayList(int[] initValues) {
-        this(initValues.length);
-        add(initValues);
+        this.data = initValues;
+        this.used = initValues.length;
     }
 
     public void add(int value) {
@@ -121,6 +121,10 @@ public final class IntArrayList implements Serializable {
     public int get(int index) {
         if(index >= used)
             throw new IndexOutOfBoundsException();
+        return data[index];
+    }
+
+    public int fastGet(int index) {
         return data[index];
     }
 

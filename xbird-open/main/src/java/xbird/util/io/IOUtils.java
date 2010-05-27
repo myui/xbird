@@ -321,6 +321,16 @@ public final class IOUtils {
         return b;
     }
 
+    public static void writeString(@Nullable final String s, final ObjectOutputStream out)
+            throws IOException {
+        writeString(s, (DataOutput) out);
+    }
+
+    public static void writeString(@Nullable final String s, final DataOutputStream out)
+            throws IOException {
+        writeString(s, (DataOutput) out);
+    }
+
     public static void writeString(@Nullable final String s, final DataOutput out)
             throws IOException {
         if(s == null) {
@@ -335,6 +345,30 @@ public final class IOUtils {
         }
     }
 
+    public static void writeString(@Nullable final String s, final OutputStream out)
+            throws IOException {
+        if(s == null) {
+            writeInt(-1, out);
+            return;
+        }
+        final int len = s.length();
+        writeInt(len, out);
+        for(int i = 0; i < len; i++) {
+            char c = s.charAt(i);
+            writeChar(c, out);
+        }
+    }
+
+    @Nullable
+    public static String readString(@Nonnull final ObjectInputStream in) throws IOException {
+        return readString((DataInput) in);
+    }
+
+    @Nullable
+    public static String readString(@Nonnull final DataInputStream in) throws IOException {
+        return readString((DataInput) in);
+    }
+
     @Nullable
     public static String readString(@Nonnull final DataInput in) throws IOException {
         final int len = in.readInt();
@@ -344,6 +378,19 @@ public final class IOUtils {
         final char[] ch = new char[len];
         for(int i = 0; i < len; i++) {
             ch[i] = in.readChar();
+        }
+        return new String(ch);
+    }
+
+    @Nullable
+    public static String readString(@Nonnull final InputStream in) throws IOException {
+        final int len = readInt(in);
+        if(len == -1) {
+            return null;
+        }
+        final char[] ch = new char[len];
+        for(int i = 0; i < len; i++) {
+            ch[i] = readChar(in);
         }
         return new String(ch);
     }
