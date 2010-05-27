@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,25 +42,15 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     private static final long serialVersionUID = 8775694634056054599L;
 
     private Map<E, Integer> _map;
-    private SparseArrayList<E> _list;
+    private List<E> _list;
 
     public IndexedSet() {
         this(256);
     }
 
-    public IndexedSet(final int size) {
+    public IndexedSet(int size) {
         this._map = new HashMap<E, Integer>(size);
-        this._list = new SparseArrayList<E>();
-    }
-
-    public IndexedSet(Map<E, Integer> delegate) {
-        this._map = delegate;
-        this._list = new SparseArrayList<E>();
-        for(Map.Entry<E, Integer> e : delegate.entrySet()) {
-            int i = e.getValue();
-            E v = e.getKey();
-            _list.add(i, v);
-        }
+        this._list = new ArrayList<E>(size);
     }
 
     public int indexOf(E e) {
@@ -70,9 +62,9 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
         if(_map.containsKey(e)) {
             return _map.get(e);
         } else {
-            final int i = _map.size();
+            int i = _list.size();
+            _list.add(e);
             _map.put(e, i);
-            _list.add(i, e);
             return i;
         }
     }
@@ -82,9 +74,9 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
         if(_map.containsKey(e)) {
             return true;
         } else {
-            int i = _map.size();
+            int i = _list.size();
+            _list.add(e);
             _map.put(e, i);
-            _list.add(i, e);
             return false;
         }
     }
@@ -108,20 +100,24 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         final int size = in.readInt();
         final Map<E, Integer> map = new HashMap<E, Integer>(size);
-        final SparseArrayList<E> list = new SparseArrayList<E>();
+        final List<E> list = new ArrayList<E>(size);
         for(int i = 0; i < size; i++) {
             E e = (E) in.readObject();
+            list.add(e);
             map.put(e, i);
-            list.add(i, e);
         }
         this._map = map;
         this._list = list;
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeInt(_map.size());
-        for(E e : _map.keySet()) {
-            out.writeObject(e);
+        final int size = _list.size();
+        out.writeInt(size);
+        if(size > 0) {
+            for(int i = 0; i < size; i++) {
+                E v = _list.get(i);
+                out.writeObject(v);
+            }
         }
     }
 }
