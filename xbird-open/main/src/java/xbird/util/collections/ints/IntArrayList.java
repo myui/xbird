@@ -21,7 +21,6 @@
 package xbird.util.collections.ints;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import xbird.util.lang.ArrayUtils;
 
@@ -126,13 +125,13 @@ public final class IntArrayList implements Serializable {
     }
 
     public int indexOf(int key) {
-        return ArrayUtils.indexOf(data, key);
+        return ArrayUtils.indexOf(data, key, 0, used);
     }
 
     public int size() {
         return used;
     }
-    
+
     public boolean isEmpty() {
         return used == 0;
     }

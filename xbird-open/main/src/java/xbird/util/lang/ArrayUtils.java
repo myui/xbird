@@ -122,6 +122,22 @@ public final class ArrayUtils {
         return INDEX_NOT_FOUND;
     }
 
+    public static int indexOf(final int[] array, final int valueToFind, int startIndex, int endIndex) {
+        if(array == null) {
+            return INDEX_NOT_FOUND;
+        }
+        final int til = Math.min(endIndex, array.length);
+        if(startIndex < 0 || startIndex > til) {
+            throw new IllegalArgumentException("Illegal startIndex: " + startIndex);
+        }
+        for(int i = startIndex; i < til; i++) {
+            if(valueToFind == array[i]) {
+                return i;
+            }
+        }
+        return INDEX_NOT_FOUND;
+    }
+
     public static int indexOf(final byte[] array, final byte valueToFind, int startIndex) {
         if(array == null) {
             return INDEX_NOT_FOUND;
