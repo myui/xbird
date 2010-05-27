@@ -20,8 +20,14 @@
  */
 package xbird.util.collections;
 
-import java.io.*;
-import java.util.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.AbstractSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 
@@ -32,8 +38,9 @@ import java.util.*;
  */
 public final class IndexedSet<E> extends AbstractSet<E> implements Externalizable {
     private static final long serialVersionUID = 8775694634056054599L;
-    
+
     private Map<E, Integer> _map;
+    private SparseArrayList<E> _list;
 
     public IndexedSet() {
         this(256);
@@ -41,10 +48,17 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
 
     public IndexedSet(final int size) {
         this._map = new HashMap<E, Integer>(size);
+        this._list = new SparseArrayList<E>();
     }
-    
+
     public IndexedSet(Map<E, Integer> delegate) {
         this._map = delegate;
+        this._list = new SparseArrayList<E>();
+        for(Map.Entry<E, Integer> e : delegate.entrySet()) {
+            int i = e.getValue();
+            E v = e.getKey();
+            _list.add(i, v);
+        }
     }
 
     public int indexOf(E e) {
@@ -58,6 +72,7 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
         } else {
             final int i = _map.size();
             _map.put(e, i);
+            _list.add(i, e);
             return i;
         }
     }
@@ -67,9 +82,15 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
         if(_map.containsKey(e)) {
             return true;
         } else {
-            _map.put(e, _map.size());
+            int i = _map.size();
+            _map.put(e, i);
+            _list.add(i, e);
             return false;
         }
+    }
+
+    public E get(int index) {
+        return _list.get(index);
     }
 
     public Iterator<E> iterator() {
@@ -83,14 +104,18 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     //--------------------------------------------------
     // Externalizable
 
+    @SuppressWarnings("unchecked")
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         final int size = in.readInt();
-        Map<E, Integer> map = new HashMap<E, Integer>(size);
+        final Map<E, Integer> map = new HashMap<E, Integer>(size);
+        final SparseArrayList<E> list = new SparseArrayList<E>();
         for(int i = 0; i < size; i++) {
             E e = (E) in.readObject();
             map.put(e, i);
+            list.add(i, e);
         }
         this._map = map;
+        this._list = list;
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
