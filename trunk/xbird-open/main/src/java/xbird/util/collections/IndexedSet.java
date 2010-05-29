@@ -59,14 +59,14 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     }
 
     public int addIndexOf(E e) {
-        if(_map.containsKey(e)) {
-            return _map.get(e);
-        } else {
+        final Integer v = _map.get(e);
+        if(v == null) {
             int i = _list.size();
             _list.add(e);
             _map.put(e, i);
             return i;
         }
+        return v.intValue();
     }
 
     @Override
