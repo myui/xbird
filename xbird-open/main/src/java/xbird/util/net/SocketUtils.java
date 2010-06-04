@@ -65,17 +65,22 @@ public final class SocketUtils {
         return openSocket(sockAddr, connectTimeout, POLL_DELAY, maxRetry);
     }
 
+    public static Socket openSocket(SocketAddress sockAddr, int connectTimeout, long pollDelay, int maxRetry)
+            throws IOException {
+        Socket socket = new Socket();
+        return openSocket(socket, sockAddr, connectTimeout, pollDelay, maxRetry);
+    }
+
     /**
      * @param connectTimeout A timeout of zero is interpreted as an infinite timeout.
      * @param pollDelay sleep in mills before retry.
      * @param maxRetry No-retry if the value is 1.
      */
-    public static Socket openSocket(SocketAddress sockAddr, int connectTimeout, long pollDelay, int maxRetry)
+    public static Socket openSocket(Socket socket, SocketAddress sockAddr, int connectTimeout, long pollDelay, int maxRetry)
             throws IOException {
         assert (sockAddr != null);
         assert (pollDelay >= 0) : pollDelay;
         assert (maxRetry > 0) : maxRetry;
-        final Socket socket = new Socket();
         for(int i = 0; i < maxRetry; i++) {
             try {
                 socket.connect(sockAddr, connectTimeout);
