@@ -22,6 +22,7 @@ package xbird.util.net;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -110,4 +111,26 @@ public final class SocketUtils {
         throw new InterruptedIOException("Could not connect to " + sockAddr);
     }
 
+    public static void write(final Socket socket, final byte[] b, final long delay, final int maxRetry)
+            throws IOException {
+        final OutputStream sockout = socket.getOutputStream();
+        for(int i = 0; i < maxRetry; i++) {
+            try {
+                sockout.write(b);
+                sockout.flush();
+                return;
+            } catch (IOException e) {
+                LOG.warn("Failed to write to socket: " + socket.getRemoteSocketAddress() + " #" + i);
+            }
+            if(delay > 0) {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException ie) {
+                    ;
+                }
+            }
+        }
+        throw new InterruptedIOException("Failed to write to socket: "
+                + socket.getRemoteSocketAddress());
+    }
 }
