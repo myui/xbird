@@ -111,16 +111,19 @@ public final class SocketUtils {
         throw new InterruptedIOException("Could not connect to " + sockAddr);
     }
 
-    public static void write(final Socket socket, final byte[] b, final long delay, final int maxRetry)
+    public static boolean write(final Socket socket, final byte[] b, final long delay, final int maxRetry)
             throws IOException {
         final OutputStream sockout = socket.getOutputStream();
         for(int i = 0; i < maxRetry; i++) {
             try {
                 sockout.write(b);
                 sockout.flush();
-                return;
+                return true;
             } catch (IOException e) {
-                LOG.warn("Failed to write to socket: " + socket.getRemoteSocketAddress() + " #" + i);
+                if(LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to write to socket: " + socket.getRemoteSocketAddress() + " #"
+                            + i);
+                }
             }
             if(delay > 0) {
                 try {
@@ -130,7 +133,9 @@ public final class SocketUtils {
                 }
             }
         }
-        throw new InterruptedIOException("Failed to write to socket: "
-                + socket.getRemoteSocketAddress());
+        if(LOG.isWarnEnabled()) {
+            LOG.warn("Failed to write to socket: " + socket.getRemoteSocketAddress());
+        }
+        return false;
     }
 }
