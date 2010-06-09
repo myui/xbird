@@ -26,8 +26,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,8 +54,16 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
         this._list = new ArrayList<E>(size);
     }
 
-    public void ensureCapacity(int minCapacity) {
-        _list.ensureCapacity(minCapacity);
+    @SuppressWarnings("unchecked")
+    public void ensureSize(int expectedSize) {
+        int actualSize = _list.size();
+        if(actualSize < expectedSize) {
+            _list.ensureCapacity(expectedSize);
+            int delta = expectedSize - actualSize;
+            E[] ary = (E[]) new Object[delta];
+            List<E> lst = Arrays.asList(ary);
+            _list.addAll(lst);
+        }
     }
 
     public int indexOf(E e) {
