@@ -28,7 +28,6 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +41,7 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     private static final long serialVersionUID = 8775694634056054599L;
 
     private Map<E, Integer> _map;
-    private List<E> _list;
+    private ArrayList<E> _list;
 
     public IndexedSet() {
         this(256);
@@ -51,6 +50,10 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     public IndexedSet(int size) {
         this._map = new HashMap<E, Integer>(size);
         this._list = new ArrayList<E>(size);
+    }
+
+    public void ensureCapacity(int minCapacity) {
+        _list.ensureCapacity(minCapacity);
     }
 
     public int indexOf(E e) {
@@ -85,6 +88,11 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
         return _list.get(index);
     }
 
+    public void set(int index, E value) {
+        _map.put(value, index);
+        _list.set(index, value);
+    }
+
     public Iterator<E> iterator() {
         return _map.keySet().iterator();
     }
@@ -100,7 +108,7 @@ public final class IndexedSet<E> extends AbstractSet<E> implements Externalizabl
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         final int size = in.readInt();
         final Map<E, Integer> map = new HashMap<E, Integer>(size);
-        final List<E> list = new ArrayList<E>(size);
+        final ArrayList<E> list = new ArrayList<E>(size);
         for(int i = 0; i < size; i++) {
             E e = (E) in.readObject();
             list.add(e);
