@@ -310,6 +310,17 @@ public final class IOUtils {
         out.write(b, 0, len);
     }
 
+    public static void writeBytes(@Nullable final byte[] b, final FastBufferedOutputStream out)
+            throws IOException {
+        if(b == null) {
+            writeInt(-1, out);
+            return;
+        }
+        final int len = b.length;
+        writeInt(len, out);
+        out.write(b, 0, len);
+    }
+
     @Nullable
     public static byte[] readBytes(final ObjectInput in) throws IOException {
         final int len = in.readInt();
@@ -318,6 +329,17 @@ public final class IOUtils {
         }
         final byte[] b = new byte[len];
         in.readFully(b, 0, len);
+        return b;
+    }
+
+    @Nullable
+    public static byte[] readBytes(final FastBufferedInputStream in) throws IOException {
+        final int len = readInt(in);
+        if(len == -1) {
+            return null;
+        }
+        final byte[] b = new byte[len];
+        in.read(b, 0, len);
         return b;
     }
 
