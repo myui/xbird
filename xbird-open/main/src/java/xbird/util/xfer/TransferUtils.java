@@ -105,8 +105,8 @@ public final class TransferUtils {
             FileChannel fc = src.getChannel();
 
             String fileName = file.getName();
-            dos.writeUTF(fileName);
-            dos.writeUTF(writeDirPath);
+            IOUtils.writeString(fileName, dos);
+            IOUtils.writeString(writeDirPath, dos);
             long filelen = fc.size();
             assert (filelen == file.length()) : "File.length '" + file.length()
                     + "' != FileChannel.length '" + filelen + '\'';
