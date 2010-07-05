@@ -79,6 +79,10 @@ public final class HashUtils {
         return result;
     }
 
+    public static int hashCode(final byte[] b) {
+        return hashCode(b, 0, b.length);
+    }
+
     public static int hashCode(final byte[] b, final int offset, final int length) {
         if(b == null) {
             return 0;
