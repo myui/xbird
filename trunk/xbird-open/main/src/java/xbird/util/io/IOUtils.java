@@ -322,7 +322,7 @@ public final class IOUtils {
     }
 
     @Nullable
-    public static byte[] readBytes(final ObjectInput in) throws IOException {
+    public static byte[] readBytes(final DataInput in) throws IOException {
         final int len = in.readInt();
         if(len == -1) {
             return null;
