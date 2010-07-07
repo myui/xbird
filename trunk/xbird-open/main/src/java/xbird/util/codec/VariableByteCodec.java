@@ -20,7 +20,6 @@
  */
 package xbird.util.codec;
 
-import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -152,6 +151,21 @@ public final class VariableByteCodec {
                 break;
             }
             shift += 7;
+        }
+        return x;
+    }
+
+    public static int decodeInt(final InputStream is, int b) throws IOException {
+        int x = 0;
+        int shift = 0;
+
+        while(true) {
+            x |= (b & 0x7F) << shift;
+            if((b & 0x80) != 0x80) {
+                break;
+            }
+            shift += 7;
+            b = is.read();
         }
         return x;
     }
