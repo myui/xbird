@@ -1,0 +1,205 @@
+/*
+ * @(#)$Id$
+ *
+ * Copyright 2006-2008 Makoto YUI
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * Contributors:
+ *     Makoto YUI - initial implementation
+ */
+package xbird.util.datetime;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+/**
+ * 
+ * <DIV lang="en"></DIV>
+ * <DIV lang="ja"></DIV>
+ * 
+ * @author Makoto YUI (yuin405+xbird@gmail.com)
+ * @link http://0xcc.net/ruby-progressbar/
+ */
+@NotThreadSafe
+public class TextLongProgressBar {
+
+    protected final String title;
+
+    protected final long totalSteps;
+    protected long stepCount = 0L;
+
+    protected final long startTime;
+    protected long endTime = -1L;
+
+    protected long refreshTime = 5000;
+    protected long lastShown;
+    protected int lastProgressPercentage = 0;
+    protected int refreshFluctuations = 5;
+
+    /** 
+     * example: 
+     *  title   96% |oooo _ _ _ | Elapsed: 1m 2sec
+     */
+    private String format;
+    private int barWidth = 30;
+    private char barMark = 'o';
+
+    public TextLongProgressBar(String title, long totalSteps, long startTime) {
+        this.title = title;
+        this.totalSteps = totalSteps;
+        this.startTime = startTime;
+        this.lastShown = startTime;
+        final int titleLength = title.length();
+        if(titleLength >= 10) {
+            format = "%-" + (titleLength + 2) + "s %3d%% |%s| Elapsed: %s";
+        } else {
+            format = "%-10s %3d%% |%s| Elapsed: %s";
+        }
+    }
+
+    public TextLongProgressBar(String title, long totalSteps) {
+        this(title, totalSteps, System.currentTimeMillis());
+    }
+
+    public final void setFormat(String frmt) {
+        this.format = frmt;
+    }
+
+    public final void setBarWidth(int width) {
+        this.barWidth = width;
+    }
+
+    public final void setBarMark(char mark) {
+        this.barMark = mark;
+    }
+
+    public final void setRefreshTime(long msec) {
+        this.refreshTime = msec;
+    }
+
+    /**
+     * @param n between 0 and 100
+     */
+    public final void setRefreshFluctations(int n) {
+        if(n > 100 || n < 0) {
+            throw new IllegalArgumentException("Fluctation must be between 0 and 100: " + n);
+        }
+        this.refreshFluctuations = n;
+    }
+
+    public final void inc(long step) {
+        stepCount += step;
+        if(stepCount > totalSteps) {
+            this.stepCount = totalSteps;
+        }
+        showIfNeeded();
+    }
+
+    public final void inc() {
+        stepCount += 1L;
+        showIfNeeded();
+    }
+
+    public final void set(long count) {
+        if(count < 0L || count > totalSteps) {
+            throw new IllegalArgumentException();
+        }
+        this.stepCount = count;
+        showIfNeeded();
+    }
+
+    public final void finish() {
+        if(endTime != -1L) {
+            return; // already finished
+        }
+        this.endTime = System.currentTimeMillis();
+        this.stepCount = totalSteps;
+        show();
+    }
+
+    public final float getProgress() {
+        if(endTime != -1L) {
+            return 1f;
+        }
+        return stepCount / totalSteps;
+    }
+
+    public final int getProgressPercentage() {
+        if(endTime != -1L) {
+            return 100;
+        }
+        return (int) ((stepCount * 100.d) / totalSteps);
+    }
+
+    public final long elapsedTime() {
+        if(endTime != -1L) {
+            return endTime - startTime;
+        } else {
+            return System.currentTimeMillis() - startTime;
+        }
+    }
+
+    public final String getInfo() {
+        String bar = generateBar();
+        String elapsed = formatTime(elapsedTime());
+        return String.format(format, title, getProgressPercentage(), bar, elapsed);
+    }
+
+    private final String generateBar() {
+        final StringBuilder buf = new StringBuilder(barWidth);
+        final int numDots = getProgressPercentage() * barWidth / 100;
+        for(int i = 0; i < numDots; i++) {
+            buf.append(barMark);
+        }
+        final int numSpaces = barWidth - numDots;
+        for(int j = 0; j < numSpaces; j++) {
+            buf.append(' ');
+        }
+        return buf.toString();
+    }
+
+    private void showIfNeeded() {
+        if(isShowNeeded()) {
+            this.lastShown = System.currentTimeMillis();
+            this.lastProgressPercentage = getProgressPercentage();
+            show();
+        }
+    }
+
+    // ------------------------------
+    // user customizable points
+
+    protected String formatTime(long t) {
+        long hour = t / 3600000;
+        t %= 3600000;
+        long min = t / 60000;
+        t %= 60000;
+        long sec = t / 1000;
+        return String.format("%02d:%02d:%02d", hour, min, sec);
+    }
+
+    protected boolean isShowNeeded() {
+        final long elapsed = System.currentTimeMillis() - lastShown;
+        if(elapsed >= refreshTime) {
+            return true;
+        }
+        final int diff = getProgressPercentage() - lastProgressPercentage;
+        if(diff >= refreshFluctuations) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void show() {}
+
+}
