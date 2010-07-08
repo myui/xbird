@@ -54,4 +54,27 @@ public final class MathUtils {
         return (float) Math.sqrt(v);
     }
 
+    public static double mean(final long[] scores) {
+        long total = 0L;
+        for(long s : scores) {
+            total += s;
+        }
+        return total / scores.length;
+    }
+
+    public static double variance(final long[] scores) {
+        final double mean = mean(scores);
+        double variance = 0f;
+        for(long s : scores) {
+            double deviation = s - mean;
+            variance += (deviation * deviation);
+        }
+        return variance / (scores.length - 1);
+    }
+
+    public static double stddev(final long[] scores) {
+        final double v = variance(scores);
+        return Math.sqrt(v);
+    }
+
 }
