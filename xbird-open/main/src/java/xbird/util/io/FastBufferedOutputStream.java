@@ -1,5 +1,5 @@
 /*
- * @(#)$Id: codetemplate_xbird.xml 943 2006-09-13 07:03:37Z yui $
+ * @(#)$Id$
  *
  * Copyright 2006-2008 Makoto YUI
  *
