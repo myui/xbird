@@ -47,6 +47,15 @@ public final class VariableByteCodec {
         return i;
     }
 
+    public static int requiredBytes(int val) {
+        int i = 1;
+        while(val > 0x7F) {
+            val >>= 7;
+            i++;
+        }
+        return i;
+    }
+
     public static byte[] encodeLong(long val) {
         if(val < 0) {
             throw new IllegalArgumentException("Illegal value: " + val);
