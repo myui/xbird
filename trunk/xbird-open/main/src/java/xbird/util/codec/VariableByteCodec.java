@@ -47,7 +47,7 @@ public final class VariableByteCodec {
         return i;
     }
 
-    public static int requiredBytes(int val) {
+    public static int requiredBytes(final int val) {
         int i = 1;
         while(val > 0x7F) {
             val >>= 7;
