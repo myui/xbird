@@ -43,8 +43,12 @@ public final class LZFInputStream extends InputStream {
     }
 
     public LZFInputStream(InputStream in, int buflen) throws IOException {
-        if(readInt(in) != LZFOutputStream.MAGIC) {
-            throw new IOException("Not a LZF Stream");
+        this(in, buflen, false);
+    }
+
+    public LZFInputStream(InputStream in, int buflen, boolean noMagic) throws IOException {
+        if(!noMagic && (readInt(in) != LZFOutputStream.MAGIC)) {
+            throw new IllegalStateException("Not a LZF Stream");
         }
         this._in = in;
     }
