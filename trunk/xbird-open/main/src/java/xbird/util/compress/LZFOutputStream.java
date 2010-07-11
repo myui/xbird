@@ -47,13 +47,19 @@ public final class LZFOutputStream extends OutputStream {
     }
 
     public LZFOutputStream(OutputStream out, int buflen) {
+        this(out, buflen, false);
+    }
+
+    public LZFOutputStream(OutputStream out, int buflen, boolean noMagic) {
         this._out = out;
         this._buflen = buflen;
         this._buffer = new byte[buflen];
-        try {
-            writeInt(MAGIC, out);
-        } catch (IOException e) {
-            throw new IllegalStateException("failed to write a magic field", e);
+        if(!noMagic) {
+            try {
+                writeInt(MAGIC, out);
+            } catch (IOException e) {
+                throw new IllegalStateException("failed to write a magic field", e);
+            }
         }
     }
 
