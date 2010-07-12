@@ -23,6 +23,8 @@ package xbird.util.collections;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -33,32 +35,45 @@ import java.util.Map.Entry;
 public final class ObservableLRUMap<K, V> extends LRUMap<K, V> {
     private static final long serialVersionUID = 8089714061811479021L;
 
-    private final Cleaner<K, V> cleaner;
+    @Nullable
+    private transient Cleaner<K, V> cleaner;
+
+    public ObservableLRUMap(int limit) {
+        super(limit);
+    }
 
     public ObservableLRUMap(int limit, Cleaner<K, V> cleaner) {
         super(limit);
         this.cleaner = cleaner;
     }
 
-    @Override
-    public void clear() {
-        for(Map.Entry<K, V> e : entrySet()) {
-            cleaner.cleanup(e.getKey(), e.getValue());
-        }
-        super.clear();
+    public void setCleaner(Cleaner<K, V> cleaner) {
+        this.cleaner = cleaner;
     }
 
-    public interface Cleaner<K, V> {
-        public void cleanup(K key, V value);
+    @Override
+    public void clear() {
+        if(cleaner != null) {
+            for(Map.Entry<K, V> e : entrySet()) {
+                cleaner.cleanup(e.getKey(), e.getValue());
+            }
+        }
+        super.clear();
     }
 
     @Override
     protected boolean removeEldestEntry(Entry<K, V> eldest) {
         if(size() > maxCapacity) {
-            cleaner.cleanup(eldest.getKey(), eldest.getValue());
+            if(cleaner != null) {
+                cleaner.cleanup(eldest.getKey(), eldest.getValue());
+            }
             return true;
         }
         return false;
+    }
+
+    public interface Cleaner<K, V> {
+        public void cleanup(K key, V value);
     }
 
 }
