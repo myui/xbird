@@ -133,11 +133,17 @@ public final class ContinousInflaterInputStream extends InflaterInputStream {
         }
     }
 
+    /**
+     * Closes this input stream and releases any system resources associated
+     * with the stream.
+     * @exception IOException if an I/O error has occurred
+     */
     @Override
     public void close() throws IOException {
         if(!closed) {
+            inf.end();
+            in.close();
             this.closed = true;
-            super.close();
         }
     }
 }
