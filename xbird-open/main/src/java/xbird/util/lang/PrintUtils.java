@@ -22,6 +22,7 @@ package xbird.util.lang;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.text.DecimalFormat;
 
 import xbird.util.io.FileUtils;
 
@@ -241,5 +242,17 @@ public final class PrintUtils {
             buf.append('\n');
         }
         return buf.toString();
+    }
+
+    public static String formatNumber(final long number) {
+        DecimalFormat f = new DecimalFormat("#,###");
+        return f.format(number);
+    }
+
+    public static String formatNumber(final double number) {
+        DecimalFormat f = new DecimalFormat("#,###.###");
+        //f.setMinimumFractionDigits(0);
+        f.setDecimalSeparatorAlwaysShown(false);
+        return f.format(number);
     }
 }

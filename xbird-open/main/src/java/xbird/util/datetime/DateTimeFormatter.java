@@ -20,6 +20,8 @@
  */
 package xbird.util.datetime;
 
+import xbird.util.lang.PrintUtils;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -87,17 +89,17 @@ public final class DateTimeFormatter {
     }
 
     public static String formatTimeInSec(long mills) {
-        double sec = mills / 1000L;
-        return String.format("%.3f", sec);
+        double sec = mills / 1000d;
+        return PrintUtils.formatNumber(sec);
     }
 
     public static String formatTimeInSec(double mills) {
-        double sec = mills / 1000L;
-        return String.format("%.3f", sec);
+        double sec = mills / 1000d;
+        return PrintUtils.formatNumber(sec);
     }
 
     public static String formatNanoTime(final long t) {
-        final long ms = t / 1000000;
+        final long ms = t / 1000000L;
         return formatTime(ms);
     }
 
