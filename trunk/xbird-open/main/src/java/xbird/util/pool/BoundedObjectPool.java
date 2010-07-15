@@ -34,9 +34,15 @@ public abstract class BoundedObjectPool<V> implements ObjectPool<V> {
     protected final ConcurrentBoundedQueue<V> queue;
 
     public BoundedObjectPool(int initEntries) {
+        this(initEntries, false);
+    }
+
+    public BoundedObjectPool(int initEntries, boolean makeObjects) {
         this.queue = new ConcurrentBoundedQueue<V>(initEntries);
-        for(int i = 0; i < initEntries; i++) {
-            queue.offer(createObject());
+        if(makeObjects) {
+            for(int i = 0; i < initEntries; i++) {
+                queue.offer(createObject());
+            }
         }
     }
 
@@ -47,13 +53,12 @@ public abstract class BoundedObjectPool<V> implements ObjectPool<V> {
         if(pooled != null) {
             return pooled;
         }
-        final V created = createObject();
-        queue.offer(created);
+        V created = createObject();
         return created;
     }
 
-    public void returnObject(V value) {
-        queue.offer(value);
+    public boolean returnObject(V value) {
+        return queue.offer(value);
     }
 
     public void clear() {

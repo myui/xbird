@@ -32,7 +32,7 @@ public interface ObjectPool<V> {
 
     public V borrowObject();
 
-    public void returnObject(V value);
+    public boolean returnObject(V value);
 
     public void clear();
 
