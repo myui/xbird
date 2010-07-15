@@ -31,7 +31,7 @@ import xbird.util.concurrent.collections.NonBlockingStack;
  */
 public abstract class StackObjectPool<V> implements ObjectPool<V> {
 
-    private final NonBlockingStack<V> stack;
+    protected final NonBlockingStack<V> stack;
 
     public StackObjectPool() {
         this(0);
@@ -51,8 +51,7 @@ public abstract class StackObjectPool<V> implements ObjectPool<V> {
         if(pooled != null) {
             return pooled;
         }
-        final V created = createObject();
-        stack.push(created);
+        V created = createObject();
         return created;
     }
 
