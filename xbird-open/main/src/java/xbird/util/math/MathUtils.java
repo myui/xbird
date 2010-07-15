@@ -77,4 +77,52 @@ public final class MathUtils {
         return Math.sqrt(v);
     }
 
+    public static int max(final int[] values) {
+        int max = -1;
+        for(int v : values) {
+            max = Math.max(v, max);
+        }
+        return max;
+    }
+
+    public static long max(final long[] values) {
+        long max = -1L;
+        for(long v : values) {
+            max = Math.max(v, max);
+        }
+        return max;
+    }
+
+    public static int min(final int[] values) {
+        int max = -1;
+        for(int v : values) {
+            max = Math.min(v, max);
+        }
+        return max;
+    }
+
+    public static long min(final long[] values) {
+        long min = -1L;
+        for(long v : values) {
+            min = Math.min(v, min);
+        }
+        return min;
+    }
+
+    public static int sum(final int[] values) {
+        int sum = 0;
+        for(int v : values) {
+            sum += v;
+        }
+        return sum;
+    }
+
+    public static long sum(final long[] values) {
+        long sum = 0L;
+        for(long v : values) {
+            sum += v;
+        }
+        return sum;
+    }
+
 }
