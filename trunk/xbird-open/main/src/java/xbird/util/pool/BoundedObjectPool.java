@@ -31,7 +31,7 @@ import xbird.util.concurrent.collections.ConcurrentBoundedQueue;
  */
 public abstract class BoundedObjectPool<V> implements ObjectPool<V> {
 
-    private final ConcurrentBoundedQueue<V> queue;
+    protected final ConcurrentBoundedQueue<V> queue;
 
     public BoundedObjectPool(int initEntries) {
         this.queue = new ConcurrentBoundedQueue<V>(initEntries);
