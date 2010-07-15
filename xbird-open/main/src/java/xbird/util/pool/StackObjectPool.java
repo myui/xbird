@@ -55,8 +55,9 @@ public abstract class StackObjectPool<V> implements ObjectPool<V> {
         return created;
     }
 
-    public void returnObject(V value) {
+    public boolean returnObject(V value) {
         stack.push(value);
+        return true;
     }
 
     public void clear() {

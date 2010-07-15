@@ -38,11 +38,15 @@ import xbird.util.pool.ObjectPool;
 public final class PooledDbConnection implements Connection {
 
     private final Connection conn;
-    private final ObjectPool<Connection> pool;
+    private final ObjectPool<PooledDbConnection> pool;
 
-    public PooledDbConnection(@Nonnull Connection conn, @Nonnull ObjectPool<Connection> pool) {
+    public PooledDbConnection(@Nonnull Connection conn, @Nonnull ObjectPool<PooledDbConnection> pool) {
         this.conn = conn;
         this.pool = pool;
+    }
+
+    public Connection getDbConnection() {
+        return conn;
     }
 
     /**
@@ -50,7 +54,7 @@ public final class PooledDbConnection implements Connection {
      * @see java.sql.Connection#close()
      */
     public void close() throws SQLException {
-        pool.returnObject(conn);
+        pool.returnObject(this);
     }
 
     /**
