@@ -250,8 +250,11 @@ public final class PrintUtils {
     }
 
     public static String formatNumber(final double number) {
-        DecimalFormat f = new DecimalFormat("#,###.###");
-        //f.setMinimumFractionDigits(0);
+        return formatNumber(number, true);
+    }
+
+    public static String formatNumber(final double number, boolean commaSep) {
+        DecimalFormat f = new DecimalFormat(commaSep ? "#,###.###" : ".###");
         f.setDecimalSeparatorAlwaysShown(false);
         return f.format(number);
     }

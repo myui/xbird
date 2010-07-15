@@ -32,6 +32,9 @@ public final class MathUtils {
     private MathUtils() {}
 
     public static float mean(final int[] scores) {
+        if(scores.length == 0) {
+            return -1f;
+        }
         long total = 0L;
         for(int s : scores) {
             total += s;
@@ -39,7 +42,21 @@ public final class MathUtils {
         return total / scores.length;
     }
 
+    public static double mean(final long[] scores) {
+        if(scores.length == 0) {
+            return -1d;
+        }
+        long total = 0L;
+        for(long s : scores) {
+            total += s;
+        }
+        return total / scores.length;
+    }
+
     public static float variance(final int[] scores) {
+        if(scores.length == 0) {
+            return 0f;
+        }
         final float mean = mean(scores);
         float variance = 0f;
         for(int s : scores) {
@@ -49,20 +66,10 @@ public final class MathUtils {
         return variance / (scores.length - 1);
     }
 
-    public static float stddev(final int[] scores) {
-        final float v = variance(scores);
-        return (float) Math.sqrt(v);
-    }
-
-    public static double mean(final long[] scores) {
-        long total = 0L;
-        for(long s : scores) {
-            total += s;
-        }
-        return total / scores.length;
-    }
-
     public static double variance(final long[] scores) {
+        if(scores.length == 0) {
+            return 0d;
+        }
         final double mean = mean(scores);
         double variance = 0f;
         for(long s : scores) {
@@ -72,7 +79,18 @@ public final class MathUtils {
         return variance / (scores.length - 1);
     }
 
+    public static float stddev(final int[] scores) {
+        if(scores.length == 0) {
+            return 0f;
+        }
+        final float v = variance(scores);
+        return (float) Math.sqrt(v);
+    }
+
     public static double stddev(final long[] scores) {
+        if(scores.length == 0) {
+            return 0f;
+        }
         final double v = variance(scores);
         return Math.sqrt(v);
     }
