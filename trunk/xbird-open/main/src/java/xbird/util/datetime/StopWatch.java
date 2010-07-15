@@ -30,14 +30,24 @@ public final class StopWatch {
     private final String label;
     private long begin = 0;
     private long end = 0;
+    private boolean showInSec = false;
 
     public StopWatch() {
-        this(null);
+        this(null, false);
+    }
+    
+    public StopWatch(String label) {
+        this(label, false);
     }
 
-    public StopWatch(String label) {
+    public StopWatch(String label, boolean showInSec) {
         this.label = label;
+        this.showInSec = showInSec;
         start();
+    }
+
+    public void setShowInSec(boolean showInSec) {
+        this.showInSec = showInSec;
     }
 
     public void start() {
@@ -77,53 +87,11 @@ public final class StopWatch {
             buf.append(label + ": ");
         }
         long t = elapsed();
-        if(t == 0) {
-            buf.append("0ms");
-            return buf.toString();
-        }
-        long hour = t / 3600000;
-        if(hour > 0) {
-            buf.append(hour + "h ");
-            t = t % 3600000;
-        }
-        long min = t / 60000;
-        if(min > 0) {
-            buf.append(min + "m ");
-            t = t % 60000;
-        }
-        long sec = t / 1000;
-        if(sec > 0) {
-            buf.append(sec + "s ");
-            t = t % 1000;
-        }
-        if(t > 0) {
-            buf.append(t + "ms");
-        }
-        return buf.toString();
-    }
-
-    public static String elapsedTime(long t) {
-        if(t == 0) {
-            return "0ms";
-        }
-        final StringBuilder buf = new StringBuilder();
-        long hour = t / 3600000;
-        if(hour > 0) {
-            buf.append(hour + "h ");
-            t = t % 3600000;
-        }
-        long min = t / 60000;
-        if(min > 0) {
-            buf.append(min + "m ");
-            t = t % 60000;
-        }
-        long sec = t / 1000;
-        if(sec > 0) {
-            buf.append(sec + "s ");
-            t = t % 1000;
-        }
-        if(t > 0) {
-            buf.append(t + "ms");
+        if(showInSec) {
+            buf.append(DateTimeFormatter.formatTimeInSec(t));
+            buf.append("sec");
+        } else {
+            buf.append(DateTimeFormatter.formatTime(t));
         }
         return buf.toString();
     }
