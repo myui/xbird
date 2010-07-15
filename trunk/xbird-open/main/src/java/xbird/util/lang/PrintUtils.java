@@ -254,7 +254,7 @@ public final class PrintUtils {
     }
 
     public static String formatNumber(final double number, boolean commaSep) {
-        DecimalFormat f = new DecimalFormat(commaSep ? "#,###.###" : ".###");
+        DecimalFormat f = new DecimalFormat(commaSep ? "#,###.###" : "###.###");
         f.setDecimalSeparatorAlwaysShown(false);
         return f.format(number);
     }
