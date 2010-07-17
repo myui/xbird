@@ -184,8 +184,8 @@ public final class TransferUtils {
             // send file using zero-copy send
             data.writeTo(out);
 
-            if(LOG.isInfoEnabled()) {
-                LOG.info("Sent a file data '" + fileName + "' of " + nbytes + " bytes to "
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Sent a file data '" + fileName + "' of " + nbytes + " bytes to "
                         + dstSockAddr.toString() + " in " + sw.toString());
             }
 
