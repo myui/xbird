@@ -31,6 +31,10 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.Nonnull;
 
@@ -55,6 +59,8 @@ public final class RecievedFileWriter implements TransferRequestListener {
     private final File baseDir;
     private final boolean ackRequired;
 
+    private final ConcurrentMap<String, ReadWriteLock> locks;
+
     public RecievedFileWriter(@Nonnull String baseDirPath, boolean sendAck) {
         this(new File(baseDirPath), sendAck);
     }
@@ -71,6 +77,7 @@ public final class RecievedFileWriter implements TransferRequestListener {
         }
         this.baseDir = baseDir;
         this.ackRequired = sendAck;
+        this.locks = new ConcurrentHashMap<String, ReadWriteLock>(32);
     }
 
     public void handleRequest(@Nonnull final SocketChannel channel, @Nonnull final Socket socket)
@@ -95,12 +102,16 @@ public final class RecievedFileWriter implements TransferRequestListener {
             File dir = FileUtils.resolvePath(baseDir, dirPath);
             file = new File(dir, fname);
         }
+
         final FileOutputStream dst = new FileOutputStream(file, append);
         final long wrote;
+        final String fp = file.getAbsolutePath();
+        final ReadWriteLock filelock = accquireLock(fp, locks);
         try {
             FileChannel fileCh = dst.getChannel();
-            wrote = fileCh.transferFrom(channel, 0, len);
+            wrote = fileCh.transferFrom(channel, 0, len); // REVIEWME really an atomic operation?
         } finally {
+            releaseLock(fp, filelock, locks);
             dst.close();
         }
         if(wrote != len) {
@@ -113,11 +124,29 @@ public final class RecievedFileWriter implements TransferRequestListener {
             dos.writeLong(wrote);
         }
 
-        if(LOG.isInfoEnabled()) {
+        if(LOG.isDebugEnabled()) {
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
-            LOG.info("Received a " + (append ? "part of file '" : "file '")
+            LOG.debug("Received a " + (append ? "part of file '" : "file '")
                     + file.getAbsolutePath() + "' of " + len + " bytes from " + remoteAddr + " in "
                     + sw.toString());
         }
+    }
+
+    private static ReadWriteLock accquireLock(String key, ConcurrentMap<String, ReadWriteLock> locks) {
+        ReadWriteLock lock = locks.get(key);
+        if(lock == null) {
+            lock = new ReentrantReadWriteLock();
+            ReadWriteLock oldlock = locks.putIfAbsent(key, lock);
+            if(oldlock != null) {
+                lock = oldlock;
+            }
+        }
+        lock.writeLock().lock();
+        return lock;
+    }
+
+    private static void releaseLock(String key, ReadWriteLock lock, ConcurrentMap<String, ReadWriteLock> locks) {
+        lock.writeLock().unlock();
+        locks.remove(key, lock);
     }
 }
