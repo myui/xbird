@@ -547,4 +547,20 @@ public final class StringUtils {
         buf.setLength(0);
     }
 
+    public static StringBuilder deleteLastChar(final StringBuilder buf) {
+        int len = buf.length();
+        if(len > 0) {
+            buf.deleteCharAt(len - 1);
+        }
+        return buf;
+    }
+
+    public static StringBuilder replaceLastChar(final StringBuilder buf, final char ch) {
+        int len = buf.length();
+        if(len > 0) {
+            buf.setCharAt(len - 1, ch);
+        }
+        return buf;
+    }
+
 }
