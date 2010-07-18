@@ -44,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.io.IOUtils;
+import xbird.util.nio.NIOUtils;
 
 /**
  * 
@@ -104,24 +105,19 @@ public final class RecievedFileWriter implements TransferRequestListener {
         }
 
         final FileOutputStream dst = new FileOutputStream(file, append);
-        final long wrote;
         final String fp = file.getAbsolutePath();
         final ReadWriteLock filelock = accquireLock(fp, locks);
         try {
             FileChannel fileCh = dst.getChannel();
-            wrote = fileCh.transferFrom(channel, 0, len); // REVIEWME really an atomic operation?
+            NIOUtils.transferFullyFrom(channel, 0, len, fileCh); // REVIEWME really an atomic operation?
         } finally {
             releaseLock(fp, filelock, locks);
             dst.close();
         }
-        if(wrote != len) {
-            throw new IllegalStateException("Received " + len + " bytes, but wrote only " + wrote
-                    + " bytes");
-        }
         if(ackRequired) {
             OutputStream out = socket.getOutputStream();
             DataOutputStream dos = new DataOutputStream(out);
-            dos.writeLong(wrote);
+            dos.writeLong(len);
         }
 
         if(LOG.isDebugEnabled()) {

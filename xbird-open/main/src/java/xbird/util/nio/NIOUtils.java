@@ -192,6 +192,17 @@ public final class NIOUtils {
         }
     }
 
+    public static void transferFullyFrom(final ReadableByteChannel src, final long position, final long count, final FileChannel dst)
+            throws IOException {
+        long pos = position;
+        long remaining = count;
+        while(remaining > 0) {
+            long wrote = dst.transferFrom(src, pos, remaining);
+            pos += wrote;
+            remaining -= wrote;
+        }
+    }
+
     /**
      * Overlapping mapped files cannot be unmapped on windows.
      * The process cannot access the file because another process has locked a portion of the file.
