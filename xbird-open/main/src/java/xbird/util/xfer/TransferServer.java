@@ -56,8 +56,12 @@ public final class TransferServer implements Runnable {
     private final ServerSocketChannel serverChannel;
 
     public TransferServer(@Nonnull int numWorkers, @CheckForNull TransferRequestListener handler) {
+        this(numWorkers, Thread.NORM_PRIORITY, handler);
+    }
+
+    public TransferServer(@Nonnull int numWorkers, int threadPriority, @CheckForNull TransferRequestListener handler) {
         this((numWorkers == 0) ? new DirectExecutorService()
-                : ExecutorFactory.newFixedThreadPool(numWorkers, "XferRequestHandler", true), handler);
+                : ExecutorFactory.newFixedThreadPool(numWorkers, "XferRequestHandler", threadPriority, true), handler);
     }
 
     public TransferServer(@Nonnull ExecutorService execPool, @CheckForNull TransferRequestListener handler) {

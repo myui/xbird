@@ -122,6 +122,12 @@ public final class ExecutorFactory {
         return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName, daemon));
     }
 
+    public static ThreadPoolExecutor newFixedThreadPool(int nThreads, String threadName, int threadPriority, boolean daemon) {
+        NamedThreadFactory factory = new NamedThreadFactory(threadName, daemon);
+        factory.setPriority(threadPriority);
+        return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), factory);
+    }
+
     public static ThreadPoolExecutor newThreadPool(int corePoolSize, int maxPoolSize, String threadName) {
         return new ThreadPoolExecutor(corePoolSize, maxPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(threadName));
     }
