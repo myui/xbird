@@ -31,16 +31,17 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import xbird.util.collections.SoftHashMap;
 import xbird.util.datetime.StopWatch;
 import xbird.util.io.FileUtils;
 import xbird.util.io.IOUtils;
@@ -60,7 +61,8 @@ public final class RecievedFileWriter implements TransferRequestListener {
     private final File baseDir;
     private final boolean ackRequired;
 
-    private final ConcurrentMap<String, ReadWriteLock> locks;
+    @GuardedBy("locks")
+    private final Map<String, ReadWriteLock> locks;
 
     public RecievedFileWriter(@Nonnull String baseDirPath, boolean sendAck) {
         this(new File(baseDirPath), sendAck);
@@ -78,7 +80,7 @@ public final class RecievedFileWriter implements TransferRequestListener {
         }
         this.baseDir = baseDir;
         this.ackRequired = sendAck;
-        this.locks = new ConcurrentHashMap<String, ReadWriteLock>(32);
+        this.locks = new SoftHashMap<String, ReadWriteLock>(32);
     }
 
     public void handleRequest(@Nonnull final SocketChannel channel, @Nonnull final Socket socket)
@@ -111,8 +113,8 @@ public final class RecievedFileWriter implements TransferRequestListener {
             FileChannel fileCh = dst.getChannel();
             NIOUtils.transferFullyFrom(channel, 0, len, fileCh); // REVIEWME really an atomic operation?
         } finally {
-            releaseLock(fp, filelock, locks);
             dst.close();
+            releaseLock(fp, filelock, locks);
         }
         if(ackRequired) {
             OutputStream out = socket.getOutputStream();
@@ -128,21 +130,20 @@ public final class RecievedFileWriter implements TransferRequestListener {
         }
     }
 
-    private static ReadWriteLock accquireLock(String key, ConcurrentMap<String, ReadWriteLock> locks) {
-        ReadWriteLock lock = locks.get(key);
-        if(lock == null) {
-            lock = new ReentrantReadWriteLock();
-            ReadWriteLock oldlock = locks.putIfAbsent(key, lock);
-            if(oldlock != null) {
-                lock = oldlock;
+    private static ReadWriteLock accquireLock(final String key, final Map<String, ReadWriteLock> locks) {
+        ReadWriteLock lock;
+        synchronized(locks) {
+            lock = locks.get(key);
+            if(lock == null) {
+                lock = new ReentrantReadWriteLock();
+                locks.put(key, lock);
             }
         }
         lock.writeLock().lock();
         return lock;
     }
 
-    private static void releaseLock(String key, ReadWriteLock lock, ConcurrentMap<String, ReadWriteLock> locks) {
+    private static void releaseLock(final String key, final ReadWriteLock lock, final Map<String, ReadWriteLock> locks) {
         lock.writeLock().unlock();
-        locks.remove(key, lock);
     }
 }
