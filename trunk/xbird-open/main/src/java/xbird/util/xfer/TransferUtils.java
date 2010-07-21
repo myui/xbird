@@ -71,6 +71,11 @@ public final class TransferUtils {
 
     public static void sendfile(@Nonnull final File file, @Nullable final String writeDirPath, @Nonnull final InetAddress dstAddr, final int dstPort, final boolean append, final boolean sync, @Nonnull final TransferClientHandler handler)
             throws IOException {
+        sendfile(file, 0L, -1L, writeDirPath, dstAddr, dstPort, append, sync, handler);
+    }
+
+    public static void sendfile(@Nonnull final File file, final long fromPos, final long count, @Nullable final String writeDirPath, @Nonnull final InetAddress dstAddr, final int dstPort, final boolean append, final boolean sync, @Nonnull final TransferClientHandler handler)
+            throws IOException {
         if(!file.exists()) {
             throw new IllegalArgumentException(file.getAbsolutePath() + " does not exist");
         }
@@ -113,10 +118,8 @@ public final class TransferUtils {
             String fileName = file.getName();
             IOUtils.writeString(fileName, dos);
             IOUtils.writeString(writeDirPath, dos);
-            long filelen = fc.size();
-            assert (filelen == file.length()) : "File.length '" + file.length()
-                    + "' != FileChannel.length '" + filelen + '\'';
-            dos.writeLong(filelen);
+            long xferBytes = (count == -1L) ? file.length() : count;
+            dos.writeLong(xferBytes);
             dos.writeBoolean(append); // append=false
             dos.writeBoolean(sync);
             if(handler == null) {
@@ -127,17 +130,16 @@ public final class TransferUtils {
             }
 
             // send file using zero-copy send
-            nbytes = fc.transferTo(0, filelen, channel);
+            nbytes = fc.transferTo(fromPos, xferBytes, channel);
             if(LOG.isInfoEnabled()) {
                 LOG.info("Sent a file '" + file.getAbsolutePath() + "' of " + nbytes + " bytes to "
                         + dstSockAddr.toString() + " in " + sw.toString());
             }
 
-            if(sync) {
-                // receive ack in sync mode
+            if(sync) {// receive ack in sync mode
                 long remoteRecieved = din.readLong();
-                if(remoteRecieved != filelen) {
-                    throw new IllegalStateException("Sent " + filelen
+                if(remoteRecieved != xferBytes) {
+                    throw new IllegalStateException("Sent " + xferBytes
                             + " bytes, but remote node received " + remoteRecieved + " bytes");
                 }
             }
