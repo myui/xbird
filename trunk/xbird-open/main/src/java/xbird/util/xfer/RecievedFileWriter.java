@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.apache.commons.logging.Log;
@@ -54,21 +55,19 @@ import xbird.util.nio.NIOUtils;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class RecievedFileWriter implements TransferRequestListener {
+public class RecievedFileWriter implements TransferRequestListener {
     private static final Log LOG = LogFactory.getLog(RecievedFileWriter.class);
 
     @Nonnull
     private final File baseDir;
-    private final boolean ackRequired;
-
     @GuardedBy("locks")
     private final Map<String, ReadWriteLock> locks;
 
-    public RecievedFileWriter(@Nonnull String baseDirPath, boolean sendAck) {
-        this(new File(baseDirPath), sendAck);
+    public RecievedFileWriter(@Nonnull String baseDirPath) {
+        this(new File(baseDirPath));
     }
 
-    public RecievedFileWriter(@Nonnull File baseDir, boolean sendAck) {
+    public RecievedFileWriter(@Nonnull File baseDir) {
         if(!baseDir.exists()) {
             throw new IllegalArgumentException("Directory not found: " + baseDir.getAbsolutePath());
         }
@@ -79,15 +78,14 @@ public final class RecievedFileWriter implements TransferRequestListener {
             throw new IllegalArgumentException(baseDir.getAbsolutePath() + " is not writable");
         }
         this.baseDir = baseDir;
-        this.ackRequired = sendAck;
         this.locks = new SoftHashMap<String, ReadWriteLock>(32);
     }
 
-    public void handleRequest(@Nonnull final SocketChannel channel, @Nonnull final Socket socket)
+    public final void handleRequest(@Nonnull final SocketChannel inChannel, @Nonnull final Socket socket)
             throws IOException {
         final StopWatch sw = new StopWatch();
-        if(!channel.isBlocking()) {
-            channel.configureBlocking(true);
+        if(!inChannel.isBlocking()) {
+            inChannel.configureBlocking(true);
         }
 
         InputStream in = socket.getInputStream();
@@ -97,6 +95,11 @@ public final class RecievedFileWriter implements TransferRequestListener {
         String dirPath = IOUtils.readString(dis);
         long len = dis.readLong();
         boolean append = dis.readBoolean();
+        boolean ackRequired = dis.readBoolean();
+        boolean hasAdditionalHeader = dis.readBoolean();
+        if(hasAdditionalHeader) {
+            readAdditionalHeader(dis, fname, dirPath, len, append, ackRequired);
+        }
 
         final File file;
         if(dirPath == null) {
@@ -106,15 +109,19 @@ public final class RecievedFileWriter implements TransferRequestListener {
             file = new File(dir, fname);
         }
 
+        preFileAppend(file, append);
+
         final FileOutputStream dst = new FileOutputStream(file, append);
         final String fp = file.getAbsolutePath();
         final ReadWriteLock filelock = accquireLock(fp, locks);
+        long startPos = file.length();
         try {
             FileChannel fileCh = dst.getChannel();
-            NIOUtils.transferFullyFrom(channel, 0, len, fileCh); // REVIEWME really an atomic operation?
+            NIOUtils.transferFullyFrom(inChannel, 0, len, fileCh); // REVIEWME really an atomic operation?
         } finally {
             dst.close();
             releaseLock(fp, filelock, locks);
+            postFileAppend(file, startPos, len);
         }
         if(ackRequired) {
             OutputStream out = socket.getOutputStream();
@@ -129,6 +136,15 @@ public final class RecievedFileWriter implements TransferRequestListener {
                     + sw.toString());
         }
     }
+
+    protected void readAdditionalHeader(@Nonnull DataInputStream in, @Nonnull String fname, @Nullable String dirPath, long len, boolean append, boolean sync)
+            throws IOException {}
+
+    protected void preFileAppend(@Nonnull File file, boolean append) throws IOException {}
+
+    protected void postFileAppend(@Nonnull File file, long startPos, long len) throws IOException {}
+
+    protected void postAck(@Nonnull File file, long startPos, long len) throws IOException {}
 
     private static ReadWriteLock accquireLock(final String key, final Map<String, ReadWriteLock> locks) {
         ReadWriteLock lock;

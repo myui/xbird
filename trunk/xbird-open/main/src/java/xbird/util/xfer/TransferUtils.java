@@ -66,6 +66,11 @@ public final class TransferUtils {
 
     public static void sendfile(@Nonnull final File file, @Nullable final String writeDirPath, @Nonnull final InetAddress dstAddr, final int dstPort, final boolean append, final boolean sync)
             throws IOException {
+        sendfile(file, writeDirPath, dstAddr, dstPort, append, sync, null);
+    }
+
+    public static void sendfile(@Nonnull final File file, @Nullable final String writeDirPath, @Nonnull final InetAddress dstAddr, final int dstPort, final boolean append, final boolean sync, @Nonnull final TransferClientHandler handler)
+            throws IOException {
         if(!file.exists()) {
             throw new IllegalArgumentException(file.getAbsolutePath() + " does not exist");
         }
@@ -113,6 +118,13 @@ public final class TransferUtils {
                     + "' != FileChannel.length '" + filelen + '\'';
             dos.writeLong(filelen);
             dos.writeBoolean(append); // append=false
+            dos.writeBoolean(sync);
+            if(handler == null) {
+                dos.writeBoolean(false);
+            } else {
+                dos.writeBoolean(true);
+                handler.writeAdditionalHeader(dos);
+            }
 
             // send file using zero-copy send
             nbytes = fc.transferTo(0, filelen, channel);
@@ -151,6 +163,11 @@ public final class TransferUtils {
 
     public static void send(@Nonnull final FastByteArrayOutputStream data, @Nonnull final String fileName, @Nullable final String writeDirPath, @Nonnull final InetAddress dstAddr, final int dstPort, final boolean append, final boolean sync)
             throws IOException {
+        send(data, fileName, writeDirPath, dstAddr, dstPort, append, sync, null);
+    }
+
+    public static void send(@Nonnull final FastByteArrayOutputStream data, @Nonnull final String fileName, @Nullable final String writeDirPath, @Nonnull final InetAddress dstAddr, final int dstPort, final boolean append, final boolean sync, @Nullable final TransferClientHandler handler)
+            throws IOException {
         final SocketAddress dstSockAddr = new InetSocketAddress(dstAddr, dstPort);
         SocketChannel channel = null;
         Socket socket = null;
@@ -180,6 +197,13 @@ public final class TransferUtils {
             long nbytes = data.size();
             dos.writeLong(nbytes);
             dos.writeBoolean(append);
+            dos.writeBoolean(sync);
+            if(handler == null) {
+                dos.writeBoolean(false);
+            } else {
+                dos.writeBoolean(true);
+                handler.writeAdditionalHeader(dos);
+            }
 
             // send file using zero-copy send
             data.writeTo(out);
