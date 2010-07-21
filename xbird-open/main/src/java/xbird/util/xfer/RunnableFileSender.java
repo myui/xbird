@@ -53,6 +53,9 @@ public final class RunnableFileSender implements Runnable {
     private final boolean append;
     private final boolean sync;
 
+    @Nullable
+    private TransferClientHandler handler = null;
+
     public RunnableFileSender(@Nonnull File file, @Nullable String writeDirPath, @Nonnull InetAddress dstAddr, int dstPort, boolean append, boolean sync) {
         this.file = file;
         this.fileData = null;
@@ -75,17 +78,21 @@ public final class RunnableFileSender implements Runnable {
         this.sync = sync;
     }
 
+    public void setTransferHandler(TransferClientHandler handler) {
+        this.handler = handler;
+    }
+
     public void run() {
         if(file == null) {
             try {
-                TransferUtils.send(fileData, fileName, writeDirPath, dstAddr, dstPort, append, sync);
+                TransferUtils.send(fileData, fileName, writeDirPath, dstAddr, dstPort, append, sync, handler);
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to send file data '" + fileName + "' to "
                         + dstAddr + ':' + dstPort, e);
             }
         } else {
             try {
-                TransferUtils.sendfile(file, dstAddr, dstPort, append, sync);
+                TransferUtils.sendfile(file, null, dstAddr, dstPort, append, sync, handler);
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to send file '" + file.getAbsolutePath()
                         + "' to " + dstAddr + ':' + dstPort, e);
