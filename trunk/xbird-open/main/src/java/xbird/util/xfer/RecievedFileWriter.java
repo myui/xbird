@@ -110,7 +110,6 @@ public class RecievedFileWriter implements TransferRequestListener {
         }
 
         preFileAppend(file, append);
-
         final FileOutputStream dst = new FileOutputStream(file, append);
         final String fp = file.getAbsolutePath();
         final ReadWriteLock filelock = accquireLock(fp, locks);
@@ -127,6 +126,7 @@ public class RecievedFileWriter implements TransferRequestListener {
             OutputStream out = socket.getOutputStream();
             DataOutputStream dos = new DataOutputStream(out);
             dos.writeLong(len);
+            postAck(file, startPos, len);
         }
 
         if(LOG.isDebugEnabled()) {
