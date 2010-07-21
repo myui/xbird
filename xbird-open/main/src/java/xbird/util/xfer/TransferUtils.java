@@ -118,7 +118,7 @@ public final class TransferUtils {
             String fileName = file.getName();
             IOUtils.writeString(fileName, dos);
             IOUtils.writeString(writeDirPath, dos);
-            long xferBytes = (count == -1L) ? file.length() : count;
+            long xferBytes = (count == -1L) ? fc.size() : count;
             dos.writeLong(xferBytes);
             dos.writeBoolean(append); // append=false
             dos.writeBoolean(sync);
@@ -131,9 +131,9 @@ public final class TransferUtils {
 
             // send file using zero-copy send
             nbytes = fc.transferTo(fromPos, xferBytes, channel);
-            if(LOG.isInfoEnabled()) {
-                LOG.info("Sent a file '" + file.getAbsolutePath() + "' of " + nbytes + " bytes to "
-                        + dstSockAddr.toString() + " in " + sw.toString());
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("Sent a file '" + file.getAbsolutePath() + "' of " + nbytes
+                        + " bytes to " + dstSockAddr.toString() + " in " + sw.toString());
             }
 
             if(sync) {// receive ack in sync mode

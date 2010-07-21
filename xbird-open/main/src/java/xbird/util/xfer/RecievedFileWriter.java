@@ -113,12 +113,12 @@ public class RecievedFileWriter implements TransferRequestListener {
         final FileOutputStream dst = new FileOutputStream(file, append);
         final String fp = file.getAbsolutePath();
         final ReadWriteLock filelock = accquireLock(fp, locks);
-        long startPos = file.length();
+        final FileChannel fileCh = dst.getChannel();
+        final long startPos = file.length();
         try {
-            FileChannel fileCh = dst.getChannel();
             NIOUtils.transferFullyFrom(inChannel, 0, len, fileCh); // REVIEWME really an atomic operation?
         } finally {
-            dst.close();
+            IOUtils.closeQuietly(fileCh, dst);
             releaseLock(fp, filelock, locks);
             postFileAppend(file, startPos, len);
         }
