@@ -176,6 +176,23 @@ public final class NetUtils {
         }
     }
 
+    public static String getFQDN(final InetAddress addr) {
+        String hostname = addr.getHostName();
+        if(hostname.indexOf('.') >= 0) {
+            return hostname;
+        }
+        hostname = addr.getCanonicalHostName();
+        if(hostname.indexOf('.') >= 0) {
+            return hostname;
+        }
+        String hostAddr = addr.getHostAddress();
+        try {
+            return InetAddress.getByName(hostAddr).getHostName();
+        } catch (UnknownHostException e) {
+            return hostAddr;
+        }
+    }
+
     public static int getAvailablePort() {
         try {
             ServerSocket s = new ServerSocket(0);
