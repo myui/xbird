@@ -112,7 +112,10 @@ public final class MathUtils {
     }
 
     public static int min(final int[] values) {
-        int max = -1;
+        if(values.length == 0) {
+            return -1;
+        }
+        int max = Integer.MAX_VALUE;
         for(int v : values) {
             max = Math.min(v, max);
         }
@@ -120,7 +123,10 @@ public final class MathUtils {
     }
 
     public static long min(final long[] values) {
-        long min = -1L;
+        if(values.length == 0) {
+            return -1L;
+        }
+        long min = Long.MAX_VALUE;
         for(long v : values) {
             min = Math.min(v, min);
         }
