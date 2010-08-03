@@ -96,9 +96,9 @@ public final class TransferUtils {
             socket.connect(dstSockAddr);
             out = socket.getOutputStream();
         } catch (IOException e) {
+            LOG.error("failed to connect: " + dstSockAddr, e);
             IOUtils.closeQuietly(channel);
             NetUtils.closeQuietly(socket);
-            LOG.error(PrintUtils.prettyPrintStackTrace(e, -1));
             throw e;
         }
 
@@ -180,9 +180,9 @@ public final class TransferUtils {
             socket.connect(dstSockAddr);
             out = socket.getOutputStream();
         } catch (IOException e) {
+            LOG.error("failed to connect: " + dstSockAddr, e);
             IOUtils.closeQuietly(channel);
             NetUtils.closeQuietly(socket);
-            LOG.error(PrintUtils.prettyPrintStackTrace(e, -1));
             throw e;
         }
 
