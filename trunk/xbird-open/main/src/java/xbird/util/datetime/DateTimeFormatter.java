@@ -88,19 +88,19 @@ public final class DateTimeFormatter {
         return buf.length() == 0 ? "0ms" : buf.toString();
     }
 
+    public static String formatNanoTime(final long t) {
+        final long ms = t / 1000000L;
+        return formatTime(ms);
+    }
+
     public static String formatTimeInSec(long mills) {
         double sec = mills / 1000d;
-        return PrintUtils.formatNumber(sec);
+        return PrintUtils.formatNumber(sec, false);
     }
 
     public static String formatTimeInSec(double mills) {
         double sec = mills / 1000d;
-        return PrintUtils.formatNumber(sec);
-    }
-
-    public static String formatNanoTime(final long t) {
-        final long ms = t / 1000000L;
-        return formatTime(ms);
+        return PrintUtils.formatNumber(sec, false);
     }
 
 }
