@@ -27,7 +27,7 @@ import xbird.util.concurrent.cache.algorithm.NbGClockCacheEntry;
 import xbird.util.concurrent.counter.CounterProvider;
 import xbird.util.concurrent.counter.ICounter;
 import xbird.util.concurrent.lang.VolatileArray;
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 
 /**
  * 
