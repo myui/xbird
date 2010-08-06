@@ -14,7 +14,7 @@ package xbird.util.concurrent.lang;
 
 import java.io.Serializable;
 
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 import xbird.util.lang.UnsafeUtils;
 import xbird.util.system.SystemUtils;
 

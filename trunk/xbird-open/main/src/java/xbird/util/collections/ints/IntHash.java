@@ -28,7 +28,7 @@ import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 import xbird.xquery.dm.dtm.PagingProfile;
 
 /**

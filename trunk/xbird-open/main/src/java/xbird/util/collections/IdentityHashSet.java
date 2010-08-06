@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Iterator;
 
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 
 /**
  * 

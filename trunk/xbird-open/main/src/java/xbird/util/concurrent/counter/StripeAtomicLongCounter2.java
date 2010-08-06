@@ -21,7 +21,7 @@
 package xbird.util.concurrent.counter;
 
 import sun.misc.Unsafe;
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 import xbird.util.lang.UnsafeUtils;
 
 /**

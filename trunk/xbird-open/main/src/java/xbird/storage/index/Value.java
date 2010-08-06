@@ -27,8 +27,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
 
+import xbird.util.hashes.HashUtils;
 import xbird.util.io.FastByteArrayInputStream;
-import xbird.util.lang.HashUtils;
 import xbird.util.primitive.Primitives;
 import xbird.util.string.StringUtils;
 
