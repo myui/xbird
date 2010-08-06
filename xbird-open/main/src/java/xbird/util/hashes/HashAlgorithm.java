@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package xbird.util.lang;
+package xbird.util.hashes;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,9 +70,13 @@ public enum HashAlgorithm {
      */
     FNV1A_32_HASH,
     /**
-     * SHA-1 hash
+     * JDK's SHA-1 hash
      */
     SHA1_HASH,
+    /**
+     * SHA-1 hash
+     */
+    FAST_SHA1_HASH,
     /**
      * MD5-based hash algorithm used by ketama.
      */
@@ -144,6 +148,15 @@ public enum HashAlgorithm {
                         | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
                 break;
             }
+            case FAST_SHA1_HASH: {
+                SHA1 sha = new SHA1(true);
+                byte[] b = StringUtils.getBytes(k);
+                sha.update(b);
+                sha.finish();
+                int v = sha.extract4(0);
+                rv = v;
+                break;
+            }
             case MD5_HASH: {
                 final byte[] bKey = computeMD(StringUtils.getBytes(k), "MD5");
                 rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
@@ -208,6 +221,14 @@ public enum HashAlgorithm {
                 final byte[] bKey = computeMD(k, "SHA-1");
                 rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
                         | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
+                break;
+            }
+            case FAST_SHA1_HASH: {
+                SHA1 sha = new SHA1(true);
+                sha.update(k);
+                sha.finish();
+                int v = sha.extract4(0);
+                rv = v;
                 break;
             }
             case MD5_HASH: {

@@ -22,7 +22,7 @@ package xbird.util.struct;
 
 import java.io.Serializable;
 
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 
 /**
  * 

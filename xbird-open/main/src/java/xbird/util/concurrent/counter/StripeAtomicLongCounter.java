@@ -22,7 +22,7 @@ package xbird.util.concurrent.counter;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 
 /**
  * 

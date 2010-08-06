@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 
 import xbird.util.cache.ICacheEntry;
 import xbird.util.cache.ILongCache;
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 
 /**
  * ChainedHash implementation for int to Object hash. <DIV lang="en"></DIV>
