@@ -23,7 +23,7 @@ package xbird.util.concurrent.cache.helpers;
 import java.io.Serializable;
 
 import xbird.util.concurrent.cache.algorithm.GClockCacheEntry;
-import xbird.util.lang.HashUtils;
+import xbird.util.hashes.HashUtils;
 
 /**
  * 
