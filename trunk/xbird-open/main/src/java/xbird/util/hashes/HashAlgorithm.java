@@ -32,9 +32,6 @@ import xbird.util.string.StringUtils;
 
 /**
  * Known hashing algorithms for locating a server for a key.
- * Note that all hash algorithms return 64-bits of hash, but only the lower
- * 32-bits are significant.  This allows a positive 32-bit number to be
- * returned for all cases.
  */
 public enum HashAlgorithm {
 
@@ -62,21 +59,21 @@ public enum HashAlgorithm {
      */
     FNV1A_64_HASH,
     /**
-     * 32-bit FNV1.
+     * 64-bit Jenkins hash
      */
-    FNV1_32_HASH,
+    JENKINS_64_HASH,
     /**
-     * 32-bit FNV1a.
+     * 64-bit Murmur hash.
      */
-    FNV1A_32_HASH,
+    MURMUR_64_HASH,
     /**
      * JDK's SHA-1 hash
      */
     SHA1_HASH,
     /**
-     * SHA-1 hash
+     * Pure-java SHA-1 hash
      */
-    FAST_SHA1_HASH,
+    PURE_SHA1_HASH,
     /**
      * MD5-based hash algorithm used by ketama.
      */
@@ -84,9 +81,6 @@ public enum HashAlgorithm {
 
     private static final long FNV_64_INIT = 0xcbf29ce484222325L;
     private static final long FNV_64_PRIME = 0x100000001b3L;
-
-    private static final long FNV_32_INIT = 2166136261L;
-    private static final long FNV_32_PRIME = 16777619;
 
     /**
      * Compute the hash for the given key.
@@ -106,7 +100,6 @@ public enum HashAlgorithm {
                 break;
             }
             case FNV1_64_HASH: {
-                // Thanks to pierre@demartines.com for the pointer
                 rv = FNV_64_INIT;
                 final int len = k.length();
                 for(int i = 0; i < len; i++) {
@@ -124,22 +117,14 @@ public enum HashAlgorithm {
                 }
                 break;
             }
-            case FNV1_32_HASH: {
-                rv = FNV_32_INIT;
-                final int len = k.length();
-                for(int i = 0; i < len; i++) {
-                    rv *= FNV_32_PRIME;
-                    rv ^= k.charAt(i);
-                }
+            case JENKINS_64_HASH: {
+                byte[] b = StringUtils.getBytes(k);
+                rv = JenkinsHash.hash64(b, 0x00000000deadbeefL);
                 break;
             }
-            case FNV1A_32_HASH: {
-                rv = FNV_32_INIT;
-                final int len = k.length();
-                for(int i = 0; i < len; i++) {
-                    rv ^= k.charAt(i);
-                    rv *= FNV_32_PRIME;
-                }
+            case MURMUR_64_HASH: {
+                byte[] b = StringUtils.getBytes(k);
+                rv = MurmurHash.hash64(b, b.length, 0xdeadbeef);
                 break;
             }
             case SHA1_HASH: {
@@ -148,7 +133,7 @@ public enum HashAlgorithm {
                         | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
                 break;
             }
-            case FAST_SHA1_HASH: {
+            case PURE_SHA1_HASH: {
                 SHA1 sha = new SHA1(true);
                 byte[] b = StringUtils.getBytes(k);
                 sha.update(b);
@@ -166,7 +151,7 @@ public enum HashAlgorithm {
             default:
                 assert false;
         }
-        return rv & 0xffffffffL; /* Truncate to 32-bits */
+        return rv;
     }
 
     public long hash(final byte[] k) {
@@ -199,22 +184,12 @@ public enum HashAlgorithm {
                 }
                 break;
             }
-            case FNV1_32_HASH: {
-                rv = FNV_32_INIT;
-                final int len = k.length;
-                for(int i = 0; i < len; i++) {
-                    rv *= FNV_32_PRIME;
-                    rv ^= k[i];
-                }
+            case JENKINS_64_HASH: {
+                rv = JenkinsHash.hash64(k, 0x00000000deadbeefL);
                 break;
             }
-            case FNV1A_32_HASH: {
-                rv = FNV_32_INIT;
-                final int len = k.length;
-                for(int i = 0; i < len; i++) {
-                    rv ^= k[i];
-                    rv *= FNV_32_PRIME;
-                }
+            case MURMUR_64_HASH: {
+                rv = MurmurHash.hash64(k, k.length, 0xdeadbeef);
                 break;
             }
             case SHA1_HASH: {
@@ -223,7 +198,7 @@ public enum HashAlgorithm {
                         | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
                 break;
             }
-            case FAST_SHA1_HASH: {
+            case PURE_SHA1_HASH: {
                 SHA1 sha = new SHA1(true);
                 sha.update(k);
                 sha.finish();
@@ -240,7 +215,7 @@ public enum HashAlgorithm {
             default:
                 assert false;
         }
-        return rv & 0xffffffffL; /* Truncate to 32-bits */
+        return rv;
     }
 
     /**
