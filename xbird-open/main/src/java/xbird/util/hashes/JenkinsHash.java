@@ -40,6 +40,10 @@ public final class JenkinsHash {
 
     public JenkinsHash() {}
 
+    public static int hash32(final byte[] key, final int initval) {
+        return hash32(key, key.length, initval);
+    }
+
     /**
      * taken from  hashlittle() -- hash a variable-length key into a 32-bit value
      *
