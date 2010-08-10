@@ -332,4 +332,36 @@ public enum HashAlgorithm {
         return md;
     }
 
+    public static HashAlgorithm resolve(final String name) {
+        if("sha-1".equalsIgnoreCase(name) || "sha1".equalsIgnoreCase(name)) {
+            return HashAlgorithm.SHA1_HASH;
+        } else if("jenkins32".equalsIgnoreCase(name)) {
+            return HashAlgorithm.JENKINS_32_HASH;
+        } else if("jenkins64".equalsIgnoreCase(name)) {
+            return HashAlgorithm.JENKINS_64_HASH;
+        } else if("murmur32".equalsIgnoreCase(name)) {
+            return HashAlgorithm.MURMUR_32_HASH;
+        } else if("murmur64".equalsIgnoreCase(name)) {
+            return HashAlgorithm.MURMUR_64_HASH;
+        } else if("md5".equalsIgnoreCase(name)) {
+            return HashAlgorithm.MD5_HASH;
+        } else if("native".equalsIgnoreCase(name)) {
+            return HashAlgorithm.NATIVE_HASH;
+        } else if("crc32".equalsIgnoreCase(name)) {
+            return HashAlgorithm.CRC32_HASH;
+        } else if("fnv1_32".equalsIgnoreCase(name)) {
+            return HashAlgorithm.FNV1_32_HASH;
+        } else if("fnv1a_32".equalsIgnoreCase(name)) {
+            return HashAlgorithm.FNV1A_32_HASH;
+        } else if("fnv1_64".equalsIgnoreCase(name)) {
+            return HashAlgorithm.FNV1_64_HASH;
+        } else if("fnv1a_64".equalsIgnoreCase(name)) {
+            return HashAlgorithm.FNV1A_64_HASH;
+        } else if("pure-sha-1".equalsIgnoreCase(name) || "pure-sha1".equalsIgnoreCase(name)) {
+            return HashAlgorithm.PURE_SHA1_HASH;
+        } else {
+            throw new IllegalArgumentException("Unsupported Hash Algrorithm: " + name);
+        }
+    }
+
 }
