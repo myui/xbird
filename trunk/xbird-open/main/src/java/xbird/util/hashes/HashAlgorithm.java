@@ -28,6 +28,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 
+import javax.annotation.Nullable;
+
 import xbird.util.string.StringUtils;
 
 /**
@@ -46,6 +48,14 @@ public enum HashAlgorithm {
      */
     CRC32_HASH,
     /**
+    * 32-bit FNV1.
+    */
+    FNV1_32_HASH,
+    /**
+     * 32-bit FNV1a.
+     */
+    FNV1A_32_HASH,
+    /**
      * FNV hashes are designed to be fast while maintaining a low collision
      * rate. The FNV speed allows one to quickly hash lots of data while
      * maintaining a reasonable collision rate.
@@ -59,9 +69,17 @@ public enum HashAlgorithm {
      */
     FNV1A_64_HASH,
     /**
+     * 32-bit Jenkins hash
+     */
+    JENKINS_32_HASH,
+    /**
      * 64-bit Jenkins hash
      */
     JENKINS_64_HASH,
+    /**
+     * 32-bit Murmur hash.
+     */
+    MURMUR_32_HASH,
     /**
      * 64-bit Murmur hash.
      */
@@ -69,7 +87,7 @@ public enum HashAlgorithm {
     /**
      * JDK's SHA-1 hash
      */
-    SHA1_HASH,
+    SHA1_HASH("SHA-1"),
     /**
      * Pure-java SHA-1 hash
      */
@@ -77,10 +95,32 @@ public enum HashAlgorithm {
     /**
      * MD5-based hash algorithm used by ketama.
      */
-    MD5_HASH;
+    MD5_HASH("MD5");
 
     private static final long FNV_64_INIT = 0xcbf29ce484222325L;
     private static final long FNV_64_PRIME = 0x100000001b3L;
+
+    private static final long FNV_32_INIT = 2166136261L;
+    private static final long FNV_32_PRIME = 16777619;
+
+    private final String algorithmName;
+    private final MessageDigest digest;
+    private final boolean digestCloneable;
+
+    private HashAlgorithm() {
+        this(null);
+    }
+
+    private HashAlgorithm(@Nullable String digestAlgorithm) {
+        this.algorithmName = digestAlgorithm;
+        if(digestAlgorithm != null) {
+            digest = newDigest(digestAlgorithm);
+            digestCloneable = (digest instanceof Cloneable);
+        } else {
+            digest = null;
+            digestCloneable = false;
+        }
+    }
 
     /**
      * Compute the hash for the given key.
@@ -88,6 +128,13 @@ public enum HashAlgorithm {
      * @return a positive integer hash
      */
     public long hash(final String k) {
+        if(digest != null) {
+            final byte[] b = StringUtils.getBytes(k);
+            final byte[] di = computeMD(digest, b, algorithmName, digestCloneable);
+            long rv = ((long) (di[3] & 0xFF) << 24) | ((long) (di[2] & 0xFF) << 16)
+                    | ((long) (di[1] & 0xFF) << 8) | (di[0] & 0xFF);
+            return rv;
+        }
         long rv = 0;
         switch(this) {
             case NATIVE_HASH:
@@ -99,6 +146,24 @@ public enum HashAlgorithm {
                 rv = (crc32.getValue() >> 16) & 0x7fff;
                 break;
             }
+            case FNV1_32_HASH: {
+                rv = FNV_32_INIT;
+                final int len = k.length();
+                for(int i = 0; i < len; i++) {
+                    rv *= FNV_32_PRIME;
+                    rv ^= k.charAt(i);
+                }
+                break;
+            }
+            case FNV1A_32_HASH: {
+                rv = FNV_32_INIT;
+                final int len = k.length();
+                for(int i = 0; i < len; i++) {
+                    rv ^= k.charAt(i);
+                    rv *= FNV_32_PRIME;
+                }
+                break;
+            }
             case FNV1_64_HASH: {
                 rv = FNV_64_INIT;
                 final int len = k.length();
@@ -117,20 +182,24 @@ public enum HashAlgorithm {
                 }
                 break;
             }
+            case JENKINS_32_HASH: {
+                byte[] b = StringUtils.getBytes(k);
+                rv = JenkinsHash.hash32(b, 0xdeadbeef);
+                break;
+            }
             case JENKINS_64_HASH: {
                 byte[] b = StringUtils.getBytes(k);
                 rv = JenkinsHash.hash64(b, 0x00000000deadbeefL);
                 break;
             }
+            case MURMUR_32_HASH: {
+                byte[] b = StringUtils.getBytes(k);
+                rv = MurmurHash.hash32(b, b.length, 0xdeadbeef);
+                break;
+            }
             case MURMUR_64_HASH: {
                 byte[] b = StringUtils.getBytes(k);
                 rv = MurmurHash.hash64(b, b.length, 0xdeadbeef);
-                break;
-            }
-            case SHA1_HASH: {
-                final byte[] bKey = computeMD(StringUtils.getBytes(k), "SHA-1");
-                rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
-                        | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
                 break;
             }
             case PURE_SHA1_HASH: {
@@ -142,19 +211,19 @@ public enum HashAlgorithm {
                 rv = v;
                 break;
             }
-            case MD5_HASH: {
-                final byte[] bKey = computeMD(StringUtils.getBytes(k), "MD5");
-                rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
-                        | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
-                break;
-            }
             default:
-                assert false;
+                throw new IllegalStateException("Unexpected algorithm: " + this);
         }
-        return rv;
+        return rv & 0xffffffffL; /* Truncate to 32-bits */
     }
 
     public long hash(final byte[] k) {
+        if(digest != null) {
+            final byte[] di = computeMD(digest, k, algorithmName, digestCloneable);
+            long rv = ((long) (di[3] & 0xFF) << 24) | ((long) (di[2] & 0xFF) << 16)
+                    | ((long) (di[1] & 0xFF) << 8) | (di[0] & 0xFF);
+            return rv;
+        }
         long rv = 0;
         switch(this) {
             case NATIVE_HASH:
@@ -164,6 +233,24 @@ public enum HashAlgorithm {
                 final CRC32 crc32 = new CRC32();
                 crc32.update(k);
                 rv = (crc32.getValue() >> 16) & 0x7fff;
+                break;
+            }
+            case FNV1_32_HASH: {
+                rv = FNV_32_INIT;
+                final int len = k.length;
+                for(int i = 0; i < len; i++) {
+                    rv *= FNV_32_PRIME;
+                    rv ^= k[i];
+                }
+                break;
+            }
+            case FNV1A_32_HASH: {
+                rv = FNV_32_INIT;
+                final int len = k.length;
+                for(int i = 0; i < len; i++) {
+                    rv ^= k[i];
+                    rv *= FNV_32_PRIME;
+                }
                 break;
             }
             case FNV1_64_HASH: {
@@ -184,18 +271,20 @@ public enum HashAlgorithm {
                 }
                 break;
             }
+            case JENKINS_32_HASH: {
+                rv = JenkinsHash.hash32(k, 0xdeadbeef);
+                break;
+            }
             case JENKINS_64_HASH: {
                 rv = JenkinsHash.hash64(k, 0x00000000deadbeefL);
                 break;
             }
-            case MURMUR_64_HASH: {
-                rv = MurmurHash.hash64(k, k.length, 0xdeadbeef);
+            case MURMUR_32_HASH: {
+                rv = MurmurHash.hash32(k, k.length, 0xdeadbeef);
                 break;
             }
-            case SHA1_HASH: {
-                final byte[] bKey = computeMD(k, "SHA-1");
-                rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
-                        | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
+            case MURMUR_64_HASH: {
+                rv = MurmurHash.hash64(k, k.length, 0xdeadbeef);
                 break;
             }
             case PURE_SHA1_HASH: {
@@ -206,31 +295,41 @@ public enum HashAlgorithm {
                 rv = v;
                 break;
             }
-            case MD5_HASH: {
-                final byte[] bKey = computeMD(k, "MD5");
-                rv = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
-                        | ((long) (bKey[1] & 0xFF) << 8) | (bKey[0] & 0xFF);
-                break;
-            }
             default:
-                assert false;
+                throw new IllegalStateException("Unexpected algorithm: " + this);
         }
-        return rv;
+        return rv & 0xffffffffL; /* Truncate to 32-bits */
     }
 
     /**
      * Get a digest of the given key.
+     * @param digestCloneable 
+     * @param digest 
      */
-    public static byte[] computeMD(final byte[] k, final String algorithm) {
+    private static byte[] computeMD(final MessageDigest digest, final byte[] k, final String algorithm, final boolean digestCloneable) {
+        MessageDigest md = digestCloneable ? newDigest(digest) : newDigest(algorithm);
+        //md.reset();md.update();
+        return md.digest(k);
+    }
+
+    private static MessageDigest newDigest(final MessageDigest digest) {
+        final MessageDigest md;
+        try {
+            md = (MessageDigest) digest.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new UnsupportedOperationException(e);
+        }
+        return md;
+    }
+
+    private static MessageDigest newDigest(final String algorithm) {
         final MessageDigest md;
         try {
             md = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(algorithm + " is not supported.", e);
+            throw new UnsupportedOperationException(algorithm + " is not supported", e);
         }
-        md.reset();
-        md.update(k);
-        return md.digest();
+        return md;
     }
 
 }
