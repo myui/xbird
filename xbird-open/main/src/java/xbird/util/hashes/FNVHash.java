@@ -20,6 +20,8 @@
  */
 package xbird.util.hashes;
 
+import javax.annotation.Nonnegative;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -78,12 +80,16 @@ public final class FNVHash {
         return rv;
     }
 
+    @Nonnegative
     public static int xorFolding(final int hash, final int shift) {
+        if(shift > 31) {
+            throw new IllegalArgumentException("Illegal shift for 32-bits value: " + shift);
+        }
         final int mask = (1 << shift) - 1;
         if(shift < 16) {
             return ((hash >> shift) ^ hash) & mask;
         } else {
-            return (hash >> shift) ^ (hash & mask);
+            return (hash >>> shift) ^ (hash & mask);
         }
     }
 
