@@ -1,6 +1,7 @@
 /**
  * @(#)$Id$
  * 
+ * Copyright (c) 2009-2010 Makoto YUI
  * Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -318,7 +319,7 @@ public enum HashAlgorithm {
             md = (MessageDigest) digest.clone();
         } catch (CloneNotSupportedException e) {
             throw new UnsupportedOperationException(e);
-        }
+        }        
         return md;
     }
 
