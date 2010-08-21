@@ -33,22 +33,22 @@ import junit.framework.TestCase;
 public class FNVHashTest extends TestCase {
     
     public void testXorFolding() {
-        System.out.println(FNVHash.xorFolding(100, 7));
-        System.out.println(FNVHash.xorFolding(127, 7));
-        System.out.println(FNVHash.xorFolding(128, 7));
-        System.out.println(FNVHash.xorFolding(129, 7));
-        System.out.println(FNVHash.xorFolding(256, 7));
-        System.out.println(FNVHash.xorFolding(257, 7));
-        System.out.println(FNVHash.xorFolding(100, 8));
-        System.out.println(FNVHash.xorFolding(256, 8));
-        System.out.println(FNVHash.xorFolding(257, 8));
-        System.out.println(FNVHash.xorFolding(-100, 8));
-        System.out.println(FNVHash.xorFolding(-256, 8));
-        System.out.println(FNVHash.xorFolding(-257, 8));
-        System.out.println(FNVHash.xorFolding(1, 31));
-        System.out.println(FNVHash.xorFolding(-1, 31));
-        System.out.println(FNVHash.xorFolding(Integer.MAX_VALUE, 31));       
-        System.out.println(FNVHash.xorFolding(Integer.MIN_VALUE, 31));
+        System.out.println(HashUtils.positiveXorFolding(100, 7));
+        System.out.println(HashUtils.positiveXorFolding(127, 7));
+        System.out.println(HashUtils.positiveXorFolding(128, 7));
+        System.out.println(HashUtils.positiveXorFolding(129, 7));
+        System.out.println(HashUtils.positiveXorFolding(256, 7));
+        System.out.println(HashUtils.positiveXorFolding(257, 7));
+        System.out.println(HashUtils.positiveXorFolding(100, 8));
+        System.out.println(HashUtils.positiveXorFolding(256, 8));
+        System.out.println(HashUtils.positiveXorFolding(257, 8));
+        System.out.println(HashUtils.positiveXorFolding(-100, 8));
+        System.out.println(HashUtils.positiveXorFolding(-256, 8));
+        System.out.println(HashUtils.positiveXorFolding(-257, 8));
+        System.out.println(HashUtils.positiveXorFolding(1, 31));
+        System.out.println(HashUtils.positiveXorFolding(-1, 31));
+        System.out.println(HashUtils.positiveXorFolding(Integer.MAX_VALUE, 31));       
+        System.out.println(HashUtils.positiveXorFolding(Integer.MIN_VALUE, 31));
     }
 
 }
