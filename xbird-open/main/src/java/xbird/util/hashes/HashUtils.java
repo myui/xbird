@@ -20,6 +20,8 @@
  */
 package xbird.util.hashes;
 
+import javax.annotation.Nonnegative;
+
 /**
  * 
  * <DIV lang="en"></DIV>
@@ -140,6 +142,37 @@ public final class HashUtils {
         h ^= (h >>> 20) ^ (h >>> 12); // Bit spreader, borrowed from Doug Lea
         h ^= (h >>> 7) ^ (h >>> 4);
         return h << 2; // Pad out cache lines.  The goal is to avoid cache-line contention
+    }
+
+    public static final int xorFolding32(final long hash) {
+        return ((int) (hash >>> 32)) ^ ((int) hash);
+    }
+
+    public static long xorFolding32(final long hash, final int shift) {
+        final long mask = (1L << shift) - 1L;
+        return (hash >> shift) ^ (hash & mask);
+    }
+
+    public static long xorFolding(final long hash, final int shift) {
+        final long mask = (1L << shift) - 1L;
+        if(shift < 16) {
+            return ((hash >> shift) ^ hash) & mask;
+        } else {
+            return (hash >> shift) ^ (hash & mask);
+        }
+    }
+
+    @Nonnegative
+    public static int positiveXorFolding(final int hash, final int shift) {
+        if(shift > 31) {
+            throw new IllegalArgumentException("Illegal shift for 32-bits value: " + shift);
+        }
+        final int mask = (1 << shift) - 1;
+        if(shift < 16) {
+            return ((hash >> shift) ^ hash) & mask;
+        } else {
+            return (hash >>> shift) ^ (hash & mask);
+        }
     }
 
 }

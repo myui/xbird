@@ -136,86 +136,81 @@ public enum HashAlgorithm {
                     | ((long) (di[1] & 0xFF) << 8) | (di[0] & 0xFF);
             return rv;
         }
-        long rv = 0;
         switch(this) {
-            case NATIVE_HASH:
-                rv = k.hashCode();
-                break;
+            case NATIVE_HASH: {
+                return k.hashCode();
+            }
             case CRC32_HASH: {
                 final CRC32 crc32 = new CRC32();
                 crc32.update(StringUtils.getBytes(k));
-                rv = (crc32.getValue() >> 16) & 0x7fff;
-                break;
+                long rv = (crc32.getValue() >> 16) & 0x7fff;
+                return rv;
             }
             case FNV1_32_HASH: {
-                rv = FNV_32_INIT;
+                long rv = FNV_32_INIT;
                 final int len = k.length();
                 for(int i = 0; i < len; i++) {
                     rv *= FNV_32_PRIME;
                     rv ^= k.charAt(i);
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case FNV1A_32_HASH: {
-                rv = FNV_32_INIT;
+                long rv = FNV_32_INIT;
                 final int len = k.length();
                 for(int i = 0; i < len; i++) {
                     rv ^= k.charAt(i);
                     rv *= FNV_32_PRIME;
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case FNV1_64_HASH: {
-                rv = FNV_64_INIT;
+                long rv = FNV_64_INIT;
                 final int len = k.length();
                 for(int i = 0; i < len; i++) {
                     rv *= FNV_64_PRIME;
                     rv ^= k.charAt(i);
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case FNV1A_64_HASH: {
-                rv = FNV_64_INIT;
+                long rv = FNV_64_INIT;
                 final int len = k.length();
                 for(int i = 0; i < len; i++) {
                     rv ^= k.charAt(i);
                     rv *= FNV_64_PRIME;
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case JENKINS_32_HASH: {
                 byte[] b = StringUtils.getBytes(k);
-                rv = JenkinsHash.hash32(b, 0xdeadbeef);
-                break;
+                return JenkinsHash.hash32(b, 0xdeadbeef);
             }
             case JENKINS_64_HASH: {
                 byte[] b = StringUtils.getBytes(k);
-                rv = JenkinsHash.hash64(b, 0x00000000deadbeefL);
-                break;
+                long rv = JenkinsHash.hash64(b, 0x00000000deadbeefL);
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case MURMUR_32_HASH: {
                 byte[] b = StringUtils.getBytes(k);
-                rv = MurmurHash.hash32(b, b.length, 0xdeadbeef);
-                break;
+                return MurmurHash.hash32(b, b.length, 0xdeadbeef);
             }
             case MURMUR_64_HASH: {
                 byte[] b = StringUtils.getBytes(k);
-                rv = MurmurHash.hash64(b, b.length, 0xdeadbeef);
-                break;
+                long rv = MurmurHash.hash64(b, b.length, 0xdeadbeef);
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case PURE_SHA1_HASH: {
                 SHA1 sha = new SHA1(true);
                 byte[] b = StringUtils.getBytes(k);
                 sha.update(b);
                 sha.finish();
-                int v = sha.extract4(0);
-                rv = v;
-                break;
+                long v = sha.extract4(0);
+                return v;
             }
             default:
                 throw new IllegalStateException("Unexpected algorithm: " + this);
         }
-        return rv & 0xffffffffL; /* Truncate to 32-bits */
     }
 
     public long hash(final byte[] k) {
@@ -225,81 +220,76 @@ public enum HashAlgorithm {
                     | ((long) (di[1] & 0xFF) << 8) | (di[0] & 0xFF);
             return rv;
         }
-        long rv = 0;
         switch(this) {
-            case NATIVE_HASH:
-                rv = Arrays.hashCode(k);
-                break;
+            case NATIVE_HASH: {
+                return Arrays.hashCode(k);
+            }
             case CRC32_HASH: {
                 final CRC32 crc32 = new CRC32();
                 crc32.update(k);
-                rv = (crc32.getValue() >> 16) & 0x7fff;
-                break;
+                long rv = (crc32.getValue() >> 16) & 0x7fff;
+                return rv;
             }
             case FNV1_32_HASH: {
-                rv = FNV_32_INIT;
+                long rv = FNV_32_INIT;
                 final int len = k.length;
                 for(int i = 0; i < len; i++) {
                     rv *= FNV_32_PRIME;
                     rv ^= k[i];
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case FNV1A_32_HASH: {
-                rv = FNV_32_INIT;
+                long rv = FNV_32_INIT;
                 final int len = k.length;
                 for(int i = 0; i < len; i++) {
                     rv ^= k[i];
                     rv *= FNV_32_PRIME;
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case FNV1_64_HASH: {
-                rv = FNV_64_INIT;
+                long rv = FNV_64_INIT;
                 final int len = k.length;
                 for(int i = 0; i < len; i++) {
                     rv *= FNV_64_PRIME;
                     rv ^= k[i];
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case FNV1A_64_HASH: {
-                rv = FNV_64_INIT;
+                long rv = FNV_64_INIT;
                 final int len = k.length;
                 for(int i = 0; i < len; i++) {
                     rv ^= k[i];
                     rv *= FNV_64_PRIME;
                 }
-                break;
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case JENKINS_32_HASH: {
-                rv = JenkinsHash.hash32(k, 0xdeadbeef);
-                break;
+                return JenkinsHash.hash32(k, 0xdeadbeef);
             }
             case JENKINS_64_HASH: {
-                rv = JenkinsHash.hash64(k, 0x00000000deadbeefL);
-                break;
+                long rv = JenkinsHash.hash64(k, 0x00000000deadbeefL);
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case MURMUR_32_HASH: {
-                rv = MurmurHash.hash32(k, k.length, 0xdeadbeef);
-                break;
+                return MurmurHash.hash32(k, k.length, 0xdeadbeef);
             }
             case MURMUR_64_HASH: {
-                rv = MurmurHash.hash64(k, k.length, 0xdeadbeef);
-                break;
+                long rv = MurmurHash.hash64(k, k.length, 0xdeadbeef);
+                return rv & 0xffffffffL; /* Truncate to 32-bits */
             }
             case PURE_SHA1_HASH: {
                 SHA1 sha = new SHA1(true);
                 sha.update(k);
                 sha.finish();
-                int v = sha.extract4(0);
-                rv = v;
-                break;
+                long rv = sha.extract4(0);
+                return rv;
             }
             default:
                 throw new IllegalStateException("Unexpected algorithm: " + this);
         }
-        return rv & 0xffffffffL; /* Truncate to 32-bits */
     }
 
     /**
@@ -319,7 +309,7 @@ public enum HashAlgorithm {
             md = (MessageDigest) digest.clone();
         } catch (CloneNotSupportedException e) {
             throw new UnsupportedOperationException(e);
-        }        
+        }
         return md;
     }
 

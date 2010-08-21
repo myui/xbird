@@ -8,3 +8,24 @@ System.out.println(url.substring(0, url.lastIndexOf('/') + 1));
 Object[] ary = new Object[3];
 java.util.List lst = java.util.Arrays.asList(ary);
 System.out.println(lst.size());
+
+System.out.println(Integer.MAX_VALUE);
+long i = ((long) Integer.MAX_VALUE) + 1L;
+System.out.println((int) i);
+
+System.out.println(Integer.MIN_VALUE);
+long i2 = ((long) Integer.MIN_VALUE) - 1L;
+System.out.println((int) i2);
+
+System.out.println(Long.MAX_VALUE);
+System.out.println((int) Long.MAX_VALUE);
+
+System.out.println(Long.MIN_VALUE);
+System.out.println((int) Long.MIN_VALUE);
+
+System.out.println((1L << 32) - 1L);
+System.out.println((int) ((1L << 32) - 1L));
+
+System.out.println(xbird.util.string.StringUtils.toBitString(1L << 32));
+System.out.println(xbird.util.string.StringUtils.toBitString((1L << 32) - 1L));
+System.out.println(xbird.util.string.StringUtils.toBitString((int) ((1L << 32) - 1L)));
