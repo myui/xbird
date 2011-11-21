@@ -32,14 +32,14 @@ import javax.annotation.Nonnull;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public class SimpleCvsReader implements CvsReader {
+public class SimpleCsvReader implements CvsReader {
 
     private final PushbackReader reader;
     protected final char filedSeparator;
     protected final char quoteChar;
     private final StringBuilder lineBuf;
 
-    public SimpleCvsReader(@Nonnull PushbackReader reader, char filedSeparator, char quoteChar) {
+    public SimpleCsvReader(@Nonnull PushbackReader reader, char filedSeparator, char quoteChar) {
         this.reader = reader;
         this.filedSeparator = filedSeparator;
         this.quoteChar = quoteChar;
