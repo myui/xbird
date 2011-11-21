@@ -34,13 +34,13 @@ import xbird.util.collections.FixedArrayList;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class AdvCvsReader extends SimpleCvsReader {
+public final class CsvExtractingReader extends SimpleCvsReader {
 
     private final int[] fieldIndicies;
     private final String[] fields;
     private final FixedArrayList<String> fieldsProbe;
 
-    public AdvCvsReader(@Nonnull PushbackReader reader, @Nonnull int[] fieldIndicies, char filedSeparator, char quoteChar) {
+    public CsvExtractingReader(@Nonnull PushbackReader reader, @Nonnull int[] fieldIndicies, char filedSeparator, char quoteChar) {
         super(reader, filedSeparator, quoteChar);
         final int length = fieldIndicies.length;
         if(length == 0) {
