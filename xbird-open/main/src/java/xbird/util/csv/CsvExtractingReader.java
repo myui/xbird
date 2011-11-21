@@ -34,7 +34,7 @@ import xbird.util.collections.FixedArrayList;
  * 
  * @author Makoto YUI (yuin405+xbird@gmail.com)
  */
-public final class CsvExtractingReader extends SimpleCvsReader {
+public final class CsvExtractingReader extends SimpleCsvReader {
 
     private final int[] fieldIndicies;
     private final String[] fields;
